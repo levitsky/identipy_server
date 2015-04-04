@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'server',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -52,7 +53,10 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'identipy_server.urls'
 
-TEMPLATES = [
+TEMPLATE_DIRS = (
+                    os.path.join(os.path.dirname(__file__), '../templates'),
+)
+'''TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
@@ -67,7 +71,7 @@ TEMPLATES = [
         },
     },
 ]
-
+'''
 WSGI_APPLICATION = 'identipy_server.wsgi.application'
 
 
