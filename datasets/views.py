@@ -25,7 +25,7 @@ def dataset_index(request):
 
     # Render list page with the documents and the form
     return render_to_response(
-        'base/base.html',
+        'index.html',
         {'documents': documents, 'form': form},
         context_instance=RequestContext(request)
     )
