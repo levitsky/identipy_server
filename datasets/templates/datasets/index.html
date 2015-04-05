@@ -4,13 +4,22 @@
 		<!-- List of uploaded documents -->
         <div id="index">
 		{% if documents %}
-			<ul id="document_list">
+			<table id="document_list">
+                <tr id="headings">
+                    <th>Название</th>
+                    <th>Размер</th>
+                    <th>Дата добавления</th>
+                </tr>
 			{% for doc in documents %}
-            <li><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a> ({{ doc.docfile.size | filesizeformat }}) <a class="delete" href="{% url 'datasets:delete' doc.id %}">(Удалить?)</a></li>
+            <tr>
+                <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                <td>{{ doc.docfile.size | filesizeformat }}</td>
+                <td>{{ doc.date_added }}</td>
+            </tr>
 			{% endfor %}
-			</ul>
+			</table>
 		{% else %}
-			<p>No documents.</p>
+			<p>Нет загруженных данных.</p>
 		{% endif %}
         </div>
         <div id="upload">
