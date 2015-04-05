@@ -28,7 +28,8 @@ def index(request):
 
 def details(request, pK):
     doc = get_object_or_404(Document, id=pK)
-    return HttpResponse(doc.docfile.name)
+    return render(request, 'datasets/details.html',
+            {'document': doc})
 
 def delete(request, pK):
     doc = get_object_or_404(Document, id=pK)
