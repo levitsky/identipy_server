@@ -1,3 +1,2 @@
-- add base.html
-- add DataSet model
-- add file upload (template, view)
+- add login page, redirect to dataset index;
+- add user field for datasets, display only personal datasets
