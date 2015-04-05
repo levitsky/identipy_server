@@ -26,3 +26,6 @@ class Document(models.Model):
     def delete(self):
         super(Document, self).delete()
         default_storage.delete(self.docfile.name)
+
+    def name(self):
+        return os.path.split(self.docfile.name)[-1]
