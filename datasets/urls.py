@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.dataset_index, name='upload'),
+    url(r'^$', views.index, name='index'),
 ]
