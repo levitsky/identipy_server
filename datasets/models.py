@@ -4,9 +4,9 @@ from django.core.files.storage import default_storage
 import os
 
 
-def my_upload_function(instance, filename):
+def upload_to(instance, filename):
     allowed_extensions = {'.raw', '.baf', '.yep', '.mgf', '.mzml', '.mzxml', '.fasta'}
-    fext = os.path.splitext(filename)[-1]
+    fext = os.path.splitext(filename)[-1].lower()
     if fext in allowed_extensions:
         upfolder = fext[1:]
     else:
@@ -15,10 +15,11 @@ def my_upload_function(instance, filename):
 
 
 class Document(models.Model):
-    docfile = models.FileField(upload_to=my_upload_function)
+    docfile = models.FileField(upload_to=upload_to)
+    date_added = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return unicode(docfile.name)
+        return unicode(self.docfile.name)
 
     def format(self):
         return os.path.splitext(self.docfile)[-1][1:]

@@ -9,7 +9,7 @@
 		<!-- List of uploaded documents -->
         <div id="index">
 		{% if documents %}
-			<ul>
+			<ul id="document_list">
 			{% for doc in documents %}
             <li><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a> ({{ doc.docfile.size | filesizeformat }}) <a class="delete" href="{% url 'datasets:delete' doc.id %}">(Удалить?)</a></li>
 			{% endfor %}
