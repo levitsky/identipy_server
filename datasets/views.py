@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
-from django.template import RequestContext
-from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 
 from .models import Document
@@ -16,7 +15,7 @@ def index(request):
             newdoc.save()
 
             # Redirect to the document list after POST
-            return HttpResponseRedirect(reverse('datasets.views.index'))
+            return HttpResponseRedirect(reverse('datasets:index'))
     else:
         form = DocumentForm() # A empty, unbound form
 
@@ -26,3 +25,12 @@ def index(request):
     # Render list page with the documents and the form
     return render(request, 'datasets/index.html',
         {'documents': documents, 'form': form})
+
+def details(request, pK):
+    doc = get_object_or_404(Document, id=pK)
+    return HttpResponse(doc.docfile.name)
+
+def delete(request, pK):
+    doc = get_object_or_404(Document, id=pK)
+    doc.delete()
+    return HttpResponseRedirect(reverse('datasets:index'))

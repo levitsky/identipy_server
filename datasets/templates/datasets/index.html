@@ -2,23 +2,24 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Minimal Django File Upload Example</title>
+		<title>Загруженные данные</title>
 	</head>
 
 	<body>
 		<!-- List of uploaded documents -->
+        <div id="index">
 		{% if documents %}
 			<ul>
-			{% for document in documents %}
-				<li><a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a></li>
+			{% for doc in documents %}
+            <li><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.docfile.name }}</a> (<a class="delete" href="{% url 'datasets:delete' doc.id %}">Удалить</a>)</li>
 			{% endfor %}
 			</ul>
 		{% else %}
 			<p>No documents.</p>
 		{% endif %}
-
-		<!-- Upload form. Note enctype attribute! -->
-		<form action="{% url "datasets:index" %}" method="post" enctype="multipart/form-data">
+        </div>
+        <div id="upload">
+		<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
 			{% csrf_token %}
 			<p>{{ form.non_field_errors }}</p>
 			<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
@@ -28,7 +29,7 @@
 			</p>
 			<p><input type="submit" value="Upload" /></p>
 		</form>
-
+        </div>
 	</body>
 
 </html>
