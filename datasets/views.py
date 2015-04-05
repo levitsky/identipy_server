@@ -4,10 +4,10 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from server.models import Document
-from server.forms import DocumentForm
+from .models import Document
+from .forms import DocumentForm
 
-def base(request):
+def dataset_index(request):
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -16,7 +16,7 @@ def base(request):
             newdoc.save()
 
             # Redirect to the document list after POST
-            return HttpResponseRedirect(reverse('server.views.base'))
+            return HttpResponseRedirect(reverse('datasets.views.dataset_index'))
     else:
         form = DocumentForm() # A empty, unbound form
 

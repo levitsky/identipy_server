@@ -15,3 +15,9 @@ def my_upload_function(instance, filename):
 
 class Document(models.Model):
     docfile = models.FileField(upload_to=my_upload_function)
+
+    def __unicode__(self):
+        return docfile
+
+    def format(self):
+        return os.path.splitext(self.docfile)[-1]
