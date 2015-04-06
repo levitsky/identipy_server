@@ -3,6 +3,7 @@
 {% block content %}
 		<!-- List of uploaded documents -->
         <div id="index">
+        Welcome {{ user.username }} (<a href="/logout">logout</a>)
 		{% if documents %}
 			<table id="document_list">
                 <tr id="headings">
