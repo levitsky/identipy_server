@@ -33,3 +33,14 @@ class Document(models.Model):
 
     def name(self):
         return os.path.split(self.docfile.name)[-1]
+
+
+class SearchRun(models.Model):
+    pass
+
+
+class Parameters(models.Model):
+    parfile = models.FileField(upload_to=lambda _, x: 'results/%s/%s.cfg' % (x, x))
+    date_added = models.DateTimeField(auto_now_add=True)
+    resultsid = models.ForeignKey(SearchRun)
+    userid = models.ForeignKey(User)
