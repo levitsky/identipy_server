@@ -9,24 +9,51 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 
 from .models import SpectraFile, RawFile, FastaFile#, Document
-from .forms import DocumentForm, MultFilesForm
+from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm
 import os
 
-def index(request):
-    c = {}
+
+def index(request, c=dict()):
+    print request.method
+    if(request.GET.get('runidentipy')):
+        request.GET = request.GET.copy()
+        request.GET['runidentipy'] = None
+        return identipy_view(request, c = c)
+    elif(request.GET.get('clear')):
+        request.GET = request.GET.copy()
+        request.GET['clear'] = None
+        return index(request, c=dict())
+    elif(request.GET.get('uploadspectra')):
+        request.GET = request.GET.copy()
+        request.GET['uploadspectra'] = None
+        return files_view_spectra(request, c = c)
+    elif(request.GET.get('uploadfasta')):
+        request.GET = request.GET.copy()
+        request.GET['uploadfasta'] = None
+        return files_view_fasta(request, c = c)
     c.update(csrf(request))
     # Handle file upload
     if request.method == 'POST':
-        form = DocumentForm(request.POST, request.FILES)
-        if form.is_valid():
+        # form = DocumentForm(request.POST, request.FILES)
+        spectraform = SpectraForm(request.POST, request.FILES)
+        fastaform = FastaForm(request.POST, request.FILES)
+        rawform = RawForm(request.POST, request.FILES)
+        if fastaform.is_valid():
             # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
-            newdoc = SpectraFile(docfile = request.FILES['docfile'], userid = request.user)
+            newdoc = FastaFile(docfile = request.FILES['fastafile'], userid = request.user)
             newdoc.save()
-
+            # Redirect to the document list after POST
+            return HttpResponseRedirect(reverse('datasets:index'))
+        if spectraform.is_valid():
+            # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
+            newdoc = SpectraFile(docfile = request.FILES['spectrafile'], userid = request.user)
+            newdoc.save()
             # Redirect to the document list after POST
             return HttpResponseRedirect(reverse('datasets:index'))
     else:
-        form = DocumentForm() # A empty, unbound form
+        spectraform = SpectraForm() # A empty, unbound form
+        fastaform = FastaForm()
+        rawform = RawForm()
 
 
     # Load documents for the list page
@@ -34,7 +61,7 @@ def index(request):
     documents = SpectraFile.objects.filter(userid=request.user.id)
 
     # Render list page with the documents and the form
-    c.update({'documents': documents, 'form': form})
+    c.update({'documents': documents, 'spectraform': spectraform, 'fastaform': fastaform, 'rawform': rawform})
     return render(request, 'datasets/index.html', c)
 
 def details(request, pK):
@@ -82,32 +109,50 @@ def secured(request):
     return render_to_response("index.html", c)
 
 
-def files_view(request, usedclass):
-    c = {}
+def files_view(request, usedclass, usedname, labelname=None, c=dict()):
+    c = c
     c.update(csrf(request))
+    documents = usedclass.objects.filter(userid=request.user)
+    cc = []
+    for doc in documents:
+        cc.append((doc.id, doc.name()))
     if request.method == 'POST':
-        cc = [('A', 'AA'), ('B', 'BB'), ('C', 'CC')]
+        # cc = [('A', 'AA'), ('B', 'BB'), ('C', 'CC')]
         # form = MultFilesForm(request.POST, custom_choices=cc, fextention=fextention)
-        form = MultFilesForm(request.POST, custom_choices=cc)
+        # form = MultFilesForm(request.POST, custom_choices=cc)
+        form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if form.is_valid():
-            countries = form.cleaned_data.get('countries')
+            chosenfilesids = [int(x) for x in form.cleaned_data.get('relates_to')]
+            chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
+            c.update({usedname: chosenfiles})
+            return index(request, c)
+            # return render(request, 'datasets/index.html', c)
+            # print chosenfiles
             # do something with your results
     else:
         # documents = Document.objects.filter(userid=request.user, fext=fextention)
         # documents = SpectraFile.objects.filter(userid=request.user)
-        documents = usedclass.objects.filter(userid=request.user)
-        cc = []
-        for doc in documents:
-            cc.append((doc.id, doc.name()))
         # documents = Document.objects.filter(format(fextention))
         # cc = [('d', 'dd'), ('g', 'gg'), ('h', 'hh')]
         # form = MultFilesForm(custom_choices=cc, fextention=fextention)
-        form = MultFilesForm(custom_choices=cc)
+        form = MultFilesForm(custom_choices=cc, labelname=None)
     c.update({'form': form})
     return render_to_response('datasets/choose.html', c,
         context_instance=RequestContext(request))
 
-
-def files_view_spectra(request):
+def files_view_spectra(request, c):
     usedclass = SpectraFile
-    return files_view(request, usedclass)
+    return files_view(request, usedclass, 'chosenspectra', labelname='Choose spectra files', c = c)
+
+def files_view_fasta(request, c):
+    usedclass = FastaFile
+    return files_view(request, usedclass, 'chosenfasta', labelname='Choose fasta file', c = c)
+
+
+def identipy_view(request, c):
+    c = runidentipy(c)
+    return index(request, c)
+
+def runidentipy(c):
+    c['identipymessage'] = 'Identipy was started'
+    return c

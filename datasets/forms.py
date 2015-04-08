@@ -2,11 +2,20 @@
 from django import forms
 
 
-class DocumentForm(forms.Form):
-    docfile = forms.FileField(
-        label='Select a file'
+class SpectraForm(forms.Form):
+    spectrafile = forms.FileField(
+        label='Upload spectra files',
     )
 
+class FastaForm(forms.Form):
+    fastafile = forms.FileField(
+        label='Upload fasta files',
+    )
+
+class RawForm(forms.Form):
+    rawfile = forms.FileField(
+        label='Upload raw files',
+    )
 
 class MultFilesForm(forms.Form):
     # OPTIONS = (
@@ -23,9 +32,8 @@ class MultFilesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         relates_to_queryset = kwargs.pop('custom_choices')
-        # try:
-        #     labelname = 'Choose %s files' % (kwargs.pop('fextention'), )
-        # except:
-        labelname = 'Choose files'
+        labelname = kwargs.pop('labelname', None)
+        if not labelname:
+            labelname = 'Choose files'
         super(MultFilesForm, self).__init__(*args, **kwargs)
         self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
