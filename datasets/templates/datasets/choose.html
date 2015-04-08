@@ -13,38 +13,4 @@
             {% csrf_token %}
             <input type='submit' value='cancel'>
         </form>
-
-
-
-		<!--{% if documents %}-->
-			<!--<table id="document_list">-->
-                <!--<tr id="headings">-->
-                    <!--<th>Название</th>-->
-                    <!--<th>Размер</th>-->
-                    <!--<th>Дата добавления</th>-->
-                <!--</tr>-->
-			<!--{% for doc in documents %}-->
-            <!--<tr>-->
-                <!--<td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>-->
-                <!--<td>{{ doc.docfile.size | filesizeformat }}</td>-->
-                <!--<td>{{ doc.date_added }}</td>-->
-            <!--</tr>-->
-			<!--{% endfor %}-->
-			<!--</table>-->
-		<!--{% else %}-->
-			<!--<p>Нет загруженных данных.</p>-->
-		<!--{% endif %}-->
-        <!--</div>-->
-        <!--<div id="upload">-->
-		<!--<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">-->
-			<!--{% csrf_token %}-->
-			<!--<p>{{ form.non_field_errors }}</p>-->
-			<!--<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>-->
-			<!--<p>-->
-				<!--{{ form.docfile.errors }}-->
-				<!--{{ form.docfile }}-->
-			<!--</p>-->
-			<!--<p><input type="submit" value="Upload" /></p>-->
-		<!--</form>-->
-        <!--</div>-->
 {% endblock %}
