@@ -15,32 +15,74 @@ def upload_to(instance, filename):
     return os.path.join('uploads', upfolder, filename)
 
 
-class Document(models.Model):
-    docfile = models.FileField(upload_to=upload_to)
+class BaseDocument(models.Model):
+    # filepath = models.FileField(upload_to=upload_to)
     date_added = models.DateTimeField(auto_now_add=True)
     userid = models.ForeignKey(User)
-    # userid = models.BigIntegerField(None)
-
-    def __unicode__(self):
-        return unicode(self.docfile.name)
-
-    def format(self):
-        return os.path.splitext(self.docfile)[-1][1:]
-
-    def delete(self):
-        super(Document, self).delete()
-        default_storage.delete(self.docfile.name)
 
     def name(self):
         return os.path.split(self.docfile.name)[-1]
+
+    class Meta:
+        abstract = True
+
+
+def upload_to_basic(folder, filename):
+    return os.path.join('uploads', folder, filename)
+
+
+def upload_to_spectra(instance, filename):
+    return upload_to_basic('spectra', filename)
+
+
+def upload_to_fasta(instance, filename):
+    return upload_to_basic('fasta', filename)
+
+
+def upload_to_raw(instance, filename):
+    return upload_to_basic('raw', filename)
+
+
+class SpectraFile(BaseDocument):
+    docfile = models.FileField(upload_to=upload_to_spectra)
+
+
+class FastaFile(BaseDocument):
+    docfile = models.FileField(upload_to=upload_to_fasta)
+
+
+class RawFile(BaseDocument):
+    docfile = models.FileField(upload_to=upload_to_raw)
+
+
+# class Document(models.Model):
+#     docfile = models.FileField(upload_to=upload_to)
+#     date_added = models.DateTimeField(auto_now_add=True)
+#     userid = models.ForeignKey(User)
+#     fext = models.CharField(max_length=10)
+#     # userid = models.BigIntegerField(None)
+#
+#     def __unicode__(self):
+#         return unicode(self.docfile.name)
+#
+#     def delete(self):
+#         super(Document, self).delete()
+#         default_storage.delete(self.docfile.name)
+#
+#     def name(self):
+#         return os.path.split(self.docfile.name)[-1]
 
 
 class SearchRun(models.Model):
     pass
 
 
+def upload_to_params(instance, filename):
+    return os.path.join('results', os.path.splitext(filename)[0], filename)
+
+
 class Parameters(models.Model):
-    parfile = models.FileField(upload_to=lambda _, x: 'results/%s/%s.cfg' % (x, x))
+    parfile = models.FileField(upload_to=upload_to_params)
     date_added = models.DateTimeField(auto_now_add=True)
     resultsid = models.ForeignKey(SearchRun)
     userid = models.ForeignKey(User)
