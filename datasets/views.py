@@ -38,12 +38,14 @@ def index(request):
     return render(request, 'datasets/index.html', c)
 
 def details(request, pK):
-    doc = get_object_or_404(Document, id=pK)
+    # doc = get_object_or_404(Document, id=pK)
+    doc = get_object_or_404(SpectraFile, id=pK)
     return render(request, 'datasets/details.html',
             {'document': doc})
 
 def delete(request, pK):
-    doc = get_object_or_404(Document, id=pK)
+    # doc = get_object_or_404(Document, id=pK)
+    doc = get_object_or_404(SpectraFile, id=pK)
     doc.delete()
     return HttpResponseRedirect(reverse('datasets:index'))
 
