@@ -6,19 +6,21 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.template import RequestContext
 
-from .models import Document
-from .forms import DocumentForm
+from .models import SpectraFile, RawFile, FastaFile#, Document
+from .forms import DocumentForm, MultFilesForm
+import os
 
 def index(request):
     c = {}
     c.update(csrf(request))
-    c['user'] = request.user
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            newdoc = Document(docfile = request.FILES['docfile'], userid = request.user)
+            # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
+            newdoc = SpectraFile(docfile = request.FILES['docfile'], userid = request.user)
             newdoc.save()
 
             # Redirect to the document list after POST
@@ -28,7 +30,8 @@ def index(request):
 
 
     # Load documents for the list page
-    documents = Document.objects.filter(userid=c['user'])
+    # documents = Document.objects.filter(userid=request.user.id)
+    documents = SpectraFile.objects.filter(userid=request.user.id)
 
     # Render list page with the documents and the form
     c.update({'documents': documents, 'form': form})
@@ -75,3 +78,34 @@ def secured(request):
     c['username'] = request.user.username
     c['userid'] = request.user.id
     return render_to_response("index.html", c)
+
+
+def files_view(request, usedclass):
+    c = {}
+    c.update(csrf(request))
+    if request.method == 'POST':
+        cc = [('A', 'AA'), ('B', 'BB'), ('C', 'CC')]
+        # form = MultFilesForm(request.POST, custom_choices=cc, fextention=fextention)
+        form = MultFilesForm(request.POST, custom_choices=cc)
+        if form.is_valid():
+            countries = form.cleaned_data.get('countries')
+            # do something with your results
+    else:
+        # documents = Document.objects.filter(userid=request.user, fext=fextention)
+        # documents = SpectraFile.objects.filter(userid=request.user)
+        documents = usedclass.objects.filter(userid=request.user)
+        cc = []
+        for doc in documents:
+            cc.append((doc.id, doc.name()))
+        # documents = Document.objects.filter(format(fextention))
+        # cc = [('d', 'dd'), ('g', 'gg'), ('h', 'hh')]
+        # form = MultFilesForm(custom_choices=cc, fextention=fextention)
+        form = MultFilesForm(custom_choices=cc)
+    c.update({'form': form})
+    return render_to_response('datasets/choose.html', c,
+        context_instance=RequestContext(request))
+
+
+def files_view_spectra(request):
+    usedclass = SpectraFile
+    return files_view(request, usedclass)
