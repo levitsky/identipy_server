@@ -170,9 +170,37 @@ def identipy_view(request, c):
     return index(request, c)
 
 def runidentipy(c):
+    import sys
+    sys.path.append('../identipy/')
+    from identipy import main, utils
+    from multiprocessing import Process
+
     newrun = SearchRun(runname=c['runname'], userid = c['userid'])
     newrun.save()
-    c['identipymessage'] = 'Identipy was started'
-    print c.keys()
     newrun.add_files(c)
+
+    def runproc(inputfile, settings):
+        utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
+
+    paramfile = newrun.parameters.all()[0].path()
+    # inputfile = newrun.spectra.all()[0].path()
+    fastafile = newrun.fasta.all()[0].path()
+    rn = newrun.runname
+    settings = main.settings(paramfile)
+    settings.set('input', 'database', fastafile.encode('ASCII'))
+    if not os.path.exists('uploads/results'):
+        os.mkdir('uploads/results')
+    # os.mkdir('uploads/results')
+    # os.mkdir('uploads/results/%s' % (rn.encode('ASCII')))
+    if not os.path.exists('uploads/results/%s' % (rn.encode('ASCII'))):
+        os.mkdir('uploads/results/%s' % (rn.encode('ASCII')))
+        settings.set('output', 'path', 'uploads/results/%s' % (rn.encode('ASCII')))
+        for obj in newrun.spectra.all():
+            inputfile = obj.path()
+            p = Process(target=runproc, args=(inputfile, settings))
+            p.start()
+            # p.join()
+        c['identipymessage'] = 'Identipy was started'
+    else:
+        c['identipymessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
     return c
