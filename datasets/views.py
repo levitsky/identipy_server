@@ -8,8 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext
 
-from .models import SpectraFile, RawFile, FastaFile#, Document
-from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm
+from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile#, Document
+from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
 import os
 
 
@@ -18,6 +18,7 @@ def index(request, c=dict()):
     if(request.GET.get('runidentipy')):
         request.GET = request.GET.copy()
         request.GET['runidentipy'] = None
+        c['runname'] = request.GET['runname']
         return identipy_view(request, c = c)
     elif(request.GET.get('clear')):
         request.GET = request.GET.copy()
@@ -31,6 +32,10 @@ def index(request, c=dict()):
         request.GET = request.GET.copy()
         request.GET['uploadfasta'] = None
         return files_view_fasta(request, c = c)
+    elif(request.GET.get('uploadparams')):
+        request.GET = request.GET.copy()
+        request.GET['uploadparams'] = None
+        return files_view_params(request, c = c)
     c.update(csrf(request))
     # Handle file upload
     if request.method == 'POST':
@@ -38,6 +43,7 @@ def index(request, c=dict()):
         spectraform = SpectraForm(request.POST, request.FILES)
         fastaform = FastaForm(request.POST, request.FILES)
         rawform = RawForm(request.POST, request.FILES)
+        paramsform = ParamsForm(request.POST, request.FILES)
         if fastaform.is_valid():
             # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
             newdoc = FastaFile(docfile = request.FILES['fastafile'], userid = request.user)
@@ -50,10 +56,17 @@ def index(request, c=dict()):
             newdoc.save()
             # Redirect to the document list after POST
             return HttpResponseRedirect(reverse('datasets:index'))
+        if paramsform.is_valid():
+            # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
+            newdoc = ParamsFile(docfile = request.FILES['paramsfile'], userid = request.user)
+            newdoc.save()
+            # Redirect to the document list after POST
+            return HttpResponseRedirect(reverse('datasets:index'))
     else:
         spectraform = SpectraForm() # A empty, unbound form
         fastaform = FastaForm()
         rawform = RawForm()
+        paramsform = ParamsForm()
 
 
     # Load documents for the list page
@@ -61,7 +74,7 @@ def index(request, c=dict()):
     documents = SpectraFile.objects.filter(userid=request.user.id)
 
     # Render list page with the documents and the form
-    c.update({'documents': documents, 'spectraform': spectraform, 'fastaform': fastaform, 'rawform': rawform})
+    c.update({'documents': documents, 'spectraform': spectraform, 'fastaform': fastaform, 'rawform': rawform, 'paramsform': paramsform, 'userid': request.user})
     return render(request, 'datasets/index.html', c)
 
 def details(request, pK):
@@ -109,7 +122,7 @@ def secured(request):
     return render_to_response("index.html", c)
 
 
-def files_view(request, usedclass, usedname, labelname=None, c=dict()):
+def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
     documents = usedclass.objects.filter(userid=request.user)
@@ -135,7 +148,7 @@ def files_view(request, usedclass, usedname, labelname=None, c=dict()):
         # documents = Document.objects.filter(format(fextention))
         # cc = [('d', 'dd'), ('g', 'gg'), ('h', 'hh')]
         # form = MultFilesForm(custom_choices=cc, fextention=fextention)
-        form = MultFilesForm(custom_choices=cc, labelname=None)
+        form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
     c.update({'form': form})
     return render_to_response('datasets/choose.html', c,
         context_instance=RequestContext(request))
@@ -148,11 +161,18 @@ def files_view_fasta(request, c):
     usedclass = FastaFile
     return files_view(request, usedclass, 'chosenfasta', labelname='Choose fasta file', c = c)
 
+def files_view_params(request, c):
+    usedclass = ParamsFile
+    return files_view(request, usedclass, 'chosenparams', labelname='Choose parameters file', c = c)
 
 def identipy_view(request, c):
     c = runidentipy(c)
     return index(request, c)
 
 def runidentipy(c):
+    newrun = SearchRun(runname=c['runname'], userid = c['userid'])
+    newrun.save()
     c['identipymessage'] = 'Identipy was started'
+    print c.keys()
+    newrun.add_files(c)
     return c

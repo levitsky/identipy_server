@@ -17,6 +17,12 @@ class RawForm(forms.Form):
         label='Upload raw files',
     )
 
+class ParamsForm(forms.Form):
+    paramsfile = forms.FileField(
+        label='Upload params files',
+    )
+
+
 class MultFilesForm(forms.Form):
     # OPTIONS = (
     #         ("AUT", "Australia"),
@@ -33,7 +39,11 @@ class MultFilesForm(forms.Form):
     def __init__(self, *args, **kwargs):
         relates_to_queryset = kwargs.pop('custom_choices')
         labelname = kwargs.pop('labelname', None)
+        multiform = kwargs.pop('multiform', True)
         if not labelname:
             labelname = 'Choose files'
         super(MultFilesForm, self).__init__(*args, **kwargs)
-        self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
+        if multiform:
+            self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
+        else:
+            self.fields['relates_to'] = forms.ChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.Select, required=False)
