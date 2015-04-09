@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Загруженные данные{% endblock%}
+{% block title %}Uploaded data{% endblock%}
 {% block content %}
 		<!-- List of uploaded documents -->
         <div id="index">
@@ -7,9 +7,9 @@
 		{% if documents %}
 			<table id="document_list">
                 <tr id="headings">
-                    <th>Название</th>
-                    <th>Размер</th>
-                    <th>Дата добавления</th>
+                    <th>Filename</th>
+                    <th>Size</th>
+                    <th>Submit date</th>
                 </tr>
 			{% for doc in documents %}
             <tr>
@@ -20,7 +20,7 @@
 			{% endfor %}
 			</table>
 		{% else %}
-			<p>Нет загруженных данных.</p>
+			<p>There is no uploaded data.</p>
 		{% endif %}
         </div>
 
@@ -29,9 +29,9 @@
 			<table id="spectra_list">
                 Choosen spectra:
                 <tr id="spectraheadings">
-                    <th>Название</th>
-                    <th>Размер</th>
-                    <th>Дата добавления</th>
+                    <th>Filename</th>
+                    <th>Size</th>
+                    <th>Submit date</th>
                 </tr>
 			{% for doc in chosenspectra %}
             <tr>
@@ -42,7 +42,7 @@
 			{% endfor %}
 			</table>
 		{% else %}
-			<p>Нет выбранных спектров.</p>
+			<p>Spectra files are not selected.</p>
 		{% endif %}
         </div>
 
@@ -51,9 +51,9 @@
 			<table id="fasta_list">
                 Choosen fasta:
                 <tr id="fastaheadings">
-                    <th>Название</th>
-                    <th>Размер</th>
-                    <th>Дата добавления</th>
+                    <th>Filename</th>
+                    <th>Size</th>
+                    <th>Submit date</th>
                 </tr>
 			{% for doc in chosenfasta %}
             <tr>
@@ -64,7 +64,7 @@
 			{% endfor %}
 			</table>
 		{% else %}
-			<p>База белков не выбрана.</p>
+			<p>Fasta file is not selected.</p>
 		{% endif %}
         </div>
 
@@ -73,9 +73,9 @@
 			<table id="params_list">
                 Choosen params:
                 <tr id="paramsheadings">
-                    <th>Название</th>
-                    <th>Размер</th>
-                    <th>Дата добавления</th>
+                    <th>Filename</th>
+                    <th>Size</th>
+                    <th>Submit date</th>
                 </tr>
 			{% for doc in chosenparams %}
             <tr>
@@ -86,7 +86,7 @@
 			{% endfor %}
 			</table>
 		{% else %}
-			<p>Params is not selected.</p>
+			<p>Params file is not selected.</p>
 		{% endif %}
         </div>
 
