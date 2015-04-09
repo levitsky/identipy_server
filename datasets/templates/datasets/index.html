@@ -68,6 +68,29 @@
 		{% endif %}
         </div>
 
+        <div id="index_params">
+		{% if chosenparams %}
+			<table id="params_list">
+                Choosen params:
+                <tr id="paramsheadings">
+                    <th>Название</th>
+                    <th>Размер</th>
+                    <th>Дата добавления</th>
+                </tr>
+			{% for doc in chosenparams %}
+            <tr>
+                <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                <td>{{ doc.docfile.size | filesizeformat }}</td>
+                <td>{{ doc.date_added }}</td>
+            </tr>
+			{% endfor %}
+			</table>
+		{% else %}
+			<p>Params is not selected.</p>
+		{% endif %}
+        </div>
+
+
         <div id="upload">
 		<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
 			{% csrf_token %}
@@ -99,6 +122,29 @@
          <input type="submit" class="btn" value="Choose preloaded fasta" name="uploadfasta">
         </form>
         </div>
+
+        <div id="upload_parameters">
+		<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+			{% csrf_token %}
+			<p>{{ paramsform.non_field_errors }}</p>
+			<p>{{ paramsform.paramsfile.label_tag }} {{ paramsform.paramsfile.help_text }}</p>
+			<p>
+				<!--{{ fastaform.spectrafile.errors }}-->
+				{{ paramsform.paramsfile }}
+			</p>
+            <p><input type="submit" value="Upload" /></p>
+		</form>
+        <form action="#" method="get">
+         <input type="submit" class="btn" value="Choose preloaded parameters" name="uploadparams">
+        </form>
+        </div>
+
+        <br>
+        <!--<div id="upload_but">-->
+			<!--{% csrf_token %}-->
+		    <!--<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">-->
+		    <!--</form>-->
+        <!--</div>-->
 
         <br>
         <div id="run_identipy">

@@ -71,18 +71,35 @@ class RawFile(BaseDocument):
 #
 #     def name(self):
 #         return os.path.split(self.docfile.name)[-1]
-
-
-class SearchRun(models.Model):
-    pass
-
-
 def upload_to_params(instance, filename):
     return os.path.join('results', os.path.splitext(filename)[0], filename)
 
 
-class Parameters(models.Model):
-    parfile = models.FileField(upload_to=upload_to_params)
-    date_added = models.DateTimeField(auto_now_add=True)
-    resultsid = models.ForeignKey(SearchRun)
-    userid = models.ForeignKey(User)
+class ParamsFile(BaseDocument):
+    docfile = models.FileField(upload_to=upload_to_params)
+    # date_added = models.DateTimeField(auto_now_add=True)
+    # resultsid = models.ManyToManyField(SearchRun)
+    # userid = models.ForeignKey(User)
+
+class SearchRun(BaseDocument):
+    runname = models.CharField(max_length=80, default='test')
+    spectra = models.ManyToManyField(SpectraFile)
+    fasta = models.ManyToManyField(FastaFile)
+    parameters = models.ManyToManyField(ParamsFile)
+
+    def add_files(self, c):
+        self.add_spectra(c['chosenspectra'])
+        self.add_fasta(c['chosenfasta'])
+        self.add_params(c['chosenparams'])
+
+    def add_spectra(self, spectraobjects):
+        for s in spectraobjects:
+            self.spectra.add(s)
+
+    def add_fasta(self, fastaobjects):
+        for s in fastaobjects:
+            self.fasta.add(s)
+
+    def add_params(self, paramsobjects):
+        for s in paramsobjects:
+            self.parameters.add(s)
