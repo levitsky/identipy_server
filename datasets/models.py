@@ -3,6 +3,7 @@ from django.db import models
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 import os
+from django.conf import settings
 
 
 def upload_to(instance, filename):
@@ -22,6 +23,9 @@ class BaseDocument(models.Model):
 
     def name(self):
         return os.path.split(self.docfile.name)[-1]
+
+    def path(self):
+        return os.path.join(settings.MEDIA_ROOT, self.docfile.name)
 
     class Meta:
         abstract = True
