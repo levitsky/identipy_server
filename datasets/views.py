@@ -183,18 +183,17 @@ def runidentipy(c):
         utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
 
     paramfile = newrun.parameters.all()[0].path()
-    # inputfile = newrun.spectra.all()[0].path()
     fastafile = newrun.fasta.all()[0].path()
     rn = newrun.runname
     settings = main.settings(paramfile)
     settings.set('input', 'database', fastafile.encode('ASCII'))
-    if not os.path.exists('uploads/results'):
-        os.mkdir('uploads/results')
-    # os.mkdir('uploads/results')
-    # os.mkdir('uploads/results/%s' % (rn.encode('ASCII')))
-    if not os.path.exists('uploads/results/%s' % (rn.encode('ASCII'))):
-        os.mkdir('uploads/results/%s' % (rn.encode('ASCII')))
-        settings.set('output', 'path', 'uploads/results/%s' % (rn.encode('ASCII')))
+    if not os.path.exists('results'):
+        os.mkdir('results')
+    if not os.path.exists(os.path.join('results', str(newrun.userid.id))):
+        os.mkdir(os.path.join('results', str(newrun.userid.id)))
+    if not os.path.exists('results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII'))):
+        os.mkdir('results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
+        settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
         for obj in newrun.spectra.all():
             inputfile = obj.path()
             p = Process(target=runproc, args=(inputfile, settings))
