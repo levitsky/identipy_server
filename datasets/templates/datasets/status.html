@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Uploaded data{% endblock%}
+{% block content %}
+		<!-- List of uploaded documents -->
+        <div id="index">
+        Welcome {{ user.username }} (<a href="/logout">logout</a>)
+		{% if processes %}
+			<table id="processes_list">
+                <tr id="headings">
+                    <th>Search name</th>
+                    <th>Search date</th>
+                    <th>Status</th>
+                </tr>
+			{% for doc in processes %}
+            <tr>
+                <td>{{ doc.name }}</td>
+                <td>{{ doc.date_added }}</td>
+                <td>{{ doc.status }}</td>
+            </tr>
+			{% endfor %}
+			</table>
+		{% else %}
+			<p>There is no searches.</p>
+		{% endif %}
+        </div>
+
+        <br>
+        <div id="status_back">
+        <form action="#" method="get">
+         <input type="submit" class="btn" value="Back" name="statusback">
+        </form>
+        </div>
+        </br>
+
+{% endblock %}

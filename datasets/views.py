@@ -20,10 +20,19 @@ def index(request, c=dict()):
         request.GET['runidentipy'] = None
         c['runname'] = request.GET['runname']
         return identipy_view(request, c = c)
+    elif(request.GET.get('statusback')):
+        request.GET = request.GET.copy()
+        request.GET['statusback'] = None
+        c['identipymessage'] = None
+        return index(request, c=dict())
     elif(request.GET.get('clear')):
         request.GET = request.GET.copy()
         request.GET['clear'] = None
         return index(request, c=dict())
+    elif(request.GET.get('getstatus')):
+        request.GET = request.GET.copy()
+        request.GET['getstatus'] = None
+        return status(request, c = c)
     elif(request.GET.get('uploadspectra')):
         request.GET = request.GET.copy()
         request.GET['uploadspectra'] = None
@@ -122,6 +131,13 @@ def secured(request):
     return render_to_response("index.html", c)
 
 
+def status(request, c=dict()):
+    c = c
+    c.update(csrf(request))
+    processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    c.update({'processes': processes})
+    return render(request, 'datasets/status.html', c)
+
 def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
@@ -179,8 +195,10 @@ def runidentipy(c):
     newrun.save()
     newrun.add_files(c)
 
-    def runproc(inputfile, settings):
+    def runproc(inputfile, settings, newrun):
+        newrun.change_status('Task is running')
         utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
+        newrun.change_status('Task finished')
 
     paramfile = newrun.parameters.all()[0].path()
     fastafile = newrun.fasta.all()[0].path()
@@ -196,9 +214,8 @@ def runidentipy(c):
         settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
         for obj in newrun.spectra.all():
             inputfile = obj.path()
-            p = Process(target=runproc, args=(inputfile, settings))
+            p = Process(target=runproc, args=(inputfile, settings, newrun))
             p.start()
-            # p.join()
         c['identipymessage'] = 'Identipy was started'
     else:
         c['identipymessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
