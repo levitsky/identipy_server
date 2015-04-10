@@ -90,6 +90,8 @@ class SearchRun(BaseDocument):
     spectra = models.ManyToManyField(SpectraFile)
     fasta = models.ManyToManyField(FastaFile)
     parameters = models.ManyToManyField(ParamsFile)
+    # proc = None
+    status = models.CharField(max_length=80, default='No info')
 
     def add_files(self, c):
         self.add_spectra(c['chosenspectra'])
@@ -107,3 +109,13 @@ class SearchRun(BaseDocument):
     def add_params(self, paramsobjects):
         for s in paramsobjects:
             self.parameters.add(s)
+
+    def name(self):
+        return os.path.split(self.runname)[-1]
+
+    def add_proc(self, proc):
+        self.proc = proc
+
+    def change_status(self, message):
+        self.status = message
+        self.save()
