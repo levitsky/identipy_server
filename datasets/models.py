@@ -6,14 +6,14 @@ import os
 from django.conf import settings
 
 
-def upload_to(instance, filename):
-    allowed_extensions = {'.raw', '.baf', '.yep', '.mgf', '.mzml', '.mzxml', '.fasta'}
-    fext = os.path.splitext(filename)[-1].lower()
-    if fext in allowed_extensions:
-        upfolder = fext[1:]
-    else:
-        upfolder = 'other'
-    return os.path.join('uploads', upfolder, filename)
+# def upload_to(instance, filename):
+#     allowed_extensions = {'.raw', '.baf', '.yep', '.mgf', '.mzml', '.mzxml', '.fasta'}
+#     fext = os.path.splitext(filename)[-1].lower()
+#     if fext in allowed_extensions:
+#         upfolder = fext[1:]
+#     else:
+#         upfolder = 'other'
+#     return os.path.join('uploads', upfolder, filename)
 
 
 class BaseDocument(models.Model):
@@ -31,20 +31,20 @@ class BaseDocument(models.Model):
         abstract = True
 
 
-def upload_to_basic(folder, filename):
-    return os.path.join('uploads', folder, filename)
+def upload_to_basic(folder, filename, userid):
+    return os.path.join('uploads', folder, str(userid), filename)
 
 
 def upload_to_spectra(instance, filename):
-    return upload_to_basic('spectra', filename)
+    return upload_to_basic('spectra', filename, instance.userid.id)
 
 
 def upload_to_fasta(instance, filename):
-    return upload_to_basic('fasta', filename)
+    return upload_to_basic('fasta', filename, instance.userid.id)
 
 
 def upload_to_raw(instance, filename):
-    return upload_to_basic('raw', filename)
+    return upload_to_basic('raw', filename, instance.userid.id)
 
 
 class SpectraFile(BaseDocument):
@@ -76,7 +76,7 @@ class RawFile(BaseDocument):
 #     def name(self):
 #         return os.path.split(self.docfile.name)[-1]
 def upload_to_params(instance, filename):
-    return os.path.join('results', os.path.splitext(filename)[0], filename)
+    return os.path.join('results', str(instance.userid.id), os.path.splitext(filename)[0], filename)
 
 
 class ParamsFile(BaseDocument):
