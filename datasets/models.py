@@ -93,6 +93,12 @@ class SearchRun(BaseDocument):
     parameters = models.ManyToManyField(ParamsFile)
     # proc = None
     status = models.CharField(max_length=80, default='No info')
+    numMSMS = models.BigIntegerField(default=0)
+    totalPSMs = models.BigIntegerField(default=0)
+    fdr = models.FloatField(default=0.0)
+    numPSMs = models.BigIntegerField(default=0)
+    numPeptides = models.BigIntegerField(default=0)
+    numProteins = models.BigIntegerField(default=0)
 
     def add_files(self, c):
         self.add_spectra(c['chosenspectra'])
