@@ -76,7 +76,8 @@ class RawFile(BaseDocument):
 #     def name(self):
 #         return os.path.split(self.docfile.name)[-1]
 def upload_to_params(instance, filename):
-    return os.path.join('results', str(instance.userid.id), os.path.splitext(filename)[0], filename)
+    return upload_to_basic('params', filename, instance.userid.id)
+    # return os.path.join('results', str(instance.userid.id), os.path.splitext(filename)[0], filename)
 
 
 class ParamsFile(BaseDocument):
