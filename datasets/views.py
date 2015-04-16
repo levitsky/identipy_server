@@ -220,3 +220,12 @@ def runidentipy(c):
     else:
         c['identipymessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
     return c
+
+
+def search_details(request, pK, c=dict()):
+    # doc = get_object_or_404(Document, id=pK)
+    c = c
+    c.update(csrf(request))
+    runobj = get_object_or_404(SearchRun, id=pK)
+    c.update({'searchrun': runobj})
+    return render(request, 'datasets/results.html', c)
