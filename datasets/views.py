@@ -218,6 +218,7 @@ def runidentipy(c):
         settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
         for obj in newrun.spectra.all():
             inputfile = obj.path()
+            newrun.calc_msms(inputfile)
             p = Process(target=runproc, args=(inputfile, settings, newrun))
             p.start()
         c['identipymessage'] = 'Identipy was started'
