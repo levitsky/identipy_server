@@ -25,6 +25,10 @@ def index(request, c=dict()):
         request.GET['statusback'] = None
         c['identipymessage'] = None
         return index(request, c=dict())
+    elif(request.GET.get('cancel')):
+        request.GET = request.GET.copy()
+        request.GET['cancel'] = None
+        return index(request, c=c)
     elif(request.GET.get('clear')):
         request.GET = request.GET.copy()
         request.GET['clear'] = None
