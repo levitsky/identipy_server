@@ -126,3 +126,7 @@ class SearchRun(BaseDocument):
     def change_status(self, message):
         self.status = message
         self.save()
+
+    def calc_msms(self, inputfile):
+        from pyteomics import mgf
+        self.numMSMS += sum(1 for _ in mgf.read(inputfile))
