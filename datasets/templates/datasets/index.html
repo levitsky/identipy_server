@@ -1,27 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Uploaded data{% endblock%}
 {% block content %}
-		<!-- List of uploaded documents -->
-        <div id="index">
+        <div id="welcome">
         Welcome {{ user.username }} (<a href="/logout">logout</a>)
-		{% if documents %}
-			<table id="document_list">
-                <tr id="headings">
-                    <th>Filename</th>
-                    <th>Size</th>
-                    <th>Submit date</th>
-                </tr>
-			{% for doc in documents %}
-            <tr>
-                <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                <td>{{ doc.docfile.size | filesizeformat }}</td>
-                <td>{{ doc.date_added }}</td>
-            </tr>
-			{% endfor %}
-			</table>
-		{% else %}
-			<p>There is no uploaded data.</p>
-		{% endif %}
         </div>
 
         <div id="index_spectra">
