@@ -143,16 +143,16 @@ class SearchRun(BaseDocument):
         return self.pepxmlfiles.all()
 
     def get_pepxmlfiles_paths(self):
-        return [pep.docfile.name for pep in self.pepxmlfiles.all()]
+        return [pep.docfile.name.encode('ASCII') for pep in self.pepxmlfiles.all()]
 
-    def get_spectrafiles(self):
-        return [pep.docfile.name for pep in self.spectra.all()]
+    def get_spectrafiles_paths(self):
+        return [pep.docfile.name.encode('ASCII') for pep in self.spectra.all()]
 
-    def get_fastafile(self):
-        return [self.fasta.all()[0].docfile.name, ]
+    def get_fastafile_path(self):
+        return [self.fasta.all()[0].docfile.name.encode('ASCII'), ]
 
-    def get_paramfile(self):
-        return [self.parameters.all()[0].docfile.name, ]
+    def get_paramfile_path(self):
+        return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
 
     def name(self):
         return os.path.split(self.runname)[-1]
