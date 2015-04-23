@@ -7,8 +7,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext
+from django.core.files import File
 
-from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile#, Document
+from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile, PepXMLFile#, Document
 from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
 import os
 
@@ -199,10 +200,37 @@ def runidentipy(c):
     newrun.save()
     newrun.add_files(c)
 
-    def runproc(inputfile, settings, newrun):
+    def totalrun(settings, newrun, usr):
+        import subprocess
+        procs = []
+        for obj in newrun.spectra.all():
+            inputfile = obj.path()
+            newrun.calc_msms(inputfile)
+            p = Process(target=runproc, args=(inputfile, settings, newrun, usr))
+            p.start()
+            procs.append(p)
+        for p in procs:
+            p.join()
+        # subprocess.call(['python2', '../mp-score/MPscore.py', ''])
+
+
+    def runproc(inputfile, settings, newrun, usr):
+        from os import path
         newrun.change_status('Task is running')
+        if settings.has_option('output', 'path'):
+            outpath = settings.get('output', 'path')
+        else:
+            outpath = path.dirname(inputfile)
+
+        filename = path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
         utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
+        fl = open(filename, 'r')
+        djangofl = File(fl)
+        pepxmlfile = PepXMLFile(docfile = djangofl, userid = usr)
+        pepxmlfile.save()
+        newrun.add_pepxml(pepxmlfile)
         newrun.change_status('Task finished')
+        return 1
 
     paramfile = newrun.parameters.all()[0].path()
     fastafile = newrun.fasta.all()[0].path()
@@ -216,11 +244,13 @@ def runidentipy(c):
     if not os.path.exists('results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII'))):
         os.mkdir('results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
         settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
-        for obj in newrun.spectra.all():
-            inputfile = obj.path()
-            newrun.calc_msms(inputfile)
-            p = Process(target=runproc, args=(inputfile, settings, newrun))
-            p.start()
+        p = Process(target=totalrun, args=(settings, newrun, c['userid']))
+        p.start()
+        # for obj in newrun.spectra.all():
+        #     inputfile = obj.path()
+        #     newrun.calc_msms(inputfile)
+        #     p = Process(target=runproc, args=(inputfile, settings, newrun))
+        #     p.start()
         c['identipymessage'] = 'Identipy was started'
     else:
         c['identipymessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
