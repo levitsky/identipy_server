@@ -52,6 +52,25 @@
           </tr>
         </table>
 
+        <div id="index_pepxml">
+		{% if searchrun.get_pepxmlfiles %}
+			<table id="pepxml_list">
+                PepXML results:
+                <tr id="pepxmlheadings">
+                    <th>Filename</th>
+                </tr>
+			{% for doc in searchrun.get_pepxmlfiles %}
+            <tr>
+                <td>{{ doc.name }}</td>
+            </tr>
+			{% endfor %}
+			</table>
+		{% else %}
+			<!--<p>Spectra files are not selected.</p>-->
+		{% endif %}
+        </div>
+
+
         <br>
         <tr><a href="{{request.META.HTTP_REFERER}}">Go back</a></tr>
         </br>

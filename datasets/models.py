@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.core.files.storage import default_storage
+from django.core.files.storage import default_storage, FileSystemStorage
 from django.contrib.auth.models import User
 import os
 from django.conf import settings
@@ -46,6 +46,9 @@ def upload_to_fasta(instance, filename):
 def upload_to_raw(instance, filename):
     return upload_to_basic('raw', filename, instance.userid.id)
 
+def upload_to_pepxml(instance, filename):
+    return filename
+
 
 class SpectraFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_spectra)
@@ -58,6 +61,20 @@ class FastaFile(BaseDocument):
 class RawFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_raw)
 
+
+class OverwriteStorage(FileSystemStorage):
+    '''
+    Muda o comportamento padrão do Django e o faz sobrescrever arquivos de
+    mesmo nome que foram carregados pelo usuário ao invés de renomeá-los.
+    '''
+    def get_available_name(self, name):
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
+
+
+class PepXMLFile(BaseDocument):
+    docfile = models.FileField(upload_to="", storage=OverwriteStorage())
 
 # class Document(models.Model):
 #     docfile = models.FileField(upload_to=upload_to)
@@ -91,6 +108,7 @@ class SearchRun(BaseDocument):
     spectra = models.ManyToManyField(SpectraFile)
     fasta = models.ManyToManyField(FastaFile)
     parameters = models.ManyToManyField(ParamsFile)
+    pepxmlfiles = models.ManyToManyField(PepXMLFile)
     # proc = None
     status = models.CharField(max_length=80, default='No info')
     numMSMS = models.BigIntegerField(default=0)
@@ -117,11 +135,19 @@ class SearchRun(BaseDocument):
         for s in paramsobjects:
             self.parameters.add(s)
 
+    def add_pepxml(self, pepxmlfile):
+        self.pepxmlfiles.add(pepxmlfile)
+        self.save()
+
+    def get_pepxmlfiles(self):
+        return self.pepxmlfiles.all()
+
     def name(self):
         return os.path.split(self.runname)[-1]
 
     def add_proc(self, proc):
         self.proc = proc
+        self.save()
 
     def change_status(self, message):
         self.status = message
