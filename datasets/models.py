@@ -70,11 +70,11 @@ class OverwriteStorage(FileSystemStorage):
     def get_available_name(self, name):
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
-        return name
+        return os.path.join(settings.MEDIA_ROOT, name)#name
 
 
 class PepXMLFile(BaseDocument):
-    docfile = models.FileField(upload_to="", storage=OverwriteStorage())
+    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
 
 # class Document(models.Model):
 #     docfile = models.FileField(upload_to=upload_to)
@@ -141,6 +141,18 @@ class SearchRun(BaseDocument):
 
     def get_pepxmlfiles(self):
         return self.pepxmlfiles.all()
+
+    def get_pepxmlfiles_paths(self):
+        return [pep.docfile.name for pep in self.pepxmlfiles.all()]
+
+    def get_spectrafiles(self):
+        return [pep.docfile.name for pep in self.spectra.all()]
+
+    def get_fastafile(self):
+        return [self.fasta.all()[0].docfile.name, ]
+
+    def get_paramfile(self):
+        return [self.parameters.all()[0].docfile.name, ]
 
     def name(self):
         return os.path.split(self.runname)[-1]
