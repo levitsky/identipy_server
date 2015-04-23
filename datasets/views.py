@@ -211,8 +211,12 @@ def runidentipy(c):
             procs.append(p)
         for p in procs:
             p.join()
-        # subprocess.call(['python2', '../mp-score/MPscore.py', ''])
-
+        pepxmllist = newrun.get_pepxmlfiles_paths()
+        spectralist = newrun.get_spectrafiles_paths()
+        fastalist = newrun.get_fastafile_path()
+        paramlist = ['../mp-score/default.cfg']#newrun.get_paramfile_path()
+        # print ['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist
+        subprocess.call(['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist)
 
     def runproc(inputfile, settings, newrun, usr):
         from os import path
@@ -227,7 +231,10 @@ def runidentipy(c):
         fl = open(filename, 'r')
         djangofl = File(fl)
         pepxmlfile = PepXMLFile(docfile = djangofl, userid = usr)
+        print filename
+        pepxmlfile.docfile.name = filename
         pepxmlfile.save()
+        print pepxmlfile.docfile.name
         newrun.add_pepxml(pepxmlfile)
         newrun.change_status('Task finished')
         return 1
