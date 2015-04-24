@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.files import File
 
-from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile, PepXMLFile, ResImageFile#, Document
+from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV#, Document
 from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
 import os
 
@@ -211,6 +211,7 @@ def runidentipy(c):
             procs.append(p)
         for p in procs:
             p.join()
+        # newrun = get_object_or_404(SearchRun, id=pK)#SearchRun(runname=c['runname'], userid = c['userid'])
         pepxmllist = newrun.get_pepxmlfiles_paths()
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
@@ -224,7 +225,26 @@ def runidentipy(c):
             img = ResImageFile(docfile = djangofl, userid = usr)
             img.save()
             newrun.add_resimage(img)
+        if os.path.exists(bname + '_PSMs.csv'):
+            fl = open(bname + '_PSMs.csv')
+            djangofl = File(fl)
+            csvf = ResCSV(docfile = djangofl, userid = usr, ftype='psm')
+            csvf.save()
+            newrun.add_rescsv(csvf)
+        if os.path.exists(bname + '_peptides.csv'):
+            fl = open(bname + '_peptides.csv')
+            djangofl = File(fl)
+            csvf = ResCSV(docfile = djangofl, userid = usr, ftype='peptide')
+            csvf.save()
+            newrun.add_rescsv(csvf)
+        if os.path.exists(bname + '_proteins.csv'):
+            fl = open(bname + '_proteins.csv')
+            djangofl = File(fl)
+            csvf = ResCSV(docfile = djangofl, userid = usr, ftype='protein')
+            csvf.save()
+            newrun.add_rescsv(csvf)
         newrun.calc_results()
+        newrun.save()
 
     def runproc(inputfile, settings, newrun, usr):
         from os import path
@@ -245,6 +265,7 @@ def runidentipy(c):
         print pepxmlfile.docfile.name
         newrun.add_pepxml(pepxmlfile)
         newrun.change_status('Task finished')
+        # newrun.save()
         return 1
 
     paramfile = newrun.parameters.all()[0].path()
