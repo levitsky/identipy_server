@@ -63,10 +63,6 @@ class RawFile(BaseDocument):
 
 
 class OverwriteStorage(FileSystemStorage):
-    '''
-    Muda o comportamento padrão do Django e o faz sobrescrever arquivos de
-    mesmo nome que foram carregados pelo usuário ao invés de renomeá-los.
-    '''
     def get_available_name(self, name):
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
@@ -75,6 +71,12 @@ class OverwriteStorage(FileSystemStorage):
 
 class PepXMLFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+
+
+class ResImageFile(BaseDocument):
+    docfile = models.ImageField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    # docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+
 
 # class Document(models.Model):
 #     docfile = models.FileField(upload_to=upload_to)
@@ -109,6 +111,7 @@ class SearchRun(BaseDocument):
     fasta = models.ManyToManyField(FastaFile)
     parameters = models.ManyToManyField(ParamsFile)
     pepxmlfiles = models.ManyToManyField(PepXMLFile)
+    resimagefiles = models.ManyToManyField(ResImageFile)
     # proc = None
     status = models.CharField(max_length=80, default='No info')
     numMSMS = models.BigIntegerField(default=0)
@@ -138,6 +141,13 @@ class SearchRun(BaseDocument):
     def add_pepxml(self, pepxmlfile):
         self.pepxmlfiles.add(pepxmlfile)
         self.save()
+
+    def add_resimage(self, resimage):
+        self.resimagefiles.add(resimage)
+        self.save()
+
+    def get_resimagefiles(self):
+        return self.resimagefiles.all()
 
     def get_pepxmlfiles(self):
         return self.pepxmlfiles.all()

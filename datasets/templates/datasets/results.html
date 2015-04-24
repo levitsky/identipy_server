@@ -4,6 +4,11 @@
 		<!-- List of uploaded documents -->
         <div id="index">
         Welcome {{ user.username }} (<a href="/logout">logout</a>)
+
+        <br>
+        <tr><a href="{{request.META.HTTP_REFERER}}">Go back</a></tr>
+        </br>
+
 		{% if searchrun %}
 			<table id="processes_list">
                 <tr id="headings">
@@ -70,9 +75,19 @@
 		{% endif %}
         </div>
 
+        <div id="index_img">
+		{% if searchrun.get_pepxmlfiles %}
+			<table id="img_list">
+			{% for doc in searchrun.get_resimagefiles %}
+            <tr>
+                {% load staticfiles %}
+                <img src="{%static doc.path %}" />
+            </tr>
+			{% endfor %}
+			</table>
+		{% else %}
+		{% endif %}
+        </div>
 
-        <br>
-        <tr><a href="{{request.META.HTTP_REFERER}}">Go back</a></tr>
-        </br>
 
 {% endblock %}
