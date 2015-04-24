@@ -78,6 +78,11 @@ class ResImageFile(BaseDocument):
     # docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
 
 
+class ResCSV(BaseDocument):
+    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    ftype = models.CharField(max_length=10)
+
+
 # class Document(models.Model):
 #     docfile = models.FileField(upload_to=upload_to)
 #     date_added = models.DateTimeField(auto_now_add=True)
@@ -112,6 +117,7 @@ class SearchRun(BaseDocument):
     parameters = models.ManyToManyField(ParamsFile)
     pepxmlfiles = models.ManyToManyField(PepXMLFile)
     resimagefiles = models.ManyToManyField(ResImageFile)
+    csvfiles = models.ManyToManyField(ResCSV)
     # proc = None
     status = models.CharField(max_length=80, default='No info')
     numMSMS = models.BigIntegerField(default=0)
@@ -129,14 +135,17 @@ class SearchRun(BaseDocument):
     def add_spectra(self, spectraobjects):
         for s in spectraobjects:
             self.spectra.add(s)
+        self.save()
 
     def add_fasta(self, fastaobjects):
         for s in fastaobjects:
             self.fasta.add(s)
+        self.save()
 
     def add_params(self, paramsobjects):
         for s in paramsobjects:
             self.parameters.add(s)
+        self.save()
 
     def add_pepxml(self, pepxmlfile):
         self.pepxmlfiles.add(pepxmlfile)
@@ -144,6 +153,10 @@ class SearchRun(BaseDocument):
 
     def add_resimage(self, resimage):
         self.resimagefiles.add(resimage)
+        self.save()
+
+    def add_rescsv(self, rescsv):
+        self.csvfiles.add(rescsv)
         self.save()
 
     def get_resimagefiles(self):
@@ -164,6 +177,12 @@ class SearchRun(BaseDocument):
     def get_paramfile_path(self):
         return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
 
+    def get_csvfiles_paths(self, ftype=None):
+        if ftype:
+            return [pep.docfile.name.encode('ASCII') for pep in self.csvfiles.filter(ftype=ftype)]
+        else:
+            return [pep.docfile.name.encode('ASCII') for pep in self.csvfiles.all()]
+
     def name(self):
         return os.path.split(self.runname)[-1]
 
@@ -182,4 +201,13 @@ class SearchRun(BaseDocument):
             self.numMSMS += sum(1 for _ in mgf.read(fn))
         for fn in self.get_pepxmlfiles_paths():
             self.totalPSMs += sum(1 for _ in pepxml.read(fn))
+        for fn in self.get_csvfiles_paths(ftype='psm'):
+            with open(fn, "r") as cf:
+                self.numPSMs += sum(1 for _ in csv.reader(cf)) - 1
+        for fn in self.get_csvfiles_paths(ftype='peptide'):
+            with open(fn, "r") as cf:
+                self.numPeptides += sum(1 for _ in csv.reader(cf)) - 1
+        for fn in self.get_csvfiles_paths(ftype='protein'):
+            with open(fn, "r") as cf:
+                self.numProteins += sum(1 for _ in csv.reader(cf)) - 1
         self.save()
