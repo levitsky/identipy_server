@@ -175,6 +175,11 @@ class SearchRun(BaseDocument):
         self.status = message
         self.save()
 
-    def calc_msms(self, inputfile):
-        from pyteomics import mgf
-        self.numMSMS += sum(1 for _ in mgf.read(inputfile))
+    def calc_results(self):
+        from pyteomics import mgf, pepxml
+        import csv
+        for fn in self.get_spectrafiles_paths():
+            self.numMSMS += sum(1 for _ in mgf.read(fn))
+        for fn in self.get_pepxmlfiles_paths():
+            self.totalPSMs += sum(1 for _ in pepxml.read(fn))
+        self.save()
