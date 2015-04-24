@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.files import File
 
-from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile, PepXMLFile#, Document
+from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile, PepXMLFile, ResImageFile#, Document
 from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
 import os
 
@@ -214,9 +214,16 @@ def runidentipy(c):
         pepxmllist = newrun.get_pepxmlfiles_paths()
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
-        paramlist = ['../mp-score/default.cfg']#newrun.get_paramfile_path()
+        paramlist = ['defaultMP.cfg']#newrun.get_paramfile_path()
         # print ['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist
         subprocess.call(['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist)
+        bname = pepxmllist[0].split('.pep.xml')[0]
+        if os.path.exists(bname + '.png'):
+            fl = open(bname + '.png')
+            djangofl = File(fl)
+            img = ResImageFile(docfile = djangofl, userid = usr)
+            img.save()
+            newrun.add_resimage(img)
 
     def runproc(inputfile, settings, newrun, usr):
         from os import path
