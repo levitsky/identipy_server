@@ -205,7 +205,7 @@ def runidentipy(c):
         procs = []
         for obj in newrun.spectra.all():
             inputfile = obj.path()
-            newrun.calc_msms(inputfile)
+            # newrun.calc_msms(inputfile)
             p = Process(target=runproc, args=(inputfile, settings, newrun, usr))
             p.start()
             procs.append(p)
@@ -224,6 +224,7 @@ def runidentipy(c):
             img = ResImageFile(docfile = djangofl, userid = usr)
             img.save()
             newrun.add_resimage(img)
+        newrun.calc_results()
 
     def runproc(inputfile, settings, newrun, usr):
         from os import path
