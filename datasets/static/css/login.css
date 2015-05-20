@@ -51,6 +51,15 @@ body{
   color:#fff;
 }
 
+#login h2{
+  background:#ee2222;
+  padding:20px 0;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
+
 form{
   background:#f0f0f0;
   padding:6% 4%;
