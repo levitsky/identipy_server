@@ -244,11 +244,12 @@ def runidentipy(c):
             csvf.save()
             newrun.add_rescsv(csvf)
         newrun.calc_results()
+        newrun.change_status('Task is finished')
         newrun.save()
 
     def runproc(inputfile, settings, newrun, usr):
         from os import path
-        newrun.change_status('Task is running')
+        newrun.change_status('Search is running')
         if settings.has_option('output', 'path'):
             outpath = settings.get('output', 'path')
         else:
@@ -264,7 +265,7 @@ def runidentipy(c):
         pepxmlfile.save()
         print pepxmlfile.docfile.name
         newrun.add_pepxml(pepxmlfile)
-        newrun.change_status('Task finished')
+        newrun.change_status('Post-search validation is running')
         # newrun.save()
         return 1
 
