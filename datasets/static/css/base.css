@@ -1,0 +1,29 @@
+*{margin:0;padding:0;}
+
+#welcome{
+  width:300px;
+  margin:0 0;
+  margin-top:8px;
+  margin-bottom:2%;
+  transition:opacity 1s;
+  -webkit-transition:opacity 1s;
+}
+
+#welcome h1{
+  background:#3399cc;
+  padding:6% 4%;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
+
+button[type="submit"]{
+  width:300px;
+  background:#FF0000;
+  padding:6% 4%;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}

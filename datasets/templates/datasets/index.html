@@ -1,160 +1,175 @@
 {% extends "base.html" %}
 {% block title %}Uploaded data{% endblock%}
 {% block content %}
-        <div id="welcome">
-        Welcome {{ user.username }} (<a href="/logout">logout</a>)
-        </div>
-
-        <div id="index_spectra">
-		{% if chosenspectra %}
-			<table id="spectra_list">
-                Choosen spectra:
-                <tr id="spectraheadings">
-                    <th>Filename</th>
-                    <th>Size</th>
-                    <th>Submit date</th>
-                </tr>
-			{% for doc in chosenspectra %}
-            <tr>
-                <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                <td>{{ doc.docfile.size | filesizeformat }}</td>
-                <td>{{ doc.date_added }}</td>
-            </tr>
-			{% endfor %}
-			</table>
-		{% else %}
-			<p>Spectra files are not selected.</p>
-		{% endif %}
-        </div>
-
-        <div id="index_fasta">
-		{% if chosenfasta %}
-			<table id="fasta_list">
-                Choosen fasta:
-                <tr id="fastaheadings">
-                    <th>Filename</th>
-                    <th>Size</th>
-                    <th>Submit date</th>
-                </tr>
-			{% for doc in chosenfasta %}
-            <tr>
-                <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                <td>{{ doc.docfile.size | filesizeformat }}</td>
-                <td>{{ doc.date_added }}</td>
-            </tr>
-			{% endfor %}
-			</table>
-		{% else %}
-			<p>Fasta file is not selected.</p>
-		{% endif %}
-        </div>
-
-        <div id="index_params">
-		{% if chosenparams %}
-			<table id="params_list">
-                Choosen params:
-                <tr id="paramsheadings">
-                    <th>Filename</th>
-                    <th>Size</th>
-                    <th>Submit date</th>
-                </tr>
-			{% for doc in chosenparams %}
-            <tr>
-                <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                <td>{{ doc.docfile.size | filesizeformat }}</td>
-                <td>{{ doc.date_added }}</td>
-            </tr>
-			{% endfor %}
-			</table>
-		{% else %}
-			<p>Params file is not selected.</p>
-		{% endif %}
-        </div>
-
-
-        <div id="upload">
-		<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
-			{% csrf_token %}
-			<p>{{ spectraform.non_field_errors }}</p>
-			<p>{{ spectraform.spectrafile.label_tag }} {{ spectraform.spectrafile.help_text }}</p>
-			<p>
-				<!--{{ spectraform.spectrafile.errors }}-->
-				{{ spectraform.spectrafile }}
-			</p>
-			<p><input type="submit" value="Upload" /></p>
-		</form>
-        <form action="#" method="get">
-         <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
-        </form>
-        </div>
-
-        <div id="upload_fasta">
-		<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
-			{% csrf_token %}
-			<p>{{ fastaform.non_field_errors }}</p>
-			<p>{{ fastaform.fastafile.label_tag }} {{ fastaform.fastafile.help_text }}</p>
-			<p>
-				<!--{{ fastaform.spectrafile.errors }}-->
-				{{ fastaform.fastafile }}
-			</p>
-			<p><input type="submit" value="Upload" /></p>
-		</form>
-        <form action="#" method="get">
-         <input type="submit" class="btn" value="Choose preloaded fasta" name="uploadfasta">
-        </form>
-        </div>
-
-        <div id="upload_parameters">
-		<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
-			{% csrf_token %}
-			<p>{{ paramsform.non_field_errors }}</p>
-			<p>{{ paramsform.paramsfile.label_tag }} {{ paramsform.paramsfile.help_text }}</p>
-			<p>
-				<!--{{ fastaform.spectrafile.errors }}-->
-				{{ paramsform.paramsfile }}
-			</p>
-            <p><input type="submit" value="Upload" /></p>
-		</form>
-        <form action="#" method="get">
-         <input type="submit" class="btn" value="Choose preloaded parameters" name="uploadparams">
-        </form>
-        </div>
-
-        <br>
-        <!--<div id="upload_but">-->
-			<!--{% csrf_token %}-->
-		    <!--<form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">-->
-		    <!--</form>-->
+  <head>
+    <meta charset="UTF-8">
+    <title>Data Form</title>
+      {% load staticfiles %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/data.css' %}" />
+        <!--<link rel="stylesheet" href="css/login.css">-->
+  </head>
+        <!--<div id="welcome">-->
+        <!--Welcome {{ user.username }} (<a href="/logout">logout</a>)-->
         <!--</div>-->
+      <!--<div id="triangle"></div>-->
+      <!--<h1>WELCOME<br>The single entry point for your proteomic data mining.</h1>-->
 
-        <br>
-        <div id="run_identipy">
-        <form action="#" method="get">
-         <input type="text" value="Enter search run name" name="runname" size="20"/>
-         <input type="submit" class="btn" value="RUN identipy" name="runidentipy">
-        </form>
-        </div>
-        </br>
+        <div id="data">
 
-        <div id="identipy message">
-		{% if identipymessage %}
-            {{ identipymessage }}
-		{% endif %}
-        </div>
-
-        <br>
-        <div id="clear">
-        <form action="#" method="get">
-         <input type="submit" class="btn" value="clear" name="clear">
-        </form>
-        </div>
-        </br>
-
-        <br>
         <div id="get_status">
         <form action="#" method="get">
-         <input type="submit" class="btn" value="getstatus" name="getstatus">
+        <input type="submit" class="topbtn" value="Show search history" name="getstatus">
         </form>
         </div>
-        </br>
+            <div id="index_spectra">
+            <h1>
+            {% if chosenspectra %}
+                <table id="spectra_list">
+                    Choosen spectra:
+                    <tr id="spectraheadings">
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Submit date</th>
+                    </tr>
+                {% for doc in chosenspectra %}
+                <tr>
+                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                <p>Spectra files are not selected.</p>
+            {% endif %}
+            </h1>
+            </div>
+
+            <div id="upload">
+            <h2>
+            <form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>{{ spectraform.non_field_errors }}</p>
+                <!--<p>{{ spectraform.spectrafile.label_tag }} {{ spectraform.spectrafile.help_text }}</p>-->
+                <p>
+                    <!--{{ spectraform.spectrafile.errors }}-->
+                    {{ spectraform.spectrafile }}
+                </p>
+                <p><input type="submit" name="submit" value="Upload" /></p>
+            </form>
+            <form action="#" method="get">
+             <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
+            </form>
+            </h2>
+            </div>
+
+
+          <div id="index_fasta">
+            <h1>
+            {% if chosenfasta %}
+                <table id="fasta_list">
+                    Choosen fasta:
+                    <tr id="fastaheadings">
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Submit date</th>
+                    </tr>
+                {% for doc in chosenfasta %}
+                <tr>
+                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                <p>Fasta file is not selected.</p>
+            {% endif %}
+            </h1>
+            </div>
+
+            <div id="upload_fasta">
+            <h2>
+            <form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>{{ fastaform.non_field_errors }}</p>
+                <p>{{ fastaform.fastafile.label_tag }} {{ fastaform.fastafile.help_text }}</p>
+                <p>
+                    <!--{{ fastaform.spectrafile.errors }}-->
+                    {{ fastaform.fastafile }}
+                </p>
+                <p><input type="submit" value="Upload" /></p>
+            </form>
+            <form action="#" method="get">
+             <input type="submit" class="btn" value="Choose preloaded fasta" name="uploadfasta">
+            </form>
+            </h2>
+            </div>
+
+            <div id="index_params">
+            <h1>
+            {% if chosenparams %}
+                <table id="params_list">
+                    Choosen params:
+                    <tr id="paramsheadings">
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Submit date</th>
+                    </tr>
+                {% for doc in chosenparams %}
+                <tr>
+                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                <p>Params file is not selected.</p>
+            {% endif %}
+            </h1>
+            </div>
+
+            <div id="upload_parameters">
+            <h2>
+            <form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>{{ paramsform.non_field_errors }}</p>
+                <p>{{ paramsform.paramsfile.label_tag }} {{ paramsform.paramsfile.help_text }}</p>
+                <p>
+                    <!--{{ fastaform.spectrafile.errors }}-->
+                    {{ paramsform.paramsfile }}
+                </p>
+                <p><input type="submit" value="Upload" /></p>
+            </form>
+            <form action="#" method="get">
+             <input type="submit" class="btn" value="Choose preloaded parameters" name="uploadparams">
+            </form>
+            </h2>
+            </div>
+
+            <h2>
+            <div id="run_identipy">
+            <form run action="#" method="get">
+            <input type="text" name="runname" id="email" value=""  placeholder="Enter search run name"/>
+             <!--<input type="text" value="Enter search run name" name="runname" size="20"/>-->
+             <input type="submit" class="btn" value="RUN identipy" name="runidentipy">
+            </form>
+            </div>
+            </h2>
+            <div id="identipy message">
+            {% if identipymessage %}
+                <h3>{{ identipymessage }}</h3>
+            {% endif %}
+            </div>
+
+
+            <div id="clear">
+            <form action="#" method="get">
+             <input type="submit" class="btn" value="Clear chosen files" name="clear">
+            </form>
+            </div>
+
+        </div>
+
 {% endblock %}

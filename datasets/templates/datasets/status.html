@@ -2,8 +2,24 @@
 {% block title %}Uploaded data{% endblock%}
 {% block content %}
 		<!-- List of uploaded documents -->
+      <head>
+        <meta charset="UTF-8">
+        <title>Status Form</title>
+          {% load staticfiles %}
+            <link rel="stylesheet" type="text/css" href="{% static 'css/data.css' %}" />
+            <!--<link rel="stylesheet" href="css/login.css">-->
+      </head>
+        <div id="data">
+
+        <div id="status_back">
+        <form action="#" method="get">
+         <input type="submit" class="topbtn" value="Back" name="statusback">
+        </form>
+        </div>
+
         <div id="index">
-        Welcome {{ user.username }} (<a href="/logout">logout</a>)
+        <h1>
+        <!--Welcome {{ user.username }} (<a href="/logout">logout</a>)-->
 		{% if processes %}
 			<table id="processes_list">
                 <tr id="headings">
@@ -22,14 +38,9 @@
 		{% else %}
 			<p>There is no searches.</p>
 		{% endif %}
+        </h1>
+        </div>
         </div>
 
-        <br>
-        <div id="status_back">
-        <form action="#" method="get">
-         <input type="submit" class="btn" value="Back" name="statusback">
-        </form>
-        </div>
-        </br>
 
 {% endblock %}
