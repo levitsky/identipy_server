@@ -2,12 +2,15 @@
 {% block title %}Uploaded data{% endblock%}
 {% block content %}
 		<!-- List of uploaded documents -->
-        <div id="index">
-        Welcome {{ user.username }} (<a href="/logout">logout</a>)
-
-        <br>
-        <tr><a href="{{request.META.HTTP_REFERER}}">Go back</a></tr>
-        </br>
+      <head>
+        <meta charset="UTF-8">
+        <title>Results Form</title>
+          {% load staticfiles %}
+            <link rel="stylesheet" type="text/css" href="{% static 'css/results.css' %}" />
+            <!--<link rel="stylesheet" href="css/login.css">-->
+      </head>
+        <div id="data">
+        <tr><a href="{{request.META.HTTP_REFERER}}"><h2>Back</h2></a></tr>
 
 		{% if searchrun %}
 			<table id="processes_list">
@@ -25,7 +28,6 @@
 		{% else %}
 			<p>There is no searches.</p>
 		{% endif %}
-        </div>
 
         <br>
         </br>
@@ -88,6 +90,6 @@
 		{% else %}
 		{% endif %}
         </div>
-
+        </div>
 
 {% endblock %}
