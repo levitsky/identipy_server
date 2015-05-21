@@ -16,15 +16,15 @@ import os
 
 def index(request, c=dict()):
     print request.method
-    if(request.GET.get('runidentipy')):
+    if(request.GET.get('runidentiprot')):
         request.GET = request.GET.copy()
-        request.GET['runidentipy'] = None
+        request.GET['runidentiprot'] = None
         c['runname'] = request.GET['runname']
-        return identipy_view(request, c = c)
+        return identiprot_view(request, c = c)
     elif(request.GET.get('statusback')):
         request.GET = request.GET.copy()
         request.GET['statusback'] = None
-        c['identipymessage'] = None
+        c['identiprotmessage'] = None
         return index(request, c=c)
     elif(request.GET.get('cancel')):
         request.GET = request.GET.copy()
@@ -189,11 +189,11 @@ def files_view_params(request, c):
     usedclass = ParamsFile
     return files_view(request, usedclass, 'chosenparams', labelname='Choose parameters file', c = c)
 
-def identipy_view(request, c):
-    c = runidentipy(c)
+def identiprot_view(request, c):
+    c = runidentiprot(c)
     return index(request, c)
 
-def runidentipy(c):
+def runidentiprot(c):
     import sys
     sys.path.append('../identipy/')
     from identipy import main, utils
@@ -291,9 +291,9 @@ def runidentipy(c):
         #     newrun.calc_msms(inputfile)
         #     p = Process(target=runproc, args=(inputfile, settings, newrun))
         #     p.start()
-        c['identipymessage'] = 'Identipy was started'
+        c['identiprotmessage'] = 'Identiprot was started'
     else:
-        c['identipymessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
+        c['identiprotmessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
     return c
 
 
