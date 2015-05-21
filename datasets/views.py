@@ -50,6 +50,9 @@ def index(request, c=dict()):
         request.GET = request.GET.copy()
         request.GET['uploadparams'] = None
         return files_view_params(request, c = c)
+    elif(request.GET.get('search_details')):
+        request.GET = request.GET.copy()
+        return search_details(request, runname=request.GET['search_details'], c=c)
     c.update(csrf(request))
     # Handle file upload
     if request.method == 'POST':
@@ -294,10 +297,10 @@ def runidentipy(c):
     return c
 
 
-def search_details(request, pK, c=dict()):
+def search_details(request, runname, c=dict()):
     # doc = get_object_or_404(Document, id=pK)
     c = c
     c.update(csrf(request))
-    runobj = get_object_or_404(SearchRun, id=pK)
+    runobj = get_object_or_404(SearchRun, runname=runname)
     c.update({'searchrun': runobj})
     return render(request, 'datasets/results.html', c)
