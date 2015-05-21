@@ -52,6 +52,14 @@ body{
   color:#fff;
 }
 
+#data h5{
+  background:#3399cc;
+  padding:3% 2%;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
 
 input[class="topbtn"]{
   width:1000px;
@@ -98,4 +106,15 @@ input[class="docname"]{
   text-align:center;
   color:#fff;
   border-bottom: 5px solid white;
+}
+
+td[class="td1"]{
+  table-layout: fixed;
+  width: 400px;
+  max-width:400px;
+  min-width:400px;
+  padding: 0.5rem;
+  font-size:100%;
+  font-weight:900;
+  text-align: left;
 }
