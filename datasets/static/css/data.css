@@ -43,9 +43,30 @@ body{
   border-bottom: 5px solid white;
 }
 
+#data h4{
+  background:#3399cc;
+  padding:3% 2%;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
+
+
 input[class="topbtn"]{
   width:1000px;
   background:#00FF00;
+  padding:1% 1%;
+  font-size:250%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+  border-bottom: 5px solid white;
+}
+
+input[class="backbtn"]{
+  width:1000px;
+  background:#FF0000;
   padding:1% 1%;
   font-size:250%;
   font-weight:1000;
@@ -62,4 +83,8 @@ input[name="clear"]{
   font-weight:1000;
   text-align:center;
   color:#fff;
+}
+
+input[class="searchname"]{
+    font-size: 40px
 }
