@@ -88,3 +88,14 @@ input[name="clear"]{
 input[class="searchname"]{
     font-size: 40px
 }
+
+input[class="docname"]{
+  width:400px;
+  background:#00FF00;
+  padding:1% 1%;
+  font-size:150%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+  border-bottom: 5px solid white;
+}

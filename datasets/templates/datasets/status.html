@@ -13,7 +13,7 @@
 
         <div id="status_back">
         <form action="#" method="get">
-         <input type="submit" class="topbtn" value="Back" name="statusback">
+         <input type="submit" class="backbtn" value="Back" name="statusback">
         </form>
         </div>
 
@@ -29,7 +29,10 @@
                 </tr>
 			{% for doc in processes %}
             <tr>
-                <td><a class="entry" href="{% url 'datasets:search_details' doc.id %}">{{ doc.name }}</a></td>
+                <!--<td><a class="entry" href="{% url 'datasets:search_details' doc.id %}">{{ doc.name }}</a></td>-->
+                <form action="#" method="get">
+                <td><input type="submit" class="docname" value={{ doc.name }} name="search_details"/></td>
+                </form>
                 <td>{{ doc.date_added }}</td>
                 <td>{{ doc.status }}</td>
             </tr>
