@@ -148,15 +148,15 @@
             </h2>
             </div>
 
-            <h2>
+            <h4>
             <div id="run_identipy">
             <form run action="#" method="get">
-            <input type="text" name="runname" id="email" value=""  placeholder="Enter search run name"/>
-             <!--<input type="text" value="Enter search run name" name="runname" size="20"/>-->
-             <input type="submit" class="btn" value="RUN identipy" name="runidentipy">
+            <input type="text" class="searchname" name="runname" id="email" value=""  placeholder="Enter search run name"/>
             </form>
-            </div>
-            </h2>
+            </h4>
+             <!--<input type="text" value="Enter search run name" name="runname" size="20"/>-->
+             <input type="submit" class="topbtn" value="RUN identipy" name="runidentipy">
+            </form>
             <div id="identipy message">
             {% if identipymessage %}
                 <h3>{{ identipymessage }}</h3>
@@ -170,6 +170,7 @@
             </form>
             </div>
 
+            </div>
         </div>
 
 {% endblock %}
