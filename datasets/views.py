@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.files import File
 
-from .models import SpectraFile, RawFile, FastaFile, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV#, Document
+from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV#, Document
 from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
 import os
 
@@ -142,7 +142,8 @@ def secured(request):
 def status(request, c=dict()):
     c = c
     c.update(csrf(request))
-    processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
     c.update({'processes': processes})
     return render(request, 'datasets/status.html', c)
 
@@ -199,9 +200,12 @@ def runidentiprot(c):
     from identipy import main, utils
     from multiprocessing import Process
 
-    newrun = SearchRun(runname=c['runname'], userid = c['userid'])
-    newrun.save()
-    newrun.add_files(c)
+    newgroup = SearchGroup(groupname=c['runname'], userid = c['userid'])
+    newgroup.save()
+    newgroup.add_files(c)
+    # newrun = SearchRun(runname=c['runname'], userid = c['userid'])
+    # newrun.save()
+    # newrun.add_files(c)
 
     def totalrun(settings, newrun, usr):
         import subprocess
@@ -272,25 +276,21 @@ def runidentiprot(c):
         # newrun.save()
         return 1
 
-    paramfile = newrun.parameters.all()[0].path()
-    fastafile = newrun.fasta.all()[0].path()
-    rn = newrun.runname
-    settings = main.settings(paramfile)
-    settings.set('input', 'database', fastafile.encode('ASCII'))
+    rn = newgroup.name()
     if not os.path.exists('results'):
         os.mkdir('results')
-    if not os.path.exists(os.path.join('results', str(newrun.userid.id))):
-        os.mkdir(os.path.join('results', str(newrun.userid.id)))
-    if not os.path.exists('results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII'))):
-        os.mkdir('results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
-        settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
-        p = Process(target=totalrun, args=(settings, newrun, c['userid']))
-        p.start()
-        # for obj in newrun.spectra.all():
-        #     inputfile = obj.path()
-        #     newrun.calc_msms(inputfile)
-        #     p = Process(target=runproc, args=(inputfile, settings, newrun))
-        #     p.start()
+    if not os.path.exists(os.path.join('results', str(newgroup.userid.id))):
+        os.mkdir(os.path.join('results', str(newgroup.userid.id)))
+    if not os.path.exists('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII'))):
+        os.mkdir('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII')))
+        for newrun in newgroup.get_searchruns():
+            paramfile = newrun.parameters.all()[0].path()
+            fastafile = newrun.fasta.all()[0].path()
+            settings = main.settings(paramfile)
+            settings.set('input', 'database', fastafile.encode('ASCII'))
+            settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
+            p = Process(target=totalrun, args=(settings, newrun, c['userid']))
+            p.start()
         c['identiprotmessage'] = 'Identiprot was started'
     else:
         c['identiprotmessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
