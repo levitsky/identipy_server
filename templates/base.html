@@ -1,5 +1,6 @@
-<!DOCTYPE html>
-<html>
+{% extends "datasets/title.html" %}
+{% block title2 %}Uploaded data{% endblock%}
+{% block content2 %}
 	<head>
 		<meta charset="utf-8">
         <title>{% block title %}Identipy Server{% endblock %}</title>
@@ -21,3 +22,4 @@
     </div>
 	</body>
 </html>
+{% endblock %}
