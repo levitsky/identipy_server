@@ -27,3 +27,21 @@ button[type="submit"]{
   text-align:center;
   color:#fff;
 }
+
+#twelcome{
+  display: block;
+  margin:auto auto;
+  margin-top:8px;
+  margin-bottom:2%;
+  transition:opacity 1s;
+  -webkit-transition:opacity 1s;
+}
+
+#twelcome img{
+  display: block;
+  margin:auto auto;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
