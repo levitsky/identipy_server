@@ -17,53 +17,33 @@
         </div>
 
         <h1>
-		{% if searchrun %}
-			<table id="processes_list">
+		{% if searchgroup %}
+            <table id="processes_list">
                 <tr id="headings">
                     <th>Search name</th>
-                    <th>Search date</th>
-                    <th>Status</th>
+                    <th>MSMS</th>
+                    <th>Unfiltered PSMs</th>
+                    <th>FDR</th>
+                    <th>PSMs</th>
+                    <th>Peptides</th>
+                    <th>Proteins</th>
                 </tr>
-            <tr>
-            <td class="td1">{{ searchrun.name }}</td>
-            <td>{{ searchrun.date_added }}</td>
-            <td>{{ searchrun.status }}</td>
-            </tr>
-			</table>
+            {% for searchrun in searchgroup.get_searchruns %}
+                <tr>
+                <td class="td1">{{ searchrun.name }}</td>
+                <td class="td2">{{ searchrun.numMSMS }}</td>
+                <td class="td2">{{ searchrun.totalPSMs }}</td>
+                <td class="td2">{{ searchrun.FDR }}</td>
+                <td class="td2">{{ searchrun.numPSMs }}</td>
+                <td class="td2">{{ searchrun.numPeptides }}</td>
+                <td class="td2">{{ searchrun.numProteins }}</td>
+                </tr>
+            {% endfor %}
+            </table>
 		{% else %}
 			<p>There are no searches.</p>
 		{% endif %}
         </h1>
-        <h5>
-        <table style="width:20%">
-
-          <tr>
-            <td class="td1">Number of MSMS:</td>
-            <td>{{ searchrun.numMSMS}}</td>
-          </tr>
-
-          <tr>
-            <td class="td1">Total number of PSMs:</td>
-            <td>{{ searchrun.totalPSMs}}</td>
-          </tr>
-          <tr>
-            <td class="td1">FDR:</td>
-            <td>{{ searchrun.fdr}}</td>
-          </tr>
-          <tr>
-            <td class="td1">Number of identified PSMs:</td>
-            <td>{{ searchrun.numPSMs}}</td>
-          </tr>
-          <tr>
-            <td class="td1">Number of identified peptides:</td>
-            <td>{{ searchrun.numPeptides}}</td>
-          </tr>
-          <tr>
-            <td class="td1">Number of identified proteins:</td>
-            <td>{{ searchrun.numProteins}}</td>
-          </tr>
-        </table>
-        </h5>
         <div id="index_pepxml">
 		{% if searchrun.get_pepxmlfiles %}
 			<table id="pepxml_list">

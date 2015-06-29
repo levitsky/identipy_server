@@ -301,6 +301,8 @@ def search_details(request, runname, c=dict()):
     # doc = get_object_or_404(Document, id=pK)
     c = c
     c.update(csrf(request))
-    runobj = get_object_or_404(SearchRun, runname=runname)
-    c.update({'searchrun': runobj})
+    # runobj = get_object_or_404(SearchRun, runname=runname)
+    # c.update({'searchrun': runobj})
+    runobj = get_object_or_404(SearchGroup, groupname=runname)
+    c.update({'searchgroup': runobj})
     return render(request, 'datasets/results.html', c)

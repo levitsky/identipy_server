@@ -6,7 +6,7 @@ body{
 }
 
 #data{
-  width: 1000px;
+  width: 80%;
   margin:0 auto;
   margin-top:8px;
   margin-bottom:2%;
@@ -62,7 +62,7 @@ body{
 }
 
 input[class="topbtn"]{
-  width:1000px;
+  width:100%;
   background:#00FF00;
   padding:1% 1%;
   font-size:250%;
@@ -73,7 +73,7 @@ input[class="topbtn"]{
 }
 
 input[class="backbtn"]{
-  width:1000px;
+  width:100%;
   background:#FF0000;
   padding:1% 1%;
   font-size:250%;
@@ -84,7 +84,7 @@ input[class="backbtn"]{
 }
 
 input[name="clear"]{
-  width:1000px;
+  width:100%;
   background:#0000FF;
   padding:1% 1%;
   font-size:250%;
@@ -98,7 +98,7 @@ input[class="searchname"]{
 }
 
 input[class="docname"]{
-  width:400px;
+  width:50%;
   background:#00FF00;
   padding:1% 1%;
   font-size:150%;
@@ -110,11 +110,22 @@ input[class="docname"]{
 
 td[class="td1"]{
   table-layout: fixed;
-  width: 400px;
-  max-width:400px;
-  min-width:400px;
+  width: 40%;
+  max-width: 40%;
+  min-width: 40%;
   padding: 0.5rem;
   font-size:100%;
   font-weight:900;
-  text-align: left;
+  text-align: center;
+}
+
+td[class="td2"]{
+  table-layout: fixed;
+  width: 10%;
+  max-width:10%;
+  min-width:10%;
+  padding: 0.5rem;
+  font-size:100%;
+  font-weight:900;
+  text-align: center;
 }
