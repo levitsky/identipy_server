@@ -110,6 +110,7 @@ class ParamsFile(BaseDocument):
     # resultsid = models.ManyToManyField(SearchRun)
     # userid = models.ForeignKey(User)
 
+
 class SearchRun(BaseDocument):
     runname = models.CharField(max_length=80, default='test')
     spectra = models.ManyToManyField(SpectraFile)
@@ -132,19 +133,19 @@ class SearchRun(BaseDocument):
         self.add_fasta(c['chosenfasta'])
         self.add_params(c['chosenparams'])
 
-    def add_spectra(self, spectraobjects):
-        for s in spectraobjects:
-            self.spectra.add(s)
+    def add_spectra(self, spectraobject):
+        # for s in spectraobjects:
+        self.spectra.add(spectraobject)
         self.save()
 
-    def add_fasta(self, fastaobjects):
-        for s in fastaobjects:
-            self.fasta.add(s)
+    def add_fasta(self, fastaobject):
+        # for s in fastaobjects:
+        self.fasta.add(fastaobject)
         self.save()
 
-    def add_params(self, paramsobjects):
-        for s in paramsobjects:
-            self.parameters.add(s)
+    def add_params(self, paramsobject):
+        # for s in paramsobjects:
+        self.parameters.add(paramsobject)
         self.save()
 
     def add_pepxml(self, pepxmlfile):
@@ -211,3 +212,42 @@ class SearchRun(BaseDocument):
             with open(fn, "r") as cf:
                 self.numProteins += sum(1 for _ in csv.reader(cf)) - 1
         self.save()
+
+class SearchGroup(BaseDocument):
+    groupname = models.CharField(max_length=80, default='test')
+    searchruns = models.ManyToManyField(SearchRun)
+    fasta = models.ManyToManyField(FastaFile)
+    parameters = models.ManyToManyField(ParamsFile)
+    status = models.CharField(max_length=80, default='No info')
+
+    def add_files(self, c):
+        self.add_fasta(c['chosenfasta'])
+        self.add_params(c['chosenparams'])
+        self.save()
+        for s in c['chosenspectra']:
+            newrun = SearchRun(runname=s.docfile.name, userid = self.userid)
+            newrun.save()
+            newrun.add_fasta(self.fasta.all()[0])
+            newrun.add_params(self.parameters.all()[0])
+            newrun.add_spectra(s)
+            newrun.save()
+            self.add_searchrun(newrun)
+            self.save()
+
+    def add_searchrun(self, searchrunobject):
+        self.searchruns.add(searchrunobject)
+        self.save()
+
+    def add_fasta(self, fastaobject):
+        self.fasta.add(fastaobject[0])
+        self.save()
+
+    def add_params(self, paramsobject):
+        self.parameters.add(paramsobject[0])
+        self.save()
+
+    def get_searchruns(self):
+        return self.searchruns.all()
+
+    def name(self):
+        return os.path.split(self.groupname)[-1]
