@@ -12,6 +12,8 @@ from django.core.files import File
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV#, Document
 from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
 import os
+from os import path
+import subprocess
 
 
 def index(request, c=dict()):
@@ -207,25 +209,53 @@ def runidentiprot(c):
     # newrun.save()
     # newrun.add_files(c)
 
+    def run_search(newrun, rn, c):
+        paramfile = newrun.parameters.all()[0].path()
+        fastafile = newrun.fasta.all()[0].path()
+        settings = main.settings(paramfile)
+        settings.set('input', 'database', fastafile.encode('ASCII'))
+        settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
+        totalrun(settings, newrun, c['userid'])
+        # p = Process(target=totalrun, args=(settings, newrun, c['userid']))
+        # p.start()
+        # p.join()
+        return 1
+
+    def set_pepxml_path(settings, inputfile):
+        if settings.has_option('output', 'path'):
+            outpath = settings.get('output', 'path')
+        else:
+            outpath = path.dirname(inputfile)
+
+        return path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
+
     def totalrun(settings, newrun, usr):
-        import subprocess
         procs = []
-        for obj in newrun.spectra.all():
-            inputfile = obj.path()
-            # newrun.calc_msms(inputfile)
-            p = Process(target=runproc, args=(inputfile, settings, newrun, usr))
-            p.start()
-            procs.append(p)
-        for p in procs:
-            p.join()
-        # newrun = get_object_or_404(SearchRun, id=pK)#SearchRun(runname=c['runname'], userid = c['userid'])
-        pepxmllist = newrun.get_pepxmlfiles_paths()
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
-        paramlist = ['defaultMP.cfg']#newrun.get_paramfile_path()
+        if not newrun.union:
+            for obj in newrun.spectra.all():
+                inputfile = obj.path()
+                # newrun.calc_msms(inputfile)
+                p = Process(target=runproc, args=(inputfile, settings, newrun, usr))
+                p.start()
+                procs.append(p)
+            for p in procs:
+                p.join()
+            # newrun = get_object_or_404(SearchRun, id=pK)#SearchRun(runname=c['runname'], userid = c['userid'])
+            pepxmllist = newrun.get_pepxmlfiles_paths()
+            paramlist = ['defaultMP.cfg']#newrun.get_paramfile_path()
+            bname = pepxmllist[0].split('.pep.xml')[0]
+        else:
+            # pepxmllist = [set_pepxml_path(settings, s) for s in spectralist]
+            pepxmllist = newrun.get_pepxmlfiles_paths()
+            paramlist = ['defaultMP2.cfg']
+            bname = os.path.dirname(pepxmllist[0]) + '/union'
         # print ['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist
         subprocess.call(['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist)
-        bname = pepxmllist[0].split('.pep.xml')[0]
+        # bname = pepxmllist[0].split('.pep.xml')[0]
+        if not os.path.isfile(bname + '_PSMs.csv'):
+            bname = os.path.dirname(bname) + '/union'
         if os.path.exists(bname + '.png'):
             fl = open(bname + '.png')
             djangofl = File(fl)
@@ -253,16 +283,17 @@ def runidentiprot(c):
         newrun.calc_results()
         newrun.change_status('Task is finished')
         newrun.save()
+        return 1
 
     def runproc(inputfile, settings, newrun, usr):
-        from os import path
         newrun.change_status('Search is running')
-        if settings.has_option('output', 'path'):
-            outpath = settings.get('output', 'path')
-        else:
-            outpath = path.dirname(inputfile)
-
-        filename = path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
+        # if settings.has_option('output', 'path'):
+        #     outpath = settings.get('output', 'path')
+        # else:
+        #     outpath = path.dirname(inputfile)
+        #
+        # filename = path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
+        filename = set_pepxml_path(settings, inputfile)
         utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
         fl = open(filename, 'r')
         djangofl = File(fl)
@@ -276,6 +307,32 @@ def runidentiprot(c):
         # newrun.save()
         return 1
 
+    def start_union(newgroup, rn, c, tmp_procs):
+        un_run = newgroup.get_union()[0]
+        for newrun in newgroup.get_searchruns():
+            for pepf in newrun.get_pepxmlfiles():
+                un_run.add_pepxml(pepf)
+                un_run.save()
+        run_search(un_run, rn, c)
+
+    def start_all(newgroup, rn, c):
+        tmp_procs = []
+        for newrun in newgroup.get_searchruns():
+            p = Process(target=run_search, args=(newrun, rn, c))
+            p.start()
+            tmp_procs.append(p)
+            # paramfile = newrun.parameters.all()[0].path()
+            # fastafile = newrun.fasta.all()[0].path()
+            # settings = main.settings(paramfile)
+            # settings.set('input', 'database', fastafile.encode('ASCII'))
+            # settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
+            # p = Process(target=totalrun, args=(settings, newrun, c['userid']))
+            # p.start()
+        for p in tmp_procs:
+            p.join()
+        p = Process(target=start_union, args=(newgroup, rn, c, tmp_procs))
+        p.start()
+
     rn = newgroup.name()
     if not os.path.exists('results'):
         os.mkdir('results')
@@ -283,14 +340,8 @@ def runidentiprot(c):
         os.mkdir(os.path.join('results', str(newgroup.userid.id)))
     if not os.path.exists('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII'))):
         os.mkdir('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII')))
-        for newrun in newgroup.get_searchruns():
-            paramfile = newrun.parameters.all()[0].path()
-            fastafile = newrun.fasta.all()[0].path()
-            settings = main.settings(paramfile)
-            settings.set('input', 'database', fastafile.encode('ASCII'))
-            settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
-            p = Process(target=totalrun, args=(settings, newrun, c['userid']))
-            p.start()
+        p = Process(target=start_all, args=(newgroup, rn, c))
+        p.start()
         c['identiprotmessage'] = 'Identiprot was started'
     else:
         c['identiprotmessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
