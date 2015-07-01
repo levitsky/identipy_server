@@ -15,7 +15,6 @@
         <input type="submit" class="backbtn" value="Back search history" name="getstatus">
         </form>
         </div>
-
         <h1>
 		{% if searchgroup %}
             <table id="processes_list">
@@ -43,7 +42,23 @@
 		{% else %}
 			<p>There are no searches.</p>
 		{% endif %}
+
         </h1>
+        <div id="download_csv">
+        <form action="#" method="get">
+        <input type="submit" class="topbtn" value="Download csv files" name="download_csv">
+        </form>
+        </div>
+        <div id="download_pepxml">
+        <form action="#" method="get">
+        <input type="submit" class="topbtn" value="Download pepxml files" name="download_pepxml">
+        </form>
+        </div>
+        <div id="download_mgf">
+        <form action="#" method="get">
+        <input type="submit" class="topbtn" value="Download mgf files" name="download_mgf">
+        </form>
+        </div>
         <div id="index_pepxml">
 		{% if searchrun.get_pepxmlfiles %}
 			<table id="pepxml_list">
