@@ -127,6 +127,7 @@ class SearchRun(BaseDocument):
     numPSMs = models.BigIntegerField(default=0)
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)
+    union = models.BooleanField(default=False)
 
     def add_files(self, c):
         self.add_spectra(c['chosenspectra'])
@@ -137,6 +138,11 @@ class SearchRun(BaseDocument):
         # for s in spectraobjects:
         self.spectra.add(spectraobject)
         self.save()
+
+    def add_spectra_files(self, spectrafiles):
+        for s in spectrafiles:
+            self.spectra.add(s)
+            self.save()
 
     def add_fasta(self, fastaobject):
         # for s in fastaobjects:
@@ -179,10 +185,17 @@ class SearchRun(BaseDocument):
         return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
 
     def get_csvfiles_paths(self, ftype=None):
+        # if not os.path.isfile(os.path.dirname(self.csvfiles.filter(ftype='psm')[0].docfile.name.encode('ASCII')) + '/union_PSMs.csv'):
         if ftype:
             return [pep.docfile.name.encode('ASCII') for pep in self.csvfiles.filter(ftype=ftype)]
         else:
             return [pep.docfile.name.encode('ASCII') for pep in self.csvfiles.all()]
+        # else:
+        #     if ftype:
+        #         fname = self.csvfiles.filter(ftype=ftype)[0].docfile.name.encode('ASCII')
+        #     else:
+        #         fname = self.csvfiles.all()[0].docfile.name.encode('ASCII')
+        #     return [os.path.dirname(fname) + '/union_' + os.path.basename(fname).split('_')[-1]]
 
     def name(self):
         return os.path.split(self.runname)[-1]
@@ -233,6 +246,15 @@ class SearchGroup(BaseDocument):
             newrun.save()
             self.add_searchrun(newrun)
             self.save()
+        if len(c['chosenspectra']) > 1:
+            newrun = SearchRun(runname='union', userid = self.userid, union=True)
+            newrun.save()
+            newrun.add_fasta(self.fasta.all()[0])
+            newrun.add_params(self.parameters.all()[0])
+            newrun.add_spectra_files(c['chosenspectra'])
+            newrun.save()
+            self.add_searchrun(newrun)
+            self.save()
 
     def add_searchrun(self, searchrunobject):
         self.searchruns.add(searchrunobject)
@@ -247,7 +269,13 @@ class SearchGroup(BaseDocument):
         self.save()
 
     def get_searchruns(self):
-        return self.searchruns.all()
+        return self.searchruns.filter(union=False)
+
+    def get_union(self):
+        return self.searchruns.filter(union=True)
+
+    def get_searchruns_all(self):
+        return self.searchruns.all().order_by('union')
 
     def name(self):
         return os.path.split(self.groupname)[-1]

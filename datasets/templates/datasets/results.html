@@ -28,7 +28,7 @@
                     <th>Peptides</th>
                     <th>Proteins</th>
                 </tr>
-            {% for searchrun in searchgroup.get_searchruns %}
+            {% for searchrun in searchgroup.get_searchruns_all %}
                 <tr>
                 <td class="td1">{{ searchrun.name }}</td>
                 <td class="td2">{{ searchrun.numMSMS }}</td>
