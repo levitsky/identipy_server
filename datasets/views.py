@@ -14,6 +14,8 @@ from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
 import os
 from os import path
 import subprocess
+import zipfile
+import StringIO
 
 
 def index(request, c=dict()):
@@ -55,6 +57,15 @@ def index(request, c=dict()):
     elif(request.GET.get('search_details')):
         request.GET = request.GET.copy()
         return search_details(request, runname=request.GET['search_details'], c=c)
+    elif(request.GET.get('download_csv')):
+        c['down_type'] = 'csv'
+        return getfiles(request, c=c)
+    elif(request.GET.get('download_pepxml')):
+        c['down_type'] = 'pepxml'
+        return getfiles(request, c=c)
+    elif(request.GET.get('download_mgf')):
+        c['down_type'] = 'mgf'
+        return getfiles(request, c=c)
     c.update(csrf(request))
     # Handle file upload
     if request.method == 'POST':
@@ -354,3 +365,35 @@ def search_details(request, runname, c=dict()):
     runobj = get_object_or_404(SearchGroup, groupname=runname)
     c.update({'searchgroup': runobj})
     return render(request, 'datasets/results.html', c)
+
+
+def getfiles(request, c):
+    searchgroup = c['searchgroup']
+    filenames = []
+    for searchrun in searchgroup.get_searchruns_all():
+        if c['down_type'] == 'csv':
+            for down_fn in searchrun.get_csvfiles_paths():
+                filenames.append(down_fn)
+        elif c['down_type'] == 'pepxml':
+            for down_fn in searchrun.get_pepxmlfiles_paths():
+                filenames.append(down_fn)
+        elif c['down_type'] == 'mgf':
+            for down_fn in searchrun.get_spectrafiles_paths():
+                filenames.append(down_fn)
+
+    zip_subdir = searchgroup.name() + '_' + c['down_type'] + '_files'
+    zip_filename = "%s.zip" % zip_subdir
+
+    s = StringIO.StringIO()
+    zf = zipfile.ZipFile(s, "w")
+
+    for fpath in filenames:
+        fdir, fname = os.path.split(fpath)
+        zip_path = os.path.join(zip_subdir, fname)
+        zf.write(fpath, zip_path)
+    zf.close()
+
+    resp = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
+    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+
+    return resp
