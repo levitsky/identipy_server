@@ -30,10 +30,10 @@
 			{% for doc in processes %}
             <tr>
                 <form action="#" method="get">
-                <td><input type="submit" class="docname" value={{ doc.name }} name="search_details"/></td>
+                <td class="td1"><input type="submit" class="docname" value={{ doc.name }} name="search_details"/></td>
                 </form>
-                <td>{{ doc.date_added }}</td>
-                <td>{{ doc.status }}</td>
+                <td class="td1">{{ doc.date_added }}</td>
+                <td class="td3">{{ doc.status }}</td>
             </tr>
 			{% endfor %}
 			</table>

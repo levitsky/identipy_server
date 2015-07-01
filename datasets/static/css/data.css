@@ -129,3 +129,14 @@ td[class="td2"]{
   font-weight:900;
   text-align: center;
 }
+
+td[class="td3"]{
+  table-layout: fixed;
+  width: 20%;
+  max-width:10%;
+  min-width:10%;
+  padding: 0.5rem;
+  font-size:100%;
+  font-weight:900;
+  text-align: center;
+}
