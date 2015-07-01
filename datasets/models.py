@@ -112,7 +112,7 @@ class ParamsFile(BaseDocument):
 
 
 class SearchRun(BaseDocument):
-    runname = models.CharField(max_length=80, default='test')
+    runname = models.CharField(max_length=80)
     spectra = models.ManyToManyField(SpectraFile)
     fasta = models.ManyToManyField(FastaFile)
     parameters = models.ManyToManyField(ParamsFile)
@@ -238,7 +238,7 @@ class SearchGroup(BaseDocument):
         self.add_params(c['chosenparams'])
         self.save()
         for s in c['chosenspectra']:
-            newrun = SearchRun(runname=s.docfile.name, userid = self.userid)
+            newrun = SearchRun(runname=os.path.splitext(s.docfile.name)[0], userid = self.userid)
             newrun.save()
             newrun.add_fasta(self.fasta.all()[0])
             newrun.add_params(self.parameters.all()[0])
