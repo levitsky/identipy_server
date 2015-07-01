@@ -120,7 +120,6 @@ class SearchRun(BaseDocument):
     resimagefiles = models.ManyToManyField(ResImageFile)
     csvfiles = models.ManyToManyField(ResCSV)
     # proc = None
-    status = models.CharField(max_length=80, default='No info')
     numMSMS = models.BigIntegerField(default=0)
     totalPSMs = models.BigIntegerField(default=0)
     fdr = models.FloatField(default=0.0)
@@ -204,10 +203,6 @@ class SearchRun(BaseDocument):
         self.proc = proc
         self.save()
 
-    def change_status(self, message):
-        self.status = message
-        self.save()
-
     def calc_results(self):
         from pyteomics import mgf, pepxml
         import csv
@@ -279,3 +274,7 @@ class SearchGroup(BaseDocument):
 
     def name(self):
         return os.path.split(self.groupname)[-1]
+
+    def change_status(self, message):
+        self.status = message
+        self.save()

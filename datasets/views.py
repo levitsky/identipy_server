@@ -281,12 +281,9 @@ def runidentiprot(c):
             csvf.save()
             newrun.add_rescsv(csvf)
         newrun.calc_results()
-        newrun.change_status('Task is finished')
-        newrun.save()
         return 1
 
     def runproc(inputfile, settings, newrun, usr):
-        newrun.change_status('Search is running')
         # if settings.has_option('output', 'path'):
         #     outpath = settings.get('output', 'path')
         # else:
@@ -303,8 +300,6 @@ def runidentiprot(c):
         pepxmlfile.save()
         print pepxmlfile.docfile.name
         newrun.add_pepxml(pepxmlfile)
-        newrun.change_status('Post-search validation is running')
-        # newrun.save()
         return 1
 
     def start_union(newgroup, rn, c, tmp_procs):
@@ -314,6 +309,7 @@ def runidentiprot(c):
                 un_run.add_pepxml(pepf)
                 un_run.save()
         run_search(un_run, rn, c)
+        newgroup.change_status('Task is finished')
 
     def start_all(newgroup, rn, c):
         tmp_procs = []
@@ -340,6 +336,7 @@ def runidentiprot(c):
         os.mkdir(os.path.join('results', str(newgroup.userid.id)))
     if not os.path.exists('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII'))):
         os.mkdir('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII')))
+        newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
         c['identiprotmessage'] = 'Identiprot was started'
