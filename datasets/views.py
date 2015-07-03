@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.files import File
 
-from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV#, Document
-from .forms import SpectraForm, FastaForm, RawForm, MultFilesForm, ParamsForm
+from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV
+from .forms import MultFilesForm, CommonForm
 import os
 from os import path
 import subprocess
@@ -72,42 +72,28 @@ def index(request, c=dict()):
     c.update(csrf(request))
     # Handle file upload
     if request.method == 'POST':
-        # form = DocumentForm(request.POST, request.FILES)
-        spectraform = SpectraForm(request.POST, request.FILES)
-        fastaform = FastaForm(request.POST, request.FILES)
-        rawform = RawForm(request.POST, request.FILES)
-        paramsform = ParamsForm(request.POST, request.FILES)
-        if fastaform.is_valid():
-            # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
-            newdoc = FastaFile(docfile = request.FILES['fastafile'], userid = request.user)
-            newdoc.save()
-            # Redirect to the document list after POST
-            return HttpResponseRedirect(reverse('datasets:index'))
-        if spectraform.is_valid():
-            # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
-            newdoc = SpectraFile(docfile = request.FILES['spectrafile'], userid = request.user)
-            newdoc.save()
-            # Redirect to the document list after POST
-            return HttpResponseRedirect(reverse('datasets:index'))
-        if paramsform.is_valid():
-            # newdoc = Document(docfile = request.FILES['docfile'], userid = request.user, fext = os.path.splitext(request.FILES['docfile'].name)[-1][1:])
-            newdoc = ParamsFile(docfile = request.FILES['paramsfile'], userid = request.user)
-            newdoc.save()
-            # Redirect to the document list after POST
+        commonform = CommonForm(request.POST, request.FILES)
+        if 'commonfiles' in request.FILES:#commonform.is_valid():
+            print 'HERE !@$!@!$!$@!$'
+            for uploadedfile in request.FILES.getlist('commonfiles'):
+                fext = os.path.splitext(uploadedfile.name)[-1].lower()
+                if fext == '.mgf':
+                    newdoc = SpectraFile(docfile = uploadedfile, userid = request.user)
+                    newdoc.save()
+                if fext == '.fasta':
+                    newdoc = FastaFile(docfile = uploadedfile, userid = request.user)
+                    newdoc.save()
+                if fext == '.cfg':
+                    newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
+                    newdoc.save()
+                else:
+                    pass
             return HttpResponseRedirect(reverse('datasets:index'))
     else:
-        spectraform = SpectraForm() # A empty, unbound form
-        fastaform = FastaForm()
-        rawform = RawForm()
-        paramsform = ParamsForm()
-
-
-    # Load documents for the list page
-    # documents = Document.objects.filter(userid=request.user.id)
-    documents = SpectraFile.objects.filter(userid=request.user.id)
+        commonform = CommonForm()
 
     # Render list page with the documents and the form
-    c.update({'documents': documents, 'spectraform': spectraform, 'fastaform': fastaform, 'rawform': rawform, 'paramsform': paramsform, 'userid': request.user})
+    c.update({'commonform': commonform, 'userid': request.user})
     return render(request, 'datasets/index.html', c)
 
 def details(request, pK):
