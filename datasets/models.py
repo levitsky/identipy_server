@@ -111,7 +111,71 @@ class ParamsFile(BaseDocument):
     # userid = models.ForeignKey(User)
 
 
+class SearchGroup(BaseDocument):
+    groupname = models.CharField(max_length=80, default='test')
+    # searchruns = models.ManyToManyField(SearchRun)
+    fasta = models.ManyToManyField(FastaFile)
+    parameters = models.ManyToManyField(ParamsFile)
+    status = models.CharField(max_length=80, default='No info')
+
+    def add_files(self, c):
+        self.add_fasta(c['chosenfasta'])
+        self.add_params(c['chosenparams'])
+        self.save()
+        for s in c['chosenspectra']:
+            newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], userid = self.userid)
+            newrun.save()
+            newrun.add_fasta(self.fasta.all()[0])
+            newrun.add_params(self.parameters.all()[0])
+            newrun.add_spectra(s)
+            newrun.save()
+            # self.add_searchrun(newrun)
+            self.save()
+        if len(c['chosenspectra']) > 1:
+            newrun = SearchRun(searchgroup_parent=self, runname='union', userid = self.userid, union=True)
+            newrun.save()
+            newrun.add_fasta(self.fasta.all()[0])
+            newrun.add_params(self.parameters.all()[0])
+            newrun.add_spectra_files(c['chosenspectra'])
+            newrun.save()
+            # self.add_searchrun(newrun)
+            self.save()
+
+    # def add_searchrun(self, searchrunobject):
+    #     self.searchruns.add(searchrunobject)
+    #     self.save()
+
+    def add_fasta(self, fastaobject):
+        self.fasta.add(fastaobject[0])
+        self.save()
+
+    def add_params(self, paramsobject):
+        self.parameters.add(paramsobject[0])
+        self.save()
+
+    def get_searchruns(self):
+        return self.searchrun_set.filter(union=False)
+        # return self.searchruns.filter(union=False)
+
+    def get_union(self):
+        return self.searchrun_set.filter(union=True)
+        # return self.searchruns.filter(union=True)
+
+    def get_searchruns_all(self):
+        return self.searchrun_set.all().order_by('union')
+        # return self.searchruns.all().order_by('union')
+
+    def name(self):
+        return os.path.split(self.groupname)[-1]
+
+    def change_status(self, message):
+        self.status = message
+        self.save()
+
+
+
 class SearchRun(BaseDocument):
+    searchgroup_parent = models.ForeignKey(SearchGroup)
     runname = models.CharField(max_length=80)
     spectra = models.ManyToManyField(SpectraFile)
     fasta = models.ManyToManyField(FastaFile)
@@ -219,62 +283,4 @@ class SearchRun(BaseDocument):
         for fn in self.get_csvfiles_paths(ftype='protein'):
             with open(fn, "r") as cf:
                 self.numProteins += sum(1 for _ in csv.reader(cf)) - 1
-        self.save()
-
-class SearchGroup(BaseDocument):
-    groupname = models.CharField(max_length=80, default='test')
-    searchruns = models.ManyToManyField(SearchRun)
-    fasta = models.ManyToManyField(FastaFile)
-    parameters = models.ManyToManyField(ParamsFile)
-    status = models.CharField(max_length=80, default='No info')
-
-    def add_files(self, c):
-        self.add_fasta(c['chosenfasta'])
-        self.add_params(c['chosenparams'])
-        self.save()
-        for s in c['chosenspectra']:
-            newrun = SearchRun(runname=os.path.splitext(s.docfile.name)[0], userid = self.userid)
-            newrun.save()
-            newrun.add_fasta(self.fasta.all()[0])
-            newrun.add_params(self.parameters.all()[0])
-            newrun.add_spectra(s)
-            newrun.save()
-            self.add_searchrun(newrun)
-            self.save()
-        if len(c['chosenspectra']) > 1:
-            newrun = SearchRun(runname='union', userid = self.userid, union=True)
-            newrun.save()
-            newrun.add_fasta(self.fasta.all()[0])
-            newrun.add_params(self.parameters.all()[0])
-            newrun.add_spectra_files(c['chosenspectra'])
-            newrun.save()
-            self.add_searchrun(newrun)
-            self.save()
-
-    def add_searchrun(self, searchrunobject):
-        self.searchruns.add(searchrunobject)
-        self.save()
-
-    def add_fasta(self, fastaobject):
-        self.fasta.add(fastaobject[0])
-        self.save()
-
-    def add_params(self, paramsobject):
-        self.parameters.add(paramsobject[0])
-        self.save()
-
-    def get_searchruns(self):
-        return self.searchruns.filter(union=False)
-
-    def get_union(self):
-        return self.searchruns.filter(union=True)
-
-    def get_searchruns_all(self):
-        return self.searchruns.all().order_by('union')
-
-    def name(self):
-        return os.path.split(self.groupname)[-1]
-
-    def change_status(self, message):
-        self.status = message
         self.save()
