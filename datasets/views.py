@@ -316,13 +316,17 @@ def runidentiprot(c):
         newrun.add_pepxml(pepxmlfile)
         return 1
 
-    def start_union(newgroup, rn, c, tmp_procs):
-        un_run = newgroup.get_union()[0]
-        for newrun in newgroup.get_searchruns():
-            for pepf in newrun.get_pepxmlfiles():
-                un_run.add_pepxml(pepf)
-                un_run.save()
-        run_search(un_run, rn, c)
+    def start_union(newgroup, rn, c):
+        try:
+            un_run = newgroup.get_union()[0]
+        except:
+            un_run = False
+        if un_run:
+            for newrun in newgroup.get_searchruns():
+                for pepf in newrun.get_pepxmlfiles():
+                    un_run.add_pepxml(pepf)
+                    un_run.save()
+            run_search(un_run, rn, c)
         newgroup.change_status('Task is finished')
 
     def start_all(newgroup, rn, c):
@@ -340,7 +344,7 @@ def runidentiprot(c):
             # p.start()
         for p in tmp_procs:
             p.join()
-        p = Process(target=start_union, args=(newgroup, rn, c, tmp_procs))
+        p = Process(target=start_union, args=(newgroup, rn, c))
         p.start()
 
     rn = newgroup.name()
