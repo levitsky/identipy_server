@@ -1,27 +1,10 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from multiupload.fields import MultiFileField
 
 
-class SpectraForm(forms.Form):
-    spectrafile = forms.FileField(
-        label='Upload spectra files',
-    )
-
-class FastaForm(forms.Form):
-    fastafile = forms.FileField(
-        label='Upload fasta files',
-    )
-
-class RawForm(forms.Form):
-    rawfile = forms.FileField(
-        label='Upload raw files',
-    )
-
-class ParamsForm(forms.Form):
-    paramsfile = forms.FileField(
-        label='Upload params files',
-    )
-
+class CommonForm(forms.Form):
+    commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload files')
 
 class MultFilesForm(forms.Form):
     # OPTIONS = (
