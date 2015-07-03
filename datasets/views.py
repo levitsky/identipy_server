@@ -57,6 +57,9 @@ def index(request, c=dict()):
     elif(request.GET.get('search_details')):
         request.GET = request.GET.copy()
         return search_details(request, runname=request.GET['search_details'], c=c)
+    elif(request.GET.get('results_figure')):
+        request.GET = request.GET.copy()
+        return results_figure(request, runname=request.GET['results_figure_actualname'], searchgroupid=request.GET['results_figure_searchgroupid'], c=c)
     elif(request.GET.get('download_csv')):
         c['down_type'] = 'csv'
         return getfiles(request, c=c)
@@ -365,6 +368,16 @@ def search_details(request, runname, c=dict()):
     runobj = get_object_or_404(SearchGroup, groupname=runname)
     c.update({'searchgroup': runobj})
     return render(request, 'datasets/results.html', c)
+
+def results_figure(request, runname, searchgroupid, c=dict()):
+    # doc = get_object_or_404(Document, id=pK)
+    c = c
+    c.update(csrf(request))
+    # runobj = get_object_or_404(SearchRun, runname=runname)
+    # c.update({'searchrun': runobj})
+    runobj = get_object_or_404(SearchRun, runname=runname, searchgroup_parent_id=searchgroupid)
+    c.update({'searchrun': runobj})
+    return render(request, 'datasets/results_figure.html', c)
 
 
 def getfiles(request, c):
