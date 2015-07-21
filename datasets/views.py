@@ -97,7 +97,7 @@ def index(request, c=dict()):
         c.update({'commonform': commonform, 'userid': request.user})
         return render(request, 'datasets/index.html', c)
     else:
-        return loginview(request)
+        return redirect('/login/')
 
 def details(request, pK):
     # doc = get_object_or_404(Document, id=pK)
