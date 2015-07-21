@@ -19,82 +19,85 @@ import StringIO
 
 
 def index(request, c=dict()):
-    print request.method
-    if(request.GET.get('runidentiprot')):
-        request.GET = request.GET.copy()
-        request.GET['runidentiprot'] = None
-        c['runname'] = request.GET['runname']
-        return identiprot_view(request, c = c)
-    elif(request.GET.get('statusback')):
-        request.GET = request.GET.copy()
-        request.GET['statusback'] = None
-        c['identiprotmessage'] = None
-        return index(request, c=c)
-    elif(request.GET.get('cancel')):
-        request.GET = request.GET.copy()
-        request.GET['cancel'] = None
-        return index(request, c=c)
-    elif(request.GET.get('clear')):
-        request.GET = request.GET.copy()
-        request.GET['clear'] = None
-        return index(request, c=dict())
-    elif(request.GET.get('getstatus')):
-        request.GET = request.GET.copy()
-        request.GET['getstatus'] = None
-        return status(request, c = c)
-    elif(request.GET.get('uploadspectra')):
-        request.GET = request.GET.copy()
-        request.GET['uploadspectra'] = None
-        return files_view_spectra(request, c = c)
-    elif(request.GET.get('uploadfasta')):
-        request.GET = request.GET.copy()
-        request.GET['uploadfasta'] = None
-        return files_view_fasta(request, c = c)
-    elif(request.GET.get('uploadparams')):
-        request.GET = request.GET.copy()
-        request.GET['uploadparams'] = None
-        return files_view_params(request, c = c)
-    elif(request.GET.get('search_details')):
-        request.GET = request.GET.copy()
-        return search_details(request, runname=request.GET['search_details'], c=c)
-    elif(request.GET.get('results_figure')):
-        request.GET = request.GET.copy()
-        return results_figure(request, runname=request.GET['results_figure_actualname'], searchgroupid=request.GET['results_figure_searchgroupid'], c=c)
-    elif(request.GET.get('download_csv')):
-        c['down_type'] = 'csv'
-        return getfiles(request, c=c)
-    elif(request.GET.get('download_pepxml')):
-        c['down_type'] = 'pepxml'
-        return getfiles(request, c=c)
-    elif(request.GET.get('download_mgf')):
-        c['down_type'] = 'mgf'
-        return getfiles(request, c=c)
-    c.update(csrf(request))
-    # Handle file upload
-    if request.method == 'POST':
-        commonform = CommonForm(request.POST, request.FILES)
-        if 'commonfiles' in request.FILES:#commonform.is_valid():
-            print 'HERE !@$!@!$!$@!$'
-            for uploadedfile in request.FILES.getlist('commonfiles'):
-                fext = os.path.splitext(uploadedfile.name)[-1].lower()
-                if fext == '.mgf':
-                    newdoc = SpectraFile(docfile = uploadedfile, userid = request.user)
-                    newdoc.save()
-                if fext == '.fasta':
-                    newdoc = FastaFile(docfile = uploadedfile, userid = request.user)
-                    newdoc.save()
-                if fext == '.cfg':
-                    newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
-                    newdoc.save()
-                else:
-                    pass
-            return HttpResponseRedirect(reverse('datasets:index'))
-    else:
-        commonform = CommonForm()
+    if request.user.is_authenticated():
+        print request.method
+        if(request.GET.get('runidentiprot')):
+            request.GET = request.GET.copy()
+            request.GET['runidentiprot'] = None
+            c['runname'] = request.GET['runname']
+            return identiprot_view(request, c = c)
+        elif(request.GET.get('statusback')):
+            request.GET = request.GET.copy()
+            request.GET['statusback'] = None
+            c['identiprotmessage'] = None
+            return index(request, c=c)
+        elif(request.GET.get('cancel')):
+            request.GET = request.GET.copy()
+            request.GET['cancel'] = None
+            return index(request, c=c)
+        elif(request.GET.get('clear')):
+            request.GET = request.GET.copy()
+            request.GET['clear'] = None
+            return index(request, c=dict())
+        elif(request.GET.get('getstatus')):
+            request.GET = request.GET.copy()
+            request.GET['getstatus'] = None
+            return status(request, c = c)
+        elif(request.GET.get('uploadspectra')):
+            request.GET = request.GET.copy()
+            request.GET['uploadspectra'] = None
+            return files_view_spectra(request, c = c)
+        elif(request.GET.get('uploadfasta')):
+            request.GET = request.GET.copy()
+            request.GET['uploadfasta'] = None
+            return files_view_fasta(request, c = c)
+        elif(request.GET.get('uploadparams')):
+            request.GET = request.GET.copy()
+            request.GET['uploadparams'] = None
+            return files_view_params(request, c = c)
+        elif(request.GET.get('search_details')):
+            request.GET = request.GET.copy()
+            return search_details(request, runname=request.GET['search_details'], c=c)
+        elif(request.GET.get('results_figure')):
+            request.GET = request.GET.copy()
+            return results_figure(request, runname=request.GET['results_figure_actualname'], searchgroupid=request.GET['results_figure_searchgroupid'], c=c)
+        elif(request.GET.get('download_csv')):
+            c['down_type'] = 'csv'
+            return getfiles(request, c=c)
+        elif(request.GET.get('download_pepxml')):
+            c['down_type'] = 'pepxml'
+            return getfiles(request, c=c)
+        elif(request.GET.get('download_mgf')):
+            c['down_type'] = 'mgf'
+            return getfiles(request, c=c)
+        c.update(csrf(request))
+        # Handle file upload
+        if request.method == 'POST':
+            commonform = CommonForm(request.POST, request.FILES)
+            if 'commonfiles' in request.FILES:#commonform.is_valid():
+                print 'HERE !@$!@!$!$@!$'
+                for uploadedfile in request.FILES.getlist('commonfiles'):
+                    fext = os.path.splitext(uploadedfile.name)[-1].lower()
+                    if fext == '.mgf':
+                        newdoc = SpectraFile(docfile = uploadedfile, userid = request.user)
+                        newdoc.save()
+                    if fext == '.fasta':
+                        newdoc = FastaFile(docfile = uploadedfile, userid = request.user)
+                        newdoc.save()
+                    if fext == '.cfg':
+                        newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
+                        newdoc.save()
+                    else:
+                        pass
+                return HttpResponseRedirect(reverse('datasets:index'))
+        else:
+            commonform = CommonForm()
 
-    # Render list page with the documents and the form
-    c.update({'commonform': commonform, 'userid': request.user})
-    return render(request, 'datasets/index.html', c)
+        # Render list page with the documents and the form
+        c.update({'commonform': commonform, 'userid': request.user})
+        return render(request, 'datasets/index.html', c)
+    else:
+        return loginview(request)
 
 def details(request, pK):
     # doc = get_object_or_404(Document, id=pK)
