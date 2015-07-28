@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from multiupload.fields import MultiFileField
-
+from pyteomics import biolccc
 
 class CommonForm(forms.Form):
     commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload files')
@@ -30,3 +30,68 @@ class MultFilesForm(forms.Form):
             self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
         else:
             self.fields['relates_to'] = forms.ChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.Select, required=False)
+
+class Survey(forms.Form):
+    name = forms.CharField(max_length=20)
+    age = forms.IntegerField()
+
+
+
+
+class SearchParametersForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        raw_config = kwargs.pop('raw_config', 0)
+        super(SearchParametersForm, self).__init__(*args, **kwargs)
+
+        def get_allowed_values(settings):
+            for section in settings.sections():
+                for param in settings.items(section):
+                    if '|' in param[1]:
+                        yield [param[1].split('|')[1], ] + [param[0], param[1].split('|')[0]]
+
+        def get_field(fieldtype, label, initial):
+            if fieldtype == 'type>float':
+                return forms.FloatField(label=label, initial=initial)
+            elif fieldtype == 'type>int':
+                return forms.IntegerField(label=label, initial=initial)
+            elif fieldtype == 'type>string':
+                return forms.CharField(label=label, initial=initial)
+
+        if raw_config:
+            print 'HERE2Q'
+            for param in get_allowed_values(raw_config):
+                if 'type' not in param[0]:
+                    self.fields[param[1]] = forms.ChoiceField(
+                        label=param[1],
+                        choices=[[x, x] for x in param[0].split(',')],
+                        initial=param[0].split(',')[0],
+                        )
+                else:
+                    self.fields[param[1]] = get_field(fieldtype=param[0], label=param[1], initial=param[2])
+
+
+    # def add_params(self, raw_config):
+    #     def get_allowed_values(settings):
+    #         for section in settings.sections():
+    #             for param in settings.items(section):
+    #                 if '|' in param[1]:
+    #                     yield [param[1].split('|')[1], ] + [param[0], param[1].split('|')[0]]
+    #
+    #     def get_field(fieldtype, label, initial):
+    #         if fieldtype == 'type>float':
+    #             return forms.FloatField(label=label, initial=initial)
+    #         elif fieldtype == 'type>int':
+    #             return forms.IntegerField(label=label, initial=initial)
+    #         elif fieldtype == 'type>string':
+    #             return forms.CharField(label=label, initial=initial)
+    #
+    #     for param in get_allowed_values(raw_config):
+    #         if 'type' not in param[0]:
+    #             self.fields[param[1]] = forms.ChoiceField(
+    #                 label=param[1],
+    #                 choices=[[x, x] for x in param[0].split(',')],
+    #                 initial=param[0].split(',')[0],
+    #                 )
+    #         else:
+    #             self.fields[param[1]] = get_field(fieldtype=param[0], label=param[1], initial=param[2])

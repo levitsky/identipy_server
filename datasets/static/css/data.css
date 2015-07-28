@@ -140,3 +140,16 @@ td[class="td3"]{
   font-weight:900;
   text-align: center;
 }
+
+.index_img {
+  overflow: auto;
+  display: block;
+}
+.index_img > div {
+  margin: 30px;
+  width: 29%;
+  background: white;
+  float: left;
+  color: #000;
+  text-align: center;
+}

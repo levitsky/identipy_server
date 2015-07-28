@@ -4,6 +4,11 @@ from django.core.files.storage import default_storage, FileSystemStorage
 from django.contrib.auth.models import User
 import os
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.files import File
+import sys
+sys.path.append('../identipy/')
+from identipy.utils import CustomRawConfigParser
 
 
 # def upload_to(instance, filename):
@@ -120,7 +125,7 @@ class SearchGroup(BaseDocument):
 
     def add_files(self, c):
         self.add_fasta(c['chosenfasta'])
-        self.add_params(c['chosenparams'])
+        self.add_params(c['SearchParametersForm'])
         self.save()
         for s in c['chosenspectra']:
             newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], userid = self.userid)
@@ -149,8 +154,30 @@ class SearchGroup(BaseDocument):
         self.fasta.add(fastaobject[0])
         self.save()
 
-    def add_params(self, paramsobject):
-        self.parameters.add(paramsobject[0])
+    def add_params(self, SearchParametersForm_values):
+        # for s in paramsobjects:
+        SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
+        try:
+            paramobj = ParamsFile.objects.get(docfile__endswith='latest_params.cfg', userid=self.userid)
+        except ObjectDoesNotExist:
+            print("Either the entry or blog doesn't exist.")
+            fl = open('latest_params.cfg')
+            djangofl = File(fl)
+            paramobj = ParamsFile(docfile = djangofl, userid = self.userid)
+            paramobj.save()
+            fl.close()
+        raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+        raw_config.read(paramobj.docfile.name.encode('ASCII'))
+        print SearchParametersForm_values.items()
+        for section in raw_config.sections():
+            for param in raw_config.items(section):
+                if param[0] in SearchParametersForm_values:
+                    print 'GERE!!@#', SearchParametersForm_values[param[0]]
+                    orig_choices = raw_config.get_choices(section, param[0])
+                    raw_config.set(section, param[0], SearchParametersForm_values[param[0]] + '|' + orig_choices)
+        print raw_config.get('search', 'precursor accuracy left'), 'mass accuracy left'
+        raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
+        self.parameters.add(paramobj)
         self.save()
 
     def get_searchruns(self):
@@ -195,7 +222,7 @@ class SearchRun(BaseDocument):
     def add_files(self, c):
         self.add_spectra(c['chosenspectra'])
         self.add_fasta(c['chosenfasta'])
-        self.add_params(c['chosenparams'])
+        self.add_params(c['SearchParametersForm'])
 
     def add_spectra(self, spectraobject):
         # for s in spectraobjects:
