@@ -60,14 +60,39 @@
         </form>
         </div>
 
-        <div id="index_img">
+
+
+        <div class = "index_img" >
 		{% if searchrun.get_pepxmlfiles %}
 			<table id="img_list">
 			{% for doc in searchrun.get_resimagefiles %}
-            <tr>
+
+            <div class="floated_img">
                 {% load staticfiles %}
                 <img src="{%static doc.path %}" />
-            </tr>
+                <p>Description of above image</p>
+            </div>
+
+            <div class="floated_img">
+                {% load staticfiles %}
+                <img src="{%static doc.path %}" />
+                <p>Description of above image</p>
+            </div>
+            <div class="floated_img">
+                {% load staticfiles %}
+                <img src="{%static doc.path %}" />
+                <p>Description of above image</p>
+            </div>
+            <div class="floated_img">
+                {% load staticfiles %}
+                <img src="{%static doc.path %}" />
+                <p>Description of above image</p>
+            </div>
+            <div class="floated_img">
+                {% load staticfiles %}
+                <img src="{%static doc.path %}" />
+                <p>Description of above image</p>
+            </div>
 			{% endfor %}
 			</table>
 		{% else %}

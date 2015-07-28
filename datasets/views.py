@@ -10,22 +10,41 @@ from django.template import RequestContext
 from django.core.files import File
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV
-from .forms import MultFilesForm, CommonForm
+from .forms import MultFilesForm, CommonForm, SearchParametersForm
 import os
 from os import path
 import subprocess
 import zipfile
 import StringIO
+import shutil
 
+
+import sys
+sys.path.append('../identipy/')
+from identipy import main, utils
+from multiprocessing import Process
 
 def index(request, c=dict()):
     if request.user.is_authenticated():
         print request.method
-        if(request.GET.get('runidentiprot')):
-            request.GET = request.GET.copy()
-            request.GET['runidentiprot'] = None
-            c['runname'] = request.GET['runname']
+        if(request.POST.get('runidentiprot')):
+            request.POST = request.POST.copy()
+            request.POST['runidentiprot'] = None
+            c['runname'] = request.POST['runname']
+            print request.POST.keys(), 'Req, POST, keys'
+            raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+            raw_config.read('latest_params.cfg')
+            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
+            # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
+        elif(request.POST.get('testform')):
+            request.POST = request.POST.copy()
+            request.POST['testform'] = None
+            print request.POST.keys(), 'Req, POST, keys'
+            raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+            raw_config.read('latest_params.cfg')
+            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
+            return render(request, 'datasets/index.html', c)
         elif(request.GET.get('statusback')):
             request.GET = request.GET.copy()
             request.GET['statusback'] = None
@@ -85,6 +104,12 @@ def index(request, c=dict()):
                         newdoc = FastaFile(docfile = uploadedfile, userid = request.user)
                         newdoc.save()
                     if fext == '.cfg':
+                        os.remove('latest_params.cfg')
+                        fd = open('latest_params.cfg', 'wb')
+                        for chunk in uploadedfile.chunks():
+                            fd.write(chunk)
+                        fd.close()
+                        # uploadedfile.write('latest_params.cfg')
                         newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
                         newdoc.save()
                     else:
@@ -93,8 +118,25 @@ def index(request, c=dict()):
         else:
             commonform = CommonForm()
 
-        # Render list page with the documents and the form
-        c.update({'commonform': commonform, 'userid': request.user})
+        if 'chosenparams' in c:
+            os.remove('latest_params.cfg')
+            shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), 'latest_params.cfg')
+            # fd = open('latest_params.cfg', 'wb')
+            # for chunk in c['chosenparams'].chunks():
+            #     fd.write(chunk)
+            # fd.close()
+        raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+        raw_config.read('latest_params.cfg')
+
+        if 'SearchParametersForm' not in c:
+            print 'HERE!Q'
+            sf = SearchParametersForm(raw_config=raw_config)
+            # sf.add_params(raw_config=raw_config)
+        else:
+            sf = c['SearchParametersForm']
+        print sf.fields
+        c.update({'commonform': commonform, 'userid': request.user, 'SearchParametersForm': sf})
+        print 'Here!'
         return render(request, 'datasets/index.html', c)
     else:
         return redirect('/login/')
@@ -200,13 +242,21 @@ def identiprot_view(request, c):
     return index(request, c)
 
 def runidentiprot(c):
-    import sys
-    sys.path.append('../identipy/')
-    from identipy import main, utils
-    from multiprocessing import Process
-
     newgroup = SearchGroup(groupname=c['runname'], userid = c['userid'])
     newgroup.save()
+
+    # print ParamsFile.objects.filter(userid=newgroup.userid).count(), 'Number of params objects'
+    # print ParamsFile.objects.filter(docfile__endswith='latest_params.cfg', userid=newgroup.userid).count()
+    # fl = open('latest_params.cfg')
+    # djangofl = File(fl)
+
+    # for v in c['SearchParametersForm']:
+    #     print v.name, v.value()
+
+    # newdoc = ParamsFile(docfile = djangofl, userid = c['userid'])
+    # newdoc.save()
+    # fl.close()
+    # c['chosenparams'] = [newdoc, ] # TODO
     newgroup.add_files(c)
     # newrun = SearchRun(runname=c['runname'], userid = c['userid'])
     # newrun.save()
