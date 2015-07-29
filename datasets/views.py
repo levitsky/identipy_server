@@ -31,7 +31,6 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['runidentiprot'] = None
             c['runname'] = request.POST['runname']
-            print request.POST.keys(), 'Req, POST, keys'
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
             raw_config.read('latest_params.cfg')
             c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
@@ -89,12 +88,14 @@ def index(request, c=dict()):
         elif(request.GET.get('download_mgf')):
             c['down_type'] = 'mgf'
             return getfiles(request, c=c)
+        elif(request.GET.get('download_figs')):
+            c['down_type'] = 'figs'
+            return getfiles(request, c=c)
         c.update(csrf(request))
         # Handle file upload
         if request.method == 'POST':
             commonform = CommonForm(request.POST, request.FILES)
             if 'commonfiles' in request.FILES:#commonform.is_valid():
-                print 'HERE !@$!@!$!$@!$'
                 for uploadedfile in request.FILES.getlist('commonfiles'):
                     fext = os.path.splitext(uploadedfile.name)[-1].lower()
                     if fext == '.mgf':
@@ -129,14 +130,12 @@ def index(request, c=dict()):
         raw_config.read('latest_params.cfg')
 
         if 'SearchParametersForm' not in c:
-            print 'HERE!Q'
             sf = SearchParametersForm(raw_config=raw_config)
             # sf.add_params(raw_config=raw_config)
         else:
             sf = c['SearchParametersForm']
         print sf.fields
         c.update({'commonform': commonform, 'userid': request.user, 'SearchParametersForm': sf})
-        print 'Here!'
         return render(request, 'datasets/index.html', c)
     else:
         return redirect('/login/')
@@ -445,6 +444,9 @@ def getfiles(request, c):
                 filenames.append(down_fn)
         elif c['down_type'] == 'mgf':
             for down_fn in searchrun.get_spectrafiles_paths():
+                filenames.append(down_fn)
+        elif c['down_type'] == 'figs':
+            for down_fn in searchrun.get_resimage_paths():
                 filenames.append(down_fn)
 
     zip_subdir = searchgroup.name() + '_' + c['down_type'] + '_files'
