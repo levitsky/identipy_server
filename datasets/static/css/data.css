@@ -61,6 +61,15 @@ body{
   color:#fff;
 }
 
+#data h6{
+  background:#0000FF;
+  padding:1% 1%;
+  font-size:250%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+}
+
 input[class="topbtn"]{
   width:100%;
   background:#00FF00;
