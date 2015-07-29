@@ -10,21 +10,15 @@
             <!--<link rel="stylesheet" href="css/login.css">-->
       </head>
         <div id="data">
+            <form method='post'>{% csrf_token %}
             <div id="index">
                 <input class = "topbtn" type='submit' value='submit'>
-            </form>
-            <form action="#" method="get">
                 <input type="submit" class="backbtn" value="cancel" name="cancel">
-            </form>
             </div>
             <h2>
-            <form method='post'>
-                {% csrf_token %}
                 {{ form.as_p }}
             </h2>
                 <input class = "topbtn" type='submit' value='submit'>
-            </form>
-            <form action="#" method="get">
                 <input type="submit" class="backbtn" value="cancel" name="cancel">
             </form>
             </div>
