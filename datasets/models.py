@@ -271,6 +271,9 @@ class SearchRun(BaseDocument):
     def get_fastafile_path(self):
         return [self.fasta.all()[0].docfile.name.encode('ASCII'), ]
 
+    def get_resimage_paths(self):
+        return [pep.docfile.name.encode('ASCII') for pep in self.resimagefiles.all()]
+
     def get_paramfile_path(self):
         return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
 
