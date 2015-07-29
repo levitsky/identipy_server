@@ -49,9 +49,9 @@ def index(request, c=dict()):
             request.GET['statusback'] = None
             c['identiprotmessage'] = None
             return index(request, c=c)
-        elif(request.GET.get('cancel')):
-            request.GET = request.GET.copy()
-            request.GET['cancel'] = None
+        elif(request.POST.get('cancel')):
+            request.POST = request.GET.copy()
+            request.POST['cancel'] = None
             return index(request, c=c)
         elif(request.GET.get('clear')):
             request.GET = request.GET.copy()
@@ -93,7 +93,10 @@ def index(request, c=dict()):
             return getfiles(request, c=c)
         c.update(csrf(request))
         # Handle file upload
-        if request.method == 'POST':
+        print request.POST.keys()
+        if request.method == 'POST' and request.POST.get('submit'):
+            request.GET = request.GET.copy()
+            request.GET['submit'] = None
             commonform = CommonForm(request.POST, request.FILES)
             if 'commonfiles' in request.FILES:#commonform.is_valid():
                 for uploadedfile in request.FILES.getlist('commonfiles'):
@@ -116,6 +119,7 @@ def index(request, c=dict()):
                     else:
                         pass
                 return HttpResponseRedirect(reverse('datasets:index'))
+            # return render(request, 'datasets/index.html', c)
         else:
             commonform = CommonForm()
 
