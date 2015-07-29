@@ -309,12 +309,22 @@ def runidentiprot(c):
         # bname = pepxmllist[0].split('.pep.xml')[0]
         if not os.path.isfile(bname + '_PSMs.csv'):
             bname = os.path.dirname(bname) + '/union'
-        if os.path.exists(bname + '.png'):
-            fl = open(bname + '.png')
-            djangofl = File(fl)
-            img = ResImageFile(docfile = djangofl, userid = usr)
-            img.save()
-            newrun.add_resimage(img)
+
+        dname = os.path.dirname(pepxmllist[0])
+        for tmpfile in os.listdir(dname):
+            if os.path.splitext(tmpfile)[-1] == '.png':
+                fl = open(os.path.join(dname, tmpfile))
+                djangofl = File(fl)
+                img = ResImageFile(docfile = djangofl, userid = usr)
+                img.save()
+                newrun.add_resimage(img)
+                fl.close()
+        # if os.path.exists(bname + '.png'):
+        #     fl = open(bname + '.png')
+        #     djangofl = File(fl)
+        #     img = ResImageFile(docfile = djangofl, userid = usr)
+        #     img.save()
+        #     newrun.add_resimage(img)
         if os.path.exists(bname + '_PSMs.csv'):
             fl = open(bname + '_PSMs.csv')
             djangofl = File(fl)
