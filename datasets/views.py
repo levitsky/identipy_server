@@ -271,7 +271,7 @@ def runidentiprot(c):
         settings = main.settings(paramfile)
         settings.set('input', 'database', fastafile.encode('ASCII'))
         settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
-        totalrun(settings, newrun, c['userid'])
+        totalrun(settings, newrun, c['userid'], paramfile)
         # p = Process(target=totalrun, args=(settings, newrun, c['userid']))
         # p.start()
         # p.join()
@@ -285,7 +285,7 @@ def runidentiprot(c):
 
         return path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
 
-    def totalrun(settings, newrun, usr):
+    def totalrun(settings, newrun, usr, paramfile):
         procs = []
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
@@ -300,7 +300,8 @@ def runidentiprot(c):
                 p.join()
             # newrun = get_object_or_404(SearchRun, id=pK)#SearchRun(runname=c['runname'], userid = c['userid'])
             pepxmllist = newrun.get_pepxmlfiles_paths()
-            paramlist = ['defaultMP.cfg']#newrun.get_paramfile_path()
+            # paramlist = ['defaultMP.cfg']#newrun.get_paramfile_path()
+            paramlist = [paramfile]
             bname = pepxmllist[0].split('.pep.xml')[0]
         else:
             # pepxmllist = [set_pepxml_path(settings, s) for s in spectralist]
