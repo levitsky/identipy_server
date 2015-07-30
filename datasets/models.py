@@ -172,10 +172,17 @@ class SearchGroup(BaseDocument):
         for section in raw_config.sections():
             for param in raw_config.items(section):
                 if param[0] in SearchParametersForm_values:
-                    print 'GERE!!@#', SearchParametersForm_values[param[0]]
                     orig_choices = raw_config.get_choices(section, param[0])
-                    raw_config.set(section, param[0], SearchParametersForm_values[param[0]] + '|' + orig_choices)
-        print raw_config.get('search', 'precursor accuracy left'), 'mass accuracy left'
+                    if orig_choices == 'type>boolean':
+                        tempval = ('1' if SearchParametersForm_values[param[0]] else '0')
+                    else:
+                        tempval = SearchParametersForm_values[param[0]]
+                    raw_config.set(section, param[0], tempval + '|' + orig_choices)
+        raw_config.set('missed cleavages', 'protease1', raw_config.get('search', 'enzyme'))
+        raw_config.set('missed cleavages', 'number of missed cleavages', raw_config.get('search', 'number of missed cleavages'))
+        raw_config.set('fragment mass', 'mass accuracy', raw_config.get('search', 'product accuracy'))
+        raw_config.set('charges', 'min charge', raw_config.get('search', 'minimum charge'))
+        raw_config.set('charges', 'max charge', raw_config.get('search', 'maximum charge'))
         raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
         self.parameters.add(paramobj)
         self.save()
