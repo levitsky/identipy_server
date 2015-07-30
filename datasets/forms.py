@@ -57,6 +57,8 @@ class SearchParametersForm(forms.Form):
                 return forms.IntegerField(label=label, initial=initial)
             elif fieldtype == 'type>string':
                 return forms.CharField(label=label, initial=initial)
+            elif fieldtype == 'type>boolean':
+                return forms.BooleanField(label=label, initial=initial, required=False)
 
         if raw_config:
             print 'HERE2Q'
