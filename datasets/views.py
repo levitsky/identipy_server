@@ -36,14 +36,6 @@ def index(request, c=dict()):
             c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
             # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
-        elif(request.POST.get('testform')):
-            request.POST = request.POST.copy()
-            request.POST['testform'] = None
-            print request.POST.keys(), 'Req, POST, keys'
-            raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-            raw_config.read('latest_params.cfg')
-            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
-            return render(request, 'datasets/index.html', c)
         elif(request.GET.get('statusback')):
             request.GET = request.GET.copy()
             request.GET['statusback'] = None
