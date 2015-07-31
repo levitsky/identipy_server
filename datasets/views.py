@@ -26,7 +26,6 @@ from multiprocessing import Process
 
 def index(request, c=dict()):
     if request.user.is_authenticated():
-        print request.method
         if(request.POST.get('runidentiprot')):
             request.POST = request.POST.copy()
             request.POST['runidentiprot'] = None
@@ -85,7 +84,6 @@ def index(request, c=dict()):
             return getfiles(request, c=c)
         c.update(csrf(request))
         # Handle file upload
-        print request.POST.keys()
         if request.method == 'POST' and request.POST.get('submit'):
             request.GET = request.GET.copy()
             request.GET['submit'] = None
@@ -130,7 +128,6 @@ def index(request, c=dict()):
             # sf.add_params(raw_config=raw_config)
         else:
             sf = c['SearchParametersForm']
-        print sf.fields
         c.update({'commonform': commonform, 'userid': request.user, 'SearchParametersForm': sf})
         return render(request, 'datasets/index.html', c)
     else:
@@ -308,7 +305,7 @@ def runidentiprot(c):
 
         dname = os.path.dirname(pepxmllist[0])
         for tmpfile in os.listdir(dname):
-            if os.path.splitext(tmpfile)[-1] == '.png':
+            if os.path.splitext(tmpfile)[-1] == '.png' and newrun.name() + '_' in os.path.basename(tmpfile):
                 fl = open(os.path.join(dname, tmpfile))
                 djangofl = File(fl)
                 img = ResImageFile(docfile = djangofl, userid = usr)
@@ -357,7 +354,6 @@ def runidentiprot(c):
         print filename
         pepxmlfile.docfile.name = filename
         pepxmlfile.save()
-        print pepxmlfile.docfile.name
         newrun.add_pepxml(pepxmlfile)
         return 1
 

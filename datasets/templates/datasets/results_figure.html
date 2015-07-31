@@ -27,17 +27,15 @@
                     <th>Peptides</th>
                     <th>Proteins</th>
                 </tr>
-            {% for searchrun in searchgroup.get_searchruns %}
-                <tr>
-                <td class="td1">{{ searchrun.name }}</td>
-                <td class="td2">{{ searchrun.numMSMS }}</td>
-                <td class="td2">{{ searchrun.totalPSMs }}</td>
-                <td class="td2">{{ searchrun.FDR }}</td>
-                <td class="td2">{{ searchrun.numPSMs }}</td>
-                <td class="td2">{{ searchrun.numPeptides }}</td>
-                <td class="td2">{{ searchrun.numProteins }}</td>
-                </tr>
-            {% endfor %}
+            <tr>
+            <td class="td1">{{ searchrun.name }}</td>
+            <td class="td2">{{ searchrun.numMSMS }}</td>
+            <td class="td2">{{ searchrun.totalPSMs }}</td>
+            <td class="td2">{{ searchrun.FDR }}</td>
+            <td class="td2">{{ searchrun.numPSMs }}</td>
+            <td class="td2">{{ searchrun.numPeptides }}</td>
+            <td class="td2">{{ searchrun.numProteins }}</td>
+            </tr>
             </table>
 		{% else %}
 			<p>There are no searches.</p>
