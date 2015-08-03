@@ -300,7 +300,7 @@ def runidentiprot(c):
             bname = os.path.dirname(pepxmllist[0]) + '/union'
         # print ['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist
         from mpscore import MPscore
-        MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist)
+        MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
         # subprocess.call(['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist)
         # bname = pepxmllist[0].split('.pep.xml')[0]
         if not os.path.isfile(bname + '_PSMs.csv'):
