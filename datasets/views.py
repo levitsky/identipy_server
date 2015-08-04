@@ -298,6 +298,7 @@ def runidentiprot(c):
             # paramlist = ['defaultMP2.cfg']
             paramlist = [paramfile]
             bname = os.path.dirname(pepxmllist[0]) + '/union'
+        newrun.set_FDRs()
         # print ['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist
         from mpscore import MPscore
         MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
