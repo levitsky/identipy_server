@@ -2,6 +2,7 @@
 from django import forms
 from multiupload.fields import MultiFileField
 from pyteomics import biolccc
+from collections import OrderedDict
 
 class CommonForm(forms.Form):
     commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload files')
@@ -71,7 +72,49 @@ class SearchParametersForm(forms.Form):
                         )
                 else:
                     self.fields[param[1]] = get_field(fieldtype=param[0], label=param[1], initial=param[2])
+        key_order = ["precursor accuracy unit",
+                    "precursor accuracy left",
+                    "precursor accuracy right",
+                    "product accuracy",
+                    "fdr",
+                    "protfdr",
+                    "enzyme",
+                    "number of missed cleavages",
+                    "minimum charge",
+                    "maximum charge",
+                    "add decoy",
+                    "decoy method",
+                    "decoy prefix",
+                    "dynamic range",
+                    "peptide minimum length",
+                    "peptide maximum length",
+                    "peptide minimum mass",
+                    "peptide maximum mass",
+                    "minimum peaks",
+                    "maximum peaks",
+                    "product minimum m/z",
+                    "maximum fragment charge",
+                    "minimum matched",
+                    "score threshold",
+                    "show empty",
+                    "candidates",
+                    "model",
+                    "psm count",
+                    "psms per protein",
+                    "charge states",
+                    "potential modifications",
+                    "fragment mass tolerance, da",
+                    "precursor mass difference, ppm",
+                    "isotopes mass difference, da",
+                    "missed cleavages",
+                    "rt difference, min"]
 
+        od = OrderedDict((k, self.fields[k]) for k in key_order if k in self.fields)
+        od.update(self.fields)
+        self.fields = od
+        # self.fields.keyOrder = [
+        #     'minimum peaks',
+        #     'maximum peaks']
 
     # def add_params(self, raw_config):
     #     def get_allowed_values(settings):
