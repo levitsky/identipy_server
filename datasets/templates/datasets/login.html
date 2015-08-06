@@ -5,19 +5,18 @@
     <meta charset="UTF-8">
     <title>Login Form</title>
       {% load staticfiles %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
         <!--<link rel="stylesheet" href="css/login.css">-->
   </head>
   <body>
     <!--<span href="#" class="button" id="toggle-login">Welcome</span>-->
 <div id="login">
-  <div id="triangle"></div>
-  <h1>WELCOME<br>The single entry point for your proteomic data mining.</h1>
+  <h1>WELCOME<br>The single entry point for your proteomic data mining</h1>
   <form action="/auth/" method="POST"> {% csrf_token %}
     <input type="email" name="email" id="email" value=""  placeholder="Email"/>
     <input type="password" name="password" id="password" value=""  placeholder="Password"/>
     <!--<input type="submit" name="submit" value="Log in" />-->
-    <button type="submit" name="submit" value="submit-value">Log in</button>
+    <button type="submit" name="submit" value="submit-value" id="loginbutton">Log in</button>
       <!--<button type="submit" name="submit" value="submit-value">Sign in</button>-->
     <!--<input type="email" placeholder="Email" />-->
     <!--<input type="password" placeholder="Password" />-->
