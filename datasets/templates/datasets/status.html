@@ -1,15 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Uploaded data{% endblock%}
+{% block title %}Search History{% endblock%}
 {% block content %}
 		<!-- List of uploaded documents -->
       <head>
         <meta charset="UTF-8">
-        <title>Status Form</title>
+        <title>Search History</title>
           {% load staticfiles %}
-            <link rel="stylesheet" type="text/css" href="{% static 'css/data.css' %}" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
             <!--<link rel="stylesheet" href="css/login.css">-->
       </head>
-        <div id="data">
+<div id="menu">
+        <ul>
+        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubar" value="Home" name="statusback"></form></div></li>
+        <li><a href="#" accesskey="3" title="">Start search</a></li>
+        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubar" value="Upload files" name="uploadform"></form></div></li>
+            <li><div id="get_status"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="Search history" name="getstatus"></form></div></li>
+          
+      </ul>
+    </div>
 
         <div id="status_back">
         <form action="#" method="get">

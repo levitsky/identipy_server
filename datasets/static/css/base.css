@@ -1,5 +1,20 @@
 *{margin:0;padding:0;}
 
+.container
+{
+    
+	margin: 0px auto;
+	width: 100%;
+}
+
+body
+	{
+        background-image: url(../image/background.jpg);
+		background-position: center;
+		background-size: cover;
+        font-family:sans-serif,sans-serif;
+	}
+
 #welcome{
   width:300px;
   margin:0 0;
@@ -18,15 +33,7 @@
   color:#fff;
 }
 
-button[type="submit"]{
-  width:300px;
-  background:#FF0000;
-  padding:6% 4%;
-  font-size:140%;
-  font-weight:300;
-  text-align:center;
-  color:#fff;
-}
+
 
 #twelcome{
   display: block;
@@ -44,4 +51,276 @@ button[type="submit"]{
   font-weight:300;
   text-align:center;
   color:#fff;
+}
+
+/*********************************************************************************/
+/* Logo                                                                          */
+/*********************************************************************************/
+
+#logo{
+  display: block;
+  margin:auto auto;
+  margin-top:8px;
+  margin-bottom:2%;
+  transition:opacity 1s;
+  -webkit-transition:opacity 1s;
+}
+
+#logo img{
+  display: block;
+  margin:auto auto;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  background:#fff;
+}
+
+#logo h1
+{
+	display: inline-block;
+	font-size: 2.5em;
+	font-weight: 700;
+	color: #000099;
+	padding: 0.2em;
+}
+
+#logo span
+{
+	position: relative;
+	top: 1.4em;
+	display: inline-block;
+	padding-left: 1.50em;
+	letter-spacing: 0.10em;
+	text-transform: uppercase;
+	font-size: 0.90em;
+}
+
+#logo a
+{
+	text-decoration: none;
+	color: #000099;
+}
+
+
+/*********************************************************************************/
+/* Menu                                                                          */
+/*********************************************************************************/
+
+#menu
+{
+	position: relative;
+    display: block;
+	left: 0;
+	top: 0;
+
+}
+
+#menu ul
+{
+	display: inline-block;
+}
+
+#menu li
+{
+	display: block;
+	float: left;
+	text-align: center;
+	line-height: 3em;
+}
+
+#menu li a, #menu li span
+{
+	display: inline-block;
+	padding: 0em 1.5em;
+	letter-spacing: 0.10em;
+	text-decoration: none;
+	font-size: 1em;
+	text-transform: uppercase;
+    font-weight: 300;
+	outline: 0;
+	color: #212121;
+    
+}
+.menubar{
+    background: #FFFFFF;
+    border: 0;
+    display: inline-block;
+	padding: 0em 1.5em;
+	letter-spacing: 0.10em;
+	text-decoration: none;
+	font-size: 1em;
+	text-transform: uppercase;
+    font-weight: 300;
+	outline: 0;
+    line-height: 3em;
+	color: #212121;
+    cursor: pointer;
+}
+
+.menubarcurrent{
+    background: #000099;
+    border: 0;
+    display: inline-block;
+	padding: 0em 1.5em;
+	letter-spacing: 0.10em;
+	text-decoration: none;
+	font-size: 1em;
+	text-transform: uppercase;
+    font-weight: 300;
+	outline: 0;
+    line-height: 3em;
+	color: #FFFFFF;
+    cursor: pointer;
+}
+
+#menu li:hover a, #menu li.active a, #menu li.active span, .menubar:hover, .menubar:active
+{
+    background: #9999dd;
+    color: #FFF
+}
+
+#menu li.current_page_item a
+{
+	background: #000099;
+	color: #FFF !important;
+}
+
+#menu .icon
+{
+}
+
+#session
+{
+  position: absolute;
+	right: 15%;
+	top: 10em;
+    font-size: 1em;
+    color: #FFFFFF;
+    
+}
+#session a
+{
+    text-decoration: underlined;
+    color: #FFFFFF;
+}
+
+/*********************************************************************************/
+/* Login                                                                          */
+/*********************************************************************************/
+
+    
+#login{
+  width:400px;
+  margin:0 auto;
+  margin-top:8px;
+  margin-bottom:2%;
+  background:#FFFFFF;
+}
+
+#triangle{
+  width:0;
+  border-top:12x solid transparent;
+  border-right:12px solid transparent;
+  border-bottom:12px solid #000099;
+  border-left:12px solid transparent;
+  margin:0 auto;
+}
+
+#login h1{
+  background:#000099;
+  padding:20px 0;
+  font-size:140%;
+  font-weight:400;
+  text-align:center;
+  color:#fff;
+}
+
+#login h2{
+  background:#990000;
+  padding:20px 0;
+  font-size:140%;
+  font-weight:400;
+  text-align:center;
+  color:#fff;
+}
+
+form{
+  display: inline-block;
+  
+  }
+
+input[type="email"],input[type="password"], textarea{
+  width:80%;
+  margin:6%;
+  background:#FFFFFF;
+  margin-top: 4%; 
+  border:1px solid #ccc;
+  padding:4%;
+  font-size:95%;
+  color:#555;
+}
+
+input:focus { 
+    background-color: #6699FF;
+}
+
+button[type="submit"]{
+  display: inline-block;
+  font-size: 1em;
+  background:#000099;
+  padding:0 1em;
+  color:#fff;
+  cursor:pointer;
+    border:0;
+}
+
+
+button[type="submit"]:hover{
+  background:#9999dd;
+  color: #ffffff;
+   
+}
+
+
+
+#loginbutton{
+    display: block;
+    width:70%;
+    font-size:3em;
+    margin: 0 auto;
+    margin-bottom: 6%;
+}
+
+#data{
+    position: absolute;
+    width: 70%;
+    margin:0 auto;
+    margin-top:0;
+    margin-bottom:2%;
+    background-color: #ffffff;
+  
+}
+
+
+div.inthemiddle {
+    position:relative;
+    width: 70%;
+    margin:0 auto;
+    margin-top:0;
+    margin-bottom:2%;
+    background-color: #ffffff;
+    border: 0;
+    
+}
+
+#tab{
+    display:block;
+    position:relative;
+    margin:0;
+    width: 100%;
+    background-color:#FFF;
+}
+
+.backbtn{
+    
 }
