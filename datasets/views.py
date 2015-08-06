@@ -52,6 +52,10 @@ def index(request, c=dict()):
             request.GET = request.GET.copy()
             request.GET['getstatus'] = None
             return status(request, c = c)
+        elif(request.GET.get('uploadform')):
+            request.GET = request.GET.copy()
+            request.GET['uploadform'] = None
+            return upload(request, c = c)
         elif(request.GET.get('uploadspectra')):
             request.GET = request.GET.copy()
             request.GET['uploadspectra'] = None
@@ -185,6 +189,14 @@ def status(request, c=dict()):
     processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
     c.update({'processes': processes})
     return render(request, 'datasets/status.html', c)
+
+def upload(request, c=dict()):
+    c = c
+    c.update(csrf(request))
+    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    c.update({'processes': processes})
+    return render(request, 'datasets/upload.html', c)
 
 def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform=True):
     c = c
