@@ -2,44 +2,39 @@
 {% block title %}File Upload{% endblock%}
 {% block content %}
 		<!-- List of uploaded documents -->
-      <head>
-        <meta charset="UTF-8">
-        <title>Upload Form</title>
-          {% load staticfiles %}
-            <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
-            <!--<link rel="stylesheet" href="css/login.css">-->
-      </head>
         <div id="menu">
         <ul>
-        
-        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubar" value="Home" name="statusback"></form></div></li>
+        <li><div id="home"><form action="#" method="get"><input type="submit" class="menubar" value="Home" name="statusback"></form></div></li>
         <li><a href="#" accesskey="3" title="">Start search</a></li>
         <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="Upload files" name="uploadform"></form></div></li>
-            <li><div id="get_status"><form action="#" method="get"><input type="submit" class="menubar" value="Search history" name="getstatus"></form></div></li>
+        <li><div id="get_status"><form action="#" method="get"><input type="submit" class="menubar" value="Search history" name="getstatus"></form></div></li>
+          
       </ul>
     </div>
 
-
-
-        <div id="status_back">
-        <form action="#" method="get">
-         <input type="submit" class="backbtn" value="Back to new run page" name="statusback">
-        </form>
+        
+        
+         <h2>Upload files to server</h2>
+        <div class="leftbox">
+            <p> If your datafiles are not on IdentiProt server yet, you can upload them now.</p>
+            <p> Feel free to upload the mass spectra in .mgf format and protein database files in .fasta format.</p>
+</div>
+<div class="rightbox">
+            <form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+             <p>   {% csrf_token %}
+                {{ commonform.non_field_errors }} 
+                
+                    {{ commonform.commonfiles }}
+                
+            <button for="file"class="uploadform">Choose files</button></p>
+                <br><br><p><input type="submit" name="submit" value="Upload" class="uploadform"/></p><br>
+            </form>
+        
         </div>
 
-        <div>
-        <h3>
-            Upload files to server
-            <form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <p>{{ commonform.non_field_errors }}</p>
-                <!--<p>{{ spectraform.spectrafile.label_tag }} {{ spectraform.spectrafile.help_text }}</p>-->
-                <p>
-                    <!--{{ spectraform.spectrafile.errors }}-->
-                    {{ commonform.commonfiles }}
-                </p>
-                <p><input type="submit" name="submit" value="Upload" /></p>
-            </form>
-        </h3>
+<div id="status_back">
+        <form action="#" method="get">
+         <input type="submit" class="backbtn" value="Start a new&#10;search run" name="statusback">
+        </form>
         </div>
 {% endblock %}
