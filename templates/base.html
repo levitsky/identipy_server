@@ -6,14 +6,19 @@
         <title>{% block title %}Identipy Server{% endblock %}</title>
 	</head>
     <body>
-      <div id="session"><span>Current session: {{ user.username }}</span>
+      
+        <div class="inthemiddle">
+            <div id="session"><span>Current session: {{ user.username }}</span>
              
     <form action="/logout/" method="POST"> {% csrf_token %}
     <button type="submit" name="submit" value="submit-value">Log out</button>
     </form>
     </div>
-        <div class="inthemiddle">
-          
+         <span> <div id="logo">
+              <h1>IdentiPROT</h1>
+            </div></span>
+            
+        
   <div id="content">
     {% block content %}
     {% endblock %}

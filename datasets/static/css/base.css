@@ -58,9 +58,9 @@ body
 /*********************************************************************************/
 
 #logo{
-  display: block;
-  margin:auto auto;
-  margin-top:8px;
+  display: inline;
+  margin:0;
+  margin-top:0;
   margin-bottom:2%;
   transition:opacity 1s;
   -webkit-transition:opacity 1s;
@@ -68,32 +68,22 @@ body
 
 #logo img{
   display: block;
-  margin:auto auto;
+  margin: auto auto;
   font-size:140%;
   font-weight:300;
-  text-align:center;
   background:#fff;
 }
 
 #logo h1
 {
 	display: inline-block;
-	font-size: 2.5em;
+	font-size: 4em;
 	font-weight: 700;
 	color: #000099;
-	padding: 0.2em;
+	padding: 0.6em;
 }
 
-#logo span
-{
-	position: relative;
-	top: 1.4em;
-	display: inline-block;
-	padding-left: 1.50em;
-	letter-spacing: 0.10em;
-	text-transform: uppercase;
-	font-size: 0.90em;
-}
+
 
 #logo a
 {
@@ -108,10 +98,10 @@ body
 
 #menu
 {
-	position: relative;
-    display: block;
-	left: 0;
-	top: 0;
+	position: absolute;
+    display: inline;
+    right: 1%;
+	top: 4.25em;
 
 }
 
@@ -133,50 +123,47 @@ body
 	display: inline-block;
 	padding: 0em 1.5em;
 	letter-spacing: 0.10em;
-	text-decoration: none;
+	
 	font-size: 1em;
 	text-transform: uppercase;
-    font-weight: 300;
-	outline: 0;
+  	outline: 0;
 	color: #212121;
     
 }
 .menubar{
     background: #FFFFFF;
     border: 0;
-    display: inline-block;
+    display: inline;
 	padding: 0em 1.5em;
 	letter-spacing: 0.10em;
 	text-decoration: none;
 	font-size: 1em;
 	text-transform: uppercase;
     font-weight: 300;
-	outline: 0;
-    line-height: 3em;
+	line-height: 3em;
 	color: #212121;
     cursor: pointer;
 }
 
 .menubarcurrent{
-    background: #000099;
+    background: 0;
     border: 0;
-    display: inline-block;
+    display: inline;
 	padding: 0em 1.5em;
 	letter-spacing: 0.10em;
-	text-decoration: none;
 	font-size: 1em;
 	text-transform: uppercase;
-    font-weight: 300;
+    font-weight: 500;
 	outline: 0;
     line-height: 3em;
-	color: #FFFFFF;
+	color: #555577;
     cursor: pointer;
 }
 
-#menu li:hover a, #menu li.active a, #menu li.active span, .menubar:hover, .menubar:active
+#menu li:hover a, #menu li.active a, #menu li.active span, .menubar:hover, .menubar:active, .menubarcurrent:active
 {
-    background: #9999dd;
-    color: #FFF
+    background: #FFF;
+    color: #9999dd;
 }
 
 #menu li.current_page_item a
@@ -192,10 +179,11 @@ body
 #session
 {
   position: absolute;
-	right: 15%;
-	top: 10em;
+	right: 1em;
+	top: 1em;
     font-size: 1em;
-    color: #FFFFFF;
+    color: #212121;
+    text-decoration:none;
     
 }
 #session a
@@ -264,14 +252,14 @@ input:focus {
     background-color: #6699FF;
 }
 
-button[type="submit"]{
+button[type="submit"] {
   display: inline-block;
   font-size: 1em;
   background:#000099;
   padding:0 1em;
   color:#fff;
   cursor:pointer;
-    border:0;
+  border:0;
 }
 
 
@@ -306,13 +294,30 @@ div.inthemiddle {
     position:relative;
     width: 70%;
     margin:0 auto;
-    margin-top:0;
+    margin-top:70px;
     margin-bottom:2%;
     background-color: #ffffff;
     border: 0;
     
 }
+div.inthemiddle h2{
+    position:relative;
+    margin:0 ;
+    width:100%;
+    text-align:center;
+    font-size: 3em;
+    color:#555577;
+    font-weight:bold;
+        
+}
 
+div.inthemiddle p{
+    position: relative;
+    margin: 2em 2em;
+    text-indent: 2em;
+    font-size:1.5em;
+    
+}
 #tab{
     display:block;
     position:relative;
@@ -322,5 +327,69 @@ div.inthemiddle {
 }
 
 .backbtn{
+    position:absolute;
+    display: block;
+    width:40%;
+    font-size:2.5em;
+    left:30%;
+    top:80%;
+    text-align:center;
+    word-break:break-all;
+    background:#ffbe4f;
+    color:#fff;
+    text-transform:uppercase;
+    cursor:pointer;
+}
+
+.backbtn:hover{
+    background:#eeaf3e;
+}
+
+div.select{
+    display:inline;
+    margin:0;
+}
+
+input[type="file"]{
+    position:absolute;
+    z-index:1;
+    opacity:0;
+    cursor:pointer;
+    width:300pt;
+    height:40pt;;
+    border:1;
+    
+   
+}
+
+.uploadform{
+    position:absolute;
+    z-index:0;
+    top:10pt;
+    cursor:pointer;
+    width:300pt;
+    height: 40pt;
+    font-size:1.5em;
+    background:#000099;
+    color:#FFF;
+    
+}
+
+div.leftbox{
+    position:relative;
+    margin-left: 0;
+    margin-right:50%;
+    color:#505050;
+    
+    
+}
+
+
+div.rightbox{
+    position:relative;
+    margin-left:50%;
+    width:50%;
+    top:-18em;
+   
     
 }
