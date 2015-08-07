@@ -12,10 +12,24 @@
         <div id="data">
 
         <div id="status_back">
-        <form action="#" method="get">
+        <form action="" method="POST">{% csrf_token %}
          <input type="submit" class="backbtn" value="Back to new run page" name="statusback">
         </form>
         </div>
+
+        {% if res_page != max_res_page %}
+        <form action="" method="POST">{% csrf_token %}
+         <input type="submit" class="backbtn" value="Show older runs" name="prev_runs">
+        </form>
+		{% else %}
+		{% endif %}
+
+        {% if res_page != 1 %}
+        <form action="" method="POST">{% csrf_token %}
+         <input type="submit" class="backbtn" value="Show newest runs" name="next_runs">
+        </form>
+		{% else %}
+		{% endif %}
 
         <div id="index">
         <h1>
