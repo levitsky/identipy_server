@@ -40,6 +40,10 @@ def index(request, c=dict()):
             request.GET['statusback'] = None
             c['identiprotmessage'] = None
             return index(request, c=c)
+        elif(request.POST.get('sbm')):
+            request.POST = request.POST.copy()
+            request.POST['sbm'] = None
+            return files_view(request, c = c)
         elif(request.POST.get('cancel')):
             request.POST = request.GET.copy()
             request.POST['cancel'] = None
@@ -52,13 +56,13 @@ def index(request, c=dict()):
             request.GET = request.GET.copy()
             request.GET['getstatus'] = None
             return status(request, c = c)
-        elif(request.GET.get('uploadspectra')):
-            request.GET = request.GET.copy()
-            request.GET['uploadspectra'] = None
+        elif(request.POST.get('uploadspectra')):
+            request.POST = request.POST.copy()
+            request.POST['uploadspectra'] = None
             return files_view_spectra(request, c = c)
-        elif(request.GET.get('uploadfasta')):
-            request.GET = request.GET.copy()
-            request.GET['uploadfasta'] = None
+        elif(request.POST.get('uploadfasta')):
+            request.POST = request.POST.copy()
+            request.POST['uploadfasta'] = None
             return files_view_fasta(request, c = c)
         elif(request.GET.get('uploadparams')):
             request.GET = request.GET.copy()
@@ -186,14 +190,19 @@ def status(request, c=dict()):
     c.update({'processes': processes})
     return render(request, 'datasets/status.html', c)
 
-def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform=True):
+def files_view(request, usedclass=None, usedname=None, labelname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
+    if not usedclass or not usedname:
+        usedclass=c['usedclass']
+        usedname=c['usedname']
+        del c['usedclass']
+        del c['usedname']
     documents = usedclass.objects.filter(userid=request.user)
     cc = []
     for doc in documents:
         cc.append((doc.id, doc.name()))
-    if request.method == 'POST':
+    if request.POST.get('relates_to'):
         # cc = [('A', 'AA'), ('B', 'BB'), ('C', 'CC')]
         # form = MultFilesForm(request.POST, custom_choices=cc, fextention=fextention)
         # form = MultFilesForm(request.POST, custom_choices=cc)
@@ -213,7 +222,7 @@ def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform
         # cc = [('d', 'dd'), ('g', 'gg'), ('h', 'hh')]
         # form = MultFilesForm(custom_choices=cc, fextention=fextention)
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
-    c.update({'form': form})
+    c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname})
     return render_to_response('datasets/choose.html', c,
         context_instance=RequestContext(request))
 
