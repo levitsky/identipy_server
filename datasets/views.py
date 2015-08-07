@@ -17,6 +17,7 @@ import subprocess
 import zipfile
 import StringIO
 import shutil
+import math
 
 
 import sys
@@ -35,9 +36,9 @@ def index(request, c=dict()):
             c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
             # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
-        elif(request.GET.get('statusback')):
-            request.GET = request.GET.copy()
-            request.GET['statusback'] = None
+        elif(request.POST.get('statusback')):
+            request.POST = request.POST.copy()
+            request.POST['statusback'] = None
             c['identiprotmessage'] = None
             return index(request, c=c)
         elif(request.POST.get('sbm')):
@@ -45,17 +46,29 @@ def index(request, c=dict()):
             request.POST['sbm'] = None
             return files_view(request, c = c)
         elif(request.POST.get('cancel')):
-            request.POST = request.GET.copy()
+            request.POST = request.POST.copy()
             request.POST['cancel'] = None
             return index(request, c=c)
         elif(request.GET.get('clear')):
             request.GET = request.GET.copy()
             request.GET['clear'] = None
             return index(request, c=dict())
-        elif(request.GET.get('getstatus')):
-            request.GET = request.GET.copy()
-            request.GET['getstatus'] = None
+        elif(request.POST.get('getstatus')):
+            request.POST = request.POST.copy()
+            request.POST['getstatus'] = None
+            c['res_page'] = 1
+            c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(userid=request.user.id).count()) / 10))
             return status(request, c = c)
+        elif(request.POST.get('prev_runs')):
+            request.POST = request.POST.copy()
+            request.POST['prev_runs'] = None
+            c['res_page'] = c.get('res_page', 1) + 1
+            return status(request, c=c)
+        elif(request.POST.get('next_runs')):
+            request.POST = request.POST.copy()
+            request.POST['next_runs'] = None
+            c['res_page'] = c.get('res_page', 1) - 1
+            return status(request, c=c)
         elif(request.POST.get('uploadspectra')):
             request.POST = request.POST.copy()
             request.POST['uploadspectra'] = None
@@ -185,8 +198,9 @@ def secured(request):
 def status(request, c=dict()):
     c = c
     c.update(csrf(request))
+    res_page = c.get('res_page', 1)
     # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
-    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
     c.update({'processes': processes})
     return render(request, 'datasets/status.html', c)
 
