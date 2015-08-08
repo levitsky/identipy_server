@@ -6,9 +6,9 @@
         <div class="inthemiddle">
             {% if user.username %}
             
-       <div id="session"><span>Current session: {{ user.username }}</span>
+       <div id="session"><form action="/logout/" method="POST"> {% csrf_token %}<span>Current session: {{ user.username }}</span>
              
-    <form action="/logout/" method="POST"> {% csrf_token %}
+    
     <button type="submit" name="submit" value="submit-value">Log out</button>
     </form>
     </div> {% endif %}

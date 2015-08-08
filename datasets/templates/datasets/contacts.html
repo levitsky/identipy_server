@@ -1,24 +1,47 @@
 {% extends "base.html" %}
-{% block title%}Contacts{% endblock%}
-{% block content%}
-	<div id="menu">
+{% block title %}Contacts{% endblock %}
+{% block content %}
+	
+{% if user.username %}
+<div id="menu">
+        <ul>
+        <li><div id="home"><form action="#" method="get"><input type="submit" class="menubar" value="Home" name="statusback"></form></div></li>
+        <li><a href="#" accesskey="3" title="">Start search</a></li>
+        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubar" value="Upload files" name="uploadform"></form></div></li>
+        <li><div id="get_status"><form action="#" method="get"><input type="submit" class="menubar" value="Search history" name="getstatus"></form></div></li>
+        <li><div id="contacts"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="contacts" name="contacts"></form></div></li>   
+      </ul>
+    </div>
+
+{% else %}
+<div id="menu">
         <ul>
         <li><div id="about"><form action="#" method="get"><input type="submit" class="menubar" value="about" name="about"></form></div></li>
         <li><div id="loginform"><form action="#" method="get"><input type="submit" class="menubar" value="log in" name="loginform"></form></div></li>
         <li><div id="contacts"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="contacts" name="contacts"></form></div></li>
-          
+         
       </ul>
     </div>
-
+{% endif %}
 <div id="tab">
 <div class="leftbox">
     <p>Our administrators are not only good-looking, but are also looking forward to making your IdentiPROT experience incredibly awesome!</p>
     <p>Contact details tram-pam-pam</p>
-<div>
+
+    {% if user.username %}
+    <div id="status_back">
+        <form action="#" method="get">
+         <input type="submit" class="backbtn" value="Back to&#10;new search" name="statusback">
+        </form>
+           </div>
+    
+    {% else %}
+     <div>   
         <form action="#" method="get">
          <input type="submit" class="backbtn" value="Back to&#10;log in" name="loginform">
         </form>
            </div>
+    {% endif %}
 </div>
 <div class="rightbox">
     {% load staticfiles %}
