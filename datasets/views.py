@@ -56,6 +56,10 @@ def index(request, c=dict()):
             request.GET = request.GET.copy()
             request.GET['uploadform'] = None
             return upload(request, c = c)
+        elif(request.GET.get('searchpage')):
+            request.GET = request.GET.copy()
+            request.GET['searchpage'] = None
+            return searchpage(request, c = c)
         elif(request.GET.get('contacts')):
             request.GET = request.GET.copy()
             request.GET['contacts'] = None
@@ -170,6 +174,10 @@ def loginview(request, message=None):
         request.GET = request.GET.copy()
         request.GET['loginform'] = None
         return loginview(request)
+    if(request.GET.get('about')):
+        request.GET = request.GET.copy()
+        request.GET['about'] = None
+        return about(request, c = {})
     
     
     
@@ -184,6 +192,10 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
         request.GET = request.GET.copy()
         request.GET['loginform'] = None
         return loginview(request)
+    if(request.GET.get('about')):
+        request.GET = request.GET.copy()
+        request.GET['about'] = None
+        return about(request, c = {})
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
         login(request, user)
@@ -222,11 +234,23 @@ def upload(request, c=dict()):
     c.update({'processes': processes})
     return render(request, 'datasets/upload.html', c)
 
+def searchpage(request, c=dict()):
+    c = c
+    c.update(csrf(request))
+    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    c.update({'processes': processes})
+    return render(request, 'datasets/startsearch.html', c)
+
 def contacts(request,c=dict()):
     c=c
     c.update(csrf(request))
     return render(request, 'datasets/contacts.html', c)
 
+def about(request,c=dict()):
+    c=c
+    c.update(csrf(request))
+    return render(request, 'datasets/index.html', c)
     
 def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform=True):
     c = c

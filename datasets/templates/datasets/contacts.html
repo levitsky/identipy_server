@@ -3,29 +3,32 @@
 {% block content %}
 	
 {% if user.username %}
-<div id="menu">
+<div id="menu"><form action="#" method="get">
         <ul>
-        <li><div id="home"><form action="#" method="get"><input type="submit" class="menubar" value="Home" name="statusback"></form></div></li>
-        <li><a href="#" accesskey="3" title="">Start search</a></li>
-        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubar" value="Upload files" name="uploadform"></form></div></li>
-        <li><div id="get_status"><form action="#" method="get"><input type="submit" class="menubar" value="Search history" name="getstatus"></form></div></li>
-        <li><div id="contacts"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="contacts" name="contacts"></form></div></li>   
-      </ul>
+            
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubarcurrent" value="contacts" name="contacts"></div></li>
+            
+      </ul></form>
     </div>
 
 {% else %}
-<div id="menu">
+<div id="menu"><form action="#" method="get">
         <ul>
-        <li><div id="about"><form action="#" method="get"><input type="submit" class="menubar" value="about" name="about"></form></div></li>
-        <li><div id="loginform"><form action="#" method="get"><input type="submit" class="menubar" value="log in" name="loginform"></form></div></li>
-        <li><div id="contacts"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="contacts" name="contacts"></form></div></li>
+        <li><div id="about"><input type="submit" class="menubar" value="about" name="about"></div></li>
+        <li><div id="loginform"><input type="submit" class="menubar" value="log in" name="loginform"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubarcurrent" value="contacts" name="contacts"></div></li>
          
-      </ul>
+      </ul></form>
     </div>
 {% endif %}
 <div id="tab">
-<div class="leftbox">
-    <p>Our administrators are not only good-looking, but are also looking forward to making your IdentiPROT experience incredibly awesome!</p>
+<table>
+    <tr valign="top">
+        <td width="50%">
+    <div class="intable"><p>Our administrators are not only good-looking, but are also looking forward to making your IdentiPROT experience incredibly awesome!</p>
     <p>Contact details tram-pam-pam</p>
 
     {% if user.username %}
@@ -43,11 +46,17 @@
            </div>
     {% endif %}
 </div>
-<div class="rightbox">
+        </td>
+        <td>
+<div class="intable">
     {% load staticfiles %}
     <img src="{% static 'image/mark.jpg' %}"/><br>
-        <img src="{% static 'image/lev.jpg' %}"/>
+        <img src="{% static 'image/lev.jpg' %}"/><br>
     
             
-    </div></div>
+    </div>
+        </td>
+    </tr>
+    </table>
+</div>
 {% endblock %}
