@@ -2,39 +2,51 @@
 {% block title %}File Upload{% endblock%}
 {% block content %}
 		<!-- List of uploaded documents -->
-        <div id="menu">
+<div id="menu"><form action="#" method="get">
         <ul>
-        <li><div id="home"><form action="#" method="get"><input type="submit" class="menubar" value="Home" name="statusback"></form></div></li>
-        <li><a href="#" accesskey="3" title="">Start search</a></li>
-        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="Upload files" name="uploadform"></form></div></li>
-        <li><div id="get_status"><form action="#" method="get"><input type="submit" class="menubar" value="Search history" name="getstatus"></form></div></li>
-        <li><div id="contacts"><form action="#" method="get"><input type="submit" class="menubar" value="contacts" name="contacts"></form></div></li>  
-      </ul>
+            
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubarcurrent" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+            
+      </ul></form>
     </div>
-
         
         
          <h2>Upload files to server</h2>
-       <div id="tab"> <div class="leftbox">
+       <div id="tab"> 
+       <table>
+           <tr valign="top">
+               <td width=50%>
+           <div class="intable">
             <p> If your datafiles are not on IdentiProt server yet, you can upload them now.</p>
             <p> Feel free to upload the mass spectra in .mgf format and protein database files in .fasta format.</p>
 </div>
-<div class="rightbox">
+               </td>
+               <td>
+<div class="intable">
             <form id="uploadbuttons" action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
              <p>   {% csrf_token %}
                 {{ commonform.non_field_errors }} 
                 
                     {{ commonform.commonfiles }}
                 
-            <button for="file"class="uploadform">Choose files</button></p>
-                <br><br><p><input type="submit" name="submit" value="Upload" class="uploadform"/></p><br>
+                 <button for="file"class="uploadform">Choose files</button></p><br><br>
+    <p><input type="submit" name="submit" value="Upload" class="uploadform"/></p><br>
             </form>
         
         </div>
+               </td>
+           </tr>
+           </table>
 
 <div id="status_back">
+    
         <form action="#" method="get">
          <input type="submit" class="backbtn" value="Start a new&#10;search run" name="statusback">
         </form>
-           </div></div>
+    <div class="backbtn" type="pseudo">wow</div>
+           </div>
+</div>
 {% endblock %}

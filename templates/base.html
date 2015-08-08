@@ -16,12 +16,15 @@
               <h1>IdentiPROT</h1>
             </div></span>
             
-        
+  <div id="identiprot message">
+        {% if identiprotmessage %}
+            <h6>{{ identiprotmessage }}</h6>
+        {% endif %}
+        </div>      
   <div id="content">
     {% block content %}
     {% endblock %}
     </div>
         </div>
-	</body>
-</html>
+	
 {% endblock %}

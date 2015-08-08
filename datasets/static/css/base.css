@@ -126,7 +126,7 @@ body
 	padding: 0em 1.5em;
 	letter-spacing: 0.10em;
 	text-decoration: none;
-	font-size: 1em;
+	font-size: 0.9em;
 	text-transform: uppercase;
     font-weight: 300;
 	line-height: 3em;
@@ -140,7 +140,7 @@ body
     display: inline;
 	padding: 0em 1.5em;
 	letter-spacing: 0.10em;
-	font-size: 1em;
+	font-size: 0.9em;
 	text-transform: uppercase;
     font-weight: 500;
 	outline: 0;
@@ -187,9 +187,9 @@ body
 
     
 #login{
-  position:absolute;
-  width:400px;
-  right:0;
+  position:relative;
+  width:80%;
+  left:10%;
   margin-top:8px;
   margin-bottom:2%;
   background:#eeeeff;
@@ -206,7 +206,7 @@ body
 
 #login h1{
   background:#000099;
-  padding:20px 0;
+  padding:20px 5px;
   font-size:140%;
   font-weight:400;
   text-align:center;
@@ -240,6 +240,7 @@ input[type="email"],input[type="password"], textarea{
 
 input:focus { 
     background-color: #6699FF;
+    outline-offset: 0;
 }
 
 button[type="submit"] {
@@ -288,13 +289,14 @@ div.inthemiddle {
     margin-bottom:2%;
     background-color: #ffffff;
     border: 0;
-    min-height:500pt;
+    
    
     
 }
 div.inthemiddle h2{
     position:relative;
-    margin:0 ;
+    margin-bottom:1em ;
+    margin-top:0;
     width:100%;
     text-align:center;
     font-size: 3em;
@@ -305,7 +307,10 @@ div.inthemiddle h2{
 
 div.inthemiddle p{
     position: relative;
-    margin: 2em 1em;
+    margin-left: 2em;
+    margin-top:0;
+    margin-right:2em;
+    margin-bottom:2em;
     text-indent: 2em;
     font-size:1.5em;
     
@@ -323,7 +328,7 @@ div.inthemiddle p{
     width:50%;
     font-size:2em;
     left:25%;
-    margin-bottom:1em;
+    margin-bottom:2em;
     text-align:center;
     word-break:break-all;
     background:#ffbe4f;
@@ -335,7 +340,13 @@ div.inthemiddle p{
 .backbtn:hover{
     background:#eeaf3e;
 }
-
+[type="pseudo"]{
+    left:0;
+    width:1%;
+    position:relative;
+    opacity:0;
+    cursor:none;
+}
 div.select{
     display:inline;
     margin:0;
@@ -406,6 +417,10 @@ div.rightbox{
     margin:auto auto;
 }
 #uploadbuttons p{
-    margin:1em;
+    margin:2em;
     padding:0;
+}
+
+div.intable{
+    position:relative;
 }
