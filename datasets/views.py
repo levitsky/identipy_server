@@ -56,6 +56,10 @@ def index(request, c=dict()):
             request.GET = request.GET.copy()
             request.GET['uploadform'] = None
             return upload(request, c = c)
+        elif(request.GET.get('contacts')):
+            request.GET = request.GET.copy()
+            request.GET['contacts'] = None
+            return contacts(request, c = c)
         elif(request.GET.get('uploadspectra')):
             request.GET = request.GET.copy()
             request.GET['uploadspectra'] = None
@@ -136,6 +140,7 @@ def index(request, c=dict()):
         return render(request, 'datasets/index.html', c)
     else:
         return redirect('/login/')
+    
 
 def details(request, pK):
     # doc = get_object_or_404(Document, id=pK)
@@ -154,9 +159,20 @@ def logout_view(request):
     return loginview(request)
 
 def loginview(request, message=None):
-    c = {}
+    c={}
     c.update(csrf(request))
     c['message'] = message
+    if(request.GET.get('contacts')):
+        request.GET = request.GET.copy()
+        request.GET['contacts'] = None
+        return contacts(request, c = c)
+    if(request.GET.get('loginform')):
+        request.GET = request.GET.copy()
+        request.GET['loginform'] = None
+        return loginview(request)
+    
+    
+    
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
@@ -198,6 +214,12 @@ def upload(request, c=dict()):
     c.update({'processes': processes})
     return render(request, 'datasets/upload.html', c)
 
+def contacts(request,c=dict()):
+    c=c
+    c.update(csrf(request))
+    return render(request, 'datasets/contacts.html', c)
+
+    
 def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
