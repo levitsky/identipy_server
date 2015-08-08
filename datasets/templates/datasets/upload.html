@@ -15,12 +15,12 @@
         
         
          <h2>Upload files to server</h2>
-        <div class="leftbox">
+       <div id="tab"> <div class="leftbox">
             <p> If your datafiles are not on IdentiProt server yet, you can upload them now.</p>
             <p> Feel free to upload the mass spectra in .mgf format and protein database files in .fasta format.</p>
 </div>
 <div class="rightbox">
-            <form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+            <form id="uploadbuttons" action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
              <p>   {% csrf_token %}
                 {{ commonform.non_field_errors }} 
                 
@@ -36,5 +36,5 @@
         <form action="#" method="get">
          <input type="submit" class="backbtn" value="Start a new&#10;search run" name="statusback">
         </form>
-        </div>
+           </div></div>
 {% endblock %}

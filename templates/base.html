@@ -1,19 +1,17 @@
 {% extends "datasets/title.html" %}
-{% block title2 %}Uploaded data{% endblock%}
+{% block title %}Uploaded data{% endblock%}
 {% block content2 %}
-	<head>
-		<meta charset="utf-8">
-        <title>{% block title %}Identipy Server{% endblock %}</title>
-	</head>
-    <body>
+	
       
         <div class="inthemiddle">
-            <div id="session"><span>Current session: {{ user.username }}</span>
+            {% if user.username %}
+            
+       <div id="session"><span>Current session: {{ user.username }}</span>
              
     <form action="/logout/" method="POST"> {% csrf_token %}
     <button type="submit" name="submit" value="submit-value">Log out</button>
     </form>
-    </div>
+    </div> {% endif %}
          <span> <div id="logo">
               <h1>IdentiPROT</h1>
             </div></span>

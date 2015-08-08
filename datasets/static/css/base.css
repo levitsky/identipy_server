@@ -118,18 +118,7 @@ body
 	line-height: 3em;
 }
 
-#menu li a, #menu li span
-{
-	display: inline-block;
-	padding: 0em 1.5em;
-	letter-spacing: 0.10em;
-	
-	font-size: 1em;
-	text-transform: uppercase;
-  	outline: 0;
-	color: #212121;
-    
-}
+
 .menubar{
     background: #FFFFFF;
     border: 0;
@@ -141,7 +130,7 @@ body
 	text-transform: uppercase;
     font-weight: 300;
 	line-height: 3em;
-	color: #212121;
+	color: #999999;
     cursor: pointer;
 }
 
@@ -156,7 +145,7 @@ body
     font-weight: 500;
 	outline: 0;
     line-height: 3em;
-	color: #555577;
+	color: #000099;
     cursor: pointer;
 }
 
@@ -198,11 +187,12 @@ body
 
     
 #login{
+  position:absolute;
   width:400px;
-  margin:0 auto;
+  right:2em;
   margin-top:8px;
   margin-bottom:2%;
-  background:#FFFFFF;
+  background:#eeeeff;
 }
 
 #triangle{
@@ -224,7 +214,7 @@ body
 }
 
 #login h2{
-  background:#990000;
+  background:#cc5555;
   padding:20px 0;
   font-size:140%;
   font-weight:400;
@@ -298,6 +288,8 @@ div.inthemiddle {
     margin-bottom:2%;
     background-color: #ffffff;
     border: 0;
+    min-height:500pt;
+   
     
 }
 div.inthemiddle h2{
@@ -306,20 +298,19 @@ div.inthemiddle h2{
     width:100%;
     text-align:center;
     font-size: 3em;
-    color:#555577;
+    color:#555555;
     font-weight:bold;
         
 }
 
 div.inthemiddle p{
     position: relative;
-    margin: 2em 2em;
+    margin: 2em 1em;
     text-indent: 2em;
     font-size:1.5em;
     
 }
 #tab{
-    display:block;
     position:relative;
     margin:0;
     width: 100%;
@@ -332,7 +323,7 @@ div.inthemiddle p{
     width:40%;
     font-size:2.5em;
     left:30%;
-    top:80%;
+    margin-bottom:1em;
     text-align:center;
     word-break:break-all;
     background:#ffbe4f;
@@ -365,7 +356,7 @@ input[type="file"]{
 .uploadform{
     position:absolute;
     z-index:0;
-    top:10pt;
+    top:0;
     cursor:pointer;
     width:300pt;
     height: 40pt;
@@ -377,7 +368,7 @@ input[type="file"]{
 
 div.leftbox{
     position:relative;
-    margin-left: 0;
+    margin-left: 2%;
     margin-right:50%;
     color:#505050;
     
@@ -386,10 +377,35 @@ div.leftbox{
 
 
 div.rightbox{
-    position:relative;
+    position:absolute;
     margin-left:50%;
-    width:50%;
-    top:-18em;
-   
+    width:48%;
+    top:0;
     
+    
+}
+
+.link{
+    font-size: 1em;
+    background:0;
+    display:inline;
+    border:0;
+    cursor:pointer;
+    text-decoration:underline;
+    font-family:sans-serif;
+    color:#000099;
+    
+}
+.link:hover{
+    color:#9999dd;}
+
+.inthemiddle img{
+    position:relative;
+    display:block;
+    width:70%;
+    margin:auto auto;
+}
+#uploadbuttons p{
+    margin:1em;
+    padding:0;
 }
