@@ -165,7 +165,7 @@ def loginview(request, message=None):
     if(request.GET.get('contacts')):
         request.GET = request.GET.copy()
         request.GET['contacts'] = None
-        return contacts(request, c = c)
+        return contacts(request, c = {})
     if(request.GET.get('loginform')):
         request.GET = request.GET.copy()
         request.GET['loginform'] = None
@@ -176,6 +176,14 @@ def loginview(request, message=None):
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
+    if(request.GET.get('contacts')):
+        request.GET = request.GET.copy()
+        request.GET['contacts'] = None
+        return contacts(request, c = {})
+    if(request.GET.get('loginform')):
+        request.GET = request.GET.copy()
+        request.GET['loginform'] = None
+        return loginview(request)
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
         login(request, user)
