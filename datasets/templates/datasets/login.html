@@ -11,13 +11,18 @@
       </ul>
     </div>
 
-<div id="tab"><div class="leftbox">
+<div id="tab">
+    <table>
+        <tr valign="top">
+            <td width="50%">
+    <div class="intable">
     <p><h2>Welcome to IdentiPROT!</h2>
             <p>Here come some generic frases about how cool we are and, as a consequence, the users of IdentiPROT are exceedingly cool as well.
     <form action="#" method="get"><p>If you have problems logging in, any questions or comments, please <input type="submit" class="link" value="contact us" name="contacts">.</p></form>
 </div>
-
-<div class="rightbox">
+            </td>
+            <td>
+<div class="intable">
             
 <div id="login">
   <h1>WELCOME<br>The single entry point for your proteomic data mining</h1>
@@ -35,6 +40,10 @@
         <h2>{{ message }}</h2>
     {% endif %}
 </div>
+    
   </div>
+    </td>
+        </tr>
+    </table>
 </div>
 {% endblock %}
