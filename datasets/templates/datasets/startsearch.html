@@ -12,73 +12,71 @@
             
       </ul></form>
     </div>
-
+<h2>
         
-            <div id="index_spectra">
-            <h1>
+    <div id="vert_block">
+            
             {% if chosenspectra %}
+        Selected spectra:
+
                 <table id="spectra_list">
-                    Selected spectra:
-                    <tr id="spectraheadings">
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Submit date</th>
+                    <tr id="spectraheadings" type="bordered">
+                        <th type="bordered" width="60%">Filename</th>
+                        <th type="bordered" width="15%">Size</th>
+                        <th type="bordered">Submit date</th>
                     </tr>
                 {% for doc in chosenspectra %}
-                <tr>
-                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td>{{ doc.docfile.size | filesizeformat }}</td>
-                    <td>{{ doc.date_added }}</td>
+                <tr type="bordered">
+                    <td type="bordered"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td type="bordered">{{ doc.docfile.size | filesizeformat }}</td>
+                    <td type="bordered">{{ doc.date_added }}</td>
                 </tr>
                 {% endfor %}
                 </table>
             {% else %}
-                <p>Spectra files are not selected.</p>
+                MS files not selected
             {% endif %}
-            </h1>
-            </div>
+   
 
-            <div id="upload">
-            <h2>
-            <form action="#" method="get">
-             <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
+   <div>
+   <form action="#" method="get">
+        <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
             </form>
-            </h2>
+   
             </div>
+</div>
 
-
-          <div id="index_fasta">
-            <h1>
+          <div id="vert_block">
+        
             {% if chosenfasta %}
-                <table id="fasta_list">
-                    Choosen fasta:
-                    <tr id="fastaheadings">
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Submit date</th>
+                <table id="spectra_list">
+                    Selected fasta:
+                    <tr id="spectraheadings" type="bordered">
+                        <th type="bordered" width="60%">Filename</th>
+                        <th type="bordered" width="15%">Size</th>
+                        <th type="bordered">Submit date</th>
                     </tr>
                 {% for doc in chosenfasta %}
-                <tr>
-                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td>{{ doc.docfile.size | filesizeformat }}</td>
-                    <td>{{ doc.date_added }}</td>
+                <tr type="bordered">
+                    <td type="bordered"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td type="bordered">{{ doc.docfile.size | filesizeformat }}</td>
+                    <td type="bordered">{{ doc.date_added }}</td>
                 </tr>
                 {% endfor %}
                 </table>
             {% else %}
-                <p>Fasta file is not selected.</p>
+                Protein database file not selected
             {% endif %}
-            </h1>
-            </div>
+            
 
             <div id="upload_fasta">
-            <h2>
+            
             <form action="#" method="get">
              <input type="submit" class="btn" value="Choose preloaded fasta" name="uploadfasta">
             </form>
-            </h2>
-            </div>
-
+            
+            </div></div>
+</h2>
             <div id="index_params">
             <h1>
             {% if chosenparams %}

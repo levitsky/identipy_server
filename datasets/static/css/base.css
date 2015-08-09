@@ -10,7 +10,7 @@
 body
 	{
         background-image: url(../image/background.jpg);
-		background-position: center;
+		background-position: top;
 		background-size: cover;
         font-family:sans-serif,sans-serif;
 	}
@@ -243,7 +243,7 @@ input:focus {
     outline-offset: 0;
 }
 
-button[type="submit"] {
+button[type="submit"],.btn {
   display: inline-block;
   font-size: 1em;
   background:#000099;
@@ -254,7 +254,7 @@ button[type="submit"] {
 }
 
 
-button[type="submit"]:hover{
+button[type="submit"]:hover, ,.btn:hover{
   background:#9999dd;
   color: #ffffff;
    
@@ -295,13 +295,14 @@ div.inthemiddle {
 }
 div.inthemiddle h2{
     position:relative;
-    margin-bottom:1em ;
+    margin-bottom:0 ;
     margin-top:0;
     width:100%;
     text-align:center;
-    font-size: 3em;
+    font-size: 2em;
     color:#555555;
     font-weight:bold;
+    text-indent:0;
         
 }
 
@@ -417,10 +418,56 @@ div.rightbox{
     margin:auto auto;
 }
 #uploadbuttons p{
-    margin:2em;
+    margin:1em;
     padding:0;
 }
 
 div.intable{
     position:relative;
+}
+
+#spectra_list{
+    width:90%;
+    font-size:0.5em;
+    border: 2px solid #BBBBBB;
+    margin-left:5%;
+    margin-top:1em;
+    margin-bottom:1em;
+  
+}
+
+#spectraheadings{
+    font-size:1.3em;
+    text-align:center;
+    text-decoration:bold;
+    
+}
+
+
+th[type="bordered"],td[type="bordered"],tr[type="bordered"]{
+        border: 1px solid #BBBBBB;
+   padding:0.4em;
+}
+
+.middlebutton{
+    margin: 1em 35%;
+}
+
+#vert_block{
+    margin-bottom:2em;
+}
+#selectionform p{
+    margin-bottom:1em;
+}
+#id_relates_to{
+    list-style-type:none;
+}
+
+#fixedpanel{
+    position:fixed;
+    width:70%;
+    margin-top:0;
+    background:#FFF;
+    z-index:10;
+    display:none;
 }
