@@ -1,38 +1,35 @@
 {% extends "base.html" %}
-{% block title %}Загруженные данные{% endblock%}
+{% block title %}Select files{% endblock%}
 {% block content %}
-		<!-- List of uploaded documents -->
-      <head>
-        <meta charset="UTF-8">
-        <title>Chose Form</title>
-          {% load staticfiles %}
-            <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
-            <!--<link rel="stylesheet" href="css/login.css">-->
-      </head>
-        <div id="menu">
+
+
+<div id="menu"><form action="#" method="get">
         <ul>
-        
-        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubar" value="Home" name="statusback"></form></div></li>
-        <li><a href="#" accesskey="3" title="">Start search</a></li>
-        <li><div id="upload"><form action="#" method="get"><input type="submit" class="menubar" value="Upload files" name="uploadform"></form></div></li>
-            <li><div id="get_status"><form action="#" method="get"><input type="submit" class="menubar" value="Search history" name="getstatus"></form></div></li>
-      </ul>
+            
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+            
+      </ul></form>
     </div>
-<form method='post'>{% csrf_token %}
-            <div id="index">
-                <input class = "topbtn" type='submit' value='submit'>
-                <input type="submit" class="backbtn" value="cancel" name="cancel">
-            </div>
-            <h2>
-                {{ form.as_p }}
-            </h2>
-                <input class = "topbtn" type='submit' value='submit'>
-                <input type="submit" class="backbtn" value="cancel" name="cancel">
-            </form>
-           
+
+<div id="tab">
+    <div id="fixedpanel">
+        <h2><p>Select files</p></h2>
+    <div id="index">
+                <form method="post">
+                <input class = "topbtn" type="submit" value="submit">
+                <input type="submit" class="backbtn" value="cancel" name="searchpage">
+                    </form></div>
         </div>
-        <!--<form method='post'>-->
-            <!--{% csrf_token %}-->
-            <!--<input type='submit' value='cancel'>-->
-        <!--</form>-->
+    </div> 
+ <h2><form method="post" id="selectionform">{% csrf_token %}
+            
+           
+                {{ form.as_p }}
+            
+                            </form>
+</h2>  
+      
 {% endblock %}

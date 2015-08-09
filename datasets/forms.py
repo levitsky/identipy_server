@@ -25,7 +25,7 @@ class MultFilesForm(forms.Form):
         labelname = kwargs.pop('labelname', None)
         multiform = kwargs.pop('multiform', True)
         if not labelname:
-            labelname = 'Choose files'
+            labelname = 'Select files'
         super(MultFilesForm, self).__init__(*args, **kwargs)
         if multiform:
             self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)

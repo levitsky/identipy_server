@@ -285,15 +285,15 @@ def files_view(request, usedclass, usedname, labelname=None, c=dict(), multiform
 
 def files_view_spectra(request, c):
     usedclass = SpectraFile
-    return files_view(request, usedclass, 'chosenspectra', labelname='Choose spectra files', c = c)
+    return files_view(request, usedclass, 'chosenspectra', labelname='Select spectra files', c = c)
 
 def files_view_fasta(request, c):
     usedclass = FastaFile
-    return files_view(request, usedclass, 'chosenfasta', labelname='Choose fasta file', c = c)
+    return files_view(request, usedclass, 'chosenfasta', labelname='Select fasta file', c = c)
 
 def files_view_params(request, c):
     usedclass = ParamsFile
-    return files_view(request, usedclass, 'chosenparams', labelname='Choose parameters file', c = c)
+    return files_view(request, usedclass, 'chosenparams', labelname='Select parameters file', c = c)
 
 def identiprot_view(request, c):
     c = runidentiprot(c)
@@ -468,9 +468,9 @@ def runidentiprot(c):
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
-        c['identiprotmessage'] = 'Identiprot was started'
+        c['identiprotmessage'] = 'Identiprot started'
     else:
-        c['identiprotmessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
+        c['identiprotmessage'] = 'Results with name %s already exist, choose another name' % (rn.encode('ASCII'), )
     return c
 
 
