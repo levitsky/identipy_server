@@ -101,6 +101,16 @@ def index(request, c=dict()):
         elif(request.GET.get('download_figs')):
             c['down_type'] = 'figs'
             return getfiles(request, c=c)
+        elif(request.POST.get('prev_runs')):
+            request.POST = request.POST.copy()
+            request.POST['prev_runs'] = None
+            c['res_page'] = c.get('res_page', 1) + 1
+            return status(request, c=c)
+        elif(request.POST.get('next_runs')):
+            request.POST = request.POST.copy()
+            request.POST['next_runs'] = None
+            c['res_page'] = c.get('res_page', 1) - 1
+            return status(request, c=c)
         c.update(csrf(request))
         # Handle file upload
         if request.method == 'POST' and request.POST.get('submit'):
