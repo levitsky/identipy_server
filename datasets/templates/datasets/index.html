@@ -3,26 +3,26 @@
 {% block content %}
 
    {% if user.username %}   
-    <div id="menu"><form action="" method="post">{% csrf_token %}
-            <ul>
-
-            <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
-            <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
-            <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
-            <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-
-          </ul></form>
-        </div>
+   <div id="menu">
+        <ul><form action="" method="post">{% csrf_token %}
+        
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+          
+      </form></ul>
+    </div>
      <div id="tab">
-         <h2>Login successful</h2>
-         <form action="#" method="get">
+         <h2><p>Login successful</p></h2>
+         <form action="" method="post">{% csrf_token %}
          <p>Dear {{user.username}}, you were successfully logged in on IdentiPROT server. You look beautiful today.</p>
          <p>Do you want to identify something biological in your mass spectrometric data? You can <input type="submit" class="link" value="upload" name="uploadform"> new files or <input type="submit" class="link" value="start a search" name="searchpage"> if all the nesessary files are already uploaded.</p>
          </form>
 </div>
 
 {% else %}
-<div id="menu"><form action="#" method="get">
+<div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
         <li><div id="about"><input type="submit" class="menubarcurrent" value="about" name="about"></div></li>
         <li><div id="loginform"><input type="submit" class="menubar" value="log in" name="loginform"></div></li>
@@ -32,8 +32,8 @@
     </div>
 
 <div id="tab">
-         <h2>IdentiPROT search engine</h2>
-         <form action="#" method="get">
+    <h2><p>IdentiPROT search engine</p></h2>
+         <form action="" method="post">{% csrf_token %}
          <p>Do you want to identify something biological in your mass spectrometric data? You have come to the right place! Our versatile magnificant unbelievable search engine will help you organize your data analysis workflow in a stylish and convenient way.</p>
          <p>If you want to get a login, please <input type="submit" class="link" value="contact" name="contacts"> our humble administrators. </p>
          </form>

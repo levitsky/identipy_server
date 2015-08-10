@@ -19,8 +19,8 @@
             {% if chosenspectra %}
         Selected spectra:
 
-                <table id="spectra_list">
-                    <tr id="spectraheadings" type="bordered">
+                <table type="bordered">
+                    <tr id="headings" type="bordered">
                         <th type="bordered" width="60%">Filename</th>
                         <th type="bordered" width="15%">Size</th>
                         <th type="bordered">Submit date</th>
@@ -49,9 +49,9 @@
           <div id="vert_block">
         
             {% if chosenfasta %}
-                <table id="spectra_list">
-                    Selected fasta:
-                    <tr id="spectraheadings" type="bordered">
+                <table type="bordered">
+                    Selected protein database file:
+                    <tr id="headings" type="bordered">
                         <th type="bordered" width="60%">Filename</th>
                         <th type="bordered" width="15%">Size</th>
                         <th type="bordered">Submit date</th>
@@ -72,7 +72,7 @@
             <div id="upload_fasta">
             
             <form action="" method="post">{% csrf_token %}
-             <input type="submit" class="btn" value="Choose preloaded fasta" name="uploadfasta">
+             <input type="submit" class="btn" value="Choose preloaded&#10;protein database file" name="uploadfasta">
             </form>
             
             </div></div>
@@ -103,10 +103,10 @@
 
             <div id="upload_parameters">
             <h2>
-            <form action="" method="post">{% csrf_token %}
+            <form action="" method="">{% csrf_token %}
              <input type="submit" class="btn" value="Choose preloaded parameters" name="uploadparams">
             </form>
-            <br></br>
+            <br><br>
             <FORM action="" method="post">{% csrf_token %}
                 <div id="chromoConditionsBlock">
                     <a href="help#lcparameters" class="help">Enter your search parameters</a>

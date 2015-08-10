@@ -306,6 +306,16 @@ div.inthemiddle h2{
         
 }
 
+div.inthemiddle h3{
+    position:relative;
+    margin-bottom:0 ;
+    margin-top:0;
+    width:100%;
+    text-align:center;
+    font-size: 1em;
+    text-indent:0;
+        
+}
 div.inthemiddle p{
     position: relative;
     margin-left: 2em;
@@ -316,6 +326,13 @@ div.inthemiddle p{
     font-size:1.5em;
     
 }
+
+div.inthemiddle h2 p{
+    text-indent: 0;
+    margin-bottom:0.5em;
+    
+    
+}
 #tab{
     position:relative;
     margin:0;
@@ -324,11 +341,10 @@ div.inthemiddle p{
 }
 
 .backbtn{
-    position:absolute;
+    
     display: block;
-    width:50%;
-    font-size:2em;
-    left:25%;
+    font-size:1em;
+    padding:0 3em;
     margin-bottom:2em;
     text-align:center;
     word-break:break-all;
@@ -345,7 +361,7 @@ div.inthemiddle p{
     left:0;
     width:1%;
     position:relative;
-    opacity:0;
+    opacity:1;
     cursor:none;
 }
 div.select{
@@ -417,6 +433,11 @@ div.rightbox{
     width:70%;
     margin:auto auto;
 }
+#uploadbuttons {
+    position: relative;
+    right: 150pt;
+    }
+
 #uploadbuttons p{
     margin:1em;
     padding:0;
@@ -426,7 +447,7 @@ div.intable{
     position:relative;
 }
 
-#spectra_list{
+table[type="bordered"]{
     width:90%;
     font-size:0.5em;
     border: 2px solid #BBBBBB;
@@ -436,7 +457,7 @@ div.intable{
   
 }
 
-#spectraheadings{
+#headings{
     font-size:1.3em;
     text-align:center;
     text-decoration:bold;
@@ -460,14 +481,24 @@ th[type="bordered"],td[type="bordered"],tr[type="bordered"]{
     margin-bottom:1em;
 }
 #id_relates_to{
+    margin-top:4em;
+    margin-left:2em;
+    font-size:0.7em;
     list-style-type:none;
+    text-align:left;
+}
+#id_relates_to li{
+    padding:0.3em;
 }
 
 #fixedpanel{
     position:fixed;
     width:70%;
-    margin-top:0;
+    margin-top:4em;
+    padding-bottom:3em;
     background:#FFF;
     z-index:10;
-    display:none;
+}
+#selectionform{
+    width:100%;
 }
