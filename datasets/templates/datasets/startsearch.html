@@ -108,6 +108,20 @@
             </form>
             <br><br>
             <FORM action="" method="post">{% csrf_token %}
+                {% if paramtype != 1 %}
+                <li><input type="submit" class="menubar" value="Show simple params" name="type1"></li>
+                {% else %}
+                {% endif %}
+                {% if paramtype != 2 %}
+                <li><input type="submit" class="menubar" value="Show medium params" name="type2"></li>
+                {% else %}
+                {% endif %}
+                {% if paramtype != 3 %}
+                <li><input type="submit" class="menubar" value="Show advanced params" name="type3"></li>
+                {% else %}
+                {% endif %}
+            </FORM>
+            <FORM action="" method="post">{% csrf_token %}
                 <div id="chromoConditionsBlock">
                     <a href="help#lcparameters" class="help">Enter your search parameters</a>
                     <table id="SearchParametersTable">

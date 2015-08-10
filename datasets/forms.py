@@ -72,7 +72,8 @@ class SearchParametersForm(forms.Form):
                         )
                 else:
                     self.fields[param[1]] = get_field(fieldtype=param[0], label=param[1], initial=param[2])
-        key_order = ["precursor accuracy unit",
+        key_order = ["use auto optimization",
+                    "precursor accuracy unit",
                     "precursor accuracy left",
                     "precursor accuracy right",
                     "product accuracy",

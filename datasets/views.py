@@ -32,7 +32,7 @@ def index(request, c=dict()):
             request.POST['runidentiprot'] = None
             c['runname'] = request.POST['runname']
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-            raw_config.read('latest_params.cfg')
+            raw_config.read('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
             c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
             # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
@@ -91,16 +91,41 @@ def index(request, c=dict()):
             return results_figure(request, runname=request.GET['results_figure_actualname'], searchgroupid=request.GET['results_figure_searchgroupid'], c=c)
         elif(request.GET.get('download_csv')):
             c['down_type'] = 'csv'
-            return getfiles(request, c=c)
+            return getfiles(c=c)
         elif(request.GET.get('download_pepxml')):
             c['down_type'] = 'pepxml'
-            return getfiles(request, c=c)
+            return getfiles(c=c)
         elif(request.GET.get('download_mgf')):
             c['down_type'] = 'mgf'
-            return getfiles(request, c=c)
+            return getfiles(c=c)
         elif(request.GET.get('download_figs')):
             c['down_type'] = 'figs'
-            return getfiles(request, c=c)
+            return getfiles(c=c)
+        elif(request.POST.get('prev_runs')):
+            request.POST = request.POST.copy()
+            request.POST['prev_runs'] = None
+            c['res_page'] = c.get('res_page', 1) + 1
+            return status(request, c=c)
+        elif(request.POST.get('type1')):
+            request.POST = request.POST.copy()
+            request.POST['type1'] = None
+            c['paramtype'] = 1
+            return searchpage(request, c=c, upd=True)
+        elif(request.POST.get('type2')):
+            request.POST = request.POST.copy()
+            request.POST['type2'] = None
+            c['paramtype'] = 2
+            return searchpage(request, c=c, upd=True)
+        elif(request.POST.get('type3')):
+            request.POST = request.POST.copy()
+            request.POST['type3'] = None
+            c['paramtype'] = 3
+            return searchpage(request, c=c, upd=True)
+        elif(request.POST.get('next_runs')):
+            request.POST = request.POST.copy()
+            request.POST['next_runs'] = None
+            c['res_page'] = c.get('res_page', 1) - 1
+            return status(request, c=c)
         c.update(csrf(request))
         # Handle file upload
         if request.method == 'POST' and request.POST.get('submit'):
@@ -117,12 +142,11 @@ def index(request, c=dict()):
                         newdoc = FastaFile(docfile = uploadedfile, userid = request.user)
                         newdoc.save()
                     if fext == '.cfg':
-                        os.remove('latest_params.cfg')
-                        fd = open('latest_params.cfg', 'wb')
+                        os.remove('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+                        fd = open('latest_params_%d.cfg' % (c.get('paramtype', 3), ), 'wb')
                         for chunk in uploadedfile.chunks():
                             fd.write(chunk)
                         fd.close()
-                        # uploadedfile.write('latest_params.cfg')
                         newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
                         newdoc.save()
                     else:
@@ -133,14 +157,13 @@ def index(request, c=dict()):
             commonform = CommonForm()
 
         if 'chosenparams' in c:
-            os.remove('latest_params.cfg')
-            shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), 'latest_params.cfg')
-            # fd = open('latest_params.cfg', 'wb')
+            os.remove('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+            shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), 'latest_params_%d.cfg' % (c.get('paramtype', 3), ))
             # for chunk in c['chosenparams'].chunks():
             #     fd.write(chunk)
             # fd.close()
         raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-        raw_config.read('latest_params.cfg')
+        raw_config.read('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
 
         if 'SearchParametersForm' not in c:
             sf = SearchParametersForm(raw_config=raw_config)
@@ -184,9 +207,6 @@ def loginview(request, message=None):
         request.POST = request.POST.copy()
         request.POST['about'] = None
         return about(request, c = {})
-    
-    
-    
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
@@ -236,17 +256,20 @@ def status(request, c=dict()):
 def upload(request, c=dict()):
     c = c
     c.update(csrf(request))
-    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
-    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
-    c.update({'processes': processes})
     return render(request, 'datasets/upload.html', c)
 
-def searchpage(request, c=dict()):
+def searchpage(request, c=dict(), upd=False):
     c = c
+    c['paramtype'] = c.get('paramtype', 3)
     c.update(csrf(request))
-    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
-    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
-    c.update({'processes': processes})
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+
+    if upd or 'SearchParametersForm' not in c:
+        sf = SearchParametersForm(raw_config=raw_config)
+    else:
+        sf = c['SearchParametersForm']
+    c.update({'userid': request.user, 'SearchParametersForm': sf})
     return render(request, 'datasets/startsearch.html', c)
 
 def contacts(request,c=dict()):
@@ -259,7 +282,7 @@ def about(request,c=dict()):
     c.update(csrf(request))
     return render(request, 'datasets/index.html', c)
     
-def files_view(request, usedclass=None, usedname=None, labelname=None, c=dict(), multiform=True):
+def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
     if not usedclass or not usedname:
@@ -272,24 +295,13 @@ def files_view(request, usedclass=None, usedname=None, labelname=None, c=dict(),
     for doc in documents:
         cc.append((doc.id, doc.name()))
     if request.POST.get('relates_to'):
-        # cc = [('A', 'AA'), ('B', 'BB'), ('C', 'CC')]
-        # form = MultFilesForm(request.POST, custom_choices=cc, fextention=fextention)
-        # form = MultFilesForm(request.POST, custom_choices=cc)
         form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data.get('relates_to')]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
             c.update({usedname: chosenfiles})
             return searchpage(request, c)
-            # return render(request, 'datasets/index.html', c)
-            # print chosenfiles
-            # do something with your results
     else:
-        # documents = Document.objects.filter(userid=request.user, fext=fextention)
-        # documents = SpectraFile.objects.filter(userid=request.user)
-        # documents = Document.objects.filter(format(fextention))
-        # cc = [('d', 'dd'), ('g', 'gg'), ('h', 'hh')]
-        # form = MultFilesForm(custom_choices=cc, fextention=fextention)
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
     c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname})
     return render_to_response('datasets/choose.html', c,
@@ -297,15 +309,15 @@ def files_view(request, usedclass=None, usedname=None, labelname=None, c=dict(),
 
 def files_view_spectra(request, c):
     usedclass = SpectraFile
-    return files_view(request, usedclass, 'chosenspectra', labelname='Select spectra files', c = c)
+    return files_view(request, usedclass, 'chosenspectra', c = c)
 
 def files_view_fasta(request, c):
     usedclass = FastaFile
-    return files_view(request, usedclass, 'chosenfasta', labelname='Select fasta file', c = c)
+    return files_view(request, usedclass, 'chosenfasta', c = c)
 
 def files_view_params(request, c):
     usedclass = ParamsFile
-    return files_view(request, usedclass, 'chosenparams', labelname='Select parameters file', c = c)
+    return files_view(request, usedclass, 'chosenparams', c = c)
 
 def identiprot_view(request, c):
     c = runidentiprot(c)
@@ -315,22 +327,7 @@ def runidentiprot(c):
     newgroup = SearchGroup(groupname=c['runname'], userid = c['userid'])
     newgroup.save()
 
-    # print ParamsFile.objects.filter(userid=newgroup.userid).count(), 'Number of params objects'
-    # print ParamsFile.objects.filter(docfile__endswith='latest_params.cfg', userid=newgroup.userid).count()
-    # fl = open('latest_params.cfg')
-    # djangofl = File(fl)
-
-    # for v in c['SearchParametersForm']:
-    #     print v.name, v.value()
-
-    # newdoc = ParamsFile(docfile = djangofl, userid = c['userid'])
-    # newdoc.save()
-    # fl.close()
-    # c['chosenparams'] = [newdoc, ] # TODO
     newgroup.add_files(c)
-    # newrun = SearchRun(runname=c['runname'], userid = c['userid'])
-    # newrun.save()
-    # newrun.add_files(c)
 
     def run_search(newrun, rn, c):
         paramfile = newrun.parameters.all()[0].path()
@@ -339,9 +336,6 @@ def runidentiprot(c):
         settings.set('input', 'database', fastafile.encode('ASCII'))
         settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
         totalrun(settings, newrun, c['userid'], paramfile)
-        # p = Process(target=totalrun, args=(settings, newrun, c['userid']))
-        # p.start()
-        # p.join()
         return 1
 
     def set_pepxml_path(settings, inputfile):
@@ -359,29 +353,21 @@ def runidentiprot(c):
         if not newrun.union:
             for obj in newrun.spectra.all():
                 inputfile = obj.path()
-                # newrun.calc_msms(inputfile)
                 p = Process(target=runproc, args=(inputfile, settings, newrun, usr))
                 p.start()
                 procs.append(p)
             for p in procs:
                 p.join()
-            # newrun = get_object_or_404(SearchRun, id=pK)#SearchRun(runname=c['runname'], userid = c['userid'])
             pepxmllist = newrun.get_pepxmlfiles_paths()
-            # paramlist = ['defaultMP.cfg']#newrun.get_paramfile_path()
             paramlist = [paramfile]
             bname = pepxmllist[0].split('.pep.xml')[0]
         else:
-            # pepxmllist = [set_pepxml_path(settings, s) for s in spectralist]
             pepxmllist = newrun.get_pepxmlfiles_paths()
-            # paramlist = ['defaultMP2.cfg']
             paramlist = [paramfile]
             bname = os.path.dirname(pepxmllist[0]) + '/union'
         newrun.set_FDRs()
-        # print ['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist
         from mpscore import MPscore
         MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
-        # subprocess.call(['python2', '../mp-score/MPscore.py'] + pepxmllist + spectralist + fastalist + paramlist)
-        # bname = pepxmllist[0].split('.pep.xml')[0]
         if not os.path.isfile(bname + '_PSMs.csv'):
             bname = os.path.dirname(bname) + '/union'
 
@@ -394,12 +380,6 @@ def runidentiprot(c):
                 img.save()
                 newrun.add_resimage(img)
                 fl.close()
-        # if os.path.exists(bname + '.png'):
-        #     fl = open(bname + '.png')
-        #     djangofl = File(fl)
-        #     img = ResImageFile(docfile = djangofl, userid = usr)
-        #     img.save()
-        #     newrun.add_resimage(img)
         if os.path.exists(bname + '_PSMs.csv'):
             fl = open(bname + '_PSMs.csv')
             djangofl = File(fl)
@@ -422,12 +402,6 @@ def runidentiprot(c):
         return 1
 
     def runproc(inputfile, settings, newrun, usr):
-        # if settings.has_option('output', 'path'):
-        #     outpath = settings.get('output', 'path')
-        # else:
-        #     outpath = path.dirname(inputfile)
-        #
-        # filename = path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
         filename = set_pepxml_path(settings, inputfile)
         utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
         fl = open(filename, 'r')
@@ -458,13 +432,6 @@ def runidentiprot(c):
             p = Process(target=run_search, args=(newrun, rn, c))
             p.start()
             tmp_procs.append(p)
-            # paramfile = newrun.parameters.all()[0].path()
-            # fastafile = newrun.fasta.all()[0].path()
-            # settings = main.settings(paramfile)
-            # settings.set('input', 'database', fastafile.encode('ASCII'))
-            # settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
-            # p = Process(target=totalrun, args=(settings, newrun, c['userid']))
-            # p.start()
         for p in tmp_procs:
             p.join()
         p = Process(target=start_union, args=(newgroup, rn, c))
@@ -487,27 +454,21 @@ def runidentiprot(c):
 
 
 def search_details(request, runname, c=dict()):
-    # doc = get_object_or_404(Document, id=pK)
     c = c
     c.update(csrf(request))
-    # runobj = get_object_or_404(SearchRun, runname=runname)
-    # c.update({'searchrun': runobj})
     runobj = get_object_or_404(SearchGroup, groupname=runname)
     c.update({'searchgroup': runobj})
     return render(request, 'datasets/results.html', c)
 
 def results_figure(request, runname, searchgroupid, c=dict()):
-    # doc = get_object_or_404(Document, id=pK)
     c = c
     c.update(csrf(request))
-    # runobj = get_object_or_404(SearchRun, runname=runname)
-    # c.update({'searchrun': runobj})
     runobj = get_object_or_404(SearchRun, runname=runname, searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj})
     return render(request, 'datasets/results_figure.html', c)
 
 
-def getfiles(request, c):
+def getfiles(c):
     searchgroup = c['searchgroup']
     filenames = []
     for searchrun in searchgroup.get_searchruns_all():

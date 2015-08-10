@@ -125,7 +125,7 @@ class SearchGroup(BaseDocument):
 
     def add_files(self, c):
         self.add_fasta(c['chosenfasta'])
-        self.add_params(c['SearchParametersForm'])
+        self.add_params(c['SearchParametersForm'], c['paramtype'])
         self.save()
         for s in c['chosenspectra']:
             newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], userid = self.userid)
@@ -154,14 +154,14 @@ class SearchGroup(BaseDocument):
         self.fasta.add(fastaobject[0])
         self.save()
 
-    def add_params(self, SearchParametersForm_values):
+    def add_params(self, SearchParametersForm_values, paramtype=3):
         # for s in paramsobjects:
         SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
         try:
-            paramobj = ParamsFile.objects.get(docfile__endswith='latest_params.cfg', userid=self.userid)
+            paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=self.userid)
         except ObjectDoesNotExist:
             print("Either the entry or blog doesn't exist.")
-            fl = open('latest_params.cfg')
+            fl = open('latest_params_%d.cfg' % (paramtype, ))
             djangofl = File(fl)
             paramobj = ParamsFile(docfile = djangofl, userid = self.userid)
             paramobj.save()
