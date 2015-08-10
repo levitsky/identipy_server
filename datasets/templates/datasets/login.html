@@ -2,13 +2,13 @@
 {% block title %}Welcome to IdentiPROT{% endblock%}
 {% block content %}
 
-<div id="menu">
+<div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
-        <li><div id="about"><form action="#" method="get"><input type="submit" class="menubar" value="about" name="about"></form></div></li>
-        <li><div id="loginform"><form action="#" method="get"><input type="submit" class="menubarcurrent" value="log in" name="loginform"></form></div></li>
-        <li><div id="contacts"><form action="#" method="get"><input type="submit" class="menubar" value="contacts" name="contacts"></form></div></li>
-          
-      </ul>
+        <li><div id="about"><input type="submit" class="menubar" value="about" name="about"></div></li>
+        <li><div id="loginform"><input type="submit" class="menubarcurrent" value="log in" name="loginform"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+         
+      </ul></form>
     </div>
 
 <div id="tab">
@@ -18,7 +18,7 @@
     <div class="intable">
     <p><h2>Welcome to IdentiPROT!</h2>
             <p>Here come some generic frases about how cool we are and, as a consequence, the users of IdentiPROT are exceedingly cool as well.
-    <form action="#" method="get"><p>If you have problems logging in, any questions or comments, please <input type="submit" class="link" value="contact us" name="contacts">.</p></form>
+    <form action="" method="post">{% csrf_token %}<p>If you have problems logging in, any questions or comments, please <input type="submit" class="link" value="contact us" name="contacts">.</p></form>
 </div>
             </td>
             <td>
@@ -26,7 +26,7 @@
             
 <div id="login">
   <h1>WELCOME<br>The single entry point for your proteomic data mining</h1>
-  <form action="/auth/" method="POST"> {% csrf_token %}
+ <h3> <form action="/auth/" method="POST"> {% csrf_token %}
     <input type="email" name="email" id="email" value=""  placeholder="Email"/>
     <input type="password" name="password" id="password" value=""  placeholder="Password"/>
     <!--<input type="submit" name="submit" value="Log in" />-->
@@ -35,7 +35,7 @@
     <!--<input type="email" placeholder="Email" />-->
     <!--<input type="password" placeholder="Password" />-->
     <!--<input type="submit" value="Log in" />-->
-  </form>
+     </form></h3>
     {% if message %}
         <h2>{{ message }}</h2>
     {% endif %}

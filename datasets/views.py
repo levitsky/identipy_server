@@ -49,9 +49,9 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['cancel'] = None
             return index(request, c=c)
-        elif(request.GET.get('clear')):
-            request.GET = request.GET.copy()
-            request.GET['clear'] = None
+        elif(request.POST.get('clear')):
+            request.POST = request.POST.copy()
+            request.POST['clear'] = None
             return index(request, c=dict())
         elif(request.POST.get('getstatus')):
             request.POST = request.POST.copy()
@@ -104,8 +104,8 @@ def index(request, c=dict()):
         c.update(csrf(request))
         # Handle file upload
         if request.method == 'POST' and request.POST.get('submit'):
-            request.GET = request.GET.copy()
-            request.GET['submit'] = None
+            request.POST = request.POST.copy()
+            request.POST['submit'] = None
             commonform = CommonForm(request.POST, request.FILES)
             if 'commonfiles' in request.FILES:#commonform.is_valid():
                 for uploadedfile in request.FILES.getlist('commonfiles'):
@@ -172,17 +172,17 @@ def loginview(request, message=None):
     c = {}
     c.update(csrf(request))
     c['message'] = message
-    if(request.GET.get('contacts')):
-        request.GET = request.GET.copy()
-        request.GET['contacts'] = None
+    if(request.POST.get('contacts')):
+        request.POST = request.POST.copy()
+        request.POST['contacts'] = None
         return contacts(request, c = {})
-    if(request.GET.get('loginform')):
-        request.GET = request.GET.copy()
-        request.GET['loginform'] = None
+    if(request.POST.get('loginform')):
+        request.POST = request.POST.copy()
+        request.POST['loginform'] = None
         return loginview(request)
-    if(request.GET.get('about')):
-        request.GET = request.GET.copy()
-        request.GET['about'] = None
+    if(request.POST.get('about')):
+        request.POST = request.POST.copy()
+        request.POST['about'] = None
         return about(request, c = {})
     
     
@@ -190,17 +190,17 @@ def loginview(request, message=None):
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
-    if(request.GET.get('contacts')):
-        request.GET = request.GET.copy()
-        request.GET['contacts'] = None
+    if(request.POST.get('contacts')):
+        request.POST = request.POST.copy()
+        request.POST['contacts'] = None
         return contacts(request, c = {})
-    if(request.GET.get('loginform')):
-        request.GET = request.GET.copy()
-        request.GET['loginform'] = None
+    if(request.POST.get('loginform')):
+        request.POST = request.POST.copy()
+        request.POST['loginform'] = None
         return loginview(request)
-    if(request.GET.get('about')):
-        request.GET = request.GET.copy()
-        request.GET['about'] = None
+    if(request.POST.get('about')):
+        request.POST = request.POST.copy()
+        request.POST['about'] = None
         return about(request, c = {})
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
@@ -280,7 +280,7 @@ def files_view(request, usedclass=None, usedname=None, labelname=None, c=dict(),
             chosenfilesids = [int(x) for x in form.cleaned_data.get('relates_to')]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
             c.update({usedname: chosenfiles})
-            return index(request, c)
+            return searchpage(request, c)
             # return render(request, 'datasets/index.html', c)
             # print chosenfiles
             # do something with your results

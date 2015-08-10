@@ -5,31 +5,32 @@
 
 <div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
-
-        <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
+            
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
         <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
         <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
         <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-
+            
       </ul></form>
     </div>
 
 <div id="tab">
     <div id="fixedpanel">
-        <h2><p>Select files</p></h2>
-    <div id="index">
+        <h2>
+    <div>
                 <form method="post">{% csrf_token %}
-                <input type="submit" class="topbtn" value="submit" name="sbm">
-                <input type="submit" class="backbtn" value="cancel" name="searchpage">
-                    </form></div>
+                <input class = "btn" type="submit" value="submit" name="sbm">
+                <input type="submit" class="btn" value="cancel" name="searchpage">
+                <input type="submit" class="btn" value="upload new files" name="uploadform">
+                    </form></div></h2>
         </div>
-    </div> 
- <h2><form method="post" id="selectionform">{% csrf_token %}
+     
+ <form method="post" id="selectionform">{% csrf_token %}
             
-           
+           <h2>
                 {{ form.as_p }}
             
-                            </form>
-</h2>  
-      
+     </h2>          </form>
+ 
+    </div>  
 {% endblock %}
