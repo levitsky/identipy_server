@@ -2,15 +2,15 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-        <title>{% block title2 %}Identipy Server{% endblock %}</title>
+        <title>{% block title %}Identipy Server{% endblock %}</title>
 	</head>
         <body>
           {% load staticfiles %}
             <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
-        <div id="twelcome">
+ <!--       <div id="logo">
             {% load staticfiles %}
             <img src="{% static 'image/Title.png' %}"/>
-        </div>
+        </div> -->
         <div id="content">
         {% block content2 %}
         {% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}New Search{% endblock%}
+{% block content %}
+
+<div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
+            
+        <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+            
+      </ul></form>
+    </div>
+<h2>
+        
+    <div id="vert_block">
+            
+            {% if chosenspectra %}
+        Selected spectra:
+
+                <table id="spectra_list">
+                    <tr id="spectraheadings" type="bordered">
+                        <th type="bordered" width="60%">Filename</th>
+                        <th type="bordered" width="15%">Size</th>
+                        <th type="bordered">Submit date</th>
+                    </tr>
+                {% for doc in chosenspectra %}
+                <tr type="bordered">
+                    <td type="bordered"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td type="bordered">{{ doc.docfile.size | filesizeformat }}</td>
+                    <td type="bordered">{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                MS files not selected
+            {% endif %}
+   
+
+   <div>
+   <form action="" method="post">{% csrf_token %}
+        <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
+            </form>
+   
+            </div>
+</div>
+
+          <div id="vert_block">
+        
+            {% if chosenfasta %}
+                <table id="spectra_list">
+                    Selected fasta:
+                    <tr id="spectraheadings" type="bordered">
+                        <th type="bordered" width="60%">Filename</th>
+                        <th type="bordered" width="15%">Size</th>
+                        <th type="bordered">Submit date</th>
+                    </tr>
+                {% for doc in chosenfasta %}
+                <tr type="bordered">
+                    <td type="bordered"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td type="bordered">{{ doc.docfile.size | filesizeformat }}</td>
+                    <td type="bordered">{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                Protein database file not selected
+            {% endif %}
+            
+
+            <div id="upload_fasta">
+            
+            <form action="" method="post">{% csrf_token %}
+             <input type="submit" class="btn" value="Choose preloaded fasta" name="uploadfasta">
+            </form>
+            
+            </div></div>
+</h2>
+            <div id="index_params">
+            <h1>
+            {% if chosenparams %}
+                <table id="params_list">
+                    Choosen params:
+                    <tr id="paramsheadings">
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Submit date</th>
+                    </tr>
+                {% for doc in chosenparams %}
+                <tr>
+                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                <p>Params file is not selected.</p>
+            {% endif %}
+            </h1>
+            </div>
+
+            <div id="upload_parameters">
+            <h2>
+            <form action="" method="post">{% csrf_token %}
+             <input type="submit" class="btn" value="Choose preloaded parameters" name="uploadparams">
+            </form>
+            <br></br>
+            <FORM action="" method="post">{% csrf_token %}
+                <div id="chromoConditionsBlock">
+                    <a href="help#lcparameters" class="help">Enter your search parameters</a>
+                    <table id="SearchParametersTable">
+                        {{ SearchParametersForm.as_table }}
+                    </table>
+                </div>
+            </h2>
+            </div>
+
+            <h4>
+            <div id="run_identiprot">
+            <!--<form run action="#" method="get">-->
+            <input type="text" class="searchname" name="runname" id="email" value=""  placeholder="Enter search run name"/>
+            </h4>
+             <!--<input type="text" value="Enter search run name" name="runname" size="20"/>-->
+             <input type="submit" class="topbtn" value="RUN identiprot" name="runidentiprot">
+            <!--</form>-->
+            </FORM>
+
+            <div id="clear">
+            <form action="#" method="get">
+             <input type="submit" class="btn" value="Clear chosen files" name="clear">
+            </form>
+            </div>
+
+            </div>
+        
+        </div>
+
+{% endblock %}
