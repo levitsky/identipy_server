@@ -14,21 +14,20 @@
       </ul></form>
     </div>
 
-<div id="tab">
-    <div id="fixedpanel">
-        <h2>
-                <form method="post">{% csrf_token %}
+<div id="tab"><form method="post" id="selectionform">{% csrf_token %}
+    <h2><div id="fixedpanel" >
+        
+                
                 <input class = "btn" type="submit" value="submit" name="sbm">
                 <input type="submit" class="btn" value="cancel" name="searchpage">
                 <input type="submit" class="btn" value="upload new files" name="uploadform">
-                    </h2>
-
-            
-           <h2>
+                   
+            </div>
+           
                 {{ form.as_p }}
             
-     </h2>          </form>
-        </div>
+          </h2> </form>
+         
 
     </div>  
 {% endblock %}

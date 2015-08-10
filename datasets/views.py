@@ -52,7 +52,7 @@ def index(request, c=dict()):
         elif(request.POST.get('clear')):
             request.POST = request.POST.copy()
             request.POST['clear'] = None
-            return index(request, c=dict())
+            return searchpage(request, c=dict())
         elif(request.POST.get('getstatus')):
             request.POST = request.POST.copy()
             request.POST['getstatus'] = None
@@ -79,9 +79,9 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['uploadfasta'] = None
             return files_view_fasta(request, c = c)
-        elif(request.GET.get('uploadparams')):
-            request.GET = request.GET.copy()
-            request.GET['uploadparams'] = None
+        elif(request.POST.get('uploadparams')):
+            request.POST = request.POST.copy()
+            request.POST['uploadparams'] = None
             return files_view_params(request, c = c)
         elif(request.GET.get('search_details')):
             request.GET = request.GET.copy()
