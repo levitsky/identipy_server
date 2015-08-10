@@ -25,8 +25,8 @@
 </div>
                </td>
                <td>
-<div class="intable">
-            <form id="uploadbuttons" action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+<div class="intable"><h3>
+            <form id="uploadbuttons"  action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
              <p>   {% csrf_token %}
                 {{ commonform.non_field_errors }} 
                 
@@ -35,18 +35,18 @@
                  <button for="file"class="uploadform">Choose files</button></p><br><br>
     <p><input type="submit" name="submit" value="Upload" class="uploadform"/></p><br>
             </form>
-        
+    </h3>
         </div>
                </td>
            </tr>
            </table>
 
-<div id="status_back">
+<div id="status_back"><h2>
     
-        <form action="#" method="get">
-         <input type="submit" class="backbtn" value="Start a new&#10;search run" name="statusback">
+        <form action="" method="post">{% csrf_token %}
+         <input type="submit" class="backbtn" value="Start a new&#10;search run" name="searchpage">
         </form>
-    <div class="backbtn" type="pseudo">wow</div>
+    </h2>
            </div>
 </div>
 {% endblock %}
