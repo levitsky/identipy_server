@@ -1,168 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Uploaded data{% endblock%}
+{% block title %}IdentiPROT server{% endblock%}
 {% block content %}
-  <head>
-    <meta charset="UTF-8">
-    <title>Data Form</title>
-      {% load staticfiles %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/data.css' %}" />
-        <!--<link rel="stylesheet" href="css/login.css">-->
-  </head>
-        <!--<div id="welcome">-->
-        <!--Welcome {{ user.username }} (<a href="/logout">logout</a>)-->
-        <!--</div>-->
-      <!--<div id="triangle"></div>-->
-      <!--<h1>WELCOME<br>The single entry point for your proteomic data mining.</h1>-->
 
-        <div id="data">
-        <div id="identiprot message">
-        {% if identiprotmessage %}
-            <h6>{{ identiprotmessage }}</h6>
-        {% endif %}
+   {% if user.username %}   
+    <div id="menu"><form action="" method="post">{% csrf_token %}
+            <ul>
+
+            <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
+            <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+            <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+            <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+
+          </ul></form>
         </div>
-        <div id="get_status">
-        <form action="" method="POST">{% csrf_token %}
-        <input type="submit" class="topbtn" value="Show search history" name="getstatus">
-        </form>
-        </div>
-        <div>
-        <h3>
-            Upload files to server
-            <form action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <p>{{ commonform.non_field_errors }}</p>
-                <!--<p>{{ spectraform.spectrafile.label_tag }} {{ spectraform.spectrafile.help_text }}</p>-->
-                <p>
-                    <!--{{ spectraform.spectrafile.errors }}-->
-                    {{ commonform.commonfiles }}
-                </p>
-                <p><input type="submit" name="submit" value="Upload" /></p>
-            </form>
-        </h3>
-        </div>
-            <div id="index_spectra">
-            <h1>
-            {% if chosenspectra %}
-                <table id="spectra_list">
-                    Choosen spectra:
-                    <tr id="spectraheadings">
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Submit date</th>
-                    </tr>
-                {% for doc in chosenspectra %}
-                <tr>
-                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td>{{ doc.docfile.size | filesizeformat }}</td>
-                    <td>{{ doc.date_added }}</td>
-                </tr>
-                {% endfor %}
-                </table>
-            {% else %}
-                <p>Spectra files are not selected.</p>
-            {% endif %}
-            </h1>
-            </div>
+     <div id="tab">
+         <h2>Login successful</h2>
+         <form action="#" method="get">
+         <p>Dear {{user.username}}, you were successfully logged in on IdentiPROT server. You look beautiful today.</p>
+         <p>Do you want to identify something biological in your mass spectrometric data? You can <input type="submit" class="link" value="upload" name="uploadform"> new files or <input type="submit" class="link" value="start a search" name="searchpage"> if all the nesessary files are already uploaded.</p>
+         </form>
+</div>
 
-            <div id="upload">
-            <h2>
-            <form action="" method="post">{% csrf_token %}
-             <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
-            </form>
-            </h2>
-            </div>
+{% else %}
+<div id="menu"><form action="#" method="get">
+        <ul>
+        <li><div id="about"><input type="submit" class="menubarcurrent" value="about" name="about"></div></li>
+        <li><div id="loginform"><input type="submit" class="menubar" value="log in" name="loginform"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+         
+      </ul></form>
+    </div>
 
+<div id="tab">
+         <h2>IdentiPROT search engine</h2>
+         <form action="#" method="get">
+         <p>Do you want to identify something biological in your mass spectrometric data? You have come to the right place! Our versatile magnificant unbelievable search engine will help you organize your data analysis workflow in a stylish and convenient way.</p>
+         <p>If you want to get a login, please <input type="submit" class="link" value="contact" name="contacts"> our humble administrators. </p>
+         </form>
+</div>
 
-          <div id="index_fasta">
-            <h1>
-            {% if chosenfasta %}
-                <table id="fasta_list">
-                    Choosen fasta:
-                    <tr id="fastaheadings">
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Submit date</th>
-                    </tr>
-                {% for doc in chosenfasta %}
-                <tr>
-                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td>{{ doc.docfile.size | filesizeformat }}</td>
-                    <td>{{ doc.date_added }}</td>
-                </tr>
-                {% endfor %}
-                </table>
-            {% else %}
-                <p>Fasta file is not selected.</p>
-            {% endif %}
-            </h1>
-            </div>
-
-            <div id="upload_fasta">
-            <h2>
-            <form action="" method="POST">{% csrf_token %}
-             <input type="submit" class="btn" value="Choose preloaded fasta" name="uploadfasta">
-            </form>
-            </h2>
-            </div>
-
-            <div id="index_params">
-            <h1>
-            {% if chosenparams %}
-                <table id="params_list">
-                    Choosen params:
-                    <tr id="paramsheadings">
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Submit date</th>
-                    </tr>
-                {% for doc in chosenparams %}
-                <tr>
-                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td>{{ doc.docfile.size | filesizeformat }}</td>
-                    <td>{{ doc.date_added }}</td>
-                </tr>
-                {% endfor %}
-                </table>
-            {% else %}
-                <p>Params file is not selected.</p>
-            {% endif %}
-            </h1>
-            </div>
-
-            <div id="upload_parameters">
-            <h2>
-            <form action="#" method="get">
-             <input type="submit" class="btn" value="Choose preloaded parameters" name="uploadparams">
-            </form>
-            <br></br>
-            <FORM action="" method="post">{% csrf_token %}
-                <div id="chromoConditionsBlock">
-                    <a href="help#lcparameters" class="help">Enter your search parameters</a>
-                    <table id="SearchParametersTable">
-                        {{ SearchParametersForm.as_table }}
-                    </table>
-                </div>
-            </h2>
-            </div>
-
-            <h4>
-            <div id="run_identiprot">
-            <!--<form run action="#" method="get">-->
-            <input type="text" class="searchname" name="runname" id="email" value=""  placeholder="Enter search run name"/>
-            </h4>
-             <!--<input type="text" value="Enter search run name" name="runname" size="20"/>-->
-             <input type="submit" class="topbtn" value="RUN identiprot" name="runidentiprot">
-            <!--</form>-->
-            </FORM>
-
-            <div id="clear">
-            <form action="#" method="get">
-             <input type="submit" class="btn" value="Clear chosen files" name="clear">
-            </form>
-            </div>
-
-            </div>
-        </div>
-
-
+{% endif %}
+            
+        
+        
 {% endblock %}

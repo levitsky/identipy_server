@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Contacts{% endblock %}
+{% block content %}
+	
+{% if user.username %}
+<div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
+
+        <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+
+      </ul></form>
+    </div>
+
+{% else %}
+<div id="menu"><form action="#" method="get">
+        <ul>
+        <li><div id="about"><input type="submit" class="menubar" value="about" name="about"></div></li>
+        <li><div id="loginform"><input type="submit" class="menubar" value="log in" name="loginform"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubarcurrent" value="contacts" name="contacts"></div></li>
+         
+      </ul></form>
+    </div>
+{% endif %}
+<div id="tab">
+<table>
+    <tr valign="top">
+        <td width="50%">
+    <div class="intable"><p>Our administrators are not only good-looking, but are also looking forward to making your IdentiPROT experience incredibly awesome!</p>
+    <p>Contact details tram-pam-pam</p>
+
+    {% if user.username %}
+    <div id="status_back">
+        <form action="#" method="get">
+         <input type="submit" class="backbtn" value="Start a&#10;new search" name="searchpage">
+        </form>
+           </div>
+    
+    {% else %}
+     <div>   
+        <form action="#" method="get">
+         <input type="submit" class="backbtn" value="Back to&#10;log in" name="loginform">
+        </form>
+           </div>
+    {% endif %}
+</div>
+        </td>
+        <td>
+<div class="intable">
+    {% load staticfiles %}
+    <img src="{% static 'image/mark.jpg' %}"/><br>
+        <img src="{% static 'image/lev.jpg' %}"/><br>
+    
+            
+    </div>
+        </td>
+    </tr>
+    </table>
+</div>
+{% endblock %}

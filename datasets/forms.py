@@ -5,7 +5,7 @@ from pyteomics import biolccc
 from collections import OrderedDict
 
 class CommonForm(forms.Form):
-    commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload files')
+    commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload')
 
 class MultFilesForm(forms.Form):
     # OPTIONS = (
@@ -25,7 +25,7 @@ class MultFilesForm(forms.Form):
         labelname = kwargs.pop('labelname', None)
         multiform = kwargs.pop('multiform', True)
         if not labelname:
-            labelname = 'Choose files'
+            labelname = 'Select files'
         super(MultFilesForm, self).__init__(*args, **kwargs)
         if multiform:
             self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)

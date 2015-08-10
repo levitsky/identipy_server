@@ -1,22 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Uploaded data{% endblock%}
+{% block title %}Search History{% endblock%}
 {% block content %}
-		<!-- List of uploaded documents -->
-      <head>
-        <meta charset="UTF-8">
-        <title>Status Form</title>
-          {% load staticfiles %}
-            <link rel="stylesheet" type="text/css" href="{% static 'css/data.css' %}" />
-            <!--<link rel="stylesheet" href="css/login.css">-->
-      </head>
-        <div id="data">
 
-        <div id="status_back">
-        <form action="" method="POST">{% csrf_token %}
-         <input type="submit" class="backbtn" value="Back to new run page" name="statusback">
-        </form>
-        </div>
+<div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
 
+        <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+
+      </ul></form>
+    </div>
+    </div>
         {% if res_page != max_res_page %}
         <form action="" method="POST">{% csrf_token %}
          <input type="submit" class="backbtn" value="Show older runs" name="prev_runs">
@@ -30,6 +26,8 @@
         </form>
 		{% else %}
 		{% endif %}
+
+        
 
         <div id="index">
         <h1>
@@ -54,7 +52,13 @@
 		{% else %}
 			<p>There are no searches.</p>
 		{% endif %}
-        </h1>
+        <div id="status_back">
+    
+        <form action="" method="POST">{% csrf_token %}
+         <input type="submit" class="backbtn" value="Start a new&#10;search run" name="searchpage">
+        </form>
+    <div class="backbtn" type="pseudo">wow</div>
+           </div>
         </div>
         </div>
 
