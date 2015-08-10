@@ -294,6 +294,8 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
     cc = []
     for doc in documents:
         cc.append((doc.id, doc.name()))
+    print 'HERE 123142123'
+    print request.POST.keys()
     if request.POST.get('relates_to'):
         form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if form.is_valid():
