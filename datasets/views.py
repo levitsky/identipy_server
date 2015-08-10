@@ -59,16 +59,18 @@ def index(request, c=dict()):
             c['res_page'] = 1
             c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(userid=request.user.id).count()) / 10))
             return status(request, c = c)
-        elif(request.POST.get('prev_runs')):
+        elif(request.POST.get('uploadform')):
             request.POST = request.POST.copy()
-            request.POST['prev_runs'] = None
-            c['res_page'] = c.get('res_page', 1) + 1
-            return status(request, c=c)
-        elif(request.POST.get('next_runs')):
+            request.POST['uploadform'] = None
+            return upload(request, c = c)
+        elif(request.POST.get('searchpage')):
             request.POST = request.POST.copy()
-            request.POST['next_runs'] = None
-            c['res_page'] = c.get('res_page', 1) - 1
-            return status(request, c=c)
+            request.POST['searchpage'] = None
+            return searchpage(request, c = c)
+        elif(request.POST.get('contacts')):
+            request.POST = request.POST.copy()
+            request.POST['contacts'] = None
+            return contacts(request, c = c)
         elif(request.POST.get('uploadspectra')):
             request.POST = request.POST.copy()
             request.POST['uploadspectra'] = None
@@ -170,9 +172,36 @@ def loginview(request, message=None):
     c = {}
     c.update(csrf(request))
     c['message'] = message
+    if(request.GET.get('contacts')):
+        request.GET = request.GET.copy()
+        request.GET['contacts'] = None
+        return contacts(request, c = {})
+    if(request.GET.get('loginform')):
+        request.GET = request.GET.copy()
+        request.GET['loginform'] = None
+        return loginview(request)
+    if(request.GET.get('about')):
+        request.GET = request.GET.copy()
+        request.GET['about'] = None
+        return about(request, c = {})
+    
+    
+    
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
+    if(request.GET.get('contacts')):
+        request.GET = request.GET.copy()
+        request.GET['contacts'] = None
+        return contacts(request, c = {})
+    if(request.GET.get('loginform')):
+        request.GET = request.GET.copy()
+        request.GET['loginform'] = None
+        return loginview(request)
+    if(request.GET.get('about')):
+        request.GET = request.GET.copy()
+        request.GET['about'] = None
+        return about(request, c = {})
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
         login(request, user)
@@ -204,6 +233,32 @@ def status(request, c=dict()):
     c.update({'processes': processes})
     return render(request, 'datasets/status.html', c)
 
+def upload(request, c=dict()):
+    c = c
+    c.update(csrf(request))
+    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    c.update({'processes': processes})
+    return render(request, 'datasets/upload.html', c)
+
+def searchpage(request, c=dict()):
+    c = c
+    c.update(csrf(request))
+    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
+    c.update({'processes': processes})
+    return render(request, 'datasets/startsearch.html', c)
+
+def contacts(request,c=dict()):
+    c=c
+    c.update(csrf(request))
+    return render(request, 'datasets/contacts.html', c)
+
+def about(request,c=dict()):
+    c=c
+    c.update(csrf(request))
+    return render(request, 'datasets/index.html', c)
+    
 def files_view(request, usedclass=None, usedname=None, labelname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
@@ -242,15 +297,15 @@ def files_view(request, usedclass=None, usedname=None, labelname=None, c=dict(),
 
 def files_view_spectra(request, c):
     usedclass = SpectraFile
-    return files_view(request, usedclass, 'chosenspectra', labelname='Choose spectra files', c = c)
+    return files_view(request, usedclass, 'chosenspectra', labelname='Select spectra files', c = c)
 
 def files_view_fasta(request, c):
     usedclass = FastaFile
-    return files_view(request, usedclass, 'chosenfasta', labelname='Choose fasta file', c = c)
+    return files_view(request, usedclass, 'chosenfasta', labelname='Select fasta file', c = c)
 
 def files_view_params(request, c):
     usedclass = ParamsFile
-    return files_view(request, usedclass, 'chosenparams', labelname='Choose parameters file', c = c)
+    return files_view(request, usedclass, 'chosenparams', labelname='Select parameters file', c = c)
 
 def identiprot_view(request, c):
     c = runidentiprot(c)
@@ -425,9 +480,9 @@ def runidentiprot(c):
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
-        c['identiprotmessage'] = 'Identiprot was started'
+        c['identiprotmessage'] = 'Identiprot started'
     else:
-        c['identiprotmessage'] = 'Results with name %s already exists, choose another name' % (rn.encode('ASCII'), )
+        c['identiprotmessage'] = 'Results with name %s already exist, choose another name' % (rn.encode('ASCII'), )
     return c
 
 
