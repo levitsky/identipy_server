@@ -16,6 +16,7 @@
         
         <h2>
 		{% if searchgroup %}
+            <p>{{searchgroup.groupname}}</p>
             <table type="bordered">
                 <tr id="headings">
                     <th>Search name</th>
@@ -30,7 +31,7 @@
             {% for searchrun in searchgroup.get_searchruns_all %}
                 <tr>
                 <form action="" method="post">{% csrf_token %}
-                <td class="td1"><input type="submit" class="docname" value={{ searchrun.name }} name="results_figure"/></td>
+                <td class="td1"><input type="submit" class="link" value={{ searchrun.name }} name="results_figure"/></td>
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname }}>
                 <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
                 </form>
@@ -48,27 +49,17 @@
 			<p>There are no searches.</p>
 		{% endif %}
 
-        </h2>
-        <div id="download_csv">
-        <form action="#" method="get">
-        <input type="submit" class="topbtn" value="Download csv files" name="download_csv">
+        
+        <div id="vert_block">
+        <form action="" method="post">{% csrf_token %}
+        <input type="submit" class="btn" value="Download csv files" name="download_csv">
+        <input type="submit" class="btn" value="Download pepxml files" name="download_pepxml">
+        <input type="submit" class="btn" value="Download mgf files" name="download_mgf">
         </form>
+           <form action="" method="post">{% csrf_token %}
+        
+            <input type="submit" class="backbtn" value="Back to&#10;search history" name="getstatus">
+            </form>
         </div>
-        <div id="download_pepxml">
-        <form action="#" method="get">
-        <input type="submit" class="topbtn" value="Download pepxml files" name="download_pepxml">
-        </form>
-        </div>
-        <div id="download_mgf">
-        <form action="#" method="get">
-        <input type="submit" class="topbtn" value="Download mgf files" name="download_mgf">
-        </form>
-        </div>
-        </div>
-        <div id="get_status">
-        <form action="#" method="get">
-        <input type="submit" class="backbtn" value="Back to search history" name="getstatus">
-        </form>
-        </div>
-
+</h2>
 {% endblock %}

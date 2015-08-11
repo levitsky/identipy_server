@@ -20,16 +20,16 @@
         Selected spectra:
 
                 <table type="bordered">
-                    <tr id="headings" type="bordered">
-                        <th type="bordered" width="60%">Filename</th>
-                        <th type="bordered" width="15%">Size</th>
-                        <th type="bordered">Submit date</th>
+                    <tr id="headings">
+                        <th width="60%">Filename</th>
+                        <th width="15%">Size</th>
+                        <th>Upload date</th>
                     </tr>
                 {% for doc in chosenspectra %}
-                <tr type="bordered">
-                    <td type="bordered"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td type="bordered">{{ doc.docfile.size | filesizeformat }}</td>
-                    <td type="bordered">{{ doc.date_added }}</td>
+                <tr>
+                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
                 </tr>
                 {% endfor %}
                 </table>
@@ -51,16 +51,16 @@
             {% if chosenfasta %}
                 <table type="bordered">
                     Selected protein database file:
-                    <tr id="headings" type="bordered">
-                        <th type="bordered" width="60%">Filename</th>
-                        <th type="bordered" width="15%">Size</th>
-                        <th type="bordered">Submit date</th>
+                    <tr id="headings">
+                        <th width="60%">Filename</th>
+                        <th width="15%">Size</th>
+                        <th>Submit date</th>
                     </tr>
                 {% for doc in chosenfasta %}
-                <tr type="bordered">
-                    <td type="bordered"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td type="bordered">{{ doc.docfile.size | filesizeformat }}</td>
-                    <td type="bordered">{{ doc.date_added }}</td>
+                <tr>
+                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
                 </tr>
                 {% endfor %}
                 </table>
