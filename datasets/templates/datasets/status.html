@@ -12,6 +12,12 @@
 
       </ul></form>
     </div>
+
+        <form action="" method="POST">{% csrf_token %}
+        <input type="text" name="search_button" value=""  placeholder="Enter run name"/>
+        <input type="submit" value="Search previous runs by name" name="search_runname">
+        </form>
+
 <p>   Page {{ res_page }} of {{ max_res_page  }}</p>
 <h2>
         {% if res_page != max_res_page %}
