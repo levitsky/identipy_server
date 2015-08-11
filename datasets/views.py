@@ -52,7 +52,7 @@ def index(request, c=dict()):
         elif(request.POST.get('clear')):
             request.POST = request.POST.copy()
             request.POST['clear'] = None
-            return index(request, c=dict())
+            return searchpage(request, c=dict())
         elif(request.POST.get('getstatus')):
             request.POST = request.POST.copy()
             request.POST['getstatus'] = None
@@ -83,26 +83,26 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['uploadfasta'] = None
             return files_view_fasta(request, c = c)
-        elif(request.GET.get('uploadparams')):
-            request.GET = request.GET.copy()
-            request.GET['uploadparams'] = None
+        elif(request.POST.get('uploadparams')):
+            request.POST = request.POST.copy()
+            request.POST['uploadparams'] = None
             return files_view_params(request, c = c)
-        elif(request.GET.get('search_details')):
-            request.GET = request.GET.copy()
-            return search_details(request, runname=request.GET['search_details'], c=c)
-        elif(request.GET.get('results_figure')):
-            request.GET = request.GET.copy()
-            return results_figure(request, runname=request.GET['results_figure_actualname'], searchgroupid=request.GET['results_figure_searchgroupid'], c=c)
-        elif(request.GET.get('download_csv')):
+        elif(request.POST.get('search_details')):
+            request.POST = request.POST.copy()
+            return search_details(request, runname=request.POST['search_details'], c=c)
+        elif(request.POST.get('results_figure')):
+            request.POST = request.POST.copy()
+            return results_figure(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
+        elif(request.POST.get('download_csv')):
             c['down_type'] = 'csv'
             return getfiles(c=c)
-        elif(request.GET.get('download_pepxml')):
+        elif(request.POST.get('download_pepxml')):
             c['down_type'] = 'pepxml'
             return getfiles(c=c)
-        elif(request.GET.get('download_mgf')):
+        elif(request.POST.get('download_mgf')):
             c['down_type'] = 'mgf'
             return getfiles(c=c)
-        elif(request.GET.get('download_figs')):
+        elif(request.POST.get('download_figs')):
             c['down_type'] = 'figs'
             return getfiles(c=c)
         elif(request.POST.get('prev_runs')):

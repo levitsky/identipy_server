@@ -76,79 +76,45 @@
             </form>
             
             </div></div>
-</h2>
-            <div id="index_params">
-            <h1>
-            {% if chosenparams %}
-                <table id="params_list">
-                    Choosen params:
-                    <tr id="paramsheadings">
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Submit date</th>
-                    </tr>
-                {% for doc in chosenparams %}
-                <tr>
-                    <td><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
-                    <td>{{ doc.docfile.size | filesizeformat }}</td>
-                    <td>{{ doc.date_added }}</td>
-                </tr>
-                {% endfor %}
-                </table>
-            {% else %}
-                <p>Params file is not selected.</p>
-            {% endif %}
-            </h1>
-            </div>
+
+            <div id="vert_block">
+                Specify search parameters<br>
+                
+                        
 
             <div id="upload_parameters">
-            <h2>
-            <form action="" method="">{% csrf_token %}
-             <input type="submit" class="btn" value="Choose preloaded parameters" name="uploadparams">
-            </form>
-            <br><br>
-            <FORM action="" method="post">{% csrf_token %}
-                {% if paramtype != 1 %}
-                <li><input type="submit" class="menubar" value="Show simple params" name="type1"></li>
-                {% else %}
-                {% endif %}
-                {% if paramtype != 2 %}
-                <li><input type="submit" class="menubar" value="Show medium params" name="type2"></li>
-                {% else %}
-                {% endif %}
-                {% if paramtype != 3 %}
-                <li><input type="submit" class="menubar" value="Show advanced params" name="type3"></li>
-                {% else %}
-                {% endif %}
-            </FORM>
-            <FORM action="" method="post">{% csrf_token %}
-                <div id="chromoConditionsBlock">
-                    <a href="help#lcparameters" class="help">Enter your search parameters</a>
+           
+            <form action="" method="post" id="chooseparam">{% csrf_token %}
+                  <input type="submit" class="btn" value="Minimal" name="type1">
+                 <input type="submit" class="btn" value="Medium" name="type2">
+               <input type="submit" class="btn" value="Advanced" name="type3">
+                
+                </form></div>
+    <div id="chromoConditionsBlock">
+            <form action="" method="post">{% csrf_token %}
+                
+                    <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
                     <table id="SearchParametersTable">
                         {{ SearchParametersForm.as_table }}
                     </table>
-                </div>
-            </h2>
-            </div>
+                
+   
 
-            <h4>
+
+      
             <div id="run_identiprot">
-            <!--<form run action="#" method="get">-->
             <input type="text" class="searchname" name="runname" id="email" value=""  placeholder="Enter search run name"/>
-            </h4>
-             <!--<input type="text" value="Enter search run name" name="runname" size="20"/>-->
-             <input type="submit" class="topbtn" value="RUN identiprot" name="runidentiprot">
-            <!--</form>-->
-            </FORM>
+                <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot">
+            
 
             <div id="clear">
-            <form action="#" method="get">
+            
              <input type="submit" class="btn" value="Clear chosen files" name="clear">
-            </form>
+           
             </div>
 
             </div>
+        </form></div></div></h2>
         
-        </div>
 
 {% endblock %}

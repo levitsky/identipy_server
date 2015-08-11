@@ -5,9 +5,9 @@
 <div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
 
-        <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
         <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
-        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubarcurrent" value="Search history" name="getstatus"></div></li>
         <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
 
       </ul></form>
@@ -18,7 +18,7 @@
         <input type="submit" value="Search previous runs by name" name="search_runname">
         </form>
 
-        Page {{ res_page }} of {{ max_res_page  }}
+<p>   Page {{ res_page }} of {{ max_res_page  }}</p>
 <h2>
         {% if res_page != max_res_page %}
         <form action="" method="POST">{% csrf_token %}
@@ -47,8 +47,8 @@
                 </tr>
 			{% for doc in processes %}
             <tr type="bordered">
-                <form action="#" method="get">
-                <td class="td1" type="bordered"><input type="submit" class="docname" value={{ doc.name }} name="search_details"/></td>
+                <form action="" method="post">{% csrf_token %}
+                <td class="td1" type="bordered"><input type="submit" class="link" value={{ doc.name }} name="search_details"/></td>
                 </form>
                 <td class="td1" type="bordered">{{ doc.date_added }}</td>
                 <td class="td3" type="bordered">{{ doc.status }}</td>
