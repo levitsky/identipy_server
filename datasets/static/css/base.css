@@ -485,8 +485,8 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 }
 
 #fixedpanel{
-    position:fixed;
-    width:70%;
+    position:absolute;
+    width:100%;
     margin-top:2em;
     padding-bottom:1.5em;
     background:#FFF;
