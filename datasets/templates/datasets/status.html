@@ -12,7 +12,12 @@
 
       </ul></form>
     </div>
-<p>   Page {{ res_page }} of {{ max_res_page  }}</p>
+        
+
+        <div id="tab">
+
+		{% if processes %}
+            <p>   Page {{ res_page }} of {{ max_res_page  }}</p>
 <h2>
         {% if res_page != max_res_page %}
         <form action="" method="POST">{% csrf_token %}
@@ -28,11 +33,7 @@
 		{% else %}
 		{% endif %}
 
-        
 
-        <div id="index">
-        <!--Welcome {{ user.username }} (<a href="/logout">logout</a>)-->
-		{% if processes %}
 			<table type="bordered" id="processes_list">
                 <tr id="headings">
                     <th>Search name</th>
@@ -48,18 +49,18 @@
                 <td class="td3">{{ doc.status }}</td>
             </tr>
 			{% endfor %}
-			</table>
+			</table></h2>
 		{% else %}
-			<p>There are no searches.</p>
+			<h2><p>There are no searches</p></h2>
 		{% endif %}
-        <div id="status_back">
+        <div id="status_back"><h2>
     
         <form action="" method="POST">{% csrf_token %}
          <input type="submit" class="backbtn" value="Start a new&#10;search run" name="searchpage">
-        </form>
+            </form></h2>
            </div>
       
         </div>
-</h2>
+
 
 {% endblock %}
