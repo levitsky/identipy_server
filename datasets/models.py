@@ -178,6 +178,10 @@ class SearchGroup(BaseDocument):
                     else:
                         tempval = SearchParametersForm_values[param[0]]
                     raw_config.set(section, param[0], tempval + '|' + orig_choices)
+        if raw_config.getboolean('options', 'use auto optimization'):
+            raw_config.set('misc', 'first stage', 'identipy.extras.optimization')
+        else:
+            raw_config.set('misc', 'first stage', '')
         raw_config.set('missed cleavages', 'protease1', raw_config.get('search', 'enzyme'))
         raw_config.set('missed cleavages', 'number of missed cleavages', raw_config.get('search', 'number of missed cleavages'))
         raw_config.set('fragment mass', 'mass accuracy', raw_config.get('search', 'product accuracy'))
