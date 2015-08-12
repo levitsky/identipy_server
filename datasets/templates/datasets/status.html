@@ -12,12 +12,12 @@
 
       </ul></form>
     </div>
-
+<h2><div id="vert_block">
         <form action="" method="POST">{% csrf_token %}
-        <input type="text" name="search_button" value=""  placeholder="Enter run name"/>
-        <input type="submit" value="Search previous runs by name" name="search_runname">
+        <input type="text" id="searchinput" name="search_button" value=""  placeholder="Enter run name"/>
+        <input type="submit" class="btn" value="Search previous runs by name" name="search_runname">
         </form>
-
+    </div></h2>
         <div id="tab">
 
 		{% if processes %}
@@ -32,7 +32,7 @@
 
         {% if res_page != 1 %}
         <form action="" method="POST">{% csrf_token %}
-         <input type="submit" class="btn" value="Show newest runs" name="next_runs">
+         <input type="submit" class="btn" value="Show newer runs" name="next_runs">
         </form>
 		{% else %}
 		{% endif %}
