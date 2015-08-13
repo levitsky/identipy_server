@@ -24,6 +24,7 @@ import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
 from multiprocessing import Process
+from aux import save_params
 
 def index(request, c=dict()):
     if request.user.is_authenticated():
@@ -32,7 +33,7 @@ def index(request, c=dict()):
             request.POST['runidentiprot'] = None
             c['runname'] = request.POST['runname']
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-            raw_config.read('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+            raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
             c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
             # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
@@ -86,6 +87,19 @@ def index(request, c=dict()):
         elif(request.POST.get('uploadparams')):
             request.POST = request.POST.copy()
             request.POST['uploadparams'] = None
+            return files_view_params(request, c = c)
+        elif(request.POST.get('saveparams')):
+            request.POST = request.POST.copy()
+            raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+            raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
+            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
+            if request.POST.get('paramsname'):
+                save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
+            request.POST['saveparams'] = None
+            return searchpage(request, c = c)
+        elif(request.POST.get('loadparams')):
+            request.POST = request.POST.copy()
+            request.POST['loadparams'] = None
             return files_view_params(request, c = c)
         elif(request.POST.get('search_details')):
             request.POST = request.POST.copy()
@@ -145,14 +159,14 @@ def index(request, c=dict()):
                     if fext == '.fasta':
                         newdoc = FastaFile(docfile = uploadedfile, userid = request.user)
                         newdoc.save()
-                    if fext == '.cfg':
-                        os.remove('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
-                        fd = open('latest_params_%d.cfg' % (c.get('paramtype', 3), ), 'wb')
-                        for chunk in uploadedfile.chunks():
-                            fd.write(chunk)
-                        fd.close()
-                        newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
-                        newdoc.save()
+                    # if fext == '.cfg':
+                    #     os.remove('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+                    #     fd = open('latest_params_%d.cfg' % (c.get('paramtype', 3), ), 'wb')
+                    #     for chunk in uploadedfile.chunks():
+                    #         fd.write(chunk)
+                    #     fd.close()
+                    #     newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
+                    #     newdoc.save()
                     else:
                         pass
                 return HttpResponseRedirect(reverse('datasets:index'))
@@ -160,21 +174,22 @@ def index(request, c=dict()):
         else:
             commonform = CommonForm()
 
+        c['userid'] = request.user
         if 'chosenparams' in c:
-            os.remove('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
-            shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), 'latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+            os.remove(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
+            shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
             # for chunk in c['chosenparams'].chunks():
             #     fd.write(chunk)
             # fd.close()
         raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-        raw_config.read('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+        raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
         if 'SearchParametersForm' not in c:
             sf = SearchParametersForm(raw_config=raw_config)
             # sf.add_params(raw_config=raw_config)
         else:
             sf = c['SearchParametersForm']
-        c.update({'commonform': commonform, 'userid': request.user, 'SearchParametersForm': sf})
+        c.update({'commonform': commonform, 'SearchParametersForm': sf})
         return render(request, 'datasets/index.html', c)
     else:
         return redirect('/login/')
@@ -263,6 +278,9 @@ def status(request, c=dict(), search_run_filter=False):
     c.update({'processes': processes})
     return render(request, 'datasets/status.html', c)
 
+def get_user_latest_params_path(paramtype, userid):
+    return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
+
 def upload(request, c=dict()):
     c = c
     c.update(csrf(request))
@@ -273,7 +291,8 @@ def searchpage(request, c=dict(), upd=False):
     c['paramtype'] = c.get('paramtype', 3)
     c.update(csrf(request))
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
+
+    raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
     if upd or 'SearchParametersForm' not in c:
         sf = SearchParametersForm(raw_config=raw_config)
@@ -303,16 +322,25 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
     documents = usedclass.objects.filter(userid=request.user)
     cc = []
     for doc in documents:
-        cc.append((doc.id, doc.name()))
-    print 'HERE 123142123'
+        if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
+            cc.append((doc.id, doc.name()))
     print request.POST.keys()
     if request.POST.get('relates_to'):
+        print usedname
         form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data.get('relates_to')]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
-            c.update({usedname: chosenfiles})
-            return searchpage(request, c)
+            if usedname == 'chosenparams':
+                paramfile = chosenfiles[0]
+                dst = os.path.join(os.path.dirname(paramfile.docfile.name.encode('ASCII')), 'latest_params_3.cfg')
+                print dst
+                print paramfile.docfile.name.encode('ASCII')
+                shutil.copy(paramfile.docfile.name.encode('ASCII'), dst)
+                return searchpage(request, c, upd=True)
+            else:
+                c.update({usedname: chosenfiles})
+                return searchpage(request, c)
     else:
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
     c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname})
@@ -329,7 +357,7 @@ def files_view_fasta(request, c):
 
 def files_view_params(request, c):
     usedclass = ParamsFile
-    return files_view(request, usedclass, 'chosenparams', c = c)
+    return files_view(request, usedclass, 'chosenparams', c = c, multiform=False)
 
 def identiprot_view(request, c):
     c = runidentiprot(c)

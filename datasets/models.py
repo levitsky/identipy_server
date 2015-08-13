@@ -182,6 +182,9 @@ class SearchGroup(BaseDocument):
             raw_config.set('misc', 'first stage', 'identipy.extras.optimization')
         else:
             raw_config.set('misc', 'first stage', '')
+        raw_config.set('output', 'precursor accuracy unit', raw_config.get('search', 'precursor accuracy unit'))
+        raw_config.set('output', 'precursor accuracy left', raw_config.get('search', 'precursor accuracy left'))
+        raw_config.set('output', 'precursor accuracy right', raw_config.get('search', 'precursor accuracy right'))
         raw_config.set('missed cleavages', 'protease1', raw_config.get('search', 'enzyme'))
         raw_config.set('missed cleavages', 'number of missed cleavages', raw_config.get('search', 'number of missed cleavages'))
         raw_config.set('fragment mass', 'mass accuracy', raw_config.get('search', 'product accuracy'))
