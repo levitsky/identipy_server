@@ -158,15 +158,7 @@ class SearchGroup(BaseDocument):
     def add_params(self, SearchParametersForm_values, paramtype=3):
         # for s in paramsobjects:
         SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
-        try:
-            paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=self.userid, type=paramtype)
-        except ObjectDoesNotExist:
-            print("Either the entry or blog doesn't exist.")
-            fl = open('latest_params_%d.cfg' % (paramtype, ))
-            djangofl = File(fl)
-            paramobj = ParamsFile(docfile = djangofl, userid = self.userid, type=paramtype)
-            paramobj.save()
-            fl.close()
+        paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=self.userid, type=paramtype)
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(paramobj.docfile.name.encode('ASCII'))
         print SearchParametersForm_values.items()

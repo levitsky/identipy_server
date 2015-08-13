@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.core.files import File
-from datasets.models import FastaFile
+from datasets.models import FastaFile, ParamsFile
 
 from os import path, listdir
 
@@ -23,6 +23,13 @@ class Command(BaseCommand):
             djangofl = File(fl)
             fastaobj = FastaFile(docfile = djangofl, userid = user)
             fastaobj.save()
+            fl.close()
+
+        for paramtype in [1, 2, 3]:
+            fl = open('latest_params_%d.cfg' % (paramtype, ))
+            djangofl = File(fl)
+            paramobj = ParamsFile(docfile = djangofl, userid = user, type=paramtype)
+            paramobj.save()
             fl.close()
 
         user.save()
