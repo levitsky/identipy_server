@@ -111,6 +111,7 @@ def upload_to_params(instance, filename):
 
 class ParamsFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_params)
+    type = models.IntegerField(default=3)
     # date_added = models.DateTimeField(auto_now_add=True)
     # resultsid = models.ManyToManyField(SearchRun)
     # userid = models.ForeignKey(User)
@@ -158,12 +159,12 @@ class SearchGroup(BaseDocument):
         # for s in paramsobjects:
         SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
         try:
-            paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=self.userid)
+            paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=self.userid, type=paramtype)
         except ObjectDoesNotExist:
             print("Either the entry or blog doesn't exist.")
             fl = open('latest_params_%d.cfg' % (paramtype, ))
             djangofl = File(fl)
-            paramobj = ParamsFile(docfile = djangofl, userid = self.userid)
+            paramobj = ParamsFile(docfile = djangofl, userid = self.userid, type=paramtype)
             paramobj.save()
             fl.close()
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)

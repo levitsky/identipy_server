@@ -337,6 +337,7 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
                 print dst
                 print paramfile.docfile.name.encode('ASCII')
                 shutil.copy(paramfile.docfile.name.encode('ASCII'), dst)
+                c['paramtype'] = paramfile.type
                 return searchpage(request, c, upd=True)
             else:
                 c.update({usedname: chosenfiles})
