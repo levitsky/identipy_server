@@ -92,7 +92,10 @@
                 </form></div>
     <div id="chromoConditionsBlock">
             <form action="" method="post">{% csrf_token %}
-                
+
+                <input type="text" name="paramsname" value=""  placeholder="Enter parameters name"/>
+                <input type="submit" value="save&#10;parameters" name="saveparams">
+                <input type="submit" value="load&#10;parameters" name="loadparams">
                     <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
                     <table id="SearchParametersTable">
                         {{ SearchParametersForm.as_table }}

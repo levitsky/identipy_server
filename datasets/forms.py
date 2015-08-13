@@ -30,7 +30,7 @@ class MultFilesForm(forms.Form):
         if multiform:
             self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
         else:
-            self.fields['relates_to'] = forms.ChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.Select, required=False)
+            self.fields['relates_to'] = forms.ChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.RadioSelect, required=False)
 
 class Survey(forms.Form):
     name = forms.CharField(max_length=20)
@@ -53,11 +53,11 @@ class SearchParametersForm(forms.Form):
 
         def get_field(fieldtype, label, initial):
             if fieldtype == 'type>float':
-                return forms.FloatField(label=label, initial=initial)
+                return forms.FloatField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>int':
-                return forms.IntegerField(label=label, initial=initial)
+                return forms.IntegerField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>string':
-                return forms.CharField(label=label, initial=initial)
+                return forms.CharField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=initial, required=False)
 
