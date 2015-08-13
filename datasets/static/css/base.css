@@ -421,9 +421,14 @@ div.rightbox{
 .inthemiddle img{
     position:relative;
     display:block;
-    width:70%;
+    width:100%;
     margin:auto auto;
 }
+
+#pic{
+    width:70%
+}
+
 #uploadbuttons {
     position: relative;
     right: 150pt;
@@ -536,4 +541,17 @@ div[id="identiprot message"]{
     font-size:1.5em;
     color:#D05000;
     text-decoration: underline;
+}
+
+#img_list > div {
+  padding: 2%;
+  width: 29%;
+  background: white;
+  float: left;
+  color: #000;
+  text-align: center;
+}
+
+#searchinput{
+    font-size:1em;
 }

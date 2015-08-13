@@ -51,9 +51,9 @@
         </form>
         </div>
 
-        <div class = "index_img" >
+        <div class = "vert_block" >
 		{% if searchrun.get_pepxmlfiles %}
-			<table id="img_list">
+			<div id="img_list">
 			{% for doc in searchrun.get_resimagefiles %}
 
             <div class="floated_img">
@@ -61,7 +61,7 @@
                 <img src="{%static doc.path %}" />
             </div>
 			{% endfor %}
-			</table>
+			</div>
 		{% else %}
 		{% endif %}
         </div>
