@@ -1,5 +1,4 @@
 from models import ParamsFile
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 import os
 import sys
@@ -8,15 +7,7 @@ from identipy.utils import CustomRawConfigParser
 
 def save_params(SearchParametersForm_values, uid, paramsname, paramtype=3):
     SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
-    try:
-        paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=uid)
-    except ObjectDoesNotExist:
-        print("Either the entry or blog doesn't exist.")
-        fl = open('latest_params_%d.cfg' % (paramtype, ))
-        djangofl = File(fl)
-        paramobj = ParamsFile(docfile = djangofl, userid = uid, type=paramtype)
-        paramobj.save()
-        fl.close()
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
     print SearchParametersForm_values.items()
