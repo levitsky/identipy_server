@@ -278,7 +278,22 @@ class SearchRun(BaseDocument):
         self.save()
 
     def get_resimagefiles(self):
-        return self.resimagefiles.all()
+        custom_order = ['sumi',
+                        'nsaf',
+                        'empai',
+                        'rt difference, min',
+                        'precursor mass difference, ppm',
+                        'fragment mass tolerance, da',
+                        'potential modifications',
+                        'isotopes mass difference, da',
+                        'missed cleavages, protease 1',
+                        'psm count',
+                        'psms per protein',
+                        'charge states',
+                        'scores']
+        all_images = [doc for doc in self.resimagefiles.all()]
+        all_images.sort(key=lambda val: custom_order.index(val.docfile.name.encode('ASCII').split('_')[-1].replace('.png', '').lower()))
+        return all_images
 
     def get_pepxmlfiles(self):
         return self.pepxmlfiles.all()
@@ -293,7 +308,7 @@ class SearchRun(BaseDocument):
         return [self.fasta.all()[0].docfile.name.encode('ASCII'), ]
 
     def get_resimage_paths(self):
-        return [pep.docfile.name.encode('ASCII') for pep in self.resimagefiles.all()]
+        return [pep.docfile.name.encode('ASCII') for pep in self.get_resimagefiles()]
 
     def get_paramfile_path(self):
         return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
