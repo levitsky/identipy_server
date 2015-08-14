@@ -365,10 +365,6 @@ def identiprot_view(request, c):
     return index(request, c)
 
 def runidentiprot(c):
-    newgroup = SearchGroup(groupname=c['runname'], userid = c['userid'])
-    newgroup.save()
-
-    newgroup.add_files(c)
 
     def run_search(newrun, rn, c):
         paramfile = newrun.parameters.all()[0].path()
@@ -478,19 +474,22 @@ def runidentiprot(c):
         p = Process(target=start_union, args=(newgroup, rn, c))
         p.start()
 
-    rn = newgroup.name()
     if not os.path.exists('results'):
         os.mkdir('results')
-    if not os.path.exists(os.path.join('results', str(newgroup.userid.id))):
-        os.mkdir(os.path.join('results', str(newgroup.userid.id)))
-    if not os.path.exists('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII'))):
+    if not os.path.exists(os.path.join('results', str(c['userid'].id))):
+        os.mkdir(os.path.join('results', str(c['userid'].id)))
+    if not os.path.exists('results/%s/%s' % (str(c['userid'].id), c['runname'])):
+        newgroup = SearchGroup(groupname=c['runname'], userid = c['userid'])
+        newgroup.save()
+        newgroup.add_files(c)
+        rn = newgroup.name()
         os.mkdir('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII')))
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
         c['identiprotmessage'] = 'Identiprot started'
     else:
-        c['identiprotmessage'] = 'Results with name %s already exist, choose another name' % (rn.encode('ASCII'), )
+        c['identiprotmessage'] = 'Results with name %s already exist, choose another name' % (c['runname'], )
     return c
 
 
