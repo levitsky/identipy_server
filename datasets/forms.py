@@ -96,6 +96,7 @@ class SearchParametersForm(forms.Form):
                     "product minimum m/z",
                     "maximum fragment charge",
                     "minimum matched",
+                    "score",
                     "score threshold",
                     "show empty",
                     "candidates",
