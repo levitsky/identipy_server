@@ -5,7 +5,7 @@
 <div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
             
-        <li><div id="searchpage"><input type="submit" class="menubarcurrent" value="Start search" name="searchpage"></div></li>
+        <li><div id="searchpage"><input type="submit" class="menubar current" value="Start search" name="searchpage"></div></li>
         <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
         <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
         <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
@@ -92,10 +92,11 @@
                 </form></div>
     <div id="chromoConditionsBlock">
             <form action="" method="post">{% csrf_token %}
+                <table><tr valign="top"><td>
 
-                <input type="text" name="paramsname" value=""  placeholder="Enter parameters name"/>
-                <input type="submit" value="save&#10;parameters" name="saveparams">
-                <input type="submit" value="load&#10;parameters" name="loadparams">
+                <input type="text" id="textinput" name="paramsname" value=""  placeholder="Enter parameters name"/></td>
+                <td><input type="submit" class="link" value="save parameters" name="saveparams"><br>
+                    <input type="submit" class="link" value="load parameters" name="loadparams"></td></tr></table>
                     <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
                     <table id="SearchParametersTable">
                         {{ SearchParametersForm.as_table }}
@@ -106,8 +107,8 @@
 
       
             <div id="run_identiprot">
-            <input type="text" class="searchname" name="runname" id="email" value=""  placeholder="Enter search run name"/>
-                <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot">
+            <input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/>
+            <div id="runbtn"> <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot"></div>
             
 
             <div id="clear">

@@ -8,7 +8,13 @@ body
 		background-position: top;
 		background-size: cover;
         font-family:sans-serif,sans-serif;
+        font-size:0.8em;
 	}
+
+form{
+  display: inline-block;
+  
+  }
 
 /*********************************************************************************/
 /* Logo                                                                          */
@@ -28,7 +34,7 @@ body
   margin: auto auto;
   font-size:140%;
   font-weight:300;
-  background:#fff;
+  background:/*light-bg*/#fff;
 }
 
 #logo h1
@@ -36,7 +42,7 @@ body
 	display: inline-block;
 	font-size: 4em;
 	font-weight: 700;
-	color: #000099;
+	color: /*basic-blue*/#000099;
 	padding: 0.6em;
 }
 
@@ -45,7 +51,7 @@ body
 #logo a
 {
 	text-decoration: none;
-	color: #000099;
+	color: /*basic-blue*/#000099;
 }
 
 
@@ -58,9 +64,11 @@ body
 	position: absolute;
     display: inline-block;
     right: 1%;
-	top: 4.25em;
+	top: 4.6em;
 
 }
+
+
 
 #menu li
 {
@@ -72,7 +80,7 @@ body
 
 
 .menubar{
-    background: #FFFFFF;
+    background: /*light-bg*/#FFFFFF;
     border: 0;
     display: inline;
 	padding: 0em 1.5em;
@@ -82,30 +90,25 @@ body
 	text-transform: uppercase;
     font-weight: 300;
 	line-height: 3em;
-	color: #999999;
+	color: /*grey*/#999999;
     cursor: pointer;
+    float:left;
 }
 
-.current, .current:hover{
-    color: #000099;
+.current{
+    color: /*basic-blue*/#000099;
+    
 }
 
-.menubar:hover, .menubar:active, .current:active
+.menubar:hover, .menubar:active, .menubarcurrent:active
 {
-    background: #FFF;
-    color: #9999dd;
+    background: /*light-bg*/#FFF;
+    color: /*light-blue*/#9999dd;
 }
+
 .current:hover{
-    color: #000099;
-}
-#menu li.current_page_item a
-{
-	background: #000099;
-	color: #FFF !important;
-}
-
-#menu .icon
-{
+    color: /*basic-blue*/#000099;
+    
 }
 
 #session
@@ -114,14 +117,9 @@ body
 	right: 1em;
 	top: 1em;
     font-size: 1em;
-    color: #212121;
+    color: /*dark-grey*/#222;
     text-decoration:none;
     
-}
-#session a
-{
-    text-decoration: underlined;
-    color: #FFFFFF;
 }
 
 /*********************************************************************************/
@@ -135,20 +133,11 @@ body
   left:10%;
   margin-top:8px;
   margin-bottom:2%;
-  background:#eeeeff;
-}
-
-#triangle{
-  width:0;
-  border-top:12x solid transparent;
-  border-right:12px solid transparent;
-  border-bottom:12px solid #000099;
-  border-left:12px solid transparent;
-  margin:0 auto;
+  background:/*pale-blue*/#eeeeff;
 }
 
 #login h1{
-  background:#000099;
+  background:/*basic-blue*/#000099;
   padding:20px 5px;
   font-size:140%;
   font-weight:400;
@@ -157,7 +146,7 @@ body
 }
 
 #login h2{
-  background:#cc5555;
+  background:/*warning-red*/#cc5555;
   padding:20px 0;
   font-size:140%;
   font-weight:400;
@@ -165,24 +154,19 @@ body
   color:#fff;
 }
 
-form{
-  display: inline-block;
-  
-  }
-
 input[type="email"],input[type="password"], input[id="email"], textarea{
   width:80%;
   margin:6%;
-  background:#FFFFFF;
+  background:/*light-bg*/#FFFFFF;
   margin-top: 4%; 
-  border:1px solid #ccc;
+  border:1px solid /*light-grey*/#ccc;
   padding:4%;
   font-size:95%;
   color:#555;
 }
 
 input:focus { 
-    background-color: #6699FF;
+    background-color: /*light-blue*/#9999dd;
     outline-offset: 0;
 }
 
@@ -203,6 +187,23 @@ button[type="submit"]:hover, .btn:hover{
    
 }
 
+.backbtn{
+    
+    display: inline-block;
+    font-size:1em;
+    padding:0 3em;
+    margin-bottom:2em;
+    margin-top:1em;
+    text-align:center;
+    background:#ffbe4f;
+    color:#fff;
+    text-transform:uppercase;
+    cursor:pointer;
+}
+
+.backbtn:hover{
+    background:#eeaf3e;
+}
 
 
 #loginbutton{
@@ -216,9 +217,9 @@ button[type="submit"]:hover, .btn:hover{
 
 div.inthemiddle {
     position:relative;
-    width: 70%;
+    width: 80%;
     margin:0 auto;
-    margin-top:70px;
+    margin-top:50px;
     margin-bottom:2%;
     background-color: #ffffff;
     border: 0;
@@ -273,24 +274,6 @@ div.inthemiddle h2 p{
     background-color:#FFF;
 }
 
-.backbtn{
-    
-    display: inline-block;
-    font-size:1em;
-    padding:0 3em;
-    margin-bottom:2em;
-    margin-top:1em;
-    text-align:center;
-    word-break:break-all;
-    background:#ffbe4f;
-    color:#fff;
-    text-transform:uppercase;
-    cursor:pointer;
-}
-
-.backbtn:hover{
-    background:#eeaf3e;
-}
 [type="pseudo"]{
     left:0;
     width:1%;
@@ -298,6 +281,8 @@ div.inthemiddle h2 p{
     opacity:1;
     cursor:none;
 }
+
+
 div.select{
     display:inline;
     margin:0;
@@ -308,11 +293,9 @@ input[type="file"]{
     z-index:1;
     opacity:0;
     cursor:pointer;
-    width:300pt;
-    height:40pt;;
-    border:1;
-    
-   
+    width:200pt;
+    height:35pt;;
+    border:1;   
 }
 
 .uploadform{
@@ -320,8 +303,8 @@ input[type="file"]{
     z-index:0;
     top:0;
     cursor:pointer;
-    width:300pt;
-    height: 40pt;
+    width:200pt;
+    height: 35pt;
     font-size:1.5em;
     background:#000099;
     color:#FFF;
@@ -374,7 +357,7 @@ div.rightbox{
 
 #uploadbuttons {
     position: relative;
-    right: 150pt;
+    right: 100pt;
     }
 
 #uploadbuttons p{
@@ -498,10 +481,12 @@ div[id="identiprot message"]{
 #searchinput{
     font-size:1em;
 }
+
 #chromoConditionsBlock{
     width:70%;
     margin-left:15%;
 }
+
 #textinput{
     font-size:1em;
     margin-top:0.5em;
