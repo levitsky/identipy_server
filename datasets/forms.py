@@ -142,3 +142,10 @@ class SearchParametersForm(forms.Form):
     #                 )
     #         else:
     #             self.fields[param[1]] = get_field(fieldtype=param[0], label=param[1], initial=param[2])
+
+
+class ContactForm(forms.Form):
+
+    from_email = forms.EmailField(required=True)
+    subject = forms.CharField(required=True)
+    message = forms.CharField(widget=forms.Textarea)

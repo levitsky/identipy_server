@@ -30,14 +30,18 @@
         <td width="50%">
     <div class="intable"><p>Our administrators are not only good-looking, but are also looking forward to making your IdentiPROT experience incredibly awesome!</p>
     <p>Contact details tram-pam-pam</p>
-
+    <div id="contact_us"><h2>
+        <form action="" method="post">{% csrf_token %}
+         <input type="submit" class="backbtn" value="Contact us" name="sendemail">
+        </form></h2>
+           </div>
     {% if user.username %}
     <div id="status_back"><h2>
         <form action="" method="post">{% csrf_token %}
          <input type="submit" class="backbtn" value="Start a&#10;new search" name="searchpage">
         </form></h2>
            </div>
-    
+
     {% else %}
      <div>  <h2> 
         <form action="" method="post">{% csrf_token %}
