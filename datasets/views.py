@@ -8,9 +8,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.files import File
+from django.core.mail import send_mail, BadHeaderError
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV
-from .forms import MultFilesForm, CommonForm, SearchParametersForm
+from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm
 import os
 from os import path
 import subprocess
@@ -76,6 +77,10 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['contacts'] = None
             return contacts(request, c = c)
+        elif(request.POST.get('sendemail')):
+            request.POST = request.POST.copy()
+            request.POST['sendemail'] = None
+            return email(request, c = c)
         elif(request.POST.get('uploadspectra')):
             request.POST = request.POST.copy()
             request.POST['uploadspectra'] = None
@@ -310,7 +315,24 @@ def about(request,c=dict()):
     c=c
     c.update(csrf(request))
     return render(request, 'datasets/index.html', c)
-    
+
+def email(request, c={}):
+    if 'from_email' in request.POST.keys():
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            from_email = form.cleaned_data['from_email']
+            message = form.cleaned_data['message']
+            c['identiprotmessage'] = 'Your message was sended to the developers. We will answer as soon as possible.'
+            try:
+                send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, ['markmipt@gmail.com'])
+            except BadHeaderError:
+                return HttpResponse('Invalid header found.')
+            return contacts(request, c)
+    else:
+        form = ContactForm()
+    return render(request, "datasets/email.html", {'form': form})
+
 def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
