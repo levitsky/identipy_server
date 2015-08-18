@@ -15,12 +15,18 @@
          <span> <div id="logo">
              <h1><a href="{% url 'datasets:index'  %}">IdentiPROT</a></h1>
             </div></span>
-            
-  <div id="identiprot message">
-        {% if identiprotmessage %}
-            {{ identiprotmessage }}
-        {% endif %}
-        </div>      
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li>
+            {% if message.tags %}
+                {{ message }}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
   <div id="content">
     {% block content %}
     {% endblock %}

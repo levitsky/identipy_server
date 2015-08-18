@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.files import File
 from django.core.mail import send_mail, BadHeaderError
+from django.contrib import messages
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm
@@ -41,7 +42,6 @@ def index(request, c=dict()):
         elif(request.POST.get('statusback')):
             request.POST = request.POST.copy()
             request.POST['statusback'] = None
-            c['identiprotmessage'] = None
             return index(request, c=c)
         elif(request.POST.get('sbm')):
             request.POST = request.POST.copy()
@@ -323,7 +323,7 @@ def email(request, c={}):
             subject = form.cleaned_data['subject']
             from_email = form.cleaned_data['from_email']
             message = form.cleaned_data['message']
-            c['identiprotmessage'] = 'Your message was sended to the developers. We will answer as soon as possible.'
+            messages.add_message(request, messages.INFO, 'Your message was sended to the developers. We will answer as soon as possible.')
             try:
                 send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, ['markmipt@gmail.com'])
             except BadHeaderError:
@@ -383,10 +383,10 @@ def files_view_params(request, c):
     return files_view(request, usedclass, 'chosenparams', c = c, multiform=False)
 
 def identiprot_view(request, c):
-    c = runidentiprot(c)
+    c = runidentiprot(request, c)
     return index(request, c)
 
-def runidentiprot(c):
+def runidentiprot(request, c):
 
     def run_search(newrun, rn, c):
         paramfile = newrun.parameters.all()[0].path()
@@ -509,9 +509,9 @@ def runidentiprot(c):
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
-        c['identiprotmessage'] = 'Identiprot started'
+        messages.add_message(request, messages.INFO, 'Identiprot started')
     else:
-        c['identiprotmessage'] = 'Results with name %s already exist, choose another name' % (c['runname'], )
+        messages.add_message(request, messages.INFO, 'Results with name %s already exist, choose another name' % (c['runname'], ))
     return c
 
 
