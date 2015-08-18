@@ -323,7 +323,7 @@ def email(request, c={}):
             subject = form.cleaned_data['subject']
             from_email = form.cleaned_data['from_email']
             message = form.cleaned_data['message']
-            messages.add_message(request, messages.INFO, 'Your message was sended to the developers. We will answer as soon as possible.')
+            messages.add_message(request, messages.INFO, 'Your message was sent to the developers. We will respond as soon as possible.')
             try:
                 send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, ['markmipt@gmail.com'])
             except BadHeaderError:
