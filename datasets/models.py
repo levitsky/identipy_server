@@ -350,3 +350,13 @@ class SearchRun(BaseDocument):
             with open(fn, "r") as cf:
                 self.numProteins += sum(1 for _ in csv.reader(cf)) - 1
         self.save()
+
+
+class Protease(models.Model):
+    name = models.CharField(max_length=80)
+    rule = models.CharField(max_length=300, default='RK')
+    order_val = models.IntegerField()
+    user = models.ForeignKey(User)
+
+    class Meta:
+        unique_together = ('name', 'user',)
