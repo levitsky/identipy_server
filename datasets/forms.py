@@ -3,6 +3,7 @@ from django import forms
 from multiupload.fields import MultiFileField
 from pyteomics import biolccc
 from collections import OrderedDict
+from models import Protease
 
 class CommonForm(forms.Form):
     commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload')
@@ -43,6 +44,7 @@ class SearchParametersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         raw_config = kwargs.pop('raw_config', 0)
+        userid = kwargs.pop('user', None)
         super(SearchParametersForm, self).__init__(*args, **kwargs)
 
         def get_allowed_values(settings):
@@ -60,11 +62,28 @@ class SearchParametersForm(forms.Form):
                 return forms.CharField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=initial, required=False)
-
         if raw_config:
             print 'HERE2Q'
             for param in get_allowed_values(raw_config):
-                if 'type' not in param[0]:
+                if 'class>protease' in param[0]:
+                    print userid, 'userid'
+                    print userid.username, 'id'
+                    proteases = Protease.objects.filter(user=userid)
+                    print proteases.count(), 'count'
+                    if proteases.count():
+                        choices = []
+                        for p in proteases.order_by('order_val'):
+                            initial = p.name
+                            choices.append([p.rule, p.name])
+                    else:
+                        initial = 'trypsin'
+                        choices = [['[RK]', 'trypsin'], ]
+                    self.fields[param[1]] = forms.ChoiceField(
+                        label=param[1],
+                        choices=choices[::-1],
+                        initial=initial,
+                        )
+                elif 'type' not in param[0]:
                     self.fields[param[1]] = forms.ChoiceField(
                         label=param[1],
                         choices=[[x, x] for x in param[0].split(',')],
