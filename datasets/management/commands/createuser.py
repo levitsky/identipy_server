@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.core.files import File
-from datasets.models import FastaFile, ParamsFile
+from datasets.models import FastaFile, ParamsFile, Protease
 
+from pyteomics import parser
 from os import path, listdir
 
 class Command(BaseCommand):
@@ -31,5 +32,11 @@ class Command(BaseCommand):
             paramobj = ParamsFile(docfile = djangofl, userid = user, type=paramtype)
             paramobj.save()
             fl.close()
+
+        priority_list = ['pepsin ph2.0', 'glutamyl endopeptidase', 'ntcb', 'cnbr', 'lysc', 'trypsin']
+        for protease in parser.expasy_rules:
+            bonus = priority_list.index(protease) + 1 if protease in priority_list else 0
+            protease_object = Protease(name=protease, rule=parser.expasy_rules[protease], order_val=1+bonus, user=user)
+            protease_object.save()
 
         user.save()

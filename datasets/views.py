@@ -36,7 +36,7 @@ def index(request, c=dict()):
             c['runname'] = request.POST['runname']
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
             raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
+            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
             # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
         elif(request.POST.get('statusback')):
@@ -97,7 +97,7 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
             raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
+            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
             if request.POST.get('paramsname'):
                 save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
             request.POST['saveparams'] = None
@@ -190,7 +190,7 @@ def index(request, c=dict()):
         raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
         if 'SearchParametersForm' not in c:
-            sf = SearchParametersForm(raw_config=raw_config)
+            sf = SearchParametersForm(raw_config=raw_config, user=request.user)
             # sf.add_params(raw_config=raw_config)
         else:
             sf = c['SearchParametersForm']
@@ -300,7 +300,7 @@ def searchpage(request, c=dict(), upd=False):
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
     if upd or 'SearchParametersForm' not in c:
-        sf = SearchParametersForm(raw_config=raw_config)
+        sf = SearchParametersForm(raw_config=raw_config, user=request.user)
     else:
         sf = c['SearchParametersForm']
     c.update({'userid': request.user, 'SearchParametersForm': sf})
