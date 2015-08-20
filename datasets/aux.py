@@ -5,6 +5,17 @@ import sys
 sys.path.append('../identipy/')
 from identipy.utils import CustomRawConfigParser
 
+def save_mods(uid, chosenmods, fixed, paramtype=3):
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=uid)
+    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(paramobj.docfile.name.encode('ASCII'))
+    labels = ','.join([mod.label + mod.aminoacid for mod in chosenmods])
+    raw_config.set('modifications', 'fixed' if fixed else 'variable', labels + '|type>string')
+    for mod in chosenmods:
+        raw_config.set('modifications', mod.label, mod.mass)
+    raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
+
+
 def save_params(SearchParametersForm_values, uid, paramsname, paramtype=3):
     SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=uid)
