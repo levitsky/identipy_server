@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.core.files import File
-from datasets.models import FastaFile, ParamsFile, Protease
+from datasets.models import FastaFile, ParamsFile, Protease, Modification
 
 from pyteomics import parser
 from os import path, listdir
@@ -39,4 +39,17 @@ class Command(BaseCommand):
             protease_object = Protease(name=protease, rule=parser.expasy_rules[protease], order_val=1+bonus, user=user)
             protease_object.save()
 
+        default_mods = [
+            ['camC', 'cam', 57.022, 'C'],
+            ['oxM', 'ox', 15.994915, 'M'],
+            ['oxW', 'ox', 15.994915, 'W'],
+            ['ac[', 'ac', 42.010565, '['],
+            ['acK', 'ac', 42.010565, 'K'],
+            ['pS', 'p', 79.966331, 'S'],
+            ['pT', 'p', 79.966331, 'T'],
+            ['pY', 'p', 79.966331, 'Y'],
+        ]
+        for mod in default_mods:
+            mod_object = Modification(name=mod[0], label=mod[1], mass=mod[2], aminoacid=mod[3], user=user)
+            mod_object.save()
         user.save()
