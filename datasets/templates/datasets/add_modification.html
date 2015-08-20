@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Select files{% endblock%}
+{% block content %}
+
+
+<div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
+            
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+            
+      </ul></form>
+    </div>
+
+
+<div id="tab"><form method="post" id="selectionform">{% csrf_token %}
+    <h2>
+
+                {{ modificationform.non_field_errors }}
+                <div class="fieldWrapper">
+                    {{ modificationform.subject.errors }}
+                    <label for="{{ modificationform.name.id_for_label }}">Modification name:</label>
+                    {{ modificationform.name }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ modificationform.subject.errors }}
+                    <label for="{{ modificationform.label.id_for_label }}">Modification label:</label>
+                    {{ modificationform.label }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ modificationform.subject.errors }}
+                    <label for="{{ modificationform.mass.id_for_label }}">Mass change:</label>
+                    {{ modificationform.mass }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ modificationform.subject.errors }}
+                    <label for="{{ modificationform.aminoacids.id_for_label }}">Aminoacids:</label>
+                    {{ modificationform.aminoacids }}
+                </div>
+          <div id="vert_block" >
+                <input type="submit" class="btn" value="submit" name="sbm_mod">
+                <input type="submit" class="btn" value="cancel" name="searchpage">
+                   
+            </div>
+        </h2> </form>
+         
+
+    </div>  
+{% endblock %}

@@ -12,8 +12,8 @@ from django.core.mail import send_mail, BadHeaderError
 from django.contrib import messages
 from django.db.models import Max
 
-from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease
-from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm
+from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
+from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
 import os
 from os import path
 import subprocess
@@ -22,7 +22,7 @@ import StringIO
 import shutil
 import math
 
-
+from pyteomics import parser
 import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
@@ -115,6 +115,14 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['sbm_protease'] = None
             return add_protease(request, c = c, sbm=True)
+        elif(request.POST.get('add_modification')):
+            request.POST = request.POST.copy()
+            request.POST['add_modification'] = None
+            return add_modification(request, c = c)
+        elif(request.POST.get('sbm_mod')):
+            request.POST = request.POST.copy()
+            request.POST['sbm_mod'] = None
+            return add_modification(request, c = c, sbm=True)
         elif(request.POST.get('search_details')):
             request.POST = request.POST.copy()
             return search_details(request, runname=request.POST['search_details'], c=c)
@@ -342,6 +350,36 @@ def email(request, c={}):
         form = ContactForm()
     return render(request, "datasets/email.html", {'form': form})
 
+def add_modification(request, c=dict(), sbm=False):
+    c = c
+    c.update(csrf(request))
+    if sbm:
+        c['modificationform'] = AddModificationForm(request.POST)
+        if c['modificationform'].is_valid():
+            mod_name = c['modificationform'].cleaned_data['name']
+            mod_label = c['modificationform'].cleaned_data['label']
+            mod_mass = c['modificationform'].cleaned_data['mass']
+            if c['modificationform'].cleaned_data['aminoacids'] == 'X':
+                c['modificationform'].cleaned_data['aminoacids'] = parser.std_amino_acids
+            added = []
+            for aminoacid in c['modificationform'].cleaned_data['aminoacids']:
+                if aminoacid in parser.std_amino_acids + ['[', ']']:
+                    if not Modification.objects.filter(user=request.user, label=mod_label, mass=mod_mass, aminoacid=aminoacid).count():
+                        modification_object = Modification(name=mod_name+aminoacid, label=mod_label, mass=mod_mass, aminoacid=aminoacid, user=request.user)
+                        modification_object.save()
+                        added.append(aminoacid)
+            if added:
+                messages.add_message(request, messages.INFO, 'A new modification was added')
+                return searchpage(request, c)
+            else:
+                messages.add_message(request, messages.INFO, 'A modification with mass %f, label %s already exists for selected aminoacids' % (mod_mass, mod_label))
+                return render(request, 'datasets/add_modification.html', c)
+        else:
+            messages.add_message(request, messages.INFO, 'All fields must be filled')
+            return render(request, 'datasets/add_modification.html', c)
+    c['modificationform'] = AddModificationForm()
+    return render(request, 'datasets/add_modification.html', c)
+
 def add_protease(request, c=dict(), sbm=False):
     c = c
     c.update(csrf(request))
@@ -364,6 +402,7 @@ def add_protease(request, c=dict(), sbm=False):
             return searchpage(request, c)
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
+            return render(request, 'datasets/add_protease.html', c)
     c['proteaseform'] = AddProteaseForm()
     return render(request, 'datasets/add_protease.html', c)
 

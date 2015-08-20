@@ -360,3 +360,14 @@ class Protease(models.Model):
 
     class Meta:
         unique_together = ('name', 'user',)
+
+
+class Modification(models.Model):
+    name = models.CharField(max_length=80)
+    label = models.CharField(max_length=30)
+    aminoacid = models.CharField(max_length=1)
+    mass = models.FloatField()
+    user = models.ForeignKey(User)
+
+    class Meta:
+        unique_together = ('name', 'user', 'aminoacid', 'mass', 'label')
