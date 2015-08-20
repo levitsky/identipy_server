@@ -33,12 +33,6 @@ class MultFilesForm(forms.Form):
         else:
             self.fields['relates_to'] = forms.ChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.RadioSelect, required=False)
 
-class Survey(forms.Form):
-    name = forms.CharField(max_length=20)
-    age = forms.IntegerField()
-
-
-
 
 class SearchParametersForm(forms.Form):
 
