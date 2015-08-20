@@ -23,8 +23,11 @@
                 <input type="submit" class="btn" value="upload new files" name="uploadform">
                    
             </div>
-           
-                {{ form.as_p }}
+                {% if select_form == 'form' %}
+                    {{ form.as_p }}
+                {% elif select_form == 'modform' %}
+                    {{ modform.as_p }}
+                {% endif %}
             
           <div id="vert_block" >
         

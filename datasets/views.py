@@ -27,7 +27,7 @@ import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_params
+from aux import save_params, save_mods
 
 def index(request, c=dict()):
     if request.user.is_authenticated():
@@ -47,7 +47,11 @@ def index(request, c=dict()):
         elif(request.POST.get('sbm')):
             request.POST = request.POST.copy()
             request.POST['sbm'] = None
-            return files_view(request, c = c)
+            if c.get('sbm_modform', False):
+                c['sbm_modform'] = False
+                return select_modifications(request, c, fixed=c['fixed'], upd=True)
+            else:
+                return files_view(request, c = c)
         elif(request.POST.get('cancel')):
             request.POST = request.POST.copy()
             request.POST['cancel'] = None
@@ -119,6 +123,14 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['add_modification'] = None
             return add_modification(request, c = c)
+        elif(request.POST.get('select_fixed')):
+            request.POST = request.POST.copy()
+            request.POST['select_fixed'] = None
+            return select_modifications(request, c = c, fixed=True)
+        elif(request.POST.get('select_potential')):
+            request.POST = request.POST.copy()
+            request.POST['select_potential'] = None
+            return select_modifications(request, c = c, fixed=False)
         elif(request.POST.get('sbm_mod')):
             request.POST = request.POST.copy()
             request.POST['sbm_mod'] = None
@@ -406,6 +418,43 @@ def add_protease(request, c=dict(), sbm=False):
     c['proteaseform'] = AddProteaseForm()
     return render(request, 'datasets/add_protease.html', c)
 
+def select_modifications(request, c=dict(), fixed=True, upd=False):
+    c = c
+    c.update(csrf(request))
+    modifications = Modification.objects.filter(user=request.user)
+    cc = []
+    for doc in modifications:
+        print doc.name
+        cc.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
+    if upd:
+        modform = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+        if modform.is_valid():
+            chosenmodsids = [int(x) for x in modform.cleaned_data.get('relates_to')]
+            chosenmods = Modification.objects.filter(id__in=chosenmodsids)
+            save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
+            return searchpage(request, c)
+    # if request.POST.get('relates_to'):
+    #     print usedname
+    #     form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+    #     if form.is_valid():
+    #         chosenfilesids = [int(x) for x in form.cleaned_data.get('relates_to')]
+    #         chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
+    #         if usedname == 'chosenparams':
+    #             paramfile = chosenfiles[0]
+    #             dst = os.path.join(os.path.dirname(paramfile.docfile.name.encode('ASCII')), 'latest_params_3.cfg')
+    #             print dst
+    #             print paramfile.docfile.name.encode('ASCII')
+    #             shutil.copy(paramfile.docfile.name.encode('ASCII'), dst)
+    #             c['paramtype'] = paramfile.type
+    #             return searchpage(request, c, upd=True)
+    #         else:
+    #             c.update({usedname: chosenfiles})
+    #             return searchpage(request, c)
+    # else:
+    modform = MultFilesForm(custom_choices=cc, labelname=None, multiform=True)
+    c.update({'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform'})
+    return render(request, 'datasets/choose.html', c)
+
 def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
@@ -439,7 +488,7 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
                 return searchpage(request, c)
     else:
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
-    c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname})
+    c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form'})
     return render_to_response('datasets/choose.html', c,
         context_instance=RequestContext(request))
 
