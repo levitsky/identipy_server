@@ -8,9 +8,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.core.files import File
+from django.core.mail import send_mail, BadHeaderError
+from django.contrib import messages
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV
-from .forms import MultFilesForm, CommonForm, SearchParametersForm
+from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm
 import os
 from os import path
 import subprocess
@@ -34,13 +36,12 @@ def index(request, c=dict()):
             c['runname'] = request.POST['runname']
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
             raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
+            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
             # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
         elif(request.POST.get('statusback')):
             request.POST = request.POST.copy()
             request.POST['statusback'] = None
-            c['identiprotmessage'] = None
             return index(request, c=c)
         elif(request.POST.get('sbm')):
             request.POST = request.POST.copy()
@@ -76,6 +77,10 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['contacts'] = None
             return contacts(request, c = c)
+        elif(request.POST.get('sendemail')):
+            request.POST = request.POST.copy()
+            request.POST['sendemail'] = None
+            return email(request, c = c)
         elif(request.POST.get('uploadspectra')):
             request.POST = request.POST.copy()
             request.POST['uploadspectra'] = None
@@ -92,7 +97,7 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
             raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config)
+            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
             if request.POST.get('paramsname'):
                 save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
             request.POST['saveparams'] = None
@@ -185,7 +190,7 @@ def index(request, c=dict()):
         raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
         if 'SearchParametersForm' not in c:
-            sf = SearchParametersForm(raw_config=raw_config)
+            sf = SearchParametersForm(raw_config=raw_config, user=request.user)
             # sf.add_params(raw_config=raw_config)
         else:
             sf = c['SearchParametersForm']
@@ -295,7 +300,7 @@ def searchpage(request, c=dict(), upd=False):
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
     if upd or 'SearchParametersForm' not in c:
-        sf = SearchParametersForm(raw_config=raw_config)
+        sf = SearchParametersForm(raw_config=raw_config, user=request.user)
     else:
         sf = c['SearchParametersForm']
     c.update({'userid': request.user, 'SearchParametersForm': sf})
@@ -310,7 +315,24 @@ def about(request,c=dict()):
     c=c
     c.update(csrf(request))
     return render(request, 'datasets/index.html', c)
-    
+
+def email(request, c={}):
+    if 'from_email' in request.POST.keys():
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            from_email = form.cleaned_data['from_email']
+            message = form.cleaned_data['message']
+            messages.add_message(request, messages.INFO, 'Your message was sent to the developers. We will respond as soon as possible.')
+            try:
+                send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, ['markmipt@gmail.com'])
+            except BadHeaderError:
+                return HttpResponse('Invalid header found.')
+            return contacts(request, c)
+    else:
+        form = ContactForm()
+    return render(request, "datasets/email.html", {'form': form})
+
 def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
     c = c
     c.update(csrf(request))
@@ -361,10 +383,10 @@ def files_view_params(request, c):
     return files_view(request, usedclass, 'chosenparams', c = c, multiform=False)
 
 def identiprot_view(request, c):
-    c = runidentiprot(c)
+    c = runidentiprot(request, c)
     return index(request, c)
 
-def runidentiprot(c):
+def runidentiprot(request, c):
 
     def run_search(newrun, rn, c):
         paramfile = newrun.parameters.all()[0].path()
@@ -487,9 +509,9 @@ def runidentiprot(c):
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
-        c['identiprotmessage'] = 'Identiprot started'
+        messages.add_message(request, messages.INFO, 'Identiprot started')
     else:
-        c['identiprotmessage'] = 'Results with name %s already exist, choose another name' % (c['runname'], )
+        messages.add_message(request, messages.INFO, 'Results with name %s already exist, choose another name' % (c['runname'], ))
     return c
 
 
