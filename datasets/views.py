@@ -452,7 +452,8 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
     #             return searchpage(request, c)
     # else:
     modform = MultFilesForm(custom_choices=cc, labelname=None, multiform=True)
-    c.update({'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform'})
+    print
+    c.update({'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
 def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
@@ -488,7 +489,7 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
                 return searchpage(request, c)
     else:
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
-    c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form'})
+    c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
     return render_to_response('datasets/choose.html', c,
         context_instance=RequestContext(request))
 
