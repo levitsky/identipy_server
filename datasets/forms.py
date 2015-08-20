@@ -122,7 +122,9 @@ class SearchParametersForm(forms.Form):
                     "precursor mass difference, ppm",
                     "isotopes mass difference, da",
                     "missed cleavages",
-                    "rt difference, min"]
+                    "rt difference, min",
+                    "fixed",
+                    "variable"]
 
         od = OrderedDict((k, self.fields[k]) for k in key_order if k in self.fields)
         od.update(self.fields)
