@@ -22,6 +22,8 @@
                 <input type="submit" class="btn" value="cancel" name="searchpage">
                 {% if select_form == 'form' %}
                     <input type="submit" class="btn" value="upload new files" name="uploadform">
+                {% elif select_form == 'modform' %}
+                    <input type="submit" class="btn" value="add custom modification" name="add_modification">
                 {% endif %}
                    
             </div>
@@ -37,7 +39,9 @@
                 <input class = "btn" type="submit" value="submit" name="sbm">
                 <input type="submit" class="btn" value="cancel" name="searchpage">
                 {% if select_form == 'form' %}
-                <input type="submit" class="btn" value="upload new files" name="uploadform">
+                    <input type="submit" class="btn" value="upload new files" name="uploadform">
+                {% elif select_form == 'modform' %}
+                    <input type="submit" class="btn" value="add custom modification" name="add_modification">
                 {% endif %}
                    
             </div>
