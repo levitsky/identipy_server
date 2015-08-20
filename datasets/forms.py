@@ -162,3 +162,8 @@ class ContactForm(forms.Form):
     from_email = forms.EmailField(required=True)
     subject = forms.CharField(required=True)
     message = forms.CharField(widget=forms.Textarea)
+
+
+class AddProteaseForm(forms.Form):
+    name = forms.CharField(max_length=50, required=True)
+    cleavage_rule = forms.CharField(required=True)

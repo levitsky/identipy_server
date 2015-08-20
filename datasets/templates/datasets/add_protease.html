@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Select files{% endblock%}
+{% block content %}
+
+
+<div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
+            
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+            
+      </ul></form>
+    </div>
+
+
+<div id="tab"><form method="post" id="selectionform">{% csrf_token %}
+    <h2>
+
+                {{ proteaseform.non_field_errors }}
+                <div class="fieldWrapper">
+                    {{ proteaseform.subject.errors }}
+                    <label for="{{ proteaseform.name.id_for_label }}">Cleavage name:</label>
+                    {{ proteaseform.name }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ proteaseform.subject.errors }}
+                    <label for="{{ proteaseform.cleavage_rule.id_for_label }}">Cleavage rule:</label>
+                    {{ proteaseform.cleavage_rule }}
+                </div>
+            
+          <div id="vert_block" >
+                <input type="submit" class="btn" value="submit" name="sbm_protease">
+                <input type="submit" class="btn" value="cancel" name="searchpage">
+                   
+            </div>
+        </h2> </form>
+         
+
+    </div>  
+{% endblock %}

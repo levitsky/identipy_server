@@ -10,9 +10,10 @@ from django.template import RequestContext
 from django.core.files import File
 from django.core.mail import send_mail, BadHeaderError
 from django.contrib import messages
+from django.db.models import Max
 
-from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV
-from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm
+from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease
+from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm
 import os
 from os import path
 import subprocess
@@ -106,6 +107,14 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['loadparams'] = None
             return files_view_params(request, c = c)
+        elif(request.POST.get('add_protease')):
+            request.POST = request.POST.copy()
+            request.POST['add_protease'] = None
+            return add_protease(request, c = c)
+        elif(request.POST.get('sbm_protease')):
+            request.POST = request.POST.copy()
+            request.POST['sbm_protease'] = None
+            return add_protease(request, c = c, sbm=True)
         elif(request.POST.get('search_details')):
             request.POST = request.POST.copy()
             return search_details(request, runname=request.POST['search_details'], c=c)
@@ -189,11 +198,11 @@ def index(request, c=dict()):
         raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
-        if 'SearchParametersForm' not in c:
-            sf = SearchParametersForm(raw_config=raw_config, user=request.user)
+#        if 'SearchParametersForm' not in c:
+        sf = SearchParametersForm(raw_config=raw_config, user=request.user)
             # sf.add_params(raw_config=raw_config)
-        else:
-            sf = c['SearchParametersForm']
+#        else:
+#            sf = c['SearchParametersForm']
         c.update({'commonform': commonform, 'SearchParametersForm': sf})
         return render(request, 'datasets/index.html', c)
     else:
@@ -299,10 +308,10 @@ def searchpage(request, c=dict(), upd=False):
 
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
-    if upd or 'SearchParametersForm' not in c:
-        sf = SearchParametersForm(raw_config=raw_config, user=request.user)
-    else:
-        sf = c['SearchParametersForm']
+#    if upd or 'SearchParametersForm' not in c:
+    sf = SearchParametersForm(raw_config=raw_config, user=request.user)
+#    else:
+#        sf = c['SearchParametersForm']
     c.update({'userid': request.user, 'SearchParametersForm': sf})
     return render(request, 'datasets/startsearch.html', c)
 
@@ -332,6 +341,31 @@ def email(request, c={}):
     else:
         form = ContactForm()
     return render(request, "datasets/email.html", {'form': form})
+
+def add_protease(request, c=dict(), sbm=False):
+    c = c
+    c.update(csrf(request))
+    if sbm:
+        c['proteaseform'] = AddProteaseForm(request.POST)
+        if c['proteaseform'].is_valid():
+            protease_name = c['proteaseform'].cleaned_data['name']
+            if Protease.objects.filter(user=request.user, name=protease_name).count():
+                messages.add_message(request, messages.INFO, 'Cleavage rule with name %s already exists' % (protease_name, ))
+                return render(request, 'datasets/add_protease.html', c)
+            try:
+                protease_rule = utils.convert_tandem_cleave_rule_to_regexp(c['proteaseform'].cleaned_data['cleavage_rule'])
+            except:
+                messages.add_message(request, messages.INFO, 'Cleavage rule is incorrect')
+                return render(request, 'datasets/add_protease.html', c)
+            protease_order_val = Protease.objects.filter(user=request.user).aggregate(Max('order_val'))['order_val__max'] + 1
+            protease_object = Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=request.user)
+            protease_object.save()
+            messages.add_message(request, messages.INFO, 'A new cleavage rule was added')
+            return searchpage(request, c)
+        else:
+            messages.add_message(request, messages.INFO, 'All fields must be filled')
+    c['proteaseform'] = AddProteaseForm()
+    return render(request, 'datasets/add_protease.html', c)
 
 def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
     c = c
