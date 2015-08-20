@@ -203,6 +203,7 @@ def index(request, c=dict()):
                     #     newdoc.save()
                     else:
                         pass
+                messages.add_message(request, messages.INFO, 'Upload was done successfully')
                 return HttpResponseRedirect(reverse('datasets:index'))
             # return render(request, 'datasets/index.html', c)
         else:
