@@ -158,7 +158,6 @@ class SearchParametersForm(forms.Form):
 
 
 class ContactForm(forms.Form):
-
     from_email = forms.EmailField(required=True)
     subject = forms.CharField(required=True)
     message = forms.CharField(widget=forms.Textarea)
@@ -167,3 +166,10 @@ class ContactForm(forms.Form):
 class AddProteaseForm(forms.Form):
     name = forms.CharField(max_length=50, required=True)
     cleavage_rule = forms.CharField(required=True)
+
+
+class AddModificationForm(forms.Form):
+    name = forms.CharField(max_length=80, required=True)
+    label = forms.CharField(max_length=30, required=True)
+    mass = forms.FloatField(required=True)
+    aminoacids = forms.CharField(max_length=25, required=True)
