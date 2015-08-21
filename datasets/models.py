@@ -24,7 +24,7 @@ from identipy.utils import CustomRawConfigParser
 class BaseDocument(models.Model):
     # filepath = models.FileField(upload_to=upload_to)
     date_added = models.DateTimeField(auto_now_add=True)
-    userid = models.ForeignKey(User)
+    user = models.ForeignKey(User)
 
     def name(self):
         return os.path.split(self.docfile.name)[-1]
@@ -36,20 +36,20 @@ class BaseDocument(models.Model):
         abstract = True
 
 
-def upload_to_basic(folder, filename, userid):
-    return os.path.join('uploads', folder, str(userid), filename)
+def upload_to_basic(folder, filename, user):
+    return os.path.join('uploads', folder, str(user), filename)
 
 
 def upload_to_spectra(instance, filename):
-    return upload_to_basic('spectra', filename, instance.userid.id)
+    return upload_to_basic('spectra', filename, instance.user.id)
 
 
 def upload_to_fasta(instance, filename):
-    return upload_to_basic('fasta', filename, instance.userid.id)
+    return upload_to_basic('fasta', filename, instance.user.id)
 
 
 def upload_to_raw(instance, filename):
-    return upload_to_basic('raw', filename, instance.userid.id)
+    return upload_to_basic('raw', filename, instance.user.id)
 
 def upload_to_pepxml(instance, filename):
     return filename
@@ -88,33 +88,13 @@ class ResCSV(BaseDocument):
     ftype = models.CharField(max_length=10)
 
 
-# class Document(models.Model):
-#     docfile = models.FileField(upload_to=upload_to)
-#     date_added = models.DateTimeField(auto_now_add=True)
-#     userid = models.ForeignKey(User)
-#     fext = models.CharField(max_length=10)
-#     # userid = models.BigIntegerField(None)
-#
-#     def __unicode__(self):
-#         return unicode(self.docfile.name)
-#
-#     def delete(self):
-#         super(Document, self).delete()
-#         default_storage.delete(self.docfile.name)
-#
-#     def name(self):
-#         return os.path.split(self.docfile.name)[-1]
 def upload_to_params(instance, filename):
-    return upload_to_basic('params', filename, instance.userid.id)
-    # return os.path.join('results', str(instance.userid.id), os.path.splitext(filename)[0], filename)
+    return upload_to_basic('params', filename, instance.user.id)
 
 
 class ParamsFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_params)
     type = models.IntegerField(default=3)
-    # date_added = models.DateTimeField(auto_now_add=True)
-    # resultsid = models.ManyToManyField(SearchRun)
-    # userid = models.ForeignKey(User)
 
 
 class SearchGroup(BaseDocument):
@@ -129,7 +109,7 @@ class SearchGroup(BaseDocument):
         self.add_params(c['SearchParametersForm'], c['paramtype'])
         self.save()
         for s in c['chosenspectra']:
-            newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], userid = self.userid)
+            newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], user = self.user)
             newrun.save()
             newrun.add_fasta(self.fasta.all()[0])
             newrun.add_params(self.parameters.all()[0])
@@ -138,7 +118,7 @@ class SearchGroup(BaseDocument):
             # self.add_searchrun(newrun)
             self.save()
         if len(c['chosenspectra']) > 1:
-            newrun = SearchRun(searchgroup_parent=self, runname='union', userid = self.userid, union=True)
+            newrun = SearchRun(searchgroup_parent=self, runname='union', user = self.user, union=True)
             newrun.save()
             newrun.add_fasta(self.fasta.all()[0])
             newrun.add_params(self.parameters.all()[0])
@@ -158,7 +138,7 @@ class SearchGroup(BaseDocument):
     def add_params(self, SearchParametersForm_values, paramtype=3):
         # for s in paramsobjects:
         SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
-        paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=self.userid, type=paramtype)
+        paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=self.user, type=paramtype)
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(paramobj.docfile.name.encode('ASCII'))
         print SearchParametersForm_values.items()
