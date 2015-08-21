@@ -508,7 +508,7 @@ def files_view_params(request, c):
 
 def identiprot_view(request, c):
     c = runidentiprot(request, c)
-    return index(request, c)
+    return status(request, c)
 
 def runidentiprot(request, c):
 
