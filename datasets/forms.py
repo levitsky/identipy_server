@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from multiupload.fields import MultiFileField
-from pyteomics import biolccc
 from collections import OrderedDict
 from models import Protease
 
@@ -33,18 +32,6 @@ class CommonForm(forms.Form):
     commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload')
 
 class MultFilesForm(forms.Form):
-    # OPTIONS = (
-    #         ("AUT", "Australia"),
-    #         ("DEU", "Germany"),
-    #         )
-    # Multfiles = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-    #                                      choices=OPTIONS)
-
-    # def __init__(self, custom_choices=None, *args, **kwargs):
-    #     super(MultFilesForm, self).__init__(*args, **kwargs)
-    #     if custom_choices:
-    #         self.fields['field'].choices = custom_choices
-
     def __init__(self, *args, **kwargs):
         relates_to_queryset = kwargs.pop('custom_choices')
         labelname = kwargs.pop('labelname', None)
@@ -81,14 +68,10 @@ class SearchParametersForm(forms.Form):
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=initial, required=False)
         if raw_config:
-            print 'HERE2Q'
             for param in get_allowed_values(raw_config):
                 label = params_map.get(param[1], param[1])
                 if 'class>protease' in param[0]:
-                    print userid, 'userid'
-                    print userid.username, 'id'
                     proteases = Protease.objects.filter(user=userid)
-                    print proteases.count(), 'count'
                     if proteases.count():
                         choices = []
                         for p in proteases.order_by('order_val'):
@@ -154,35 +137,6 @@ class SearchParametersForm(forms.Form):
         od = OrderedDict((k, self.fields[k]) for k in key_order if k in self.fields)
         od.update(self.fields)
         self.fields = od
-        # self.fields.keyOrder = [
-        #     'minimum peaks',
-        #     'maximum peaks']
-
-    # def add_params(self, raw_config):
-    #     def get_allowed_values(settings):
-    #         for section in settings.sections():
-    #             for param in settings.items(section):
-    #                 if '|' in param[1]:
-    #                     yield [param[1].split('|')[1], ] + [param[0], param[1].split('|')[0]]
-    #
-    #     def get_field(fieldtype, label, initial):
-    #         if fieldtype == 'type>float':
-    #             return forms.FloatField(label=label, initial=initial)
-    #         elif fieldtype == 'type>int':
-    #             return forms.IntegerField(label=label, initial=initial)
-    #         elif fieldtype == 'type>string':
-    #             return forms.CharField(label=label, initial=initial)
-    #
-    #     for param in get_allowed_values(raw_config):
-    #         if 'type' not in param[0]:
-    #             self.fields[param[1]] = forms.ChoiceField(
-    #                 label=param[1],
-    #                 choices=[[x, x] for x in param[0].split(',')],
-    #                 initial=param[0].split(',')[0],
-    #                 )
-    #         else:
-    #             self.fields[param[1]] = get_field(fieldtype=param[0], label=param[1], initial=param[2])
-
 
 class ContactForm(forms.Form):
     from_email = forms.EmailField(required=True)
