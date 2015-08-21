@@ -278,6 +278,7 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
         return about(request, c = {})
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
+        request.session.set_expiry(24*60*60)
         login(request, user)
         return redirect(onsuccess)
     else:
