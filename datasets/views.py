@@ -191,7 +191,7 @@ def index(request, c=dict()):
             if 'commonfiles' in request.FILES:#commonform.is_valid():
                 for uploadedfile in request.FILES.getlist('commonfiles'):
                     fext = os.path.splitext(uploadedfile.name)[-1].lower()
-                    if fext == '.mgf':
+                    if fext in ['.mgf', '.mzml']:
                         newdoc = SpectraFile(docfile = uploadedfile, user = request.user)
                         newdoc.save()
                     if fext == '.fasta':
