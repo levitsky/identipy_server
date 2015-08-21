@@ -21,7 +21,6 @@ def save_params(SearchParametersForm_values, uid, paramsname, paramtype=3):
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
-    print SearchParametersForm_values.items()
     for section in raw_config.sections():
         for param in raw_config.items(section):
             if param[0] in SearchParametersForm_values:

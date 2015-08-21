@@ -38,7 +38,6 @@ def index(request, c=dict()):
             raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
             raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
             c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
-            # c['SearchParametersForm'] =request.GET['SearchParametersForm']
             return identiprot_view(request, c = c)
         elif(request.POST.get('statusback')):
             request.POST = request.POST.copy()
@@ -188,7 +187,7 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['submit'] = None
             commonform = CommonForm(request.POST, request.FILES)
-            if 'commonfiles' in request.FILES:#commonform.is_valid():
+            if 'commonfiles' in request.FILES:
                 for uploadedfile in request.FILES.getlist('commonfiles'):
                     fext = os.path.splitext(uploadedfile.name)[-1].lower()
                     if fext in ['.mgf', '.mzml']:
@@ -201,7 +200,6 @@ def index(request, c=dict()):
                         pass
                 messages.add_message(request, messages.INFO, 'Upload was done successfully')
                 return HttpResponseRedirect(reverse('datasets:index'))
-            # return render(request, 'datasets/index.html', c)
         else:
             commonform = CommonForm()
 
@@ -215,25 +213,18 @@ def index(request, c=dict()):
         raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
-#        if 'SearchParametersForm' not in c:
         sf = SearchParametersForm(raw_config=raw_config, user=request.user)
-            # sf.add_params(raw_config=raw_config)
-#        else:
-#            sf = c['SearchParametersForm']
         c.update({'commonform': commonform, 'SearchParametersForm': sf})
         return render(request, 'datasets/index.html', c)
     else:
         return redirect('/login/')
 
 def details(request, pK):
-    # doc = get_object_or_404(Document, id=pK)
     doc = get_object_or_404(SpectraFile, id=pK)
     return render(request, 'datasets/details.html',
             {'document': doc})
 
 def delete(request, c):
-    print c['usedclass']
-    print request.POST.keys()
     for obj_id in request.POST.get('relates_to', []):
         obj = c['usedclass'].objects.get(user=c['userid'], id=obj_id)
         obj.delete()
@@ -301,7 +292,6 @@ def status(request, c=dict(), search_run_filter=False):
     c = c
     c.update(csrf(request))
     res_page = c.get('res_page', 1)
-    # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
     if search_run_filter:
         processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=search_run_filter).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
         c['res_page'] = 1
@@ -328,10 +318,7 @@ def searchpage(request, c=dict(), upd=False):
 
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
 
-#    if upd or 'SearchParametersForm' not in c:
     sf = SearchParametersForm(raw_config=raw_config, user=request.user)
-#    else:
-#        sf = c['SearchParametersForm']
     c.update({'userid': request.user, 'SearchParametersForm': sf})
     return render(request, 'datasets/startsearch.html', c)
 
@@ -424,7 +411,6 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
     modifications = Modification.objects.filter(user=request.user)
     cc = []
     for doc in modifications:
-        print doc.name
         cc.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
     if upd:
         modform = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
@@ -433,26 +419,7 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
             chosenmods = Modification.objects.filter(id__in=chosenmodsids)
             save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
             return searchpage(request, c)
-    # if request.POST.get('relates_to'):
-    #     print usedname
-    #     form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
-    #     if form.is_valid():
-    #         chosenfilesids = [int(x) for x in form.cleaned_data.get('relates_to')]
-    #         chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
-    #         if usedname == 'chosenparams':
-    #             paramfile = chosenfiles[0]
-    #             dst = os.path.join(os.path.dirname(paramfile.docfile.name.encode('ASCII')), 'latest_params_3.cfg')
-    #             print dst
-    #             print paramfile.docfile.name.encode('ASCII')
-    #             shutil.copy(paramfile.docfile.name.encode('ASCII'), dst)
-    #             c['paramtype'] = paramfile.type
-    #             return searchpage(request, c, upd=True)
-    #         else:
-    #             c.update({usedname: chosenfiles})
-    #             return searchpage(request, c)
-    # else:
     modform = MultFilesForm(custom_choices=cc, labelname=None, multiform=True)
-    print
     c.update({'usedclass': Modification, 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
@@ -469,9 +436,7 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
     for doc in documents:
         if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
             cc.append((doc.id, doc.name()))
-    print request.POST.keys()
     if request.POST.get('relates_to'):
-        print usedname
         form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data.get('relates_to')]
@@ -479,8 +444,6 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
             if usedname == 'chosenparams':
                 paramfile = chosenfiles[0]
                 dst = os.path.join(os.path.dirname(paramfile.docfile.name.encode('ASCII')), 'latest_params_3.cfg')
-                print dst
-                print paramfile.docfile.name.encode('ASCII')
                 shutil.copy(paramfile.docfile.name.encode('ASCII'), dst)
                 c['paramtype'] = paramfile.type
                 return searchpage(request, c, upd=True)
@@ -589,7 +552,6 @@ def runidentiprot(request, c):
         fl = open(filename, 'r')
         djangofl = File(fl)
         pepxmlfile = PepXMLFile(docfile = djangofl, user = usr)
-        print filename
         pepxmlfile.docfile.name = filename
         pepxmlfile.save()
         newrun.add_pepxml(pepxmlfile)
