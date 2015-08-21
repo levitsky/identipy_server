@@ -6,7 +6,7 @@ sys.path.append('../identipy/')
 from identipy.utils import CustomRawConfigParser
 
 def save_mods(uid, chosenmods, fixed, paramtype=3):
-    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=uid)
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
     labels = ','.join([mod.label + mod.aminoacid for mod in chosenmods])
@@ -18,7 +18,7 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
 
 def save_params(SearchParametersForm_values, uid, paramsname, paramtype=3):
     SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
-    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), userid=uid)
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
     print SearchParametersForm_values.items()
@@ -49,7 +49,7 @@ def save_params(SearchParametersForm_values, uid, paramsname, paramtype=3):
     fl.close()
     fl = open(paramsname + '.cfg')
     djangofl = File(fl)
-    paramobj = ParamsFile(docfile = djangofl, userid = uid, type=paramtype)
+    paramobj = ParamsFile(docfile = djangofl, user = uid, type=paramtype)
     paramobj.save()
     fl.close()
     os.remove(paramsname + '.cfg')
