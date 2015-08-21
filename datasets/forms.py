@@ -56,7 +56,7 @@ class SearchParametersForm(forms.Form):
             for section in settings.sections():
                 for param in settings.items(section):
                     if '|' in param[1]:
-                        yield [param[1].split('|')[1], ] + [param[0], param[1].split('|')[0]]
+                        yield [param[1].split('|')[-1], ] + [param[0], param[1].split('|')[0]]
 
         def get_field(fieldtype, label, initial):
             if fieldtype == 'type>float':
