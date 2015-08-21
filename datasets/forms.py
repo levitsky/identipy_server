@@ -5,6 +5,30 @@ from pyteomics import biolccc
 from collections import OrderedDict
 from models import Protease
 
+params_map = {
+    'fixed': 'fixed modifications',
+    'variable': 'variable modifications',
+    'show empty': 'show unmached spectra in results',
+    'protfdr': 'protein FDR',
+    'candidates': 'report number of sequence candidates',
+    'score': 'search engine score',
+    'minimum matched': 'minimum number of matched fragments',
+    'minimum peaks': 'minimum number of fragments in spectra',
+    'maximum peaks': 'select top n peaks in spectra',
+    'add decoy': 'generate decoy database on the fly',
+    'minimum charge': 'minimum precursor charge',
+    'product accuracy': 'product accuracy, Da',
+    'psm count': 'post-search validation, psm count',
+    'psms per protein': 'post-search validation, psms per protein',
+    'charge states': 'post-search validation, charge states',
+    'potential modifications': 'post-search validation, potential modifications',
+    'fragment mass tolerance, da': 'post-search validation, fragment mass tolerance',
+    'precursor mass difference, ppm': 'post-search validation, precursor mass difference',
+    'isotopes mass difference, da': 'post-search validation, isotopes mass error',
+    'missed cleavages': 'post-search validation, missed cleavages',
+    'rt difference': 'post-search validation, RT difference'
+}
+
 class CommonForm(forms.Form):
     commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload')
 
@@ -59,6 +83,7 @@ class SearchParametersForm(forms.Form):
         if raw_config:
             print 'HERE2Q'
             for param in get_allowed_values(raw_config):
+                label = params_map.get(param[1], param[1])
                 if 'class>protease' in param[0]:
                     print userid, 'userid'
                     print userid.username, 'id'
@@ -73,18 +98,18 @@ class SearchParametersForm(forms.Form):
                         initial = 'trypsin'
                         choices = [['[RK]', 'trypsin'], ]
                     self.fields[param[1]] = forms.ChoiceField(
-                        label=param[1],
+                        label=label,
                         choices=choices[::-1],
                         initial=initial,
                         )
                 elif 'type' not in param[0]:
                     self.fields[param[1]] = forms.ChoiceField(
-                        label=param[1],
+                        label=label,
                         choices=[[x, x] for x in param[0].split(',')],
                         initial=param[0].split(',')[0],
                         )
                 else:
-                    self.fields[param[1]] = get_field(fieldtype=param[0], label=param[1], initial=param[2])
+                    self.fields[param[1]] = get_field(fieldtype=param[0], label=label, initial=param[2])
         key_order = ["use auto optimization",
                     "precursor accuracy unit",
                     "precursor accuracy left",
