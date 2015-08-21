@@ -52,6 +52,10 @@ def index(request, c=dict()):
                 return select_modifications(request, c, fixed=c['fixed'], upd=True)
             else:
                 return files_view(request, c = c)
+        elif(request.POST.get('del')):
+            request.POST = request.POST.copy()
+            request.POST['del'] = None
+            return delete(request, c = c)
         elif(request.POST.get('cancel')):
             request.POST = request.POST.copy()
             request.POST['cancel'] = None
@@ -188,19 +192,11 @@ def index(request, c=dict()):
                 for uploadedfile in request.FILES.getlist('commonfiles'):
                     fext = os.path.splitext(uploadedfile.name)[-1].lower()
                     if fext == '.mgf':
-                        newdoc = SpectraFile(docfile = uploadedfile, userid = request.user)
+                        newdoc = SpectraFile(docfile = uploadedfile, user = request.user)
                         newdoc.save()
                     if fext == '.fasta':
-                        newdoc = FastaFile(docfile = uploadedfile, userid = request.user)
+                        newdoc = FastaFile(docfile = uploadedfile, user = request.user)
                         newdoc.save()
-                    # if fext == '.cfg':
-                    #     os.remove('latest_params_%d.cfg' % (c.get('paramtype', 3), ))
-                    #     fd = open('latest_params_%d.cfg' % (c.get('paramtype', 3), ), 'wb')
-                    #     for chunk in uploadedfile.chunks():
-                    #         fd.write(chunk)
-                    #     fd.close()
-                    #     newdoc = ParamsFile(docfile = uploadedfile, userid = request.user)
-                    #     newdoc.save()
                     else:
                         pass
                 messages.add_message(request, messages.INFO, 'Upload was done successfully')
@@ -235,11 +231,13 @@ def details(request, pK):
     return render(request, 'datasets/details.html',
             {'document': doc})
 
-def delete(request, pK):
-    # doc = get_object_or_404(Document, id=pK)
-    doc = get_object_or_404(SpectraFile, id=pK)
-    doc.delete()
-    return HttpResponseRedirect(reverse('datasets:index'))
+def delete(request, c):
+    print c['usedclass']
+    print request.POST.keys()
+    for obj_id in request.POST.get('relates_to', []):
+        obj = c['usedclass'].objects.get(user=c['userid'], id=obj_id)
+        obj.delete()
+    return searchpage(request, c)
 
 def logout_view(request):
     logout(request)
@@ -305,12 +303,12 @@ def status(request, c=dict(), search_run_filter=False):
     res_page = c.get('res_page', 1)
     # processes = SearchRun.objects.filter(userid=request.user.id).order_by('date_added')[::-1][:10]
     if search_run_filter:
-        processes = SearchGroup.objects.filter(userid=request.user.id, groupname__contains=search_run_filter).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
+        processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=search_run_filter).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
         c['res_page'] = 1
-        c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(userid=request.user.id, groupname__contains=search_run_filter).count()) / 10))
+        c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id, groupname__contains=search_run_filter).count()) / 10))
     else:
-        c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(userid=request.user.id).count()) / 10))
-        processes = SearchGroup.objects.filter(userid=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
+        c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id).count()) / 10))
+        processes = SearchGroup.objects.filter(user=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
     c.update({'processes': processes})
     return render(request, 'datasets/status.html', c)
 
@@ -328,7 +326,7 @@ def searchpage(request, c=dict(), upd=False):
     c.update(csrf(request))
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
 
-    raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
+    raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
 
 #    if upd or 'SearchParametersForm' not in c:
     sf = SearchParametersForm(raw_config=raw_config, user=request.user)
@@ -455,7 +453,7 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
     # else:
     modform = MultFilesForm(custom_choices=cc, labelname=None, multiform=True)
     print
-    c.update({'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
+    c.update({'usedclass': Modification, 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
 def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
@@ -466,7 +464,7 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
         usedname=c['usedname']
         del c['usedclass']
         del c['usedname']
-    documents = usedclass.objects.filter(userid=request.user)
+    documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
         if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
@@ -518,7 +516,7 @@ def runidentiprot(request, c):
         fastafile = newrun.fasta.all()[0].path()
         settings = main.settings(paramfile)
         settings.set('input', 'database', fastafile.encode('ASCII'))
-        settings.set('output', 'path', 'results/%s/%s' % (str(newrun.userid.id), rn.encode('ASCII')))
+        settings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('ASCII')))
         totalrun(settings, newrun, c['userid'], paramfile)
         return 1
 
@@ -560,26 +558,26 @@ def runidentiprot(request, c):
             if os.path.splitext(tmpfile)[-1] == '.png' and newrun.name() + '_' in os.path.basename(tmpfile):
                 fl = open(os.path.join(dname, tmpfile))
                 djangofl = File(fl)
-                img = ResImageFile(docfile = djangofl, userid = usr)
+                img = ResImageFile(docfile = djangofl, user = usr)
                 img.save()
                 newrun.add_resimage(img)
                 fl.close()
         if os.path.exists(bname + '_PSMs.csv'):
             fl = open(bname + '_PSMs.csv')
             djangofl = File(fl)
-            csvf = ResCSV(docfile = djangofl, userid = usr, ftype='psm')
+            csvf = ResCSV(docfile = djangofl, user = usr, ftype='psm')
             csvf.save()
             newrun.add_rescsv(csvf)
         if os.path.exists(bname + '_peptides.csv'):
             fl = open(bname + '_peptides.csv')
             djangofl = File(fl)
-            csvf = ResCSV(docfile = djangofl, userid = usr, ftype='peptide')
+            csvf = ResCSV(docfile = djangofl, user = usr, ftype='peptide')
             csvf.save()
             newrun.add_rescsv(csvf)
         if os.path.exists(bname + '_proteins.csv'):
             fl = open(bname + '_proteins.csv')
             djangofl = File(fl)
-            csvf = ResCSV(docfile = djangofl, userid = usr, ftype='protein')
+            csvf = ResCSV(docfile = djangofl, user = usr, ftype='protein')
             csvf.save()
             newrun.add_rescsv(csvf)
         newrun.calc_results()
@@ -590,7 +588,7 @@ def runidentiprot(request, c):
         utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
         fl = open(filename, 'r')
         djangofl = File(fl)
-        pepxmlfile = PepXMLFile(docfile = djangofl, userid = usr)
+        pepxmlfile = PepXMLFile(docfile = djangofl, user = usr)
         print filename
         pepxmlfile.docfile.name = filename
         pepxmlfile.save()
@@ -626,11 +624,11 @@ def runidentiprot(request, c):
     if not os.path.exists(os.path.join('results', str(c['userid'].id))):
         os.mkdir(os.path.join('results', str(c['userid'].id)))
     if not os.path.exists('results/%s/%s' % (str(c['userid'].id), c['runname'])):
-        newgroup = SearchGroup(groupname=c['runname'], userid = c['userid'])
+        newgroup = SearchGroup(groupname=c['runname'], user = c['userid'])
         newgroup.save()
         newgroup.add_files(c)
         rn = newgroup.name()
-        os.mkdir('results/%s/%s' % (str(newgroup.userid.id), rn.encode('ASCII')))
+        os.mkdir('results/%s/%s' % (str(newgroup.user.id), rn.encode('ASCII')))
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()

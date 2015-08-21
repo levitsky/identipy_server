@@ -186,6 +186,16 @@ input:focus {
     outline-offset: 0;
 }
 
+button[type="submit"],.redbtn {
+  display: inline-block;
+  font-size: 1em;
+  background:#990000;
+  padding:0 1em;
+  color:#fff;
+  cursor:pointer;
+  border:0;
+}
+
 button[type="submit"],.btn {
   display: inline-block;
   font-size: 1em;
@@ -196,6 +206,11 @@ button[type="submit"],.btn {
   border:0;
 }
 
+button[type="submit"]:hover, .redbtn:hover{
+  background:#dd0000;
+  color: #ffffff;
+
+}
 
 button[type="submit"]:hover, .btn:hover{
   background:#9999dd;
