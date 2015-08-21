@@ -314,10 +314,13 @@ class SearchRun(BaseDocument):
         self.save()
 
     def calc_results(self):
-        from pyteomics import mgf, pepxml
+        from pyteomics import mgf, pepxml, mzml
         import csv
         for fn in self.get_spectrafiles_paths():
-            self.numMSMS += sum(1 for _ in mgf.read(fn))
+            if fn.lower().endswith('.mgf'):
+                self.numMSMS += sum(1 for _ in mgf.read(fn))
+            elif fn.lower().endswith('.mzml'):
+                self.numMSMS += sum(1 for _ in mzml.read(fn))
         for fn in self.get_pepxmlfiles_paths():
             self.totalPSMs += sum(1 for _ in pepxml.read(fn))
         for fn in self.get_csvfiles_paths(ftype='psm'):
