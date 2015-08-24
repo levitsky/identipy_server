@@ -61,10 +61,10 @@ form{
 
 #menu
 {
-	position: absolute;
-    display: inline-block;
-    right: 1%;
-	top: 4.6em;
+	position: relative;
+    display: block;
+    left: 2%;
+	top: 0;
 
 }
 
@@ -74,7 +74,7 @@ form{
 {
 	display: block;
 	float: left;
-	text-align: center;
+	text-align: left;
 	line-height: 3em;
 }
 
@@ -495,7 +495,7 @@ input[id="id_decoy prefix"]{
 }
 
 #feedbackform{
-    font-size:0.8em;
+    font-size:0.6em;
     width:94%;
 }
 label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
