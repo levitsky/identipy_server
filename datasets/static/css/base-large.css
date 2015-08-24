@@ -8,13 +8,7 @@ body
 		background-position: top;
 		background-size: cover;
         font-family:sans-serif,sans-serif;
-        font-size:0.8em;
 	}
-
-form{
-  display: inline-block;
-  
-  }
 
 /*********************************************************************************/
 /* Logo                                                                          */
@@ -34,7 +28,7 @@ form{
   margin: auto auto;
   font-size:140%;
   font-weight:300;
-  background:/*light-bg*/#fff;
+  background:#fff;
 }
 
 #logo h1
@@ -42,7 +36,7 @@ form{
 	display: inline-block;
 	font-size: 4em;
 	font-weight: 700;
-	color: /*basic-blue*/#000099;
+	color: #000099;
 	padding: 0.6em 3%;
 }
 
@@ -51,7 +45,7 @@ form{
 #logo a
 {
 	text-decoration: none;
-	color: /*basic-blue*/#000099;
+	color: #000099;
 }
 
 
@@ -63,12 +57,10 @@ form{
 {
 	position: absolute;
     display: inline-block;
-    right: 1%;
-	top: 4.6em;
+    right: 0;
+	top: 4.25em;
 
 }
-
-
 
 #menu li
 {
@@ -80,46 +72,46 @@ form{
 
 
 .menubar{
-    background: /*light-bg*/#FFFFFF;
+    background: #FFFFFF;
     border: 0;
     display: inline;
-	padding: 0em 1em;
+	padding: 0em 1.5em;
 	letter-spacing: 0.10em;
 	text-decoration: none;
 	font-size: 0.9em;
 	text-transform: uppercase;
     font-weight: 300;
 	line-height: 3em;
-	color: /*grey*/#999999;
+	color: #999999;
     cursor: pointer;
-    float:left;
 }
 
-.current{
-    color: /*basic-blue*/#000099;
-    
-}
 
-.menubar:hover, .menubar:active, .menubarcurrent:active
+
+.menubar:hover, .menubar:active, .current:active
 {
-    background: /*light-bg*/#FFF;
-    color: /*light-blue*/#9999dd;
+    background: #FFF;
+    color: #9999dd;
+}
+.current, .current:hover{
+    color: #000099;
 }
 
-.current:hover{
-    color: /*basic-blue*/#000099;
-    
-}
 
 #session
 {
   position: absolute;
-	right: 1em;
+	right: 1.5em;
 	top: 1em;
     font-size: 1em;
-    color: /*dark-grey*/#222;
+    color: #212121;
     text-decoration:none;
     
+}
+#session a
+{
+    text-decoration: underlined;
+    color: #FFFFFF;
 }
 
 /*********************************************************************************/
@@ -133,11 +125,20 @@ form{
   left:10%;
   margin-top:8px;
   margin-bottom:2%;
-  background:/*pale-blue*/#eeeeff;
+  background:#eeeeff;
+}
+
+#triangle{
+  width:0;
+  border-top:12x solid transparent;
+  border-right:12px solid transparent;
+  border-bottom:12px solid #000099;
+  border-left:12px solid transparent;
+  margin:0 auto;
 }
 
 #login h1{
-  background:/*basic-blue*/#000099;
+  background:#000099;
   padding:20px 5px;
   font-size:140%;
   font-weight:400;
@@ -146,7 +147,7 @@ form{
 }
 
 #login h2{
-  background:/*warning-red*/#cc5555;
+  background:#cc5555;
   padding:20px 0;
   font-size:140%;
   font-weight:400;
@@ -154,20 +155,35 @@ form{
   color:#fff;
 }
 
+form{
+  display: inline-block;
+  
+  }
+
 input[type="email"],input[type="password"], input[id="email"], textarea{
   width:80%;
   margin:6%;
-  background:/*light-bg*/#FFFFFF;
+  background:#FFFFFF;
   margin-top: 4%; 
-  border:1px solid /*light-grey*/#ccc;
+  border:1px solid #ccc;
   padding:4%;
   font-size:95%;
   color:#555;
 }
 
 input:focus { 
-    background-color: /*light-blue*/#9999dd;
+    background-color: #6699FF;
     outline-offset: 0;
+}
+
+button[type="submit"],.redbtn {
+  display: inline-block;
+  font-size: 1em;
+  background:#990000;
+  padding:0 1em;
+  color:#fff;
+  cursor:pointer;
+  border:0;
 }
 
 button[type="submit"],.btn {
@@ -180,6 +196,11 @@ button[type="submit"],.btn {
   border:0;
 }
 
+button[type="submit"]:hover, .redbtn:hover{
+  background:#dd0000;
+  color: #ffffff;
+
+}
 
 button[type="submit"]:hover, .btn:hover{
   background:#9999dd;
@@ -187,23 +208,6 @@ button[type="submit"]:hover, .btn:hover{
    
 }
 
-.backbtn{
-    
-    display: inline-block;
-    font-size:1em;
-    padding:0 3em;
-    margin-bottom:2em;
-    margin-top:1em;
-    text-align:center;
-    background:#ffbe4f;
-    color:#fff;
-    text-transform:uppercase;
-    cursor:pointer;
-}
-
-.backbtn:hover{
-    background:#eeaf3e;
-}
 
 
 #loginbutton{
@@ -217,9 +221,9 @@ button[type="submit"]:hover, .btn:hover{
 
 div.inthemiddle {
     position:relative;
-    width: 80%;
+    width: 70%;
     margin:0 auto;
-    margin-top:50px;
+    margin-top:70px;
     margin-bottom:2%;
     background-color: #ffffff;
     border: 0;
@@ -274,6 +278,24 @@ div.inthemiddle h2 p{
     background-color:#FFF;
 }
 
+.backbtn{
+    
+    display: inline-block;
+    font-size:1em;
+    padding:0 3em;
+    margin-bottom:2em;
+    margin-top:1em;
+    text-align:center;
+    word-break:break-all;
+    background:#ffbe4f;
+    color:#fff;
+    text-transform:uppercase;
+    cursor:pointer;
+}
+
+.backbtn:hover{
+    background:#eeaf3e;
+}
 [type="pseudo"]{
     left:0;
     width:1%;
@@ -281,8 +303,6 @@ div.inthemiddle h2 p{
     opacity:1;
     cursor:none;
 }
-
-
 div.select{
     display:inline;
     margin:0;
@@ -293,9 +313,11 @@ input[type="file"]{
     z-index:1;
     opacity:0;
     cursor:pointer;
-    width:200pt;
-    height:35pt;;
-    border:1;   
+    width:300pt;
+    height:40pt;;
+    border:1;
+    
+   
 }
 
 .uploadform{
@@ -303,8 +325,8 @@ input[type="file"]{
     z-index:0;
     top:0;
     cursor:pointer;
-    width:200pt;
-    height: 35pt;
+    width:300pt;
+    height: 40pt;
     font-size:1.5em;
     background:#000099;
     color:#FFF;
@@ -357,7 +379,7 @@ div.rightbox{
 
 #uploadbuttons {
     position: relative;
-    right: 100pt;
+    right: 150pt;
     }
 
 #uploadbuttons p{
@@ -388,19 +410,31 @@ table[type="bordered"]{
 
 
 
-
 table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
         border: 1px solid #BBBBBB;
    padding:0.4em;
 }
 
 .middlebutton{
+    
     margin: 1em 35%;
 }
 
 #vert_block{
+    
     margin-bottom:1em;
 }
+
+.leftside{
+    float:left;
+    width:50%;
+}
+.rightside{
+    top:0;
+    width:50%;
+    margin-left:50%;
+}
+
 #selectionform p{
     margin-bottom:1em;
 }
@@ -445,6 +479,7 @@ input[type="number"]{
     width:100px; 
     font-size:0.8em;
     border:1px solid #BBB;
+    text-indent:0.2em;
    
 }
 
@@ -452,6 +487,7 @@ input[id="id_decoy prefix"]{
     width:100px; 
     font-size:0.8em;
     border:1px solid #BBB;
+    text-indent:0.2 em;
    
 }
 #chooseparam{
@@ -483,26 +519,21 @@ input[id="id_decoy prefix"]{
 #searchinput{
     font-size:1em;
 }
-
 #chromoConditionsBlock{
-    width:70%;
-    margin-left:15%;
+    
 }
-
 #textinput{
     font-size:1em;
     margin-top:0.5em;
 }
 
 #feedbackform{
-    font-size:0.8em;
     width:94%;
 }
 label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
     float:left;
     padding:0;
     margin-right:1.5em;
-    
     
 }
 
@@ -533,3 +564,4 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
     margin:0;
     padding:0;
 }
+    
