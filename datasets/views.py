@@ -422,7 +422,7 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
             chosenmods = Modification.objects.filter(id__in=chosenmodsids)
             save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
             return searchpage(request, c)
-    modform = MultFilesForm(custom_choices=cc, labelname=None, multiform=True)
+    modform = MultFilesForm(custom_choices=cc, labelname='Select modifications', multiform=True)
     c.update({'usedclass': Modification, 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
