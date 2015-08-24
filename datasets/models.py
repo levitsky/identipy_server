@@ -257,6 +257,10 @@ class SearchRun(BaseDocument):
         self.save()
 
     def get_resimagefiles(self):
+        def get_index(val, custom_list):
+            for idx, v in enumerate(custom_list):
+                if val.startswith(v):
+                    return idx
         custom_order = ['sumi',
                         'nsaf',
                         'empai',
@@ -271,7 +275,7 @@ class SearchRun(BaseDocument):
                         'charge states',
                         'scores']
         all_images = [doc for doc in self.resimagefiles.all()]
-        all_images.sort(key=lambda val: custom_order.index(val.docfile.name.encode('ASCII').split('_')[-1].replace('.png', '').lower()))
+        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('_')[-1].replace('.png', '').lower(), custom_order))
         return all_images
 
     def get_pepxmlfiles(self):
