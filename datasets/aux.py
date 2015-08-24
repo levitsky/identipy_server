@@ -1,4 +1,5 @@
 from models import ParamsFile
+from forms import SearchParametersForm
 from django.core.files import File
 import os
 import sys
@@ -16,11 +17,13 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
 
 
-def save_params(SearchParametersForm_values, uid, paramsname, paramtype=3):
-    SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
+def save_params(SearchParametersForm_values, uid, paramsname=False, paramtype=3, request=False):
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
+    if request:
+        SearchParametersForm_values = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
+    SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
     for section in raw_config.sections():
         for param in raw_config.items(section):
             if param[0] in SearchParametersForm_values:
@@ -43,14 +46,14 @@ def save_params(SearchParametersForm_values, uid, paramsname, paramtype=3):
     raw_config.set('charges', 'min charge', raw_config.get('search', 'minimum charge'))
     raw_config.set('charges', 'max charge', raw_config.get('search', 'maximum charge'))
 
-
-    fl = open(paramsname + '.cfg', 'w')
-    fl.close()
-    fl = open(paramsname + '.cfg')
-    djangofl = File(fl)
-    paramobj = ParamsFile(docfile = djangofl, user = uid, type=paramtype)
-    paramobj.save()
-    fl.close()
-    os.remove(paramsname + '.cfg')
-
+    if paramsname:
+        fl = open(paramsname + '.cfg', 'w')
+        fl.close()
+        fl = open(paramsname + '.cfg')
+        djangofl = File(fl)
+        paramobj = ParamsFile(docfile = djangofl, user = uid, type=paramtype)
+        paramobj.save()
+        fl.close()
+        os.remove(paramsname + '.cfg')
+    print paramobj.docfile.name.encode('ASCII')
     raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
