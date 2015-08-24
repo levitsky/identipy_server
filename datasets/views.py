@@ -62,7 +62,10 @@ def index(request, c=dict()):
         elif(request.POST.get('clear')):
             request.POST = request.POST.copy()
             request.POST['clear'] = None
-            return searchpage(request, c=dict())
+            for k in ['chosenspectra', 'chosenfasta']:
+                if k in c:
+                    del c[k]
+            return searchpage(request, c=c)
         elif(request.POST.get('getstatus')):
             request.POST = request.POST.copy()
             request.POST['getstatus'] = None
