@@ -41,7 +41,7 @@
    <div>
    <form action="" method="post">{% csrf_token %}
         <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
-            </form>
+
    
             </div>
 </div>
@@ -71,9 +71,9 @@
 
             <div id="upload_fasta">
             
-            <form action="" method="post">{% csrf_token %}
+
              <input type="submit" class="btn" value="Choose preloaded&#10;protein database file" name="uploadfasta">
-            </form>
+
             
             </div></div>
 
@@ -84,21 +84,18 @@
 
             <div id="upload_parameters">
            
-            <form action="" method="post" id="chooseparam">{% csrf_token %}
+
                   <input type="submit" class="btn" value="Minimal" name="type1">
                  <input type="submit" class="btn" value="Medium" name="type2">
                <input type="submit" class="btn" value="Advanced" name="type3">
                 
-                </form></div>
+                </div>
 
                 <br>
-    <form action="" method="post">{% csrf_token %}
         <td><input type="submit" class="btn" value="add custom cleavage rule" name="add_protease"><br>
-        </form>
 
 
     <div id="chromoConditionsBlock">
-            <form action="" method="post">{% csrf_token %}
                 <table><tr valign="top"><td>
 
                 <input type="text" id="textinput" name="paramsname" value=""  placeholder="Enter parameters name"/></td>
@@ -112,7 +109,6 @@
    
 
                 <br>
-    <form action="" method="post">{% csrf_token %}
         <td><input type="submit" class="btn" value="Select fixed modifications" name="select_fixed"><br>
                 <br>
                 <br>
