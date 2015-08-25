@@ -12,8 +12,10 @@
             
       </ul></form>
     </div>
-<h2>
-        
+
+
+<form action="" method="post">{% csrf_token %}
+    <h2>        
     <div id="vert_block" class="leftside">
             
             {% if chosenspectra %}
@@ -39,7 +41,7 @@
    
 
    <div>
-   <form action="" method="post">{% csrf_token %}
+   
         <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
 
    
@@ -76,42 +78,41 @@
         </div></div></h2>
 
             <div id="vert_block" class="rightside">
-            <h2>    Specify search parameters<br>
+            <h2>    Specify search parameters<br></h2>
                 
-                        
+                 <h3>       
 
             <div id="upload_parameters">
-
-                  <input type="submit" class="link" value="Minimal" name="type1">
-                 <input type="submit" class="link" value="Medium" name="type2">
-               <input type="submit" class="link" value="Advanced" name="type3">
+           
+                  <input type="submit" class="menubar" value="Minimal" name="type1">
+                 <input type="submit" class="menubar" value="Medium" name="type2">
+               <input type="submit" class="menubar" value="Advanced" name="type3">
                 
-                </div></h2>
-                <h3>
+                </div>
+                
 
                 <br>
-        <td><input type="submit" class="btn" value="add custom cleavage rule" name="add_protease"><br>
+        <input type="submit" class="btn" value="add custom cleavage rule" name="add_protease"><br>
 
 
     <div id="chromoConditionsBlock">
-                <table><tr valign="top"><td>
+                <table id="SearchParametersTable"><tr valign="top"><td>
 
                 <input type="text" id="textinput" name="paramsname" value=""  placeholder="Enter parameters name"/></td>
                 <td><input type="submit" class="link" value="save parameters" name="saveparams"><br>
-                    <input type="submit" class="link" value="load parameters" name="loadparams"></td></tr></table>
+                    <input type="submit" class="link" value="load parameters" name="loadparams"></td></tr>
                     <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
-                    <table id="SearchParametersTable">
+                    
                         {{ SearchParametersForm.as_table }}
-                    </table>
+                    
 
    
 
-                <br>
-        <td><input type="submit" class="btn" value="Select fixed modifications" name="select_fixed"><br>
-                <br>
-                <br>
-        <td><input type="submit" class="btn" value="Select potential modifications" name="select_potential"><br>
-
+                <tr>
+        <td><input id="modiflink" type="submit" class="link" value="Select fixed modifications" name="select_fixed"></td></tr>
+                
+<tr>
+        <td><input id="modiflink" type="submit" class="link" value="Select potential modifications" name="select_potential"></td></tr></table>
       
             <div id="run_identiprot">
             <input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/>
@@ -125,7 +126,7 @@
             </div>
 
             </div>
-                </form></div></div>
+                     </div></h3></div></form>
         
 
 {% endblock %}
