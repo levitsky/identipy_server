@@ -18,7 +18,7 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
 
 
 def save_params(SearchParametersForm_values, uid, paramsname=False, paramtype=3, request=False):
-    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid, type=paramtype)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
     if request:
@@ -60,3 +60,4 @@ def save_params(SearchParametersForm_values, uid, paramsname=False, paramtype=3,
         os.remove(paramsname + '.cfg')
     print paramobj.docfile.name.encode('ASCII')
     raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
+    return paramobj
