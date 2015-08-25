@@ -348,7 +348,7 @@ def about(request,c=dict()):
     return render(request, 'datasets/index.html', c)
 
 def email(request, c={}):
-    if 'from_email' in request.POST.keys():
+    if all(z in request.POST.keys() for z in ['subject', 'from_email', 'message']):
         form = ContactForm(request.POST)
         if form.is_valid():
             subject = form.cleaned_data['subject']
