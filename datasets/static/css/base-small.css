@@ -61,10 +61,10 @@ form{
 
 #menu
 {
-	position: absolute;
-    display: inline-block;
-    right: 1%;
-	top: 4.6em;
+	position: relative;
+    display: block;
+    left: 2%;
+	top: 0;
 
 }
 
@@ -74,7 +74,7 @@ form{
 {
 	display: block;
 	float: left;
-	text-align: center;
+	text-align: left;
 	line-height: 3em;
 }
 
@@ -293,8 +293,8 @@ input[type="file"]{
     z-index:1;
     opacity:0;
     cursor:pointer;
-    width:200pt;
-    height:35pt;;
+    width:170pt;
+    height:30pt;;
     border:1;   
 }
 
@@ -303,8 +303,8 @@ input[type="file"]{
     z-index:0;
     top:0;
     cursor:pointer;
-    width:200pt;
-    height: 35pt;
+    width:170pt;
+    height: 30pt;
     font-size:1.5em;
     background:#000099;
     color:#FFF;
@@ -357,7 +357,7 @@ div.rightbox{
 
 #uploadbuttons {
     position: relative;
-    right: 100pt;
+    right: 85pt;
     }
 
 #uploadbuttons p{
@@ -495,7 +495,7 @@ input[id="id_decoy prefix"]{
 }
 
 #feedbackform{
-    font-size:0.8em;
+    font-size:0.6em;
     width:94%;
 }
 label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{

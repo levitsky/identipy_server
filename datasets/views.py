@@ -257,6 +257,10 @@ def loginview(request, message=None):
         request.POST = request.POST.copy()
         request.POST['about'] = None
         return about(request, c = {})
+    elif(request.POST.get('sendemail')):
+        request.POST = request.POST.copy()
+        request.POST['sendemail'] = None
+        return email(request, c = c)
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
@@ -272,6 +276,10 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
         request.POST = request.POST.copy()
         request.POST['about'] = None
         return about(request, c = {})
+    elif(request.POST.get('sendemail')):
+        request.POST = request.POST.copy()
+        request.POST['sendemail'] = None
+        return email(request, c = c)
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
         request.session.set_expiry(24*60*60)
@@ -426,7 +434,7 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
             chosenmods = Modification.objects.filter(id__in=chosenmodsids)
             save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
             return searchpage(request, c)
-    modform = MultFilesForm(custom_choices=cc, labelname=None, multiform=True)
+    modform = MultFilesForm(custom_choices=cc, labelname='Select modifications', multiform=True)
     c.update({'usedclass': Modification, 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
