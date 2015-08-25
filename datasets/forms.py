@@ -74,9 +74,10 @@ class SearchParametersForm(forms.Form):
                     proteases = Protease.objects.filter(user=userid)
                     if proteases.count():
                         choices = []
+                        initial = param[2]
                         for p in proteases.order_by('order_val'):
-                            initial = p.name
                             choices.append([p.rule, p.name])
+                        initial = choices[[z[1] for z in choices].index(initial)][0]
                     else:
                         initial = 'trypsin'
                         choices = [['[RK]', 'trypsin'], ]
