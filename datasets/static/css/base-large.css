@@ -1,5 +1,8 @@
 *{margin:0;padding:0;}
 
+::-webkit-scrollbar { 
+    display: none; 
+}
 
 
 body
@@ -171,10 +174,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
   color:#555;
 }
 
-input:focus { 
-    background-color: #6699FF;
-    outline-offset: 0;
-}
+
 
 button[type="submit"],.redbtn {
   display: inline-block;
@@ -502,11 +502,16 @@ input[id="id_decoy prefix"]{
     list-style-type: none;
     margin-left:3%;
     font-size:1.5em;
-    color:#D05000;
+    color:/*message&warning redish*/#D05000;
     text-decoration: underline;
     margin-bottom:1em;
 }
-
+.errorlist{
+    list-style-type: none;
+    color:/*message&warning redish*/#D05000;
+    text-decoration: underline;
+    text-align:right;
+}
 #img_list > div {
   padding: 2%;
   width: 29%;
@@ -518,6 +523,7 @@ input[id="id_decoy prefix"]{
 
 #searchinput{
     font-size:1em;
+    margin-left:3em;
 }
 #chromoConditionsBlock{
     
@@ -552,7 +558,7 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
     width: 21.81em;
     padding: 0;
     margin: 0;
-    background: #FFFFFF;
+   
    
     border: 1px solid #ccc;
     font-size: 95%;
@@ -563,5 +569,11 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
 #id_message{
     margin:0;
     padding:0;
+    width:100%;
+    margin-top:0.6em;
 }
     
+    input:focus { 
+    background-color: #6699FF;
+    outline-offset: 0;
+}
