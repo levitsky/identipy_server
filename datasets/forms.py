@@ -66,7 +66,7 @@ class SearchParametersForm(forms.Form):
             elif fieldtype == 'type>string':
                 return forms.CharField(label=label, initial=initial, required=False, widget=forms.TextInput(attrs=({'readonly': 'readonly'} if label in ['fixed', 'variable'] else {})))
             elif fieldtype == 'type>boolean':
-                return forms.BooleanField(label=label, initial=initial, required=False)
+                return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
         if raw_config:
             for param in get_allowed_values(raw_config):
                 label = params_map.get(param[1], param[1])
@@ -74,9 +74,10 @@ class SearchParametersForm(forms.Form):
                     proteases = Protease.objects.filter(user=userid)
                     if proteases.count():
                         choices = []
+                        initial = param[2]
                         for p in proteases.order_by('order_val'):
-                            initial = p.name
                             choices.append([p.rule, p.name])
+                        initial = choices[[z[1] for z in choices].index(initial)][0]
                     else:
                         initial = 'trypsin'
                         choices = [['[RK]', 'trypsin'], ]
@@ -89,7 +90,7 @@ class SearchParametersForm(forms.Form):
                     self.fields[param[1]] = forms.ChoiceField(
                         label=label,
                         choices=[[x, x] for x in param[0].split(',')],
-                        initial=param[0].split(',')[0],
+                        initial=param[2],
                         )
                 else:
                     self.fields[param[1]] = get_field(fieldtype=param[0], label=label, initial=param[2])
