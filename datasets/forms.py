@@ -64,7 +64,7 @@ class SearchParametersForm(forms.Form):
             elif fieldtype == 'type>int':
                 return forms.IntegerField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>string':
-                return forms.CharField(label=label, initial=initial, required=False, widget=forms.TextInput(attrs=({'readonly': 'readonly'} if label in ['fixed', 'variable'] else {})))
+                return forms.CharField(label=label, initial=initial, required=False, widget=forms.TextInput(attrs=({'readonly': 'readonly'} if label in [params_map['fixed'], params_map['variable']] else {})))
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
         if raw_config:
