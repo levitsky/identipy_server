@@ -163,6 +163,9 @@ def index(request, c=dict()):
         elif(request.POST.get('download_figs')):
             c['down_type'] = 'figs'
             return getfiles(c=c)
+        elif(request.POST.get('download_figs_svg')):
+            c['down_type'] = 'figs_svg'
+            return getfiles(c=c)
         elif(request.POST.get('prev_runs')):
             request.POST = request.POST.copy()
             request.POST['prev_runs'] = None
@@ -533,10 +536,11 @@ def runidentiprot(request, c):
 
         dname = os.path.dirname(pepxmllist[0])
         for tmpfile in os.listdir(dname):
-            if os.path.splitext(tmpfile)[-1] == '.png' and newrun.name() + '_' in os.path.basename(tmpfile):
+            ftype = os.path.splitext(tmpfile)[-1]
+            if ftype in ['.png', '.svg'] and newrun.name() + '_' in os.path.basename(tmpfile):
                 fl = open(os.path.join(dname, tmpfile))
                 djangofl = File(fl)
-                img = ResImageFile(docfile = djangofl, user = usr)
+                img = ResImageFile(docfile = djangofl, user = usr, ftype=ftype)
                 img.save()
                 newrun.add_resimage(img)
                 fl.close()
@@ -645,6 +649,9 @@ def getfiles(c):
                 filenames.append(down_fn)
         elif c['down_type'] == 'figs':
             for down_fn in searchrun.get_resimage_paths():
+                filenames.append(down_fn)
+        elif c['down_type'] == 'figs_svg':
+            for down_fn in searchrun.get_resimage_paths(ftype='.svg'):
                 filenames.append(down_fn)
 
     zip_subdir = searchgroup.name() + '_' + c['down_type'] + '_files'
