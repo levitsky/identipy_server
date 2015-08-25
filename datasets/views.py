@@ -361,7 +361,7 @@ def email(request, c={}):
                 return HttpResponse('Invalid header found.')
             return contacts(request, c)
     else:
-        form = ContactForm()
+        form = ContactForm(initial={'from_email': request.user.username})
     return render(request, "datasets/email.html", {'form': form})
 
 def add_modification(request, c=dict(), sbm=False):
