@@ -80,6 +80,7 @@ class PepXMLFile(BaseDocument):
 
 class ResImageFile(BaseDocument):
     docfile = models.ImageField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    ftype = models.CharField(max_length=5, default='.png')
     # docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
 
 
@@ -231,7 +232,7 @@ class SearchRun(BaseDocument):
         self.csvfiles.add(rescsv)
         self.save()
 
-    def get_resimagefiles(self):
+    def get_resimagefiles(self, ftype='.png'):
         def get_index(val, custom_list):
             for idx, v in enumerate(custom_list):
                 if val.startswith(v):
@@ -249,8 +250,8 @@ class SearchRun(BaseDocument):
                         'psms per protein',
                         'charge states',
                         'scores']
-        all_images = [doc for doc in self.resimagefiles.all()]
-        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('_')[-1].replace('.png', '').lower(), custom_order))
+        all_images = [doc for doc in self.resimagefiles.filter(ftype=ftype)]
+        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower(), custom_order))
         return all_images
 
     def get_pepxmlfiles(self):
@@ -265,8 +266,8 @@ class SearchRun(BaseDocument):
     def get_fastafile_path(self):
         return [self.fasta.all()[0].docfile.name.encode('ASCII'), ]
 
-    def get_resimage_paths(self):
-        return [pep.docfile.name.encode('ASCII') for pep in self.get_resimagefiles()]
+    def get_resimage_paths(self, ftype='.png'):
+        return [pep.docfile.name.encode('ASCII') for pep in self.get_resimagefiles(ftype=ftype)]
 
     def get_paramfile_path(self):
         return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
