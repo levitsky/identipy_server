@@ -40,7 +40,9 @@ body
 	font-size: 4em;
 	font-weight: 700;
 	color: #000099;
-	padding: 0.6em 3%;
+	padding-top: 0.6em;
+    padding-left:3%;
+    padding-bottom:0.3em;
 }
 
 
@@ -160,6 +162,7 @@ body
 
 form{
   display: inline-block;
+    width:100%;
   
   }
 
@@ -392,10 +395,10 @@ div.intable{
 }
 
 table[type="bordered"]{
-    width:90%;
+    width:94%;
     font-size:0.5em;
     border: 2px solid #BBBBBB;
-    margin-left:5%;
+    margin-left:3%;
     margin-top:1em;
     margin-bottom:1em;
   
@@ -462,10 +465,11 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 }
 
 #SearchParametersTable{
-    font-size:0.7em;
+    font-size:1em;
     width:100%;
     text-align: center;
 }
+
 
 select{
     width:102px; 
@@ -483,7 +487,7 @@ input[type="number"]{
    
 }
 
-input[id="id_decoy prefix"]{
+input[id="id_decoy prefix"], #id_fixed, #id_variable{
     width:100px; 
     font-size:0.8em;
     border:1px solid #BBB;
@@ -526,7 +530,7 @@ input[id="id_decoy prefix"]{
     margin-left:3em;
 }
 #chromoConditionsBlock{
-    
+    margin-right:1em;
 }
 #textinput{
     font-size:1em;
@@ -573,7 +577,13 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
     margin-top:0.6em;
 }
     
-    input:focus { 
+input:focus { 
     background-color: #6699FF;
     outline-offset: 0;
+}
+
+#modiflink{
+    position:relative;
+    top:-2.5em;
+    background-color:#fff;
 }
