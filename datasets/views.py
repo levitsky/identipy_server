@@ -253,6 +253,10 @@ def loginview(request, message=None):
         request.POST = request.POST.copy()
         request.POST['about'] = None
         return about(request, c = {})
+    elif(request.POST.get('sendemail')):
+        request.POST = request.POST.copy()
+        request.POST['sendemail'] = None
+        return email(request, c = c)
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
@@ -268,6 +272,10 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
         request.POST = request.POST.copy()
         request.POST['about'] = None
         return about(request, c = {})
+    elif(request.POST.get('sendemail')):
+        request.POST = request.POST.copy()
+        request.POST['sendemail'] = None
+        return email(request, c = c)
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
         request.session.set_expiry(24*60*60)

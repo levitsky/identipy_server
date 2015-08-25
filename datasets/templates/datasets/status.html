@@ -12,16 +12,18 @@
 
       </ul></form>
     </div>
-<h2><div id="vert_block">
-        <form action="" method="POST">{% csrf_token %}
-        <input type="text" id="searchinput" name="search_button" value=""  placeholder="Enter run name"/>
-        <input type="submit" class="btn" value="Search previous runs by name" name="search_runname">
-        </form>
-    </div></h2>
-        <div id="tab">
 
-		{% if processes %}
-            <p>   Page {{ res_page }} of {{ max_res_page  }}</p>
+<div id="tab">
+<div id="vert_block"><form action="" method="POST">{% csrf_token %}
+       {% if processes %}
+            <p>   Page {{ res_page }} of {{ max_res_page  }} 
+        <input type="text" id="searchinput" name="search_button" value=""  placeholder="Enter run name"/>
+        <input type="submit" class="btn" value="Search previous runs by name" name="search_runname"/>
+        </p></form>
+    </div>
+        
+
+		
 <h2>
         {% if res_page != max_res_page %}
         <form action="" method="POST">{% csrf_token %}

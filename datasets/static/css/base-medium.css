@@ -532,4 +532,13 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
 #id_message{
     margin:0;
     padding:0;
+    width:100%;
+    margin-top:0.6em;
+}
+
+.errorlist{
+    list-style-type: none;
+    color:/*message&warning redish*/#D05000;
+    text-decoration: underline;
+    text-align:right;
 }
