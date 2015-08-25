@@ -1,4 +1,4 @@
-from models import ParamsFile
+from models import ParamsFile, Protease
 from forms import SearchParametersForm
 from django.core.files import File
 import os
@@ -33,6 +33,9 @@ def save_params(SearchParametersForm_values, uid, paramsname=False, paramtype=3,
                 else:
                     tempval = SearchParametersForm_values[param[0]]
                 raw_config.set(section, param[0], tempval + '|' + orig_choices)
+    enz = raw_config.get('search', 'enzyme')
+    protease = Protease.objects.get(user=uid, rule=enz)
+    raw_config.set('search', 'enzyme', protease.name + '|' + raw_config.get_choices('search', 'enzyme'))
     if raw_config.getboolean('options', 'use auto optimization'):
         raw_config.set('misc', 'first stage', 'identipy.extras.optimization')
     else:
