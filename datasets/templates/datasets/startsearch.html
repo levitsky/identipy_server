@@ -13,7 +13,7 @@
       </ul></form>
     </div>
 
-
+<div id="tab">
 <form action="" method="post">{% csrf_token %}
     <h2>        
     <div id="vert_block" class="leftside">
@@ -81,20 +81,32 @@
             <h2>    Specify search parameters<br></h2>
                 
                  <h3>       
-
+{% if paramtype == 1 %}
             <div id="upload_parameters">
            
-                  <input type="submit" class="menubar" value="Minimal" name="type1">
+                  <input type="submit" class="menubar current" value="Minimal" name="type1">
                  <input type="submit" class="menubar" value="Medium" name="type2">
                <input type="submit" class="menubar" value="Advanced" name="type3">
                 
                 </div>
+ {% elif paramtype == 2 %}
+            <div id="upload_parameters">
+           
+                  <input type="submit" class="menubar" value="Minimal" name="type1">
+                 <input type="submit" class="menubar current" value="Medium" name="type2">
+               <input type="submit" class="menubar" value="Advanced" name="type3">
                 
-
-                <br>
-        <br>
-
-
+                </div>
+{% elif paramtype == 3 %}
+            <div id="upload_parameters">
+           
+                  <input type="submit" class="menubar" value="Minimal" name="type1">
+                 <input type="submit" class="menubar" value="Medium" name="type2">
+               <input type="submit" class="menubar current" value="Advanced" name="type3">
+                
+                </div>
+ {% endif %}
+ 
     <div id="chromoConditionsBlock">
                 <table id="SearchParametersTable"><tr valign="top"><td>
 
@@ -108,21 +120,21 @@
    
 
                 
-</table>
+        </table></div></h3>
       
-            <div id="run_identiprot">
-            <input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/>
-            <div id="runbtn"> <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot"></div>
+            <div id="run_identiprot"><h3>
+            <input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/></h3>
+            <h2><div id="runbtn"> <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot"></div>
             
 
             <div id="clear">
             
              <input type="submit" class="btn" value="Clear chosen files" name="clear">
            
-            </div>
+            </div></h2>
 
             </div>
-                     </div></h3></div></form>
+                     </div></form></div>
         
 
 {% endblock %}
