@@ -16,26 +16,28 @@
 
 
 <div id="tab"><form method="post" id="selectionform">{% csrf_token %}
-    <h2>
+    <h2><p>Add custom cleavage rule</p>
+    <div><table width="100%"><tr>
 
                 {{ proteaseform.non_field_errors }}
-                <div class="fieldWrapper">
+                <td class="leftcolumn">
                     {{ proteaseform.subject.errors }}
-                    <label for="{{ proteaseform.name.id_for_label }}">Cleavage name:</label>
-                    {{ proteaseform.name }}
-                </div>
-                <div class="fieldWrapper">
+                    <label for="{{ modificationform.name.id_for_label }}">Cleavage name:</label></td>
+                    <td class="rightcolumn">{{ proteaseform.name }}</td>
+        </tr>
+        <tr>
+                <td class="leftcolumn">
                     {{ proteaseform.subject.errors }}
-                    <label for="{{ proteaseform.cleavage_rule.id_for_label }}">Cleavage rule:</label>
-                    {{ proteaseform.cleavage_rule }}
-                </div>
+                    <label for="{{ modificationform.label.id_for_label }}">Cleavage rule:</label></td>
+                    <td class="rightcolumn">{{ proteaseform.cleavage_rule }}</td>
+            </tr>
             
-          <div id="vert_block" >
-                <input type="submit" class="btn" value="submit" name="sbm_protease">
-                <input type="submit" class="btn" value="cancel" name="searchpage">
+          <tr><td class="leftcolumn">
+             <input type="submit" class="btn" value="submit" name="sbm_protease"> </td>
+              <td class="rightcolumn">
+                  <input type="submit" class="btn" value="cancel" name="searchpage"></td>
                    
-            </div>
-        </h2> </form>
+        </table></div></h2></form>
          
 
     </div>  

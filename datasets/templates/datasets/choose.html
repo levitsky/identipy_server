@@ -18,7 +18,7 @@
     <h2><div id="fixedpanel" >
         
 
-        {% if topbtn %}
+        
                 <input class = "btn" type="submit" value="submit" name="sbm">
                 <input type="submit" class="btn" value="cancel" name="searchpage">
                 <input class = "redbtn" type="submit" value="delete" name="del">
@@ -27,7 +27,7 @@
                 {% elif select_form == 'modform' %}
                     <input type="submit" class="btn" value="add custom modification" name="add_modification">
                 {% endif %}
-        {% endif %}
+        
                    
             </div>
                 {% if select_form == 'form' %}
@@ -35,7 +35,7 @@
                 {% elif select_form == 'modform' %}
                     {{ modform.as_p }}
                 {% endif %}
-
+{% if topbtn %}
           <div id="vert_block" >
         
                 
@@ -47,8 +47,8 @@
                 {% elif select_form == 'modform' %}
                     <input type="submit" class="btn" value="add custom modification" name="add_modification">
                 {% endif %}
-                   
-            </div>
+               
+            </div>{% endif %}    
         </h2> </form>
          
 

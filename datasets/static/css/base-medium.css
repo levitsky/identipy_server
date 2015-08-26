@@ -96,7 +96,6 @@ form{
 	line-height: 3em;
 	color: /*grey*/#999999;
     cursor: pointer;
-    float:left;
 }
 
 .current{
@@ -178,15 +177,29 @@ button[type="submit"],.btn {
   color:#fff;
   cursor:pointer;
   border:0;
+  margin-top:0.3em;
 }
 
+.redbtn {
+  display: inline-block;
+  font-size: 1em;
+  background:#990000;
+  padding:0 1em;
+  color:#fff;
+  cursor:pointer;
+  border:0;
+}
 
 button[type="submit"]:hover, .btn:hover{
   background:#9999dd;
   color: #ffffff;
    
 }
+.redbtn:hover{
+  background:#dd0000;
+  color: #ffffff;
 
+}
 .backbtn{
     
     display: inline-block;
@@ -401,9 +414,7 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 #vert_block{
     margin-bottom:1em;
 }
-#selectionform p{
-    margin-bottom:1em;
-}
+
 #id_relates_to{
     margin-top:4em;
     margin-left:2em;
@@ -419,7 +430,7 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
     position:absolute;
     width:100%;
     margin-top:2em;
-    padding-bottom:1.5em;
+    margin-bottom:1.5em;
     background:#FFF;
     z-index:10;
 }
@@ -552,4 +563,21 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
 input:focus { 
     background-color: #6699FF;
     outline-offset: 0;
+}
+
+.leftcolumn{
+    width:50%;
+    text-align:right;
+    padding:0.1em 1em;
+}
+
+.rightcolumn{
+    text-align:left;
+    padding: 0.1em 1em;
+}
+
+#id_name, #id_mass, #id_label, #id_aminoacids, #id_cleavage_rule{
+    width:150px;
+    font-size:0.75em;
+    height:1em;
 }
