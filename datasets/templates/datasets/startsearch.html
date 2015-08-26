@@ -118,8 +118,8 @@
 </table>
 
                         {% if SearchForms.postsearch %}
-                        Post-search validation:
-        <table>
+        <h2><br><span title="Select descriptors to use for enhanced FDR filtering" style="cursor: help">Post-search validation</span></h2>
+        <table id="SearchParametersTable">
                         {{ SearchForms.postsearch.as_table }}
                </table>
                         {% endif %}
