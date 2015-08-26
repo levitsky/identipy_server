@@ -114,13 +114,21 @@
                 <td><input type="submit" class="link" value="save parameters" name="saveparams"><br>
                     <input type="submit" class="link" value="load parameters" name="loadparams"></td></tr>
                     <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
-                        {{ SearchParametersForm.as_table }}
-                    
+                        {{ SearchForms.main.as_table }}
+</table>
+
+                        {% if SearchForms.postsearch %}
+                        Post-search validation:
+        <table>
+                        {{ SearchForms.postsearch.as_table }}
+               </table>
+                        {% endif %}
 
    
 
                 
-        </table></div></h3>
+        </div></h3>
+
       
             <div id="run_identiprot"><h3>
             <input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/></h3>

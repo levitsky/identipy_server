@@ -21,27 +21,53 @@ import zipfile
 import StringIO
 import shutil
 import math
+from copy import copy
 
 from pyteomics import parser
 import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_params, save_mods
+from aux import save_mods, save_params_new
+
+def update_searchparams_form_new(request, paramtype, sftype):
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(get_user_latest_params_path(paramtype, request.user))
+    return SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+
+def update_searchparams_form(request, c):
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
+    c['SearchParametersForm'] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='')
+    return c
+
+def get_forms(request, c):
+    c['userid'] = request.user
+    c['paramtype'] = c.get('paramtype', 3)
+    if c.get('SearchForms', None):
+        for sf in c['SearchForms'].values():
+            if any(v.name in request.POST for v in sf):
+                save_params_new(c['SearchForms'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
+                c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
+    else:
+        c['SearchForms'] = {}
+        for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
+            c['SearchForms'][sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sftype)
+    return c
 
 def index(request, c=dict()):
     if request.user.is_authenticated():
-        print c.keys()
-        if 'SearchParametersForm' in c:
-            if any(v.name in request.POST for v in c['SearchParametersForm']):
-                save_params(c['SearchParametersForm'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
+        c = get_forms(request, c)
+        # if 'SearchParametersForm' in c:
+        #     if any(v.name in request.POST for v in c['SearchParametersForm']):
+        #         save_params(c['SearchParametersForm'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
+        #         c = update_searchparams_form(request=request, c=c)
+        # else:
+        #     c = update_searchparams_form(request=request, c=c)
         if(request.POST.get('runidentiprot')):
             request.POST = request.POST.copy()
             request.POST['runidentiprot'] = None
             c['runname'] = request.POST['runname']
-            raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-            raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
             return identiprot_view(request, c = c)
         elif(request.POST.get('statusback')):
             request.POST = request.POST.copy()
@@ -110,11 +136,9 @@ def index(request, c=dict()):
             return files_view_params(request, c = c)
         elif(request.POST.get('saveparams')):
             request.POST = request.POST.copy()
-            raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-            raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-            c['SearchParametersForm'] = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
             if request.POST.get('paramsname'):
-                save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
+                # save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
+                save_params_new(c['SearchForms'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
             request.POST['saveparams'] = None
             return searchpage(request, c = c)
         elif(request.POST.get('loadparams')):
@@ -174,17 +198,23 @@ def index(request, c=dict()):
         elif(request.POST.get('type1')):
             request.POST = request.POST.copy()
             request.POST['type1'] = None
+            del c['SearchForms']
             c['paramtype'] = 1
+            c = get_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('type2')):
             request.POST = request.POST.copy()
             request.POST['type2'] = None
+            del c['SearchForms']
             c['paramtype'] = 2
+            c = get_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('type3')):
             request.POST = request.POST.copy()
             request.POST['type3'] = None
+            del c['SearchForms']
             c['paramtype'] = 3
+            c = get_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('next_runs')):
             request.POST = request.POST.copy()
@@ -213,18 +243,14 @@ def index(request, c=dict()):
         else:
             commonform = CommonForm()
 
-        c['userid'] = request.user
         if 'chosenparams' in c:
             os.remove(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
             shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
             # for chunk in c['chosenparams'].chunks():
             #     fd.write(chunk)
             # fd.close()
-        raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-        raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
 
-        sf = SearchParametersForm(raw_config=raw_config, user=request.user)
-        c.update({'commonform': commonform, 'SearchParametersForm': sf})
+        c.update({'commonform': commonform})
         return render(request, 'datasets/index.html', c)
     else:
         return redirect('/login/')
@@ -282,7 +308,7 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
     elif(request.POST.get('sendemail')):
         request.POST = request.POST.copy()
         request.POST['sendemail'] = None
-        return email(request, c = c)
+        return email(request, c = {})
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
         request.session.set_expiry(24*60*60)
@@ -330,14 +356,11 @@ def upload(request, c=dict()):
 
 def searchpage(request, c=dict(), upd=False):
     c = c
-    c['paramtype'] = c.get('paramtype', 3)
     c.update(csrf(request))
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
 
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
 
-    sf = SearchParametersForm(raw_config=raw_config, user=request.user)
-    c.update({'userid': request.user, 'SearchParametersForm': sf})
     return render(request, 'datasets/startsearch.html', c)
 
 def contacts(request,c=dict()):

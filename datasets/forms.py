@@ -23,6 +23,18 @@ class SubmitButtonField(forms.Field):
     def clean(self, value):
         return value
 
+sftype_map = {
+    'psm count': 'postsearch',
+    'psms per protein': 'postsearch',
+    'charge states': 'postsearch',
+    'potential modifications': 'postsearch',
+    'fragment mass tolerance, da': 'postsearch',
+    'precursor mass difference, ppm': 'postsearch',
+    'isotopes mass difference, da': 'postsearch',
+    'missed cleavages': 'postsearch',
+    'rt difference, min': 'postsearch'
+}
+
 params_map = {
     'enzyme':'enzyme:\t'+SubmitButtonField(label="", initial="").widget.render('enzymelink', 'add custom cleavage rule', 'add_protease'),
     'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'select_fixed'),
@@ -71,13 +83,15 @@ class SearchParametersForm(forms.Form):
     def __init__(self, *args, **kwargs):
         raw_config = kwargs.pop('raw_config', 0)
         userid = kwargs.pop('user', None)
+        sftype = kwargs.pop('sftype', 'main')
         super(SearchParametersForm, self).__init__(*args, **kwargs)
 
-        def get_allowed_values(settings):
+        def get_allowed_values(settings, sftype):
             for section in settings.sections():
                 for param in settings.items(section):
                     if '|' in param[1]:
-                        yield [param[1][::-1].split('|', 1)[0][::-1], ] + [param[0], param[1][::-1].split('|', 1)[-1][::-1]]
+                        if sftype_map.get(param[0], 'main') == sftype:
+                            yield [param[1][::-1].split('|', 1)[0][::-1], ] + [param[0], param[1][::-1].split('|', 1)[-1][::-1]]
 
         def get_field(fieldtype, label, initial):
             if fieldtype == 'type>float':
@@ -89,7 +103,7 @@ class SearchParametersForm(forms.Form):
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
         if raw_config:
-            for param in get_allowed_values(raw_config):
+            for param in get_allowed_values(raw_config, sftype):
                 label = mark_safe(params_map.get(param[1], param[1]))
                 if 'class>protease' in param[0]:
                     proteases = Protease.objects.filter(user=userid)
