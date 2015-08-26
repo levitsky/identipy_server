@@ -45,29 +45,23 @@ def update_searchparams_form(request, c):
     c['SearchParametersForm'] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='')
     return c
 
+def get_forms(request, c):
+    c['userid'] = request.user
+    c['paramtype'] = c.get('paramtype', 3)
+    if c.get('SearchForms', None):
+        for sf in c['SearchForms'].values():
+            if any(v.name in request.POST for v in sf):
+                save_params_new(c['SearchForms'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
+                c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
+    else:
+        c['SearchForms'] = {}
+        for sftype in ['main', 'postsearch']:
+            c['SearchForms'][sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sftype)
+    return c
+
 def index(request, c=dict()):
     if request.user.is_authenticated():
-        c['userid'] = request.user
-        c['paramtype'] = c.get('paramtype', 3)
-        if c.get('SearchForms', None):
-            for sf in c['SearchForms'].values():
-                if any(v.name in request.POST for v in sf):
-                    save_params_new(c['SearchForms'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
-                    c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
-        else:
-            c['SearchForms'] = {}
-            print 'GHEEREREE'
-            print c['SearchForms'].items(), '!'
-            for sftype in ['main', 'postsearch']:
-                print 'here'
-                # print test(request=copy(request), paramtype=c.get('paramtype', 3))
-                # print update_searchparams_form_new(request=copy(request), paramtype=c.get('paramtype', 3), sftype=sftype)
-                print 'here2'
-                c['SearchForms'][sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sftype)
-            print 'ASASAS'
-            print c['SearchForms'].items(), '!'
-        print 'here3'
-        print c['SearchForms']['main'].as_table()
+        c = get_forms(request, c)
         # if 'SearchParametersForm' in c:
         #     if any(v.name in request.POST for v in c['SearchParametersForm']):
         #         save_params(c['SearchParametersForm'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
@@ -208,17 +202,23 @@ def index(request, c=dict()):
         elif(request.POST.get('type1')):
             request.POST = request.POST.copy()
             request.POST['type1'] = None
+            del c['SearchForms']
             c['paramtype'] = 1
+            c = get_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('type2')):
             request.POST = request.POST.copy()
             request.POST['type2'] = None
+            del c['SearchForms']
             c['paramtype'] = 2
+            c = get_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('type3')):
             request.POST = request.POST.copy()
             request.POST['type3'] = None
+            del c['SearchForms']
             c['paramtype'] = 3
+            c = get_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('next_runs')):
             request.POST = request.POST.copy()
