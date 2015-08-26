@@ -22,7 +22,7 @@ def save_params(SearchParametersForm_values, uid, paramsname=False, paramtype=3,
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
     if request:
-        SearchParametersForm_values = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user)
+        SearchParametersForm_values = SearchParametersForm(request.POST, raw_config = raw_config, user=request.user, label_suffix='')
     SearchParametersForm_values = {v.name: v.value() for v in SearchParametersForm_values}
     for section in raw_config.sections():
         for param in raw_config.items(section):
