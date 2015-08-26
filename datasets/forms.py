@@ -10,6 +10,8 @@ from django.utils.safestring import mark_safe
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
         return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
+    def render2(self, label, help, attrs=None):
+        return '<span title="%s">%s</span>' % (html.escape(help), html.escape(label))
 
 
 class SubmitButtonField(forms.Field):
@@ -22,6 +24,7 @@ class SubmitButtonField(forms.Field):
 
     def clean(self, value):
         return value
+
 
 sftype_map = {
     'psm count': 'postsearch',
@@ -39,27 +42,34 @@ params_map = {
     'enzyme':'enzyme:\t'+SubmitButtonField(label="", initial="").widget.render('enzymelink', 'add custom cleavage rule', 'add_protease'),
     'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'select_fixed'),
     'variable': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select potential modifications', 'select_potential'),
-    'show empty': 'show unmached spectra in results',
-    'fdr':'FDR',
-    'protfdr': 'protein FDR',
-    'candidates': 'report number of sequence candidates',
-    'score': 'search engine score',
-    'minimum matched': 'minimum number of matched fragments',
-    'minimum peaks': 'minimum number of fragments in spectra',
-    'maximum peaks': 'select top n peaks in spectra',
-    'add decoy': 'generate decoy database on the fly',
-    'minimum charge': 'minimum precursor charge',
-    'product accuracy': 'product accuracy, Da',
-    'psm count': 'post-search validation, PSM count',
-    'psms per protein': 'post-search validation, PSMs per protein',
-    'charge states': 'post-search validation, charge states',
-    'potential modifications': 'post-search validation, potential modifications',
-    'fragment mass tolerance, da': 'post-search validation, fragment mass tolerance',
-    'precursor mass difference, ppm': 'post-search validation, precursor mass difference',
-    'isotopes mass difference, da': 'post-search validation, isotopes mass error',
-    'missed cleavages': 'post-search validation, missed cleavages',
-    'rt difference, min': 'post-search validation, RT difference'
+    'show empty': ('show unmached spectra in results', 'help'),
+    'fdr': ('FDR', 'False discovery rate in %'),
+    'protfdr': ('protein FDR', 'help'),
+    'candidates': ('report number of sequence candidates', 'help'),
+    'score': ('search engine score', 'help'),
+    'minimum matched': ('minimum number of matched fragments', 'help'),
+    'minimum peaks': ('minimum number of fragments in spectra', 'help'),
+    'maximum peaks': ('select top n peaks in spectra', 'help'),
+    'add decoy': ('generate decoy database on the fly', 'help'),
+    'minimum charge': ('minimum precursor charge', 'help'),
+    'product accuracy': ('product accuracy, Da', 'help'),
+    'psm count': ('post-search validation, PSM count', 'help'),
+    'psms per protein': ('post-search validation, PSMs per protein', 'help'),
+    'charge states': ('post-search validation, charge states', 'help'),
+    'potential modifications': ('post-search validation, potential modifications', 'help'),
+    'fragment mass tolerance, da': ('post-search validation, fragment mass tolerance', 'help'),
+    'precursor mass difference, ppm': ('post-search validation, precursor mass difference', 'help'),
+    'isotopes mass difference, da': ('post-search validation, isotopes mass error', 'help'),
+    'missed cleavages': ('post-search validation, missed cleavages', 'help'),
+    'rt difference, min': ('post-search validation, RT difference', 'help')
 }
+
+def get_label(name):
+    if name not in ['enzyme', 'fixed', 'variable']:
+        tmplabel, tmphelp = params_map.get(name, [name, ''])
+        return SubmitButtonField(label="", initial="").widget.render2(tmplabel, tmphelp)
+    else:
+        return params_map[name]
 
 class CommonForm(forms.Form):
     commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload')
@@ -99,12 +109,12 @@ class SearchParametersForm(forms.Form):
             elif fieldtype == 'type>int':
                 return forms.IntegerField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>string':
-                return forms.CharField(label=label, initial=initial, required=False, widget=forms.TextInput(attrs=({'readonly': 'readonly'} if label in [params_map['fixed'], params_map['variable']] else {})))
+                return forms.CharField(label=label, initial=initial, required=False, widget=forms.TextInput(attrs=({'readonly': 'readonly'} if label in [get_label('fixed'), get_label('variable')] else {})))
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
         if raw_config:
             for param in get_allowed_values(raw_config, sftype):
-                label = mark_safe(params_map.get(param[1], param[1]))
+                label = mark_safe(get_label(param[1]))
                 if 'class>protease' in param[0]:
                     proteases = Protease.objects.filter(user=userid)
                     if proteases.count():
