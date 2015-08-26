@@ -116,10 +116,13 @@
                     <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
                         {{ SearchForms.main.as_table }}
 </table>
+
+                        {% if SearchForms.postsearch %}
                         Post-search validation:
         <table>
                         {{ SearchForms.postsearch.as_table }}
                </table>
+                        {% endif %}
 
    
 
