@@ -31,7 +31,7 @@
             {% for searchrun in searchgroup.get_searchruns_all %}
                 <tr>
                 <form action="" method="post">{% csrf_token %}
-                <td class="td1"><input type="submit" class="link" value={{ searchrun.name }} name="results_figure"/></td>
+                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ searchrun.name }} name="results_figure"/></td>
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname }}>
                 <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
                 </form>
