@@ -466,13 +466,20 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 
 #SearchParametersTable{
     font-size:1em;
-    width:100%;
+    width:90%;
+    left:0;
     text-align: center;
     border-spacing:0.15em;
 }
 
 #SearchParametersTable th{
     font-weight:normal;
+}
+
+#SearchParametersTable tr td:first-child, #SearchParametersTable tr th:first-child{
+    text-align:right;
+    padding:0 1em;
+    width:70%;
 }
 
 select{

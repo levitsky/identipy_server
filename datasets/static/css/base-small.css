@@ -285,7 +285,8 @@ div.inthemiddle h2 p{
 #tab{
     position:relative;
     margin:0;
-    width: 100%;
+    width: 94%;
+    margin-left:3%;
     background-color:#FFF;
 }
 
@@ -385,10 +386,10 @@ div.intable{
 }
 
 table[type="bordered"]{
-    width:94%;
+    width:100%;
     font-size:0.5em;
     border: 2px solid #BBBBBB;
-    margin-left:3%;
+    margin-left:0;
     margin-top:1em;
     margin-bottom:1em;
   
@@ -449,7 +450,15 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 #SearchParametersTable th{
     font-weight:normal;
 }
-
+#SearchParametersTable tr td:first-child, #SearchParametersTable tr th:first-child{
+    text-align:right;
+    width:50%;
+    padding-right:1em;
+}
+#SearchParametersTable tr td:first-child + td, #SearchParametersTable tr th:first-child + td{
+    text-align:center;
+    padding-right:20%;
+}
 select{
     width:82px; 
     font-size:0.8em;
@@ -580,4 +589,9 @@ input:focus {
     width:150px;
     font-size:0.75em;
     height:1em;
+}
+
+#clear{
+    position:relative;
+    top:-1em;
 }
