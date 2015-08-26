@@ -21,14 +21,23 @@ import zipfile
 import StringIO
 import shutil
 import math
+from copy import copy
 
 from pyteomics import parser
 import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_params, save_mods
+from aux import save_params, save_mods, save_params_new
 
+def test(request, paramtype):
+    return 1
+
+
+def update_searchparams_form_new(request, paramtype, sftype):
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(get_user_latest_params_path(paramtype, request.user))
+    return SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
 
 def update_searchparams_form(request, c):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -39,12 +48,32 @@ def update_searchparams_form(request, c):
 def index(request, c=dict()):
     if request.user.is_authenticated():
         c['userid'] = request.user
-        if 'SearchParametersForm' in c:
-            if any(v.name in request.POST for v in c['SearchParametersForm']):
-                save_params(c['SearchParametersForm'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
-                c = update_searchparams_form(request=request, c=c)
+        c['paramtype'] = c.get('paramtype', 3)
+        if c.get('SearchForms', None):
+            for sf in c['SearchForms'].values():
+                if any(v.name in request.POST for v in sf):
+                    save_params_new(c['SearchForms'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
+                    c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
         else:
-            c = update_searchparams_form(request=request, c=c)
+            c['SearchForms'] = {}
+            print 'GHEEREREE'
+            print c['SearchForms'].items(), '!'
+            for sftype in ['main', 'postsearch']:
+                print 'here'
+                # print test(request=copy(request), paramtype=c.get('paramtype', 3))
+                # print update_searchparams_form_new(request=copy(request), paramtype=c.get('paramtype', 3), sftype=sftype)
+                print 'here2'
+                c['SearchForms'][sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sftype)
+            print 'ASASAS'
+            print c['SearchForms'].items(), '!'
+        print 'here3'
+        print c['SearchForms']['main'].as_table()
+        # if 'SearchParametersForm' in c:
+        #     if any(v.name in request.POST for v in c['SearchParametersForm']):
+        #         save_params(c['SearchParametersForm'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
+        #         c = update_searchparams_form(request=request, c=c)
+        # else:
+        #     c = update_searchparams_form(request=request, c=c)
         if(request.POST.get('runidentiprot')):
             request.POST = request.POST.copy()
             request.POST['runidentiprot'] = None
@@ -118,7 +147,8 @@ def index(request, c=dict()):
         elif(request.POST.get('saveparams')):
             request.POST = request.POST.copy()
             if request.POST.get('paramsname'):
-                save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
+                # save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
+                save_params_new(c['SearchForms'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
             request.POST['saveparams'] = None
             return searchpage(request, c = c)
         elif(request.POST.get('loadparams')):
@@ -330,7 +360,6 @@ def upload(request, c=dict()):
 
 def searchpage(request, c=dict(), upd=False):
     c = c
-    c['paramtype'] = c.get('paramtype', 3)
     c.update(csrf(request))
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
 
