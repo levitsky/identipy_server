@@ -22,6 +22,7 @@ class Command(BaseCommand):
         for flname in listdir(df_dir):
             fl = open(path.join(df_dir, flname))
             djangofl = File(fl)
+            djangofl.name = path.basename(djangofl.name)
             fastaobj = FastaFile(docfile = djangofl, user = user)
             fastaobj.save()
             fl.close()
