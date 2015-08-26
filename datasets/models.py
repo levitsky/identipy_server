@@ -107,7 +107,7 @@ class SearchGroup(BaseDocument):
 
     def add_files(self, c):
         self.add_fasta(c['chosenfasta'])
-        self.add_params(c['SearchParametersForm'], c['paramtype'])
+        self.add_params(sfForms=c['SearchForms'], paramtype=c['paramtype'])
         self.save()
         for s in c['chosenspectra']:
             newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], user = self.user)
@@ -136,9 +136,9 @@ class SearchGroup(BaseDocument):
         self.fasta.add(fastaobject[0])
         self.save()
 
-    def add_params(self, SearchParametersForm_values, paramtype=3):
-        from aux import save_params
-        paramobj = save_params(SearchParametersForm_values=SearchParametersForm_values, uid=self.user, paramsname=False, paramtype=paramtype, request=False)
+    def add_params(self, sfForms, paramtype=3):
+        from aux import save_params_new
+        paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=False, paramtype=paramtype, request=False)
         self.parameters.add(paramobj)
         self.save()
 
@@ -198,7 +198,7 @@ class SearchRun(BaseDocument):
     def add_files(self, c):
         self.add_spectra(c['chosenspectra'])
         self.add_fasta(c['chosenfasta'])
-        self.add_params(c['SearchParametersForm'])
+        self.add_params(sfForms=c['SearchForms'])
 
     def add_spectra(self, spectraobject):
         # for s in spectraobjects:
