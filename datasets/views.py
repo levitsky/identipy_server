@@ -28,11 +28,7 @@ import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_params, save_mods, save_params_new
-
-def test(request, paramtype):
-    return 1
-
+from aux import save_mods, save_params_new
 
 def update_searchparams_form_new(request, paramtype, sftype):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -55,7 +51,7 @@ def get_forms(request, c):
                 c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
     else:
         c['SearchForms'] = {}
-        for sftype in ['main', 'postsearch']:
+        for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
             c['SearchForms'][sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sftype)
     return c
 
@@ -312,7 +308,7 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
     elif(request.POST.get('sendemail')):
         request.POST = request.POST.copy()
         request.POST['sendemail'] = None
-        return email(request, c = c)
+        return email(request, c = {})
     user = authenticate(username=request.POST['email'], password=request.POST['password'])
     if user is not None:
         request.session.set_expiry(24*60*60)
