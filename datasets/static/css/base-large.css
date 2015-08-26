@@ -498,7 +498,7 @@ input[type="number"]{
    
 }
 
-input[id="id_decoy prefix"], #id_fixed, #id_variable{
+input[id^="id_main"]{
     width:100px; 
     font-size:0.9em;
     border:1px solid #BBB;

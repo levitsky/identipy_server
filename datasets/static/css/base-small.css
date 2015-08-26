@@ -474,7 +474,7 @@ input[type="number"]{
    
 }
 
-input[id="id_decoy prefix"], #id_fixed, #id_variable{
+input[id^="id_main"]{
     width:80px; 
     font-size:0.8em;
     border:1px solid #BBB;
