@@ -36,10 +36,11 @@ sftype_map = {
 }
 
 params_map = {
-    'enzyme':SubmitButtonField(label="", initial="").widget.render('enzymelink', 'add custom cleavage rule', 'add_protease'),
+    'enzyme':'enzyme:\t'+SubmitButtonField(label="", initial="").widget.render('enzymelink', 'add custom cleavage rule', 'add_protease'),
     'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'select_fixed'),
     'variable': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select potential modifications', 'select_potential'),
     'show empty': 'show unmached spectra in results',
+    'fdr':'FDR',
     'protfdr': 'protein FDR',
     'candidates': 'report number of sequence candidates',
     'score': 'search engine score',
@@ -49,8 +50,8 @@ params_map = {
     'add decoy': 'generate decoy database on the fly',
     'minimum charge': 'minimum precursor charge',
     'product accuracy': 'product accuracy, Da',
-    'psm count': 'post-search validation, psm count',
-    'psms per protein': 'post-search validation, psms per protein',
+    'psm count': 'post-search validation, PSM count',
+    'psms per protein': 'post-search validation, PSMs per protein',
     'charge states': 'post-search validation, charge states',
     'potential modifications': 'post-search validation, potential modifications',
     'fragment mass tolerance, da': 'post-search validation, fragment mass tolerance',
