@@ -553,17 +553,3 @@ input:focus {
     background-color: #6699FF;
     outline-offset: 0;
 }
-#modiflink{
-    position:relative;
-    top:-2.6em;
-    background-color:#fff;
-}
-
-#enzymelink{
-    position: relative;
-    top: 2.75em;
-    left: 2.2em;
-    background-color: #fff;
-    padding-right: 1.5em;
-    padding-left: 0.4em;
-}
