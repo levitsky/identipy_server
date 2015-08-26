@@ -171,10 +171,6 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
   color:#555;
 }
 
-input:focus { 
-    background-color: /*light-blue*/#9999dd;
-    outline-offset: 0;
-}
 
 button[type="submit"],.btn {
   display: inline-block;
@@ -437,10 +433,14 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
     font-size:1em;
     width:100%;
     text-align: center;
+    border-spacing:0.2em;
+}
+#SearchParametersTable th{
+    font-weight:normal;
 }
 
 select{
-    width:102px; 
+    width:82px; 
     font-size:0.8em;
     border:1px solid #BBB;
     text-align: center;
@@ -448,14 +448,14 @@ select{
 }
 
 input[type="number"]{
-    width:100px; 
+    width:80px; 
     font-size:0.8em;
     border:1px solid #BBB;
    
 }
 
 input[id="id_decoy prefix"], #id_fixed, #id_variable{
-    width:100px; 
+    width:80px; 
     font-size:0.8em;
     border:1px solid #BBB;
    
@@ -549,8 +549,21 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
     text-align:right;
 }
 
+input:focus { 
+    background-color: #6699FF;
+    outline-offset: 0;
+}
+
 #modiflink{
     position:relative;
-    top:-2.5em;
+    top:-2.6em;
     background-color:#fff;
+}
+#enzymelink{
+    position: relative;
+    top: 2.75em;
+    left: 2.2em;
+    background-color: #fff;
+    padding-right: 1.5em;
+    padding-left: 0.4em;
 }
