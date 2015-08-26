@@ -4,10 +4,29 @@ from multiupload.fields import MultiFileField
 from collections import OrderedDict
 from models import Protease
 
+from django.utils import html
+from django.utils.safestring import mark_safe
+
+class SubmitButtonWidget(forms.Widget):
+    def render(self, id, name, value, attrs=None):
+        return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
+
+
+class SubmitButtonField(forms.Field):
+    def __init__(self, *args, **kwargs):
+        if not kwargs:
+            kwargs = {}
+        kwargs["widget"] = SubmitButtonWidget
+
+        super(SubmitButtonField, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        return value
+
 params_map = {
-    'enzyme':'enzyme:\t\t--------------------------------------',
-    'fixed': 'fixed modifications',
-    'variable': 'variable modifications',
+    'enzyme':SubmitButtonField(label="", initial="").widget.render('enzymelink', 'add custom cleavage rule', 'add_protease'),
+    'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'select_fixed'),
+    'variable': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select potential modifications', 'select_potential'),
     'show empty': 'show unmached spectra in results',
     'protfdr': 'protein FDR',
     'candidates': 'report number of sequence candidates',
@@ -70,7 +89,7 @@ class SearchParametersForm(forms.Form):
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
         if raw_config:
             for param in get_allowed_values(raw_config):
-                label = params_map.get(param[1], param[1])
+                label = mark_safe(params_map.get(param[1], param[1]))
                 if 'class>protease' in param[0]:
                     proteases = Protease.objects.filter(user=userid)
                     if proteases.count():
