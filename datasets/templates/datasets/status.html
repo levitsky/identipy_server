@@ -24,22 +24,22 @@
         
 
 		
-<h2>
+<h2><form action="" method="POST">{% csrf_token %}
         {% if res_page != max_res_page %}
-        <form action="" method="POST">{% csrf_token %}
-         <input type="submit" class="btn" value="Show older runs" name="prev_runs">
-        </form>
+        
+         <input id="prev" type="submit" class="btn" value="older runs >>" name="prev_runs">
+        
 		{% else %}
 		{% endif %}
 
         {% if res_page != 1 %}
-        <form action="" method="POST">{% csrf_token %}
-         <input type="submit" class="btn" value="Show newer runs" name="next_runs">
-        </form>
+        
+         <input id ="newer" type="submit" class="btn" value="<< newer runs" name="next_runs">
+     
 		{% else %}
 		{% endif %}
 
-
+</form>
 			<table type="bordered" id="processes_list">
                 <tr id="headings">
                     <th>Search name</th>
@@ -49,7 +49,7 @@
 			{% for doc in processes %}
             <tr>
                 <form action="" method="post">{% csrf_token %}
-                <td class="td1"><input type="submit" class="link" value={{ doc.name }} name="search_details"/></td>
+                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ doc.name }} name="search_details"/></td>
                 </form>
                 <td class="td1">{{ doc.date_added }}</td>
                 <td class="td3">{{ doc.status }}</td>
