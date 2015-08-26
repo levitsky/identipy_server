@@ -179,7 +179,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
 
 
 
-button[type="submit"],.redbtn {
+.redbtn {
   display: inline-block;
   font-size: 1em;
   background:#990000;
@@ -197,9 +197,10 @@ button[type="submit"],.btn {
   color:#fff;
   cursor:pointer;
   border:0;
+  margin-top:0.3em;
 }
 
-button[type="submit"]:hover, .redbtn:hover{
+.redbtn:hover{
   background:#dd0000;
   color: #ffffff;
 
@@ -277,7 +278,8 @@ div.inthemiddle h2 p{
 #tab{
     position:relative;
     margin:0;
-    width: 100%;
+    width: 94%;
+    margin-left:3%;
     background-color:#FFF;
 }
 
@@ -395,10 +397,10 @@ div.intable{
 }
 
 table[type="bordered"]{
-    width:94%;
+    width:100%;
     font-size:0.5em;
     border: 2px solid #BBBBBB;
-    margin-left:3%;
+    margin-left:0;
     margin-top:1em;
     margin-bottom:1em;
   
@@ -438,25 +440,23 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
     margin-left:50%;
 }
 
-#selectionform p{
-    margin-bottom:1em;
-}
+
 #id_relates_to{
     margin-top:4em;
-    margin-left:2em;
+    margin-left:0;
     font-size:0.7em;
     list-style-type:none;
     text-align:left;
 }
 #id_relates_to li{
-    padding:0.3em;
+    padding:0.3em 0;
 }
 
 #fixedpanel{
     position:absolute;
     width:100%;
     margin-top:2em;
-    padding-bottom:1.5em;
+    margin-bottom:1.5em;
     background:#FFF;
     z-index:10;
 }
@@ -534,7 +534,7 @@ input[id="id_decoy prefix"], #id_fixed, #id_variable{
     margin-left:3em;
 }
 #chromoConditionsBlock{
-    margin-right:1em;
+    
 }
 #textinput{
     font-size:1em;
@@ -584,4 +584,26 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
 input:focus { 
     background-color: #6699FF;
     outline-offset: 0;
+}
+
+.leftcolumn{
+    width:50%;
+    text-align:right;
+    padding:0.1em 1em;
+}
+
+.rightcolumn{
+    text-align:left;
+    padding: 0.1em 1em;
+}
+
+#id_name, #id_mass, #id_label, #id_aminoacids, #id_cleavage_rule{
+    width:200px;
+    font-size:0.75em;
+    height:1em;
+}
+
+#clear{
+    position:relative;
+    top:-1em;
 }
