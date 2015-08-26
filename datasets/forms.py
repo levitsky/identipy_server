@@ -5,6 +5,7 @@ from collections import OrderedDict
 from models import Protease
 
 params_map = {
+    'enzyme':'enzyme:\t\t--------------------------------------',
     'fixed': 'fixed modifications',
     'variable': 'variable modifications',
     'show empty': 'show unmached spectra in results',
@@ -95,14 +96,14 @@ class SearchParametersForm(forms.Form):
                 else:
                     self.fields[param[1]] = get_field(fieldtype=param[0], label=label, initial=param[2])
         key_order = ["use auto optimization",
+                    "enzyme",
+                    "number of missed cleavages",
                     "precursor accuracy unit",
                     "precursor accuracy left",
                     "precursor accuracy right",
                     "product accuracy",
                     "fdr",
                     "protfdr",
-                    "enzyme",
-                    "number of missed cleavages",
                     "minimum charge",
                     "maximum charge",
                     "add decoy",
