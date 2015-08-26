@@ -94,7 +94,7 @@ class SearchParametersForm(forms.Form):
     def __init__(self, *args, **kwargs):
         raw_config = kwargs.pop('raw_config', 0)
         userid = kwargs.pop('user', None)
-        sftype = kwargs.pop('sftype', 'main')
+        self.sftype = kwargs.pop('sftype', 'main')
         super(SearchParametersForm, self).__init__(*args, **kwargs)
 
         def get_allowed_values(settings, sftype):
@@ -114,7 +114,7 @@ class SearchParametersForm(forms.Form):
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
         if raw_config:
-            for param in get_allowed_values(raw_config, sftype):
+            for param in get_allowed_values(raw_config, self.sftype):
                 label = mark_safe(get_label(param[1]))
                 if 'class>protease' in param[0]:
                     proteases = Protease.objects.filter(user=userid)
