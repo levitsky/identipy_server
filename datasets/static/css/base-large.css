@@ -614,3 +614,15 @@ input:focus {
     position:relative;
     top:-1em;
 }
+
+#prev{
+    position:absolute;
+    right:0;
+    top:0;
+}
+
+#newer{
+    position:absolute;
+    left:0;
+    top:0;
+}

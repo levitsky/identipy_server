@@ -248,7 +248,7 @@ div.inthemiddle h2{
     margin-top:0;
     width:100%;
     text-align:center;
-    font-size: 2em;
+    font-size: 1.5em;
     color:#555555;
     font-weight:bold;
     text-indent:0;
@@ -594,4 +594,16 @@ input:focus {
 #clear{
     position:relative;
     top:-1em;
+}
+
+#prev{
+    position:absolute;
+    right:0;
+    top:0;
+}
+
+#newer{
+    position:absolute;
+    left:0;
+    top:0;
 }
