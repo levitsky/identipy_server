@@ -11,7 +11,8 @@ class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
         return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
     def render2(self, label, help, attrs=None):
-        return '<span title="%s">%s</span>' % (html.escape(help), html.escape(label))
+        if html.escape(help): return '<span title="%s" style="cursor:help">%s</span>' % (html.escape(help), html.escape(label))
+        else: return '<span title="" >%s</span>' % (html.escape(label))
 
 
 class SubmitButtonField(forms.Field):
