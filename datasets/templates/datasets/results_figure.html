@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Uploaded data{% endblock%}
 {% block content %}
+{% load stringfilter %}
 <div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
             
@@ -26,7 +27,7 @@
                     <th>Proteins</th>
                 </tr>
             <tr>
-            <td class="td1">{{ searchrun.name }}</td>
+            <td class="td1">{{ searchrun.name|spacify }}</td>
             <td class="td2">{{ searchrun.numMSMS }}</td>
             <td class="td2">{{ searchrun.totalPSMs }}</td>
             <td class="td2">{{ searchrun.fdr_psms }}</td>

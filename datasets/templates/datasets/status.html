@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Search History{% endblock%}
 {% block content %}
+{% load stringfilter %}
 
 <div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
@@ -49,7 +50,7 @@
 			{% for doc in processes %}
             <tr>
                 <form action="" method="post">{% csrf_token %}
-                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ doc.name }} name="search_details"/></td>
+                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ doc.name|spacify }} name="search_details"/></td>
                 </form>
                 <td class="td1">{{ doc.date_added }}</td>
                 <td class="td3">{{ doc.status }}</td>
