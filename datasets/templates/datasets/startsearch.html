@@ -29,7 +29,7 @@
                     </tr>
                 {% for doc in chosenspectra %}
                 <tr>
-                    <td style="word-break:break-word"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td style="word-break:break-word">{{ doc.name }}</td>
                     <td>{{ doc.docfile.size | filesizeformat }}</td>
                     <td>{{ doc.date_added }}</td>
                 </tr>
@@ -58,7 +58,7 @@
                     </tr>
                 {% for doc in chosenfasta %}
                 <tr>
-                    <td style="word-break:break-word"><a class="entry" href="{% url 'datasets:details' doc.id %}">{{ doc.name }}</a></td>
+                    <td style="word-break:break-word">{{ doc.name }}</td>
                     <td>{{ doc.docfile.size | filesizeformat }}</td>
                     <td>{{ doc.date_added }}</td>
                 </tr>
