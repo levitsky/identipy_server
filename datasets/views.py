@@ -357,6 +357,8 @@ def upload(request, c=dict()):
 def searchpage(request, c=dict(), upd=False):
     c = c
     c.update(csrf(request))
+    for sf in c['SearchForms'].values():
+        c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
 
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
