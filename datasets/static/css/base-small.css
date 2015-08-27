@@ -136,8 +136,7 @@ form{
   position:relative;
   width:80%;
   left:10%;
-  margin-top:8px;
-  margin-bottom:2%;
+  margin-bottom:2em;
   background:/*pale-blue*/#eeeeff;
 }
 
@@ -224,7 +223,7 @@ button[type="submit"]:hover, .btn:hover{
 #loginbutton{
     display: block;
     width:70%;
-    font-size:3em;
+    font-size:2em;
     margin: 0 auto;
     margin-bottom: 6%;
 }
@@ -267,12 +266,12 @@ div.inthemiddle h3{
 }
 div.inthemiddle p{
     position: relative;
-    margin-left: 2em;
+    margin-left: 0;
     margin-top:0;
-    margin-right:2em;
+    margin-right:0;
     margin-bottom:2em;
     text-indent: 2em;
-    font-size:1.5em;
+    font-size:1.3em;
     
 }
 
@@ -288,6 +287,7 @@ div.inthemiddle h2 p{
     width: 94%;
     margin-left:3%;
     background-color:#FFF;
+    overflow:hidden;
 }
 
 [type="pseudo"]{
@@ -508,6 +508,7 @@ input[id^="id_main"]{
 
 #searchinput{
     font-size:1em;
+    margin-left:3em;
 }
 
 #chromoConditionsBlock{
@@ -607,3 +608,16 @@ input:focus {
     left:0;
     top:0;
 }
+
+.intable_left{
+    float:left;
+    width:50%;
+}
+
+.intable_right{
+    top:0;
+    width:50%;
+    margin-left:50%;
+    overflow:hidden;
+}
+
