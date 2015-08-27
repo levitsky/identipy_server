@@ -645,14 +645,14 @@ def runidentiprot(request, c):
 def search_details(request, runname, c=dict()):
     c = c
     c.update(csrf(request))
-    runobj = get_object_or_404(SearchGroup, groupname=runname)
+    runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
     c.update({'searchgroup': runobj})
     return render(request, 'datasets/results.html', c)
 
 def results_figure(request, runname, searchgroupid, c=dict()):
     c = c
     c.update(csrf(request))
-    runobj = get_object_or_404(SearchRun, runname=runname, searchgroup_parent_id=searchgroupid)
+    runobj = get_object_or_404(SearchRun, runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj})
     return render(request, 'datasets/results_figure.html', c)
 

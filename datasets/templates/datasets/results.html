@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Uploaded data{% endblock%}
 {% block content %}
+{% load stringfilter %}
         <div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
             
@@ -31,8 +32,8 @@
             {% for searchrun in searchgroup.get_searchruns_all %}
                 <tr>
                 <form action="" method="post">{% csrf_token %}
-                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ searchrun.name }} name="results_figure"/></td>
-                <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname }}>
+                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ searchrun.name|spacify }} name="results_figure"/></td>
+                <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
                 <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
                 </form>
                 <td class="td2">{{ searchrun.numMSMS }}</td>
