@@ -46,7 +46,7 @@ def get_forms(request, c):
     c['paramtype'] = c.get('paramtype', 3)
     if c.get('SearchForms', None):
         for sf in c['SearchForms'].values():
-            if any(v.name in request.POST for v in sf):
+            if any(sf.sftype + '-' + v.name in request.POST for v in sf):
                 save_params_new(c['SearchForms'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
                 c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
     else:

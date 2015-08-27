@@ -24,7 +24,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False):
     if request:
         sfForms = {}
         for sftype in ['main', 'postsearch']:
-            sfForms[sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+            sfForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     for sf in sfForms.values():
         SearchParametersForm_values = {v.name: v.value() for v in sf}
         for section in raw_config.sections():
