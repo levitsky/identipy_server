@@ -235,9 +235,12 @@ class SearchRun(BaseDocument):
     def get_resimagefiles(self, ftype='.png'):
         def get_index(val, custom_list):
             for idx, v in enumerate(custom_list):
-                if val.startswith(v):
+                if val == v or (v == 'potential modifications' and val.startswith(v)):
                     return idx
-        custom_order = ['sumi',
+        custom_order = ['RT experimental',
+                        'precursor mass',
+                        'peptide length',
+                        'sumi',
                         'nsaf',
                         'empai',
                         'rt difference, min',
