@@ -31,6 +31,21 @@
     {% block content %}
     {% endblock %}
     </div>
-        </div>
-	
+
+{% if menubar %}
+    <div id="menu"><form action="" method="post">{% csrf_token %}
+    <ul>
+    {% for bar in menubar.get_elements %}
+        <li><div id={{ bar.id }}><input type="submit" class={{ bar.class|safe }}{{ bar.class2|safe }} value={{ bar.value }} name={{ bar.name }}></div></li>
+
+    {% endfor %}
+
+    </ul></form>
+    </div>
+{% endif %}
+
+</div>
+
+
+
 {% endblock %}
