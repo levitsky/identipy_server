@@ -6,6 +6,31 @@ import sys
 sys.path.append('../identipy/')
 from identipy.utils import CustomRawConfigParser
 
+class Menubar():
+    def __init__(self, focus, user):
+        self.bars = [
+            {'id': 'about', 'value': 'about', 'name': 'about'},
+            {'id': 'loginform', 'value': u'log\xa0in', 'name': 'loginform'},
+            {'id': 'searchpage', 'value': u'Start\xa0search', 'name': 'searchpage'},
+            {'id': 'upload', 'value': u'Upload\xa0files', 'name': 'uploadform'},
+            {'id': 'get_status', 'value': u'Search\xa0history', 'name': 'getstatus'},
+            {'id': 'contacts', 'value': 'contacts', 'name': 'contacts'}
+        ]
+        self.focus = focus
+        self.user = user
+
+    def get_elements(self):
+        for bar in self.bars:
+            if (self.user and bar.get('id') not in ['about', 'loginform']) or (not self.user and bar.get('id') not in ['searchpage', 'upload', 'get_status']):
+                bar['class'] = '"menubar'
+                if bar.get('id') == self.focus:
+                    # bar['class'] = 'menubar current'
+                    bar['class2'] = ' current"'
+                else:
+                    # bar['class'] = 'menubar'
+                    bar['class2'] = '"'
+                yield bar
+
 def save_mods(uid, chosenmods, fixed, paramtype=3):
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)

@@ -28,7 +28,7 @@ import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_mods, save_params_new
+from aux import save_mods, save_params_new, Menubar
 
 def update_searchparams_form_new(request, paramtype, sftype):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -253,7 +253,8 @@ def index(request, c=dict()):
         c.update({'commonform': commonform})
         return render(request, 'datasets/index.html', c)
     else:
-        return redirect('/login/')
+        c['menubar'] = Menubar('loginform', request.user.is_authenticated())
+        return render(request, 'datasets/login.html', c)
 
 def details(request, pK):
     doc = get_object_or_404(SpectraFile, id=pK)
@@ -277,6 +278,7 @@ def loginview(request, message=None):
     if(request.POST.get('contacts')):
         request.POST = request.POST.copy()
         request.POST['contacts'] = None
+        c['menubar'] = Menubar('contacts', request.user.is_authenticated())
         return contacts(request, c = {})
     if(request.POST.get('loginform')):
         request.POST = request.POST.copy()
@@ -285,11 +287,14 @@ def loginview(request, message=None):
     if(request.POST.get('about')):
         request.POST = request.POST.copy()
         request.POST['about'] = None
+        c['menubar'] = Menubar('about', request.user.is_authenticated())
         return about(request, c = {})
     elif(request.POST.get('sendemail')):
         request.POST = request.POST.copy()
         request.POST['sendemail'] = None
+        c['menubar'] = Menubar('', request.user.is_authenticated())
         return email(request, c = c)
+    c['menubar'] = Menubar('loginform', request.user.is_authenticated())
     return render_to_response('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
@@ -344,6 +349,7 @@ def status(request, c=dict(), search_run_filter=False):
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id).count()) / 10))
         processes = SearchGroup.objects.filter(user=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
     c.update({'processes': processes})
+    c['menubar'] = Menubar('get_status', request.user.is_authenticated())
     return render(request, 'datasets/status.html', c)
 
 def get_user_latest_params_path(paramtype, userid):
@@ -352,6 +358,7 @@ def get_user_latest_params_path(paramtype, userid):
 def upload(request, c=dict()):
     c = c
     c.update(csrf(request))
+    c['menubar'] = Menubar('upload', request.user.is_authenticated())
     return render(request, 'datasets/upload.html', c)
 
 def searchpage(request, c=dict(), upd=False):
@@ -362,17 +369,19 @@ def searchpage(request, c=dict(), upd=False):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
 
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
-
+    c['menubar'] = Menubar('searchpage', request.user.is_authenticated())
     return render(request, 'datasets/startsearch.html', c)
 
 def contacts(request,c=dict()):
     c=c
     c.update(csrf(request))
+    c['menubar'] = Menubar('contacts', request.user.is_authenticated())
     return render(request, 'datasets/contacts.html', c)
 
 def about(request,c=dict()):
     c=c
     c.update(csrf(request))
+    c['menubar'] = Menubar('about', request.user.is_authenticated())
     return render(request, 'datasets/index.html', c)
 
 def email(request, c={}):
@@ -495,7 +504,7 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
                 return searchpage(request, c)
     else:
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
-    c.update({'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
+    c.update({'menubar': Menubar('choose', request.user.is_authenticated()), 'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
     return render_to_response('datasets/choose.html', c,
         context_instance=RequestContext(request))
 
