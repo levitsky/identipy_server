@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 import sys
 sys.path.append('../identipy/')
+import csv
 from identipy.utils import CustomRawConfigParser
 
 
@@ -297,7 +298,6 @@ class SearchRun(BaseDocument):
 
     def calc_results(self):
         from pyteomics import mgf, pepxml, mzml
-        import csv
         for fn in self.get_spectrafiles_paths():
             if fn.lower().endswith('.mgf'):
                 self.numMSMS += sum(1 for _ in mgf.read(fn))
@@ -315,6 +315,15 @@ class SearchRun(BaseDocument):
             with open(fn, "r") as cf:
                 self.numProteins += sum(1 for _ in csv.reader(cf)) - 1
         self.save()
+
+    def get_detailed(self, ftype):
+        res_dict = {}
+        for fn in self.get_csvfiles_paths(ftype=ftype):
+            with open(fn, "r") as cf:
+                reader = csv.reader(cf, delimiter='\t')
+                res_dict['get_labels'] = reader.next()
+                res_dict['get_values'] = [val for val in reader]
+        return res_dict
 
 
 class Protease(models.Model):
