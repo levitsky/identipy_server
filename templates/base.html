@@ -9,7 +9,7 @@
        <div id="session"><form action="/logout/" method="POST"> {% csrf_token %}<span>Current session: {{ user.username }}</span>
              
     
-    <button type="submit" name="submit" value="submit-value">Log out</button>
+    <button class="btn" type="submit" name="submit" value="submit-value">Log out</button>
     </form>
     </div> {% endif %}
          <span> <div id="logo">
