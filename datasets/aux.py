@@ -3,8 +3,38 @@ from forms import SearchParametersForm
 from django.core.files import File
 import os
 import sys
+import csv
 sys.path.append('../identipy/')
 from identipy.utils import CustomRawConfigParser
+
+class ResultsDetailed():
+    def __init__(self, ftype, path_to_csv):
+        self.ftype = ftype
+        self.order_by_revers = False
+        with open(path_to_csv, "r") as cf:
+            reader = csv.reader(cf, delimiter='\t')
+            self.labels = reader.next()
+            self.order_by_label = self.labels[0]
+            self.values = [val for val in reader]
+
+    def change_order(self):
+        self.order_by_revers = not self.order_by_revers
+
+    def custom_order(self, order_by_label=False):
+        self.change_order()
+        sort_ind = self.labels.index(order_by_label.replace(u'\xa0', ' '))
+        try:
+            self.values.sort(key=lambda x: float(x[sort_ind]))
+        except:
+            self.values.sort(key=lambda x: x[sort_ind])
+        if self.order_by_revers:
+            self.values = self.values[::-1]
+
+    def get_labels(self):
+        return self.labels
+
+    def get_values(self):
+        return self.values
 
 class Menubar():
     def __init__(self, focus, user):
