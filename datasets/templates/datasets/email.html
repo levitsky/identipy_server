@@ -24,6 +24,7 @@
       </ul></form>
     </div>
 {% endif %}
+<div id="tab">
 <h2>
 <form id="feedbackform" method="post">
     {% csrf_token %}
@@ -31,5 +32,5 @@
     <div class="form-actions">
       <input type="submit" class="backbtn" value="Send" name="sendemail">
     </div>
-    </form></h2>
+    </form></h2></div>
 {% endblock %}
