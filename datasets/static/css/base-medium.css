@@ -168,7 +168,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
 }
 
 
-button[type="submit"],.btn {
+.btn {
   display: inline-block;
   font-size: 1em;
   background:#000099;
@@ -189,7 +189,7 @@ button[type="submit"],.btn {
   border:0;
 }
 
-button[type="submit"]:hover, .btn:hover{
+.btn:hover{
   background:#9999dd;
   color: #ffffff;
    
@@ -344,7 +344,7 @@ div.rightbox{
     
 }
 
-.link{
+.link, a[target="_blank"]{
     font-size: 1em;
     background:0;
     display:inline;
@@ -355,7 +355,7 @@ div.rightbox{
     color:#000099;
     
 }
-.link:hover{
+.link:hover, a[target="_blank"]:hover{
     color:#9999dd;}
 
 .inthemiddle img{
@@ -416,13 +416,14 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 
 #id_relates_to{
     margin-top:4em;
-    margin-left:2em;
+    margin-left:0;
     font-size:0.7em;
     list-style-type:none;
     text-align:left;
 }
 #id_relates_to li{
     padding:0.3em;
+    padding-left:0;
 }
 
 #fixedpanel{
@@ -517,7 +518,7 @@ input[id^="id_main"]{
 
 #feedbackform{
     font-size:0.8em;
-    width:94%;
+    width:100%;
 }
 label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
     float:left;
