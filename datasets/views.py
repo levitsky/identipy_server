@@ -178,14 +178,12 @@ def index(request, c=dict()):
             return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='protein')
         elif(request.POST.get('show_peptides')):
             request.POST = request.POST.copy()
-            dbname = request.POST['show_peptides'] if request.POST['show_peptides'] != 'Show peptides' else False
             request.POST['show_peptides'] = None
-            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='peptide', dbname=dbname)
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='peptide')
         elif(request.POST.get('show_psms')):
             request.POST = request.POST.copy()
-            dbname = request.POST['show_psms'] if request.POST['show_psms'] != 'Show psms' else False
             request.POST['show_psms'] = None
-            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='psm', dbname=dbname)
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='psm')
         elif(request.POST.get('order_by')):
             request.POST = request.POST.copy()
             order_column = request.POST['order_by']
@@ -691,7 +689,7 @@ def results_figure(request, runname, searchgroupid, c=dict()):
     return render(request, 'datasets/results_figure.html', c)
 
 
-def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False, upd=False, dbname=False):
+def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False, upd=False):
     c = c
     c.update(csrf(request))
     if not upd:
@@ -701,8 +699,6 @@ def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False,
         res_dict = c['results_detailed']
     if order_by_label:
         res_dict.custom_order(order_by_label)
-    if dbname:
-        res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
     if request.POST.get('relates_to'):
         res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
