@@ -14,7 +14,7 @@ class SubmitButtonWidget(forms.Widget):
         if html.escape(help): return '<span title="%s" style="cursor:help">%s</span>' % (html.escape(help), html.escape(label))
         else: return '<span title="" >%s</span>' % (html.escape(label))
     def render3(self, name):
-        return '<a href="http://www.uniprot.org/uniprot/%s">%s</a>' % (html.escape(name), html.escape(name))
+        return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (html.escape(name), html.escape(name))
 
 
 class SubmitButtonField(forms.Field):
