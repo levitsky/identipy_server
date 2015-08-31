@@ -21,14 +21,15 @@ class ResultsDetailed():
             self.values = [val for val in reader]
             self.dbname = False
 
-    @staticmethod
-    def special_links(value, name, dbname):
-        if name == 'dbname':
+    def special_links(self, value, name, dbname):
+        if self.ftype == 'protein' and name == 'dbname':
             return SubmitButtonField(label="", initial="").widget.render3(value)
-        elif name == 'PSMs':
+        elif self.ftype == 'protein' and name == 'PSMs':
             return SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
-        elif name == 'peptides':
+        elif self.ftype == 'protein' and name == 'peptides':
             return SubmitButtonField(label="", initial="").widget.render4('Peptides_link', value, 'show_peptides', dbname)
+        elif self.ftype == 'peptide' and name == 'sequence':
+            return SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
         else:
             return value
 
@@ -58,8 +59,9 @@ class ResultsDetailed():
     def get_values(self):
         if self.dbname:
             dbname_ind = self.labels.index('proteins')
+            sequence_ind = self.labels.index('sequence')
         for val in self.values:
-            if not self.dbname or self.dbname in val[dbname_ind].split(';'):
+            if not self.dbname or self.dbname in val[dbname_ind].split(';') or self.dbname == val[sequence_ind]:
                 out = []
                 for idx, v in enumerate(val):
                     if self.whiteind[idx]:
