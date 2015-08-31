@@ -28,7 +28,7 @@ import sys
 sys.path.append('../identipy/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_mods, save_params_new, Menubar
+from aux import save_mods, save_params_new, Menubar, ResultsDetailed
 
 def update_searchparams_form_new(request, paramtype, sftype):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -189,7 +189,7 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             order_column = request.POST['order_by']
             request.POST['order_by'] = None
-            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed']['ftype'], order_by_label=order_column)
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed'].ftype, order_by_label=order_column)
         elif(request.POST.get('results_figure')):
             request.POST = request.POST.copy()
             return results_figure(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
@@ -694,13 +694,7 @@ def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False)
         res_dict = runobj.get_detailed(ftype=ftype)
     else:
         res_dict = c['results_detailed']
-        res_dict['order_by_revers'] = not res_dict.get('order_by_revers', True)
-        try:
-            res_dict['get_values'].sort(key=lambda x: float(x[res_dict['get_labels'].index(order_by_label.replace(u'\xa0', ' '))]))
-        except:
-            res_dict['get_values'].sort(key=lambda x: x[res_dict['get_labels'].index(order_by_label.replace(u'\xa0', ' '))])
-        if res_dict.get('order_by_revers', True):
-            res_dict['get_values'] = res_dict['get_values'][::-1]
+        res_dict.custom_order(order_by_label)
     c.update({'results_detailed': res_dict})
     return render(request, 'datasets/results_detailed.html', c)
 

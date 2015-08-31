@@ -317,16 +317,8 @@ class SearchRun(BaseDocument):
         self.save()
 
     def get_detailed(self, ftype):
-        res_dict = {'ftype': ftype}
-        res_dict['order_by_revers'] = not res_dict.get('order_by_revers', True)
-        for fn in self.get_csvfiles_paths(ftype=ftype):
-            with open(fn, "r") as cf:
-                reader = csv.reader(cf, delimiter='\t')
-                res_dict['get_labels'] = reader.next()
-                res_dict['order_by_label'] = res_dict['get_labels'][0]
-                res_dict['get_values'] = [val for val in reader]
-        return res_dict
-
+        from aux import ResultsDetailed
+        return ResultsDetailed(ftype=ftype, path_to_csv=self.get_csvfiles_paths(ftype=ftype)[0])
 
 class Protease(models.Model):
     name = models.CharField(max_length=80)
