@@ -56,7 +56,6 @@ def get_forms(request, c):
     return c
 
 def index(request, c=dict()):
-    print request.POST.keys()
     if request.user.is_authenticated():
         c = get_forms(request, c)
         # if 'SearchParametersForm' in c:
@@ -700,14 +699,14 @@ def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False,
         res_dict = c['results_detailed']
     if order_by_label:
         res_dict.custom_order(order_by_label)
+    labelname = 'Select columns for %ss' % (ftype, )
     if request.POST.get('relates_to'):
-        res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=ftype, multiform=True)
+        res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
         if res_dict.labelform.is_valid():
             whitelabels = [x for x in res_dict.labelform.cleaned_data.get('relates_to')]
-            print whitelabels
             res_dict.custom_labels(whitelabels)
     else:
-        res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=ftype, multiform=True)
+        res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     c.update({'results_detailed': res_dict})
     return render(request, 'datasets/results_detailed.html', c)
 
