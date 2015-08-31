@@ -172,6 +172,18 @@ def index(request, c=dict()):
         elif(request.POST.get('search_details')):
             request.POST = request.POST.copy()
             return search_details(request, runname=request.POST['search_details'], c=c)
+        elif(request.POST.get('show_proteins')):
+            request.POST = request.POST.copy()
+            request.POST['show_proteins'] = None
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='protein')
+        elif(request.POST.get('show_peptides')):
+            request.POST = request.POST.copy()
+            request.POST['show_peptides'] = None
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='peptide')
+        elif(request.POST.get('show_psms')):
+            request.POST = request.POST.copy()
+            request.POST['show_psms'] = None
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='psm')
         elif(request.POST.get('results_figure')):
             request.POST = request.POST.copy()
             return results_figure(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
@@ -667,6 +679,13 @@ def results_figure(request, runname, searchgroupid, c=dict()):
     c.update({'searchrun': runobj})
     return render(request, 'datasets/results_figure.html', c)
 
+
+def show(request, runname, searchgroupid, ftype, c=dict()):
+    c = c
+    c.update(csrf(request))
+    runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
+    c.update({'results_detailed': runobj.get_detailed(ftype=ftype)})
+    return render(request, 'datasets/results_detailed.html', c)
 
 def getfiles(c):
     searchgroup = c['searchgroup']

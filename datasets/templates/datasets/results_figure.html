@@ -2,16 +2,6 @@
 {% block title %}Uploaded data{% endblock%}
 {% block content %}
 {% load stringfilter %}
-<div id="menu"><form action="" method="post">{% csrf_token %}
-        <ul>
-            
-        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
-        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
-        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
-        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-            
-      </ul></form>
-    </div>
         <div id="tab">
         <h2>
 		{% if searchgroup %}
@@ -44,6 +34,11 @@
         
         <div id="vert_block">
         <form action="" method="post"> {% csrf_token %}
+        <input type="submit" class="btn" value="Show proteins" name="show_proteins">
+        <input type="submit" class="btn" value="Show peptides" name="show_peptides">
+        <input type="submit" class="btn" value="Show psms" name="show_psms">
+        <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
         <input type="submit" class="btn" value="Download csv files" name="download_csv">
         
         <input type="submit" class="btn" value="Download pepxml files" name="download_pepxml">
