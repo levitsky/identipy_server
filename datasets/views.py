@@ -56,6 +56,7 @@ def get_forms(request, c):
     return c
 
 def index(request, c=dict()):
+    print request.POST.keys()
     if request.user.is_authenticated():
         c = get_forms(request, c)
         # if 'SearchParametersForm' in c:
@@ -184,6 +185,11 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['show_psms'] = None
             return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='psm')
+        elif(request.POST.get('order_by')):
+            request.POST = request.POST.copy()
+            order_column = request.POST['order_by']
+            request.POST['order_by'] = None
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed']['ftype'], order_by_label=order_column)
         elif(request.POST.get('results_figure')):
             request.POST = request.POST.copy()
             return results_figure(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
@@ -680,11 +686,22 @@ def results_figure(request, runname, searchgroupid, c=dict()):
     return render(request, 'datasets/results_figure.html', c)
 
 
-def show(request, runname, searchgroupid, ftype, c=dict()):
+def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False):
     c = c
     c.update(csrf(request))
-    runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
-    c.update({'results_detailed': runobj.get_detailed(ftype=ftype)})
+    if not order_by_label:
+        runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
+        res_dict = runobj.get_detailed(ftype=ftype)
+    else:
+        res_dict = c['results_detailed']
+        res_dict['order_by_revers'] = not res_dict.get('order_by_revers', True)
+        try:
+            res_dict['get_values'].sort(key=lambda x: float(x[res_dict['get_labels'].index(order_by_label.replace(u'\xa0', ' '))]))
+        except:
+            res_dict['get_values'].sort(key=lambda x: x[res_dict['get_labels'].index(order_by_label.replace(u'\xa0', ' '))])
+        if res_dict.get('order_by_revers', True):
+            res_dict['get_values'] = res_dict['get_values'][::-1]
+    c.update({'results_detailed': res_dict})
     return render(request, 'datasets/results_detailed.html', c)
 
 def getfiles(c):
