@@ -6,6 +6,8 @@ import sys
 import csv
 sys.path.append('../identipy/')
 from identipy.utils import CustomRawConfigParser
+from forms import SubmitButtonField
+from django.utils.safestring import mark_safe
 
 class ResultsDetailed():
     def __init__(self, ftype, path_to_csv):
@@ -17,6 +19,13 @@ class ResultsDetailed():
             self.whiteind = [True for _ in range(len(self.labels))]
             self.order_by_label = self.labels[0]
             self.values = [val for val in reader]
+
+    @staticmethod
+    def special_links(value, name):
+        if name == 'dbname':
+            return SubmitButtonField(label="", initial="").widget.render3(value)
+        else:
+            return value
 
     def custom_labels(self, whitelist):
         for idx, label in enumerate(self.labels):
@@ -40,7 +49,11 @@ class ResultsDetailed():
 
     def get_values(self):
         for val in self.values:
-            yield [v for idx, v in enumerate(val) if self.whiteind[idx]]
+            out = []
+            for idx, v in enumerate(val):
+                if self.whiteind[idx]:
+                    out.append(mark_safe(self.special_links(v, self.labels[idx])))
+            yield out
 
 class Menubar():
     def __init__(self, focus, user):
