@@ -19,13 +19,21 @@ class ResultsDetailed():
             self.whiteind = [True for _ in range(len(self.labels))]
             self.order_by_label = self.labels[0]
             self.values = [val for val in reader]
+            self.dbname = False
 
     @staticmethod
-    def special_links(value, name):
+    def special_links(value, name, dbname):
         if name == 'dbname':
             return SubmitButtonField(label="", initial="").widget.render3(value)
+        elif name == 'PSMs':
+            return SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
+        elif name == 'peptides':
+            return SubmitButtonField(label="", initial="").widget.render4('Peptides_link', value, 'show_peptides', dbname)
         else:
             return value
+
+    def filter_dbname(self, dbname):
+        self.dbname = dbname
 
     def custom_labels(self, whitelist):
         for idx, label in enumerate(self.labels):
@@ -48,12 +56,15 @@ class ResultsDetailed():
         return [label for idx, label in enumerate(self.labels) if self.whiteind[idx]]
 
     def get_values(self):
+        if self.dbname:
+            dbname_ind = self.labels.index('proteins')
         for val in self.values:
-            out = []
-            for idx, v in enumerate(val):
-                if self.whiteind[idx]:
-                    out.append(mark_safe(self.special_links(v, self.labels[idx])))
-            yield out
+            if not self.dbname or self.dbname in val[dbname_ind].split(';'):
+                out = []
+                for idx, v in enumerate(val):
+                    if self.whiteind[idx]:
+                        out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
+                yield out
 
 class Menubar():
     def __init__(self, focus, user):
