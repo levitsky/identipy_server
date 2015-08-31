@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Uploaded data{% endblock%}
+{% block title %}Search results: {{searchrun.name}} {% endblock%}
 {% block content %}
 {% load stringfilter %}
         <form action="" method="post">{% csrf_token %}
@@ -8,10 +8,11 @@
 		{% if results_detailed %}
             {{ results_detailed.labelform.as_p }}
             <input type="submit" class="btn" value="Show selected columns" name="select_labels">
+            <a name="breakpoint"></a>
             <table id="processes_list" type="bordered">
                 <tr id="headings">
 			        {% for label in results_detailed.get_labels %}
-                    <th><input type="submit" class="link" value={{ label|spacify }} name=order_by></th>
+                    <th><a href="#breakpoint"><input type="submit" class="link" value={{ label|spacify }} name=order_by></a></th>
 			        {% endfor %}
                 </tr>
             {% for prot in results_detailed.get_values %}
