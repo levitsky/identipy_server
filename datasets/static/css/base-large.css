@@ -289,7 +289,7 @@ div.inthemiddle h2 p{
     display: inline-block;
     font-size:1em;
     padding:0 3em;
-    margin-bottom:2em;
+    margin-bottom:1em;
     margin-top:1em;
     text-align:center;
     word-break:break-all;
@@ -423,20 +423,18 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
     margin: 1em 35%;
 }
 
-#vert_block{
-    
-    margin-bottom:1em;
-}
 
 .leftside, .intable_left{
     float:left;
     width:50%;
+    margin-bottom:1em;
 }
 .rightside, .intable_right{
     top:0;
     width:50%;
     margin-left:50%;
     overflow:hidden;
+    margin-bottom:1em;
 }
 
 
@@ -508,9 +506,6 @@ input[id^="id_main"]{
     margin-top:0.5em;
 }
 
-#clear{
-    margin-bottom:1.5em;
-}
 
 .messages{
     list-style-type: none;
@@ -609,10 +604,6 @@ input:focus {
     height:1em;
 }
 
-#clear{
-    position:relative;
-    top:-1em;
-}
 
 #prev{
     position:absolute;
