@@ -14,8 +14,13 @@ class ResultsDetailed():
         with open(path_to_csv, "r") as cf:
             reader = csv.reader(cf, delimiter='\t')
             self.labels = reader.next()
+            self.whiteind = [True for _ in range(len(self.labels))]
             self.order_by_label = self.labels[0]
             self.values = [val for val in reader]
+
+    def custom_labels(self, whitelist):
+        for idx, label in enumerate(self.labels):
+            self.whiteind[idx] = label in whitelist
 
     def change_order(self):
         self.order_by_revers = not self.order_by_revers
@@ -31,10 +36,11 @@ class ResultsDetailed():
             self.values = self.values[::-1]
 
     def get_labels(self):
-        return self.labels
+        return [label for idx, label in enumerate(self.labels) if self.whiteind[idx]]
 
     def get_values(self):
-        return self.values
+        for val in self.values:
+            yield [v for idx, v in enumerate(val) if self.whiteind[idx]]
 
 class Menubar():
     def __init__(self, focus, user):
