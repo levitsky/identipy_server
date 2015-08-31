@@ -189,7 +189,11 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             order_column = request.POST['order_by']
             request.POST['order_by'] = None
-            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed'].ftype, order_by_label=order_column)
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed'].ftype, order_by_label=order_column, upd=True)
+        elif(request.POST.get('select_labels')):
+            request.POST = request.POST.copy()
+            request.POST['select_labels'] = None
+            return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed'].ftype, upd=True)
         elif(request.POST.get('results_figure')):
             request.POST = request.POST.copy()
             return results_figure(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
@@ -686,15 +690,24 @@ def results_figure(request, runname, searchgroupid, c=dict()):
     return render(request, 'datasets/results_figure.html', c)
 
 
-def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False):
+def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False, upd=False):
     c = c
     c.update(csrf(request))
-    if not order_by_label:
+    if not upd:
         runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
         res_dict = runobj.get_detailed(ftype=ftype)
     else:
         res_dict = c['results_detailed']
+    if order_by_label:
         res_dict.custom_order(order_by_label)
+    if request.POST.get('relates_to'):
+        res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=ftype, multiform=True)
+        if res_dict.labelform.is_valid():
+            whitelabels = [x for x in res_dict.labelform.cleaned_data.get('relates_to')]
+            print whitelabels
+            res_dict.custom_labels(whitelabels)
+    else:
+        res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=ftype, multiform=True)
     c.update({'results_detailed': res_dict})
     return render(request, 'datasets/results_detailed.html', c)
 

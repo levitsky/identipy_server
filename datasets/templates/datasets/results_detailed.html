@@ -6,6 +6,8 @@
         <div id="tab">
         <h2>
 		{% if results_detailed %}
+            {{ results_detailed.labelform.as_p }}
+            <input type="submit" class="btn" value="Show selected columns" name="select_labels">
             <table id="processes_list" type="bordered">
                 <tr id="headings">
 			        {% for label in results_detailed.get_labels %}
