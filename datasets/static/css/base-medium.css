@@ -204,7 +204,7 @@ button[type="submit"]:hover, .btn:hover{
     display: inline-block;
     font-size:1em;
     padding:0 3em;
-    margin-bottom:2em;
+    margin-bottom:1em;
     margin-top:1em;
     text-align:center;
     background:#ffbe4f;
@@ -412,9 +412,7 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
     margin: 1em 35%;
 }
 
-#vert_block{
-    margin-bottom:1em;
-}
+
 
 #id_relates_to{
     margin-top:4em;
@@ -482,10 +480,6 @@ input[id^="id_main"]{
 }
 #chooseparam{
     margin-top:0.5em;
-}
-
-#clear{
-    margin-bottom:1.5em;
 }
 
 .messages{
@@ -620,4 +614,8 @@ input:focus {
     width:50%;
     margin-left:50%;
     overflow:hidden;
+}
+
+#paramtitle{
+    margin-top:1.1em;
 }
