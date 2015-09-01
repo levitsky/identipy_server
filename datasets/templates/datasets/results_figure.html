@@ -1,10 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Uploaded data{% endblock%}
+{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname }}/{{ searchrun.name}}{% endblock%}
 {% block content %}
 {% load stringfilter %}
         <div id="tab">
-        <h2>
-        <form action="" method="post"> {% csrf_token %}
+        <h2><form action="" method="post">{% csrf_token %}
+        
+        
+            <p>Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">/{{ searchrun.name}}</p>
+        
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
                 <tr id="headings">
@@ -33,17 +36,18 @@
 		{% endif %}
 
         
-        <div id="vert_block">
+        <div id="colored">
+            Download: 
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
-        <input type="submit" class="btn" value="Download csv files" name="download_csv">
+        <input type="submit" class="btn" value="csv files" name="download_csv">
         
-        <input type="submit" class="btn" value="Download pepxml files" name="download_pepxml">
-        <input type="submit" class="btn" value="Download mgf files" name="download_mgf"><br>
-        <input type="submit" class="btn" value="Download figures in png format" name="download_figs">
-        <input type="submit" class="btn" value="Download figures in svg format" name="download_figs_svg">
+        <input type="submit" class="btn" value="pepxml files" name="download_pepxml">
+        <input type="submit" class="btn" value="mgf files" name="download_mgf"><br>
+        <input type="submit" class="btn" value="figures in png format" name="download_figs">
+        <input type="submit" class="btn" value="figures in svg format" name="download_figs_svg">
         
-        </div></form>
+        </div>
 
         <div class = "vert_block" >
 		{% if searchrun.get_pepxmlfiles %}
@@ -58,13 +62,13 @@
 			</div>
 		{% else %}
 		{% endif %}
-        </div>
+        </div></form>
         <div id="get_status">
         <form action="" method="post">{% csrf_token %}
         <input type="submit" class="backbtn" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">
         </form>
         </div>
-            </h2>
-        </div>
+           </h2>
 
+</div>
 {% endblock %}
