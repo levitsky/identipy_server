@@ -22,6 +22,7 @@ import StringIO
 import shutil
 import math
 from copy import copy
+from django.utils.safestring import mark_safe
 
 from pyteomics import parser
 import sys
@@ -104,9 +105,11 @@ def index(request, c=dict()):
             return status(request, c = c)
         elif(request.POST.get('search_runname')):
             request.POST = request.POST.copy()
-            tmp_val = request.POST['search_button']
+            c['search_run_filter'] = request.POST['search_button']
+            c['res_page'] = 1
+            # tmp_val = request.POST['search_button']
             request.POST['search_runname'] = None
-            return status(request, c = c, search_run_filter=tmp_val)
+            return status(request, c = c)
         elif(request.POST.get('uploadform')):
             request.POST = request.POST.copy()
             request.POST['uploadform'] = None
@@ -375,14 +378,14 @@ def secured(request):
     return render_to_response("index.html", c)
 
 
-def status(request, c=dict(), search_run_filter=False):
+def status(request, c=dict()):
     c = c
     c.update(csrf(request))
     res_page = c.get('res_page', 1)
-    if search_run_filter:
-        processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=search_run_filter).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
-        c['res_page'] = 1
-        c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id, groupname__contains=search_run_filter).count()) / 10))
+    c['search_run_filter'] = c.get('search_run_filter', '')
+    if c['search_run_filter']:
+        processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
+        c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).count()) / 10))
     else:
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id).count()) / 10))
         processes = SearchGroup.objects.filter(user=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
