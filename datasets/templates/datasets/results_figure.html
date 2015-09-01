@@ -4,6 +4,7 @@
 {% load stringfilter %}
         <div id="tab">
         <h2>
+        <form action="" method="post"> {% csrf_token %}
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
                 <tr id="headings">
@@ -22,9 +23,9 @@
             <td class="td2">{{ searchrun.totalPSMs }}</td>
             <td class="td2">{{ searchrun.fdr_psms }}</td>
             <td class="td2">{{ searchrun.get_prots_FDR }}</td>
-            <td class="td2">{{ searchrun.numPSMs }}</td>
-            <td class="td2">{{ searchrun.numPeptides }}</td>
-            <td class="td2">{{ searchrun.numProteins }}</td>
+            <td class="td2"><input type="submit" class="link" value={{ searchrun.numPSMs }} name="show_psms"></td>
+            <td class="td2"><input type="submit" class="link" value={{ searchrun.numPeptides }} name="show_peptides"></td>
+            <td class="td2"><input type="submit" class="link" value={{ searchrun.numProteins }} name="show_proteins"></td>
             </tr>
             </table>
 		{% else %}
@@ -33,10 +34,6 @@
 
         
         <div id="vert_block">
-        <form action="" method="post"> {% csrf_token %}
-        <input type="submit" class="btn" value="Show proteins" name="show_proteins">
-        <input type="submit" class="btn" value="Show peptides" name="show_peptides">
-        <input type="submit" class="btn" value="Show psms" name="show_psms"><br>
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
         <input type="submit" class="btn" value="Download csv files" name="download_csv">
@@ -45,8 +42,8 @@
         <input type="submit" class="btn" value="Download mgf files" name="download_mgf"><br>
         <input type="submit" class="btn" value="Download figures in png format" name="download_figs">
         <input type="submit" class="btn" value="Download figures in svg format" name="download_figs_svg">
-        </form>
-        </div>
+        
+        </div></form>
 
         <div class = "vert_block" >
 		{% if searchrun.get_pepxmlfiles %}
