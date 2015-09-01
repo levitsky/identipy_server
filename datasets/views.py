@@ -57,6 +57,7 @@ def get_forms(request, c):
 
 def index(request, c=dict()):
     if request.user.is_authenticated():
+        print request.POST.items()
         c = get_forms(request, c)
         # if 'SearchParametersForm' in c:
         #     if any(v.name in request.POST for v in c['SearchParametersForm']):
@@ -178,12 +179,12 @@ def index(request, c=dict()):
             return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='protein')
         elif(request.POST.get('show_peptides')):
             request.POST = request.POST.copy()
-            dbname = request.POST['show_peptides'] if request.POST['show_peptides'] != 'Show peptides' else False
+            dbname = request.POST['show_peptides'] if not request.POST['show_peptides'].isdigit() else False
             request.POST['show_peptides'] = None
             return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='peptide', dbname=dbname)
         elif(request.POST.get('show_psms')):
             request.POST = request.POST.copy()
-            dbname = request.POST['show_psms'] if request.POST['show_psms'] != 'Show psms' else False
+            dbname = request.POST['show_psms'] if not request.POST['show_psms'].isdigit() else False
             request.POST['show_psms'] = None
             return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='psm', dbname=dbname)
         elif(request.POST.get('order_by')):
