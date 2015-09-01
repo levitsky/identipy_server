@@ -63,7 +63,7 @@ class ResultsDetailed():
             dbname_ind = self.labels.index('proteins')
             sequence_ind = self.labels.index('sequence')
         for val in self.values:
-            if not self.dbname or self.dbname in val[dbname_ind].split(';') or self.dbname == val[sequence_ind]:
+            if not self.dbname or self.dbname in [xz.strip() for xz in val[dbname_ind].split(';')] or self.dbname == val[sequence_ind]:
                 out = []
                 for idx, v in enumerate(val):
                     if self.whiteind[idx]:
