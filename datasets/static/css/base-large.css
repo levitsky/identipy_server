@@ -197,7 +197,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
   color:#fff;
   cursor:pointer;
   border:0;
-  margin-top:0.3em;
+  margin:0.3em;
 }
 
 .redbtn:hover{
@@ -367,7 +367,7 @@ div.rightbox{
     text-decoration:underline;
     font-family:sans-serif;
     color:#000099;
-    font-weight: normal;
+    font-weight: inherit;
     
 }
 .link:hover, a[target="_blank"]:hover{
@@ -554,23 +554,23 @@ label[for="id_from_email"], label[for="id_subject"], label[for="id_message"]{
     
 }
 
-#id_from_email{  
-    display:block;
-    top: 0;
-    width: 20em;
+#id_from_email,textarea{  
+    display: block;
+    margin-top: 0;
+    width: 80%;
     padding: 0;
-    margin: 0;
-    margin-bottom:0.5em;
+    margin-left: 20%;
+    margin-bottom: 0.5em;
 }
 
 #id_subject{  
     display:block;
     top: 0;
-    width: 21.81em;
+    margin-top: 0;
+    width: 80%;
     padding: 0;
-    margin: 0;
-   
-   
+    margin-left: 20%;
+    margin-bottom: 0.5em;
     border: 1px solid #ccc;
     font-size: 95%;
     color: #555;
@@ -618,3 +618,12 @@ input:focus {
     left:0;
     top:0;
 }
+
+div#colored{
+    background:#eeeeff;
+    margin:0;
+    padding:0;
+    width:100%;
+    overflow:hidden;
+}
+    
