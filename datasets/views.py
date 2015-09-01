@@ -275,6 +275,7 @@ def index(request, c=dict()):
             # fd.close()
 
         c.update({'commonform': commonform})
+        c['menubar'] = Menubar('about', request.user.is_authenticated())
         return render(request, 'datasets/index.html', c)
     else:
         c['menubar'] = Menubar('loginform', request.user.is_authenticated())
