@@ -178,17 +178,12 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
   color:#fff;
   cursor:pointer;
   border:0;
-  margin:0.3em; 
+  margin:0.3em 0; 
 }
 
-.redbtn {
-  display: inline-block;
-  font-size: 1em;
+.red {
   background:#990000;
-  padding:0 1em;
   color:#fff;
-  cursor:pointer;
-  border:0;
 }
 
 .btn:hover{
@@ -196,7 +191,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
   color: #ffffff;
   
 }
-.redbtn:hover{
+.red:hover{
   background:#dd0000;
   color: #ffffff;
 
@@ -275,7 +270,7 @@ div.inthemiddle p{
     
 }
 
-div.inthemiddle h2 p{
+div.inthemiddle h2 p, div.inthemiddle h4 p{
     text-indent: 0;
     margin-bottom:0.5em;
     
@@ -414,18 +409,32 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
     margin: 1em 35%;
 }
 
-#id_relates_to{
+h2 #id_relates_to{
     margin-top:4em;
     margin-left:0;
     font-size:0.7em;
     list-style-type:none;
     text-align:left;
 }
-#id_relates_to li{
-    padding:0.3em;
-    padding-left:0;
+h2 #id_relates_to li{
+    padding:0.3em 0;
 }
 
+h4 p{
+    padding-right:2em;
+}
+
+h4 #id_relates_to{
+    margin-top:0;
+    margin-left:0;
+    font-size:1em;
+    list-style-type:none;
+    text-align:left;
+}
+h4 #id_relates_to li{
+    padding:0.3em ;
+    float:left;
+}
 #fixedpanel{
     position:absolute;
     width:100%;
