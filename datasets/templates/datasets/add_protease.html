@@ -14,8 +14,8 @@
       </ul></form>
     </div>
 
-
-<div id="tab"><form method="post" id="selectionform">{% csrf_token %}
+<form method="post" id="selectionform">{% csrf_token %}
+<div id="tab">
     <h2><p>Add custom cleavage rule</p>
     <div><table width="100%"><tr>
 
@@ -37,8 +37,14 @@
               <td class="rightcolumn">
                   <input type="submit" class="btn" value="cancel" name="searchpage"></td>
                    
-        </table></div></h2></form>
+        </table></div></h2>
          
 
-    </div>  
+    </div>
+
+    <div id="fixedpanel" ><h2>
+    <input class = "redbtn" type="submit" value="delete" name="del_protease">
+
+    {{ proteases.as_table }}
+    </h2></div></form>
 {% endblock %}
