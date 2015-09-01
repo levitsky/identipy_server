@@ -262,8 +262,8 @@ def index(request, c=dict()):
                         newdoc.save()
                     else:
                         pass
-                messages.add_message(request, messages.INFO, 'Upload was done successfully')
-                return HttpResponseRedirect(reverse('datasets:index'))
+                messages.add_message(request, messages.INFO, 'Upload successful')
+                return upload(request, c = c)
         else:
             commonform = CommonForm()
 
