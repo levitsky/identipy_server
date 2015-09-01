@@ -712,12 +712,16 @@ def search_details(request, runname, c=dict()):
     c.update(csrf(request))
     runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
     c.update({'searchgroup': runobj})
+    print runobj.id, runobj.groupname
+    sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
+    if sruns.count() == 1:
+        return results_figure(request, sruns[0].runname, runobj.id, c)
     return render(request, 'datasets/results.html', c)
 
 def results_figure(request, runname, searchgroupid, c=dict()):
     c = c
     c.update(csrf(request))
-    runobj = get_object_or_404(SearchRun, runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
+    runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj})
     return render(request, 'datasets/results_figure.html', c)
 
