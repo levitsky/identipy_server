@@ -25,7 +25,7 @@ class ResultsDetailed():
         if self.ftype == 'protein' and name == 'dbname':
             return SubmitButtonField(label="", initial="").widget.render3(value)
         elif self.ftype == 'protein' and name == 'description':
-            return SubmitButtonField(label="", initial="").widget.render5(dbname, value)
+            return SubmitButtonField(label="", initial="").widget.render5(value)
         elif self.ftype == 'protein' and name == 'PSMs':
             return SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
         elif self.ftype == 'protein' and name == 'peptides':
