@@ -154,6 +154,10 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['sbm_protease'] = None
             return add_protease(request, c = c, sbm=True)
+        elif(request.POST.get('del_protease')):
+            request.POST = request.POST.copy()
+            request.POST['del_protease'] = None
+            return add_protease(request, c = c)
         elif(request.POST.get('add_modification')):
             request.POST = request.POST.copy()
             request.POST['add_modification'] = None
@@ -287,9 +291,18 @@ def details(request, pK):
             {'document': doc})
 
 def delete(request, c):
-    for obj_id in request.POST.get('relates_to', []):
-        obj = c['usedclass'].objects.get(user=c['userid'], id=obj_id)
-        obj.delete()
+    usedclass=c['usedclass']
+    usedname=c['usedname']
+    documents = usedclass.objects.filter(user=request.user)
+    cc = []
+    for doc in documents:
+        if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
+            cc.append((doc.id, doc.name()))
+    form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+    if form.is_valid():
+        for x in form.cleaned_data.get('relates_to'):
+            obj = c['usedclass'].objects.get(user=c['userid'], id=x)
+            obj.delete()
     return searchpage(request, c)
 
 def logout_view(request):
@@ -459,6 +472,21 @@ def add_modification(request, c=dict(), sbm=False):
 def add_protease(request, c=dict(), sbm=False):
     c = c
     c.update(csrf(request))
+
+    cc = []
+    for pr in Protease.objects.filter(user=c['userid']):
+        cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
+
+    if request.POST.get('relates_to'):
+        proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='Delete proteases', multiform=True)
+        if proteases.is_valid():
+            for obj_id in proteases.cleaned_data.get('relates_to'):
+                obj = Protease.objects.get(user=c['userid'], id=obj_id)
+                obj.delete()
+            request.POST['relates_to'] = False
+        return add_protease(request, c, sbm=sbm)
+
+    proteases = MultFilesForm(custom_choices=cc, labelname='Delete proteases', multiform=True)
     if sbm:
         c['proteaseform'] = AddProteaseForm(request.POST)
         if c['proteaseform'].is_valid():
@@ -480,6 +508,7 @@ def add_protease(request, c=dict(), sbm=False):
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'datasets/add_protease.html', c)
     c['proteaseform'] = AddProteaseForm()
+    c['proteases'] = proteases
     return render(request, 'datasets/add_protease.html', c)
 
 def select_modifications(request, c=dict(), fixed=True, upd=False):
@@ -683,12 +712,16 @@ def search_details(request, runname, c=dict()):
     c.update(csrf(request))
     runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
     c.update({'searchgroup': runobj})
+    print runobj.id, runobj.groupname
+    sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
+    if sruns.count() == 1:
+        return results_figure(request, sruns[0].runname, runobj.id, c)
     return render(request, 'datasets/results.html', c)
 
 def results_figure(request, runname, searchgroupid, c=dict()):
     c = c
     c.update(csrf(request))
-    runobj = get_object_or_404(SearchRun, runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
+    runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj})
     return render(request, 'datasets/results_figure.html', c)
 
