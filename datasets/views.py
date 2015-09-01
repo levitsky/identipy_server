@@ -291,9 +291,18 @@ def details(request, pK):
             {'document': doc})
 
 def delete(request, c):
-    for obj_id in request.POST.get('relates_to', []):
-        obj = c['usedclass'].objects.get(user=c['userid'], id=obj_id)
-        obj.delete()
+    usedclass=c['usedclass']
+    usedname=c['usedname']
+    documents = usedclass.objects.filter(user=request.user)
+    cc = []
+    for doc in documents:
+        if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
+            cc.append((doc.id, doc.name()))
+    form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+    if form.is_valid():
+        for x in form.cleaned_data.get('relates_to'):
+            obj = c['usedclass'].objects.get(user=c['userid'], id=x)
+            obj.delete()
     return searchpage(request, c)
 
 def logout_view(request):
