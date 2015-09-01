@@ -4,22 +4,23 @@
 {% load stringfilter %}
         <form action="" method="post">{% csrf_token %}
         <div id="tab">
-        <h2>
+        <form action="" method="post">{% csrf_token %}
+            <h2>
+        <p>Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">/<input type="submit" class="link" value={{ searchrun.name|spacify }} name="results_figure"/>
+        <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}></p></h2>
+            <h4>
 		{% if results_detailed %}
-            <div id="fixedpanel" >
-        <input type="submit" class="btn" value="show selected columns" name="select_labels">
-                <input type="submit" class="btn" value="cancel" name="results_figure"/>
-                <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>       
-                   
-            </div>
-            {{ results_detailed.labelform.as_p }}
             
-            <a name="breakpoint"></a>
+        <table width="100%"><tr><td width="80%"> 
+            {{ results_detailed.labelform.as_p }}</td>
+            <td align="right"><input type="submit" class="btn" value="show selected columns" name="select_labels"></td></tr></table>
+            </h4>
+            <h2>
             <table id="processes_list" type="bordered">
                 <tr id="headings">
 			        {% for label in results_detailed.get_labels %}
-                    <th><a href="#breakpoint"><input type="submit" class="link" value={{ label|spacify }} name=order_by></a></th>
+                    <th><input type="submit" class="link" value={{ label|spacify }} name=order_by></th>
 			        {% endfor %}
                 </tr>
             {% for prot in results_detailed.get_values %}
@@ -41,6 +42,6 @@
         
         </div>
             </h2>
-        </div>
-</form>
+        
+</form></div>
 {% endblock %}
