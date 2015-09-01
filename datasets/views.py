@@ -709,6 +709,7 @@ def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False,
         if res_dict.labelform.is_valid():
             whitelabels = [x for x in res_dict.labelform.cleaned_data.get('relates_to')]
             res_dict.custom_labels(whitelabels)
+            request.POST['relates_to'] = False
     else:
         res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     c.update({'results_detailed': res_dict})
