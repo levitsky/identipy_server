@@ -3,16 +3,7 @@
 {% block content %}
 
    {% if user.username %}   
-   <div id="menu">
-        <ul><form action="" method="post">{% csrf_token %}
-        
-        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
-        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
-        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
-        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-          
-      </form></ul>
-    </div>
+   
      <div id="tab">
          <h2><p>Login successful</p></h2>
          <form action="" method="post">{% csrf_token %}
@@ -22,14 +13,7 @@
 </div>
 
 {% else %}
-<div id="menu"><form action="" method="post">{% csrf_token %}
-        <ul>
-        <li><div id="about"><input type="submit" class="menubar current" value="about" name="about"></div></li>
-        <li><div id="loginform"><input type="submit" class="menubar" value="log in" name="loginform"></div></li>
-        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-         
-      </ul></form>
-    </div>
+
 
 <div id="tab">
     <h2><p>IdentiPROT search engine</p></h2>
