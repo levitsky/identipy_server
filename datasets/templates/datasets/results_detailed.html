@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Search results: {{searchrun.name}} {% endblock%}
+{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname }}/{{ searchrun.name}}{% endblock%}
 {% block content %}
 {% load stringfilter %}
         <form action="" method="post">{% csrf_token %}
@@ -7,10 +7,7 @@
         <h2>
 		{% if results_detailed %}
             <div id="fixedpanel" >
-        
-
-        
-                <input type="submit" class="btn" value="show selected columns" name="select_labels">
+        <input type="submit" class="btn" value="show selected columns" name="select_labels">
                 <input type="submit" class="btn" value="cancel" name="results_figure"/>
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>       

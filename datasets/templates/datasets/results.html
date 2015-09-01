@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Uploaded data{% endblock%}
+{% block title %}Searches: {{searchgroup.groupname}}{% endblock%}
 {% block content %}
 {% load stringfilter %}
         <div id="menu"><form action="" method="post">{% csrf_token %}
@@ -17,7 +17,7 @@
         
         <h2>
 		{% if searchgroup %}
-            <p>{{searchgroup.groupname}}</p>
+            <p>Searches: {{searchgroup.groupname}}</p>
             <table type="bordered">
                 <tr id="headings">
                     <th>Search name</th>
@@ -51,16 +51,18 @@
 		{% endif %}
 
         
-        <div id="vert_block">
+        <div id="colored">
         <form action="" method="post">{% csrf_token %}
-        <input type="submit" class="btn" value="Download csv files" name="download_csv">
-        <input type="submit" class="btn" value="Download pepxml files" name="download_pepxml">
-        <input type="submit" class="btn" value="Download mgf files" name="download_mgf">
+         Download:
+        <input type="submit" class="btn" value="csv files" name="download_csv">
+        <input type="submit" class="btn" value="pepxml files" name="download_pepxml">
+        <input type="submit" class="btn" value="mgf files" name="download_mgf">
         </form>
-           <form action="" method="post">{% csrf_token %}
+         </div> 
+            <form action="" method="post">{% csrf_token %}
         
             <input type="submit" class="backbtn" value="Back to&#10;search history" name="getstatus">
             </form>
-        </div>
+        
 </h2>
 {% endblock %}
