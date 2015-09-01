@@ -474,7 +474,7 @@ def add_protease(request, c=dict(), sbm=False):
     c.update(csrf(request))
 
     cc = []
-    for pr in Protease.objects.all():
+    for pr in Protease.objects.filter(user=c['userid']):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
     if request.POST.get('relates_to'):
