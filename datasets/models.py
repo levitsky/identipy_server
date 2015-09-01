@@ -318,7 +318,12 @@ class SearchRun(BaseDocument):
 
     def get_detailed(self, ftype):
         from aux import ResultsDetailed
-        return ResultsDetailed(ftype=ftype, path_to_csv=self.get_csvfiles_paths(ftype=ftype)[0])
+        rd = ResultsDetailed(ftype=ftype, path_to_csv=self.get_csvfiles_paths(ftype=ftype)[0])
+        if ftype == 'protein':
+            rd.custom_labels(['dbname', 'PSMs', 'peptides', 'LFQ(SIn)'])
+        elif ftype in ['peptide', 'psm']:
+            rd.custom_labels(['sequence', 'm/z exp', 'RT exp', 'missed cleavages'])
+        return rd
 
 class Protease(models.Model):
     name = models.CharField(max_length=80)
