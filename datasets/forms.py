@@ -17,8 +17,8 @@ class SubmitButtonWidget(forms.Widget):
         return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (html.escape(name), html.escape(name))
     def render4(self, id, name, value, dbname, attrs=None):
         return '<button id="%s" type="submit" class="link" value="%s" name="%s">%s</button>' % (html.escape(id), html.escape(dbname), html.escape(value), html.escape(name))
-    def render5(self, name, value):
-        return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (html.escape(name), html.escape(value))
+    def render5(self, name):
+        return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (html.escape(name.split('OS=')[0]), html.escape(name))
 
 
 
