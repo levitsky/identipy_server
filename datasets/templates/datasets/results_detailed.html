@@ -6,8 +6,18 @@
         <div id="tab">
         <h2>
 		{% if results_detailed %}
+            <div id="fixedpanel" >
+        
+
+        
+                <input type="submit" class="btn" value="show selected columns" name="select_labels">
+                <input type="submit" class="btn" value="cancel" name="results_figure"/>
+                <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>       
+                   
+            </div>
             {{ results_detailed.labelform.as_p }}
-            <input type="submit" class="btn" value="Show selected columns" name="select_labels">
+            
             <a name="breakpoint"></a>
             <table id="processes_list" type="bordered">
                 <tr id="headings">
@@ -31,9 +41,9 @@
         <input type="submit" class="link" value={{ searchrun.name|spacify }} name="results_figure"/>
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
-        </form>
+        
         </div>
             </h2>
         </div>
-
+</form>
 {% endblock %}
