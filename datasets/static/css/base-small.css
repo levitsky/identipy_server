@@ -433,6 +433,7 @@ h4 #id_relates_to{
 }
 h4 #id_relates_to li{
     padding:0.3em ;
+    padding-left:0;
     float:left;
 }
 
@@ -505,10 +506,10 @@ input[id^="id_main"]{
 }
 
 #img_list > div {
-  padding: 2%;
-  width: 29%;
+  display:inline-block;
+  padding: 1%;
+  width: 2%;
   background: white;
-  float: left;
   color: #000;
   text-align: center;
 }
@@ -647,8 +648,9 @@ div#colored{
     overflow:auto;
 }   
 .short{
-    height:15em;
+    height:12em;
 }
 .fullsize{
     height:30em;
+    margin-bottom:1em;
 }
