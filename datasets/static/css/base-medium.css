@@ -1,7 +1,7 @@
 *{margin:0;padding:0;}
 
 ::-webkit-scrollbar { 
-    display: none; 
+   
 }
 
 body
@@ -442,7 +442,9 @@ h4 #id_relates_to li{
     padding:0.3em ;
     float:left;
 }
-
+h4 .btn{
+    font-size:1.5em;
+}
 #fixedpanel{
     position:absolute;
     width:100%;
@@ -645,4 +647,15 @@ div#colored{
     padding:0;
     width:100%;
     overflow:hidden;
+}
+
+.scroll{
+    width:100%;
+    overflow:auto;
+}   
+.short{
+    height:15em;
+}  
+.fullsize{
+    height:33em;
 }
