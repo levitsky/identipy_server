@@ -77,10 +77,8 @@ WSGI_APPLICATION = 'identipy_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'identiprotdb',
-        'USER': 'identiprot',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
     }
 }
 
