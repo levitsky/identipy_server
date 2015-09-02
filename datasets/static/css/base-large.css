@@ -1,7 +1,7 @@
 *{margin:0;padding:0;}
 
 ::-webkit-scrollbar { 
-   
+   display:always;
 }
 
 
@@ -466,6 +466,7 @@ h4 #id_relates_to{
 h4 #id_relates_to li{
     padding:0.3em ;
     float:left;
+    padding-left:0;
 }
 
 h4 .btn{
@@ -545,10 +546,10 @@ input[id^="id_main"]{
     text-align:right;
 }
 #img_list > div {
-  padding: 2%;
+  display:inline-block;
+  padding: 1%;
   width: 29%;
   background: white;
-  float: left;
   color: #000;
   text-align: center;
 }
@@ -659,4 +660,5 @@ div#colored{
 
 .fullsize{
     height:40em;
+    margin-bottom:1em;
 }
