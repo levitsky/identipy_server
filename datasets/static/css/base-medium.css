@@ -423,6 +423,10 @@ h2 #id_relates_to{
     list-style-type:none;
     text-align:left;
 }
+h2 #delprotease #id_relates_to{
+    margin-top:0;
+}
+
 h2 #id_relates_to li{
     padding:0.3em 0;
 }
