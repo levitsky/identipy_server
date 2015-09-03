@@ -58,7 +58,7 @@ class ResultsDetailed():
     def get_labels(self):
         return [label for idx, label in enumerate(self.labels) if self.whiteind[idx]]
 
-    def get_values(self):
+    def get_values(self, rawformat=False):
         if self.dbname:
             dbname_ind = self.labels.index('proteins')
             sequence_ind = self.labels.index('sequence')
@@ -67,7 +67,10 @@ class ResultsDetailed():
                 out = []
                 for idx, v in enumerate(val):
                     if self.whiteind[idx]:
-                        out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
+                        if rawformat:
+                            out.append(v)
+                        else:
+                            out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
                 yield out
 
 class Menubar():
