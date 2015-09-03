@@ -481,7 +481,7 @@ def add_protease(request, c=dict(), sbm=False):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
     if request.POST.get('relates_to'):
-        proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='Delete proteases', multiform=True)
+        proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
         if proteases.is_valid():
             for obj_id in proteases.cleaned_data.get('relates_to'):
                 obj = Protease.objects.get(user=c['userid'], id=obj_id)
@@ -489,7 +489,7 @@ def add_protease(request, c=dict(), sbm=False):
             request.POST['relates_to'] = False
         return add_protease(request, c, sbm=sbm)
 
-    proteases = MultFilesForm(custom_choices=cc, labelname='Delete proteases', multiform=True)
+    proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
     if sbm:
         c['proteaseform'] = AddProteaseForm(request.POST)
         if c['proteaseform'].is_valid():

@@ -447,6 +447,10 @@ h2 #id_relates_to{
     list-style-type:none;
     text-align:left;
 }
+
+h2 #delprotease #id_relates_to{
+    margin-top:0;
+}
 h2 #id_relates_to li{
     padding:0.3em 0;
 }
@@ -662,3 +666,16 @@ div#colored{
     height:40em;
     margin-bottom:1em;
 }
+
+
+/*.scroll table {
+            overflow-y: scroll;
+        }
+.scroll tbody {
+            overflow-x: hidden;
+            display: block;
+            height: 200px;
+        }
+.scroll thead {
+            display: table-row;
+        } */
