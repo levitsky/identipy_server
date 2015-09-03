@@ -11,6 +11,7 @@ from django.core.files import File
 from django.core.mail import send_mail, BadHeaderError
 from django.contrib import messages
 from django.db.models import Max
+from django.utils.encoding import smart_str
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
 from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
@@ -23,6 +24,7 @@ import shutil
 import math
 from copy import copy
 from django.utils.safestring import mark_safe
+import tempfile
 
 from pyteomics import parser
 import sys
@@ -209,6 +211,10 @@ def index(request, c=dict()):
         elif(request.POST.get('download_csv')):
             c['down_type'] = 'csv'
             return getfiles(c=c)
+        elif(request.POST.get('download_custom_csv')):
+            request.POST = request.POST.copy()
+            request.POST['download_custom_csv'] = None
+            return get_custom_csv(request, c=c)
         elif(request.POST.get('download_pepxml')):
             c['down_type'] = 'pepxml'
             return getfiles(c=c)
@@ -783,6 +789,23 @@ def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False,
         res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     c.update({'results_detailed': res_dict})
     return render(request, 'datasets/results_detailed.html', c)
+
+def get_custom_csv(request, c):
+    tmpfile_name = c['searchrun'].searchgroup_parent.groupname + '_' + c['searchrun'].name() + '_' + c['results_detailed'].ftype + 's_selectedfields.csv'
+    tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
+    tmpfile.write('\t'.join(c['results_detailed'].get_labels()) + '\n')
+    tmpfile.flush()
+    for v in c['results_detailed'].get_values(rawformat=True):
+        tmpfile.write('\t'.join(v) + '\n')
+        tmpfile.flush()
+    tmpfile_path = tmpfile.name
+    tmpfile.close()
+
+    response = HttpResponse(content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(tmpfile_name)
+    response.write(open(tmpfile_path).read())
+    os.remove(tmpfile_path)
+    return response
 
 def getfiles(c):
     searchgroup = c['searchgroup']
