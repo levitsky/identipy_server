@@ -2,7 +2,10 @@
 from django.db import models
 from django.core.files.storage import default_storage, FileSystemStorage
 from django.contrib.auth.models import User
+
+from django.conf import settings
 import os
+os.chdir(settings.BASE_DIR)
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
