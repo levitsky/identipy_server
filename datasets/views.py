@@ -15,8 +15,10 @@ from django.utils.encoding import smart_str
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
 from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
-import os
 from os import path
+from django.conf import settings
+import os
+os.chdir(settings.BASE_DIR)
 import subprocess
 import zipfile
 import StringIO
