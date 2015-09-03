@@ -1,7 +1,10 @@
 from models import ParamsFile, Protease
 from forms import SearchParametersForm
 from django.core.files import File
+
+from django.conf import settings
 import os
+os.chdir(settings.BASE_DIR)
 import sys
 import csv
 sys.path.append('../identipy/')
