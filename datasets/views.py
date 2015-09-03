@@ -296,6 +296,8 @@ def details(request, pK):
 def delete(request, c):
     usedclass=c['usedclass']
     usedname=c['usedname']
+    import django.db
+    django.db.connection.close()
     documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
@@ -364,6 +366,8 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
         return loginview(request, message='Wrong username or password')
 
 def user_exists(username):
+    import django.db
+    django.db.connection.close()
     user_count = User.objects.filter(username=username).count()
     if user_count == 0:
         return False
@@ -379,6 +383,8 @@ def secured(request):
 
 
 def status(request, c=dict()):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
     res_page = c.get('res_page', 1)
@@ -443,6 +449,8 @@ def email(request, c={}):
     return render(request, "datasets/email.html", {'form': form})
 
 def add_modification(request, c=dict(), sbm=False):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
     if sbm:
@@ -473,6 +481,8 @@ def add_modification(request, c=dict(), sbm=False):
     return render(request, 'datasets/add_modification.html', c)
 
 def add_protease(request, c=dict(), sbm=False):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
 
@@ -515,6 +525,8 @@ def add_protease(request, c=dict(), sbm=False):
     return render(request, 'datasets/add_protease.html', c)
 
 def select_modifications(request, c=dict(), fixed=True, upd=False):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
     modifications = Modification.objects.filter(user=request.user)
@@ -533,6 +545,8 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
     return render(request, 'datasets/choose.html', c)
 
 def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
     if not usedclass or not usedname:
@@ -582,8 +596,11 @@ def identiprot_view(request, c):
     return status(request, c)
 
 def runidentiprot(request, c):
-
+    import django.db
+    django.db.connection.close()
     def run_search(newrun, rn, c):
+        import django.db
+        django.db.connection.close()
         paramfile = newrun.parameters.all()[0].path()
         fastafile = newrun.fasta.all()[0].path()
         settings = main.settings(paramfile)
@@ -601,6 +618,8 @@ def runidentiprot(request, c):
         return path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
 
     def totalrun(settings, newrun, usr, paramfile):
+        import django.db
+        django.db.connection.close()
         procs = []
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
@@ -657,6 +676,8 @@ def runidentiprot(request, c):
         return 1
 
     def runproc(inputfile, settings, newrun, usr):
+        import django.db
+        django.db.connection.close()
         filename = set_pepxml_path(settings, inputfile)
         utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
         fl = open(filename, 'r')
@@ -668,6 +689,8 @@ def runidentiprot(request, c):
         return 1
 
     def start_union(newgroup, rn, c):
+        import django.db
+        django.db.connection.close()
         try:
             un_run = newgroup.get_union()[0]
         except:
@@ -681,6 +704,8 @@ def runidentiprot(request, c):
         newgroup.change_status('Task is finished')
 
     def start_all(newgroup, rn, c):
+        import django.db
+        django.db.connection.close()
         tmp_procs = []
         for newrun in newgroup.get_searchruns():
             p = Process(target=run_search, args=(newrun, rn, c))
@@ -711,6 +736,8 @@ def runidentiprot(request, c):
 
 
 def search_details(request, runname, c=dict()):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
     runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
@@ -722,6 +749,8 @@ def search_details(request, runname, c=dict()):
     return render(request, 'datasets/results.html', c)
 
 def results_figure(request, runname, searchgroupid, c=dict()):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
     runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
@@ -730,6 +759,8 @@ def results_figure(request, runname, searchgroupid, c=dict()):
 
 
 def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False, upd=False, dbname=False):
+    import django.db
+    django.db.connection.close()
     c = c
     c.update(csrf(request))
     if not upd:
