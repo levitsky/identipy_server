@@ -31,6 +31,7 @@ import tempfile
 from pyteomics import parser
 import sys
 sys.path.append('../identipy/')
+sys.path.append('../mp-score/')
 from identipy import main, utils
 from multiprocessing import Process
 from aux import save_mods, save_params_new, Menubar, ResultsDetailed
@@ -647,7 +648,7 @@ def runidentiprot(request, c):
             paramlist = [paramfile]
             bname = os.path.dirname(pepxmllist[0]) + '/union'
         newrun.set_FDRs()
-        from mpscore import MPscore
+        import MPscore
         MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
         if not os.path.isfile(bname + '_PSMs.csv'):
             bname = os.path.dirname(bname) + '/union'
