@@ -7,6 +7,10 @@ from models import Protease
 from django.utils import html
 from django.utils.safestring import mark_safe
 
+from django.conf import settings
+import os
+os.chdir(settings.BASE_DIR)
+
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
         return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))

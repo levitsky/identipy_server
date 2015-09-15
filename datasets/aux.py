@@ -1,7 +1,10 @@
 from models import ParamsFile, Protease
 from forms import SearchParametersForm
 from django.core.files import File
+
+from django.conf import settings
 import os
+os.chdir(settings.BASE_DIR)
 import sys
 import csv
 sys.path.append('../identipy/')
@@ -58,7 +61,7 @@ class ResultsDetailed():
     def get_labels(self):
         return [label for idx, label in enumerate(self.labels) if self.whiteind[idx]]
 
-    def get_values(self):
+    def get_values(self, rawformat=False):
         if self.dbname:
             dbname_ind = self.labels.index('proteins')
             sequence_ind = self.labels.index('sequence')
@@ -67,7 +70,10 @@ class ResultsDetailed():
                 out = []
                 for idx, v in enumerate(val):
                     if self.whiteind[idx]:
-                        out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
+                        if rawformat:
+                            out.append(v)
+                        else:
+                            out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
                 yield out
 
 class Menubar():

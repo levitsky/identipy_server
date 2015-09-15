@@ -2,7 +2,10 @@
 from django.db import models
 from django.core.files.storage import default_storage, FileSystemStorage
 from django.contrib.auth.models import User
+
+from django.conf import settings
 import os
+os.chdir(settings.BASE_DIR)
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
@@ -107,6 +110,8 @@ class SearchGroup(BaseDocument):
     status = models.CharField(max_length=80, default='No info')
 
     def add_files(self, c):
+        import django.db
+        django.db.connection.close()
         self.add_fasta(c['chosenfasta'])
         self.add_params(sfForms=c['SearchForms'], paramtype=c['paramtype'])
         self.save()
@@ -134,31 +139,45 @@ class SearchGroup(BaseDocument):
     #     self.save()
 
     def add_fasta(self, fastaobject):
+        import django.db
+        django.db.connection.close()
         self.fasta.add(fastaobject[0])
         self.save()
 
     def add_params(self, sfForms, paramtype=3):
+        import django.db
+        django.db.connection.close()
         from aux import save_params_new
         paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=False, paramtype=paramtype, request=False)
         self.parameters.add(paramobj)
         self.save()
 
     def get_searchruns(self):
+        import django.db
+        django.db.connection.close()
         return self.searchrun_set.filter(union=False)
         # return self.searchruns.filter(union=False)
 
     def get_union(self):
+        import django.db
+        django.db.connection.close()
         return self.searchrun_set.filter(union=True)
         # return self.searchruns.filter(union=True)
 
     def get_searchruns_all(self):
+        import django.db
+        django.db.connection.close()
         return self.searchrun_set.all().order_by('union')
         # return self.searchruns.all().order_by('union')
 
     def name(self):
+        import django.db
+        django.db.connection.close()
         return os.path.split(self.groupname)[-1]
 
     def change_status(self, message):
+        import django.db
+        django.db.connection.close()
         self.status = message
         self.save()
 
@@ -197,43 +216,63 @@ class SearchRun(BaseDocument):
             return 'no'
 
     def add_files(self, c):
+        import django.db
+        django.db.connection.close()
         self.add_spectra(c['chosenspectra'])
         self.add_fasta(c['chosenfasta'])
         self.add_params(sfForms=c['SearchForms'])
 
     def add_spectra(self, spectraobject):
+        import django.db
+        django.db.connection.close()
         # for s in spectraobjects:
         self.spectra.add(spectraobject)
         self.save()
 
     def add_spectra_files(self, spectrafiles):
+        import django.db
+        django.db.connection.close()
         for s in spectrafiles:
             self.spectra.add(s)
             self.save()
 
     def add_fasta(self, fastaobject):
+        import django.db
+        django.db.connection.close()
         # for s in fastaobjects:
         self.fasta.add(fastaobject)
         self.save()
 
     def add_params(self, paramsobject):
+        import django.db
+        django.db.connection.close()
         # for s in paramsobjects:
         self.parameters.add(paramsobject)
         self.save()
 
     def add_pepxml(self, pepxmlfile):
+        import django.db
+        django.db.connection.close()
         self.pepxmlfiles.add(pepxmlfile)
         self.save()
 
     def add_resimage(self, resimage):
+
+        import django.db
+        django.db.connection.close()
         self.resimagefiles.add(resimage)
         self.save()
 
     def add_rescsv(self, rescsv):
+
+        import django.db
+        django.db.connection.close()
         self.csvfiles.add(rescsv)
         self.save()
 
     def get_resimagefiles(self, ftype='.png'):
+        import django.db
+        django.db.connection.close()
         def get_index(val, custom_list):
             for idx, v in enumerate(custom_list):
                 if val == v or (v == 'potential modifications' and val.startswith(v)):
@@ -259,24 +298,38 @@ class SearchRun(BaseDocument):
         return all_images
 
     def get_pepxmlfiles(self):
+        import django.db
+        django.db.connection.close()
         return self.pepxmlfiles.all()
 
     def get_pepxmlfiles_paths(self):
+        import django.db
+        django.db.connection.close()
         return [pep.docfile.name.encode('ASCII') for pep in self.pepxmlfiles.all()]
 
     def get_spectrafiles_paths(self):
+        import django.db
+        django.db.connection.close()
         return [pep.docfile.name.encode('ASCII') for pep in self.spectra.all()]
 
     def get_fastafile_path(self):
+        import django.db
+        django.db.connection.close()
         return [self.fasta.all()[0].docfile.name.encode('ASCII'), ]
 
     def get_resimage_paths(self, ftype='.png'):
+        import django.db
+        django.db.connection.close()
         return [pep.docfile.name.encode('ASCII') for pep in self.get_resimagefiles(ftype=ftype)]
 
     def get_paramfile_path(self):
+        import django.db
+        django.db.connection.close()
         return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
 
     def get_csvfiles_paths(self, ftype=None):
+        import django.db
+        django.db.connection.close()
         # if not os.path.isfile(os.path.dirname(self.csvfiles.filter(ftype='psm')[0].docfile.name.encode('ASCII')) + '/union_PSMs.csv'):
         if ftype:
             return [pep.docfile.name.encode('ASCII') for pep in self.csvfiles.filter(ftype=ftype)]
