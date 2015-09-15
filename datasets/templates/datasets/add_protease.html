@@ -3,16 +3,6 @@
 {% block content %}
 
 
-<div id="menu"><form action="" method="post">{% csrf_token %}
-        <ul>
-            
-        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
-        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
-        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
-        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-            
-      </ul></form>
-    </div>
 
 <form method="post" id="selectionform">{% csrf_token %}
 <div id="tab">
@@ -40,11 +30,14 @@
         </table></div></h2>
          
 
+    <h2>
+    <br>
+        <div id ="delprotease">
+   <p> <input class = "btn red" type="submit" value="Delete" name="del_protease">
+
+        {{ proteases.as_table }}</p>
+    </div></h2>
     </div>
 
-    <div id="fixedpanel" ><h2>
-    <input class = "redbtn" type="submit" value="delete" name="del_protease">
-
-    {{ proteases.as_table }}
-    </h2></div></form>
+    </form>
 {% endblock %}
