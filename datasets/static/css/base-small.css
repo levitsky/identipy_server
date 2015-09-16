@@ -512,8 +512,8 @@ input[id^="id_main"]{
 
 #img_list > div {
   display:inline-block;
-  padding: 1%;
-  width: 2%;
+  padding: 0 1%;
+  width: 29%;
   background: white;
   color: #000;
   text-align: center;

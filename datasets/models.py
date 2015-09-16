@@ -257,7 +257,35 @@ class SearchRun(BaseDocument):
         all_images = [doc for doc in self.resimagefiles.filter(ftype=ftype)]
         all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower(), custom_order))
         return all_images
-
+    
+    def get_distrimagefiles(self, ftype='.png'):
+        distr_list = ['rt experimental',
+                        'precursor mass',
+                        'peptide length']
+        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in distr_list]
+        return distr_images
+    
+    def get_quantimagefiles(self, ftype='.png'):
+        quant_list = ['sumi',
+                        'nsaf',
+                        'empai']
+        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in quant_list]
+        return quant_images
+    
+    def get_mpimagefiles(self, ftype='.png'):
+        MP_list = ['rt difference, min',
+                        'precursor mass difference, ppm',
+                        'fragment mass tolerance, da',
+                        'potential modifications',
+                        'isotopes mass difference, da',
+                        'missed cleavages, protease 1',
+                        'psm count',
+                        'psms per protein',
+                        'charge states',
+                        'scores']
+        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in MP_list]
+        return mp_images
+    
     def get_pepxmlfiles(self):
         return self.pepxmlfiles.all()
 
