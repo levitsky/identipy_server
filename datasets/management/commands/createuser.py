@@ -5,6 +5,9 @@ from datasets.models import FastaFile, ParamsFile, Protease, Modification
 
 from pyteomics import parser
 from os import path, listdir
+from django.conf import settings
+import os
+os.chdir(settings.BASE_DIR)
 
 class Command(BaseCommand):
     help = 'Creates new user'
