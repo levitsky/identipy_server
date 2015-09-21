@@ -348,7 +348,7 @@ def loginview(request, message=None):
         c['menubar'] = Menubar('', request.user.is_authenticated())
         return email(request, c = c)
     c['menubar'] = Menubar('loginform', request.user.is_authenticated())
-    return render('datasets/login.html', c)
+    return render(request, 'datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
     if(request.POST.get('contacts')):
@@ -389,7 +389,7 @@ def secured(request):
     c.update(csrf(request))
     c['username'] = request.user.username
     c['userid'] = request.user.id
-    return render("index.html", c)
+    return render(request, "index.html", c)
 
 
 def status(request, c=dict()):
