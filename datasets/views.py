@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.context_processors import csrf
-from django.shortcuts import render, get_object_or_404, render_to_response, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
@@ -295,6 +295,7 @@ def index(request, c=dict()):
         return render(request, 'datasets/index.html', c)
     else:
         c['menubar'] = Menubar('loginform', request.user.is_authenticated())
+        c.update(csrf(request))
         return render(request, 'datasets/login.html', c)
 
 def details(request, pK):
@@ -347,7 +348,7 @@ def loginview(request, message=None):
         c['menubar'] = Menubar('', request.user.is_authenticated())
         return email(request, c = c)
     c['menubar'] = Menubar('loginform', request.user.is_authenticated())
-    return render_to_response('datasets/login.html', c)
+    return render('datasets/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
     if(request.POST.get('contacts')):
@@ -388,7 +389,7 @@ def secured(request):
     c.update(csrf(request))
     c['username'] = request.user.username
     c['userid'] = request.user.id
-    return render_to_response("index.html", c)
+    return render("index.html", c)
 
 
 def status(request, c=dict()):
@@ -584,9 +585,9 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
                 return searchpage(request, c)
     else:
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
+    c.update(csrf(request))
     c.update({'menubar': Menubar('choose', request.user.is_authenticated()), 'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
-    return render_to_response('datasets/choose.html', c,
-        context_instance=RequestContext(request))
+    return render('datasets/choose.html', c)
 
 def files_view_spectra(request, c):
     usedclass = SpectraFile
