@@ -62,6 +62,18 @@ def get_forms(request, c):
     return c
 
 def index(request, c=dict()):
+    if(request.POST.get('contacts')):
+        request.POST = request.POST.copy()
+        request.POST['contacts'] = None
+        return contacts(request, c = c)
+    elif(request.POST.get('about')):
+        request.POST = request.POST.copy()
+        request.POST['about'] = None
+        return about(request, c = {})
+    elif(request.POST.get('sendemail')):
+        request.POST = request.POST.copy()
+        request.POST['sendemail'] = None
+        return email(request, c = c)
     if request.user.is_authenticated():
         print request.POST.items()
         c = get_forms(request, c)
@@ -123,14 +135,6 @@ def index(request, c=dict()):
             request.POST = request.POST.copy()
             request.POST['searchpage'] = None
             return searchpage(request, c = c)
-        elif(request.POST.get('contacts')):
-            request.POST = request.POST.copy()
-            request.POST['contacts'] = None
-            return contacts(request, c = c)
-        elif(request.POST.get('sendemail')):
-            request.POST = request.POST.copy()
-            request.POST['sendemail'] = None
-            return email(request, c = c)
         elif(request.POST.get('uploadspectra')):
             request.POST = request.POST.copy()
             request.POST['uploadspectra'] = None
@@ -359,10 +363,6 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
         request.POST = request.POST.copy()
         request.POST['loginform'] = None
         return loginview(request)
-    if(request.POST.get('about')):
-        request.POST = request.POST.copy()
-        request.POST['about'] = None
-        return about(request, c = {})
     elif(request.POST.get('sendemail')):
         request.POST = request.POST.copy()
         request.POST['sendemail'] = None
