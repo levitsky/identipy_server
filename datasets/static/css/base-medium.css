@@ -665,3 +665,10 @@ div#colored{
     height:33em;
     margin-bottom:1em;
 }
+
+#legend{
+        display: inline;
+    width: 20%;
+    vertical-align: middle;
+    margin-left: 5%;
+}

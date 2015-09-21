@@ -96,7 +96,7 @@ body
 .menubar:hover, .menubar:active, .current:active
 {
     background: #FFF;
-    color: #9999dd;
+    color: #afafff;
 }
 .current, .current:hover{
     color: #000099;
@@ -194,7 +194,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
 
 .red{
  
-  background:#990000;
+  background:#AE0066;
   
   color:#fff;
   
@@ -207,7 +207,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
    
 }
 .red:hover{
-  background:#dd0000;
+  background:#D4007C;
   color: #ffffff;
 
 }
@@ -294,14 +294,14 @@ div.inthemiddle h2 p, div.inthemiddle h4 p{
     margin-top:1em;
     text-align:center;
     word-break:break-all;
-    background:#ffbe4f;
+    background:#DBA400;
     color:#fff;
     text-transform:uppercase;
     cursor:pointer;
 }
 
 .backbtn:hover{
-    background:#eeaf3e;
+    background:#FFC926;
 }
 [type="pseudo"]{
     left:0;
@@ -649,6 +649,7 @@ input:focus {
 div#colored{
     background:#eeeeff;
     margin:0;
+    margin-bottom:1em;
     padding:0;
     width:100%;
     overflow:hidden;
@@ -668,14 +669,9 @@ div#colored{
 }
 
 
-/*.scroll table {
-            overflow-y: scroll;
-        }
-.scroll tbody {
-            overflow-x: hidden;
-            display: block;
-            height: 200px;
-        }
-.scroll thead {
-            display: table-row;
-        } */
+#legend{
+        display: inline;
+    width: 20%;
+    vertical-align: middle;
+    margin-left: 5%;
+}

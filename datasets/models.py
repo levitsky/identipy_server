@@ -315,14 +315,13 @@ class SearchRun(BaseDocument):
         MP_list = ['rt difference, min',
                         'precursor mass difference, ppm',
                         'fragment mass tolerance, da',
-                        'potential modifications',
                         'isotopes mass difference, da',
                         'missed cleavages, protease 1',
                         'psm count',
                         'psms per protein',
                         'charge states',
                         'scores']
-        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in MP_list]
+        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in MP_list or doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower().startswith('potential modifications')]
         return mp_images
     
     def get_pepxmlfiles(self):

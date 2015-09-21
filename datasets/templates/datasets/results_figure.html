@@ -50,7 +50,7 @@
         <input type="submit" class="btn" value="figures in svg format" name="download_figs_svg">
         
             </div></h2>
-<h3>
+<h2>
         <div class = "vert_block" >
 		{% if searchrun.get_pepxmlfiles %}
 			<div id="img_list">
@@ -66,15 +66,13 @@
 			{% for doc in searchrun.get_quantimagefiles %}
 
             <div class="floated_img">
-                {% load staticfiles %}
                 <img src="{%static doc.path %}" />
             </div>
 			{% endfor %}
-                <p>MP-score descriptors</p>
+                <p>MP-score descriptors <img id="legend" src="{% static 'image/legend.png' %}" /></p>
 			{% for doc in searchrun.get_mpimagefiles %}
 
             <div class="floated_img">
-                {% load staticfiles %}
                 <img src="{%static doc.path %}" />
             </div>
 			{% endfor %}
@@ -82,7 +80,7 @@
             
 		{% else %}
 		{% endif %}
-        </div></h3></form><h2>
+        </div></h2></form><h2>
         <div id="get_status">
         <form action="" method="post">{% csrf_token %}
         <input type="submit" class="backbtn" value="Back to&#10;search history" name="getstatus">
