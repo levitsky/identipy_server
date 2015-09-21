@@ -3,10 +3,10 @@
 {% block content %}
 {% load stringfilter %}
         <div id="tab">
-        <h2><form action="" method="post">{% csrf_token %}
+        <form action="" method="post">{% csrf_token %}
         
         
-            <p>Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">/{{ searchrun.name}}</p>
+           <h2> <p>Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">/{{ searchrun.name}}</p>
         
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
@@ -49,28 +49,44 @@
         <input type="submit" class="btn" value="figures in png format" name="download_figs">
         <input type="submit" class="btn" value="figures in svg format" name="download_figs_svg">
         
-        </div>
-
+            </div></h2>
+<h2>
         <div class = "vert_block" >
 		{% if searchrun.get_pepxmlfiles %}
 			<div id="img_list">
-			{% for doc in searchrun.get_resimagefiles %}
+                <p>Peptide distributions</p>
+			{% for doc in searchrun.get_distrimagefiles %}
 
             <div class="floated_img">
                 {% load staticfiles %}
                 <img src="{%static doc.path %}" />
             </div>
 			{% endfor %}
+            <p>Label-free quantitation</p>
+			{% for doc in searchrun.get_quantimagefiles %}
+
+            <div class="floated_img">
+                <img src="{%static doc.path %}" />
+            </div>
+			{% endfor %}
+                <p>MP-score descriptors <img id="legend" src="{% static 'image/legend.png' %}" /></p>
+			{% for doc in searchrun.get_mpimagefiles %}
+
+            <div class="floated_img">
+                <img src="{%static doc.path %}" />
+            </div>
+			{% endfor %}
 			</div>
+            
 		{% else %}
 		{% endif %}
-        </div></form>
+        </div></h2></form><h2>
         <div id="get_status">
         <form action="" method="post">{% csrf_token %}
         <input type="submit" class="backbtn" value="Back to&#10;search history" name="getstatus">
         </form>
-        </div>
-           </h2>
+            </div></h2>
+           
 
 </div>
 {% endblock %}

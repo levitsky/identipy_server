@@ -512,8 +512,8 @@ input[id^="id_main"]{
 
 #img_list > div {
   display:inline-block;
-  padding: 1%;
-  width: 2%;
+  padding: 0 1%;
+  width: 29%;
   background: white;
   color: #000;
   text-align: center;
@@ -658,4 +658,11 @@ div#colored{
 .fullsize{
     height:30em;
     margin-bottom:1em;
+}
+
+#legend{
+        display: inline;
+    width: 20%;
+    vertical-align: middle;
+    margin-left: 5%;
 }
