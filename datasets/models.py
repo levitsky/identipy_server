@@ -424,3 +424,11 @@ class Modification(models.Model):
 
     class Meta:
         unique_together = ('name', 'user', 'aminoacid', 'mass', 'label')
+
+    def get_label(self):
+        if self.aminoacid == '[':
+            return self.label + '-'
+        elif self.aminoacid == ']':
+            return '-' + self.label
+        else:
+            return self.label + self.aminoacid
