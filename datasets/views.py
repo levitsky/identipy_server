@@ -587,7 +587,7 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
     c.update(csrf(request))
     c.update({'menubar': Menubar('choose', request.user.is_authenticated()), 'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
-    return render('datasets/choose.html', c)
+    return render(request, 'datasets/choose.html', c)
 
 def files_view_spectra(request, c):
     usedclass = SpectraFile
