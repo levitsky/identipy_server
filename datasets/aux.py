@@ -105,7 +105,7 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
-    labels = ','.join([mod.label + mod.aminoacid for mod in chosenmods])
+    labels = ','.join([mod.get_label() for mod in chosenmods])
     raw_config.set('modifications', 'fixed' if fixed else 'variable', labels + '|type>string')
     for mod in chosenmods:
         raw_config.set('modifications', mod.label, mod.mass)
