@@ -204,16 +204,15 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
     margin-bottom:1em;
     margin-top:1em;
     text-align:center;
-    background:#ffbe4f;
+    background:#DBA400;
     color:#fff;
     text-transform:uppercase;
     cursor:pointer;
 }
 
 .backbtn:hover{
-    background:#eeaf3e;
+    background:#FFBF00;
 }
-
 
 #loginbutton{
     display: block;
