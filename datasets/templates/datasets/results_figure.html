@@ -6,7 +6,7 @@
         <form action="" method="post">{% csrf_token %}
         
         
-           <h2> <p>Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">/{{ searchrun.name}}</p>
+           <h2> <p style="word-break:break-word">Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">/{{ searchrun.name}}</p>
         
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
@@ -23,7 +23,7 @@
                     
                 </tr>
             <tr>
-            <td class="td1">{{ searchrun.name|spacify }}</td>
+            <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
             <td class="td2"><input type="submit" class="link" value={{ searchrun.numPSMs }} name="show_psms"></td>
             <td class="td2"><input type="submit" class="link" value={{ searchrun.numPeptides }} name="show_peptides"></td>
             <td class="td2"><input type="submit" class="link" value={{ searchrun.numProteins }} name="show_proteins"></td>
