@@ -58,22 +58,22 @@
 			{% for doc in searchrun.get_distrimagefiles %}
 
             <div class="floated_img">
-                {% load staticfiles %}
-                <img src="{%static doc.path %}" />
+                <img src="{{ doc.path }}" />
             </div>
 			{% endfor %}
             <p>Label-free quantitation</p>
 			{% for doc in searchrun.get_quantimagefiles %}
 
             <div class="floated_img">
-                <img src="{%static doc.path %}" />
+                <img src="{{ doc.path }}" />
             </div>
 			{% endfor %}
+                {% load staticfiles %}
                 <p>MP-score descriptors <img id="legend" src="{% static 'image/legend.png' %}" /></p>
 			{% for doc in searchrun.get_mpimagefiles %}
 
             <div class="floated_img">
-                <img src="{%static doc.path %}" />
+                <img src="{{ doc.path }}" />
             </div>
 			{% endfor %}
 			</div>
