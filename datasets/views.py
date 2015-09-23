@@ -38,6 +38,14 @@ from aux import save_mods, save_params_new, Menubar, ResultsDetailed
 
 globalc = dict()
 
+#Startup check for broken searches
+searchgroups = SearchGroup.objects.all()
+for searchgroup in searchgroups:
+    if searchgroup.status != 'Task is finished':
+        searchgroup.change_status('Task is dead')
+#        searchgroup.delete()
+#        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
+
 def update_searchparams_form_new(request, paramtype, sftype):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(get_user_latest_params_path(paramtype, request.user))
