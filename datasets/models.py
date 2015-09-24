@@ -300,7 +300,11 @@ class SearchRun(BaseDocument):
     def get_distrimagefiles(self, ftype='.png'):
         distr_list = ['rt experimental',
                         'precursor mass',
-                        'peptide length']
+                        'peptide length',
+                        'rt experimental, peptides',
+                        'precursor mass, peptides',
+                        'peptide length, peptides'
+                      ]
         distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in distr_list]
         return distr_images
     
