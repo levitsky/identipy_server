@@ -181,7 +181,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
 
 .red{
   
-  background:#990000;
+  background:#AE0066;
   
   color:#fff;
   
@@ -193,7 +193,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
    
 }
 .red:hover{
-  background:#dd0000;
+  background:#D4007C;
   color: #ffffff;
 
 }
@@ -209,6 +209,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
     color:#fff;
     text-transform:uppercase;
     cursor:pointer;
+    border:0;
 }
 
 .backbtn:hover{
