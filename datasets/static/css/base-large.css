@@ -7,9 +7,9 @@
 
 body
 	{
-            background-image: url(../image/background.jpg);
+        background-image: url(../image/molecules_darkBlue1.png);
 		
-		background-size: cover;
+		background-size: 10%;
         font-family:sans-serif,sans-serif;
 	}
 
