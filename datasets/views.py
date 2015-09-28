@@ -36,6 +36,16 @@ from identipy import main, utils
 from multiprocessing import Process
 from aux import save_mods, save_params_new, Menubar, ResultsDetailed
 
+globalc = dict()
+
+#Startup check for broken searches
+searchgroups = SearchGroup.objects.all()
+for searchgroup in searchgroups:
+    if searchgroup.status != 'Task is finished':
+        searchgroup.change_status('Task is dead')
+#        searchgroup.delete()
+#        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
+
 def update_searchparams_form_new(request, paramtype, sftype):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(get_user_latest_params_path(paramtype, request.user))
@@ -61,7 +71,10 @@ def get_forms(request, c):
             c['SearchForms'][sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sftype)
     return c
 
-def index(request, c=dict()):
+def index(request):
+    if request.user not in globalc:
+        globalc[request.user] = dict()
+    c = globalc[request.user]
     if(request.POST.get('contacts')):
         request.POST = request.POST.copy()
         request.POST['contacts'] = None
@@ -99,7 +112,7 @@ def index(request, c=dict()):
                 c['sbm_modform'] = False
                 return select_modifications(request, c, fixed=c['fixed'], upd=True)
             else:
-                return files_view(request, c = c)
+                return files_view(request, c)
         elif(request.POST.get('del')):
             request.POST = request.POST.copy()
             request.POST['del'] = None
@@ -392,7 +405,7 @@ def secured(request):
     return render(request, "index.html", c)
 
 
-def status(request, c=dict()):
+def status(request, c):
     import django.db
     django.db.connection.close()
     c = c
@@ -412,13 +425,13 @@ def status(request, c=dict()):
 def get_user_latest_params_path(paramtype, userid):
     return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
 
-def upload(request, c=dict()):
+def upload(request, c):
     c = c
     c.update(csrf(request))
     c['menubar'] = Menubar('upload', request.user.is_authenticated())
     return render(request, 'datasets/upload.html', c)
 
-def searchpage(request, c=dict(), upd=False):
+def searchpage(request, c, upd=False):
     c = c
     c.update(csrf(request))
     for sf in c['SearchForms'].values():
@@ -429,19 +442,17 @@ def searchpage(request, c=dict(), upd=False):
     c['menubar'] = Menubar('searchpage', request.user.is_authenticated())
     return render(request, 'datasets/startsearch.html', c)
 
-def contacts(request,c=dict()):
-    c=c
+def contacts(request,c):
     c.update(csrf(request))
     c['menubar'] = Menubar('contacts', request.user.is_authenticated())
     return render(request, 'datasets/contacts.html', c)
 
-def about(request,c=dict()):
-    c=c
+def about(request,c):
     c.update(csrf(request))
     c['menubar'] = Menubar('about', request.user.is_authenticated())
     return render(request, 'datasets/index.html', c)
 
-def email(request, c={}):
+def email(request, c):
     if all(z in request.POST.keys() for z in ['subject', 'from_email', 'message']):
         form = ContactForm(request.POST)
         if form.is_valid():
@@ -458,7 +469,7 @@ def email(request, c={}):
         form = ContactForm(initial={'from_email': request.user.username})
     return render(request, "datasets/email.html", {'form': form})
 
-def add_modification(request, c=dict(), sbm=False):
+def add_modification(request, c, sbm=False):
     import django.db
     django.db.connection.close()
     c = c
@@ -490,7 +501,7 @@ def add_modification(request, c=dict(), sbm=False):
     c['modificationform'] = AddModificationForm()
     return render(request, 'datasets/add_modification.html', c)
 
-def add_protease(request, c=dict(), sbm=False):
+def add_protease(request, c, sbm=False):
     import django.db
     django.db.connection.close()
     c = c
@@ -534,7 +545,7 @@ def add_protease(request, c=dict(), sbm=False):
     c['proteases'] = proteases
     return render(request, 'datasets/add_protease.html', c)
 
-def select_modifications(request, c=dict(), fixed=True, upd=False):
+def select_modifications(request, c, fixed=True, upd=False):
     import django.db
     django.db.connection.close()
     c = c
@@ -554,10 +565,9 @@ def select_modifications(request, c=dict(), fixed=True, upd=False):
     c.update({'usedclass': Modification, 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
-def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True):
+def files_view(request, c, usedclass=None, usedname=None, multiform=True):
     import django.db
     django.db.connection.close()
-    c = c
     c.update(csrf(request))
     if not usedclass or not usedname:
         usedclass=c['usedclass']
@@ -591,15 +601,15 @@ def files_view(request, usedclass=None, usedname=None, c=dict(), multiform=True)
 
 def files_view_spectra(request, c):
     usedclass = SpectraFile
-    return files_view(request, usedclass, 'chosenspectra', c = c)
+    return files_view(request, c, usedclass, 'chosenspectra')
 
 def files_view_fasta(request, c):
     usedclass = FastaFile
-    return files_view(request, usedclass, 'chosenfasta', c = c)
+    return files_view(request, c, usedclass, 'chosenfasta')
 
 def files_view_params(request, c):
     usedclass = ParamsFile
-    return files_view(request, usedclass, 'chosenparams', c = c, multiform=False)
+    return files_view(request, c, usedclass, 'chosenparams', multiform=False)
 
 def identiprot_view(request, c):
     c = runidentiprot(request, c)
@@ -745,7 +755,7 @@ def runidentiprot(request, c):
     return c
 
 
-def search_details(request, runname, c=dict()):
+def search_details(request, runname, c):
     import django.db
     django.db.connection.close()
     c = c
@@ -758,7 +768,7 @@ def search_details(request, runname, c=dict()):
         return results_figure(request, sruns[0].runname, runobj.id, c)
     return render(request, 'datasets/results.html', c)
 
-def results_figure(request, runname, searchgroupid, c=dict()):
+def results_figure(request, runname, searchgroupid, c):
     import django.db
     django.db.connection.close()
     c = c
@@ -768,7 +778,7 @@ def results_figure(request, runname, searchgroupid, c=dict()):
     return render(request, 'datasets/results_figure.html', c)
 
 
-def show(request, runname, searchgroupid, ftype, c=dict(), order_by_label=False, upd=False, dbname=False):
+def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=False, dbname=False):
     import django.db
     django.db.connection.close()
     c = c

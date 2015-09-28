@@ -100,11 +100,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+MEDIA_ROOT=''
+MEDIA_URL='/'
+
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR,
-    '/var/www/static/',
 ]
 
 EMAIL_USE_TLS = True
