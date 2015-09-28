@@ -7,9 +7,9 @@
 
 body
 	{
-        background-image: url(../image/background.jpg);
-		background-position: top;
-		background-size: cover;
+        background-image: url(../image/molecules_darkBlue1.png);
+		
+		background-size: 10%;
         font-family:sans-serif,sans-serif;
 	}
 
@@ -224,7 +224,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
 
 div.inthemiddle {
     position:relative;
-    width: 70%;
+    width: 80%;
     margin:0 auto;
     margin-top:70px;
     margin-bottom:2%;
@@ -298,6 +298,7 @@ div.inthemiddle h2 p, div.inthemiddle h4 p{
     color:#fff;
     text-transform:uppercase;
     cursor:pointer;
+    border:0;
 }
 
 .backbtn:hover{
