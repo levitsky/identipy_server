@@ -18,7 +18,7 @@
                     </tr>
                 {% for doc in chosenspectra %}
                 <tr>
-                    <td style="word-break:break-word">{{ doc.name }}</td>
+                    <td style="word-break:break-all">{{ doc.name }}</td>
                     <td>{{ doc.docfile.size | filesizeformat }}</td>
                     <td>{{ doc.date_added }}</td>
                 </tr>
@@ -47,7 +47,7 @@
                     </tr>
                 {% for doc in chosenfasta %}
                 <tr>
-                    <td style="word-break:break-word">{{ doc.name }}</td>
+                    <td style="word-break:break-all">{{ doc.name }}</td>
                     <td>{{ doc.docfile.size | filesizeformat }}</td>
                     <td>{{ doc.date_added }}</td>
                 </tr>
