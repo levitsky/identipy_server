@@ -43,10 +43,10 @@
 			{% for doc in processes %}
             <tr>
                 <form action="" method="post">{% csrf_token %}
-                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ doc.name|spacify }} name="search_details"/></td>
+                <td class="td1" style="word-break:break-all"><input type="submit" class="link" value={{ doc.name|spacify }} name="search_details"/></td>
                 </form>
-                <td class="td1">{{ doc.date_added }}</td>
-                <td class="td3">{{ doc.status }}</td>
+                <td class="td1" style="width:20em">{{ doc.date_added }}</td>
+                <td class="td3" style="width:20em">{{ doc.status }}</td>
             </tr>
 			{% endfor %}
 			</table></h2>
