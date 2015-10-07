@@ -624,6 +624,7 @@ def runidentiprot(request, c):
         paramfile = newrun.parameters.all()[0].path()
         fastafile = newrun.fasta.all()[0].path()
         settings = main.settings(paramfile)
+        settings.set('misc', 'iterate', 'peptides')
         settings.set('input', 'database', fastafile.encode('ASCII'))
         settings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('ASCII')))
         totalrun(settings, newrun, c['userid'], paramfile)
