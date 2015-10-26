@@ -280,6 +280,9 @@ class SearchRun(BaseDocument):
         custom_order = ['RT experimental',
                         'precursor mass',
                         'peptide length',
+                        'rt experimental, peptides',
+                        'precursor mass, peptides',
+                        'peptide length, peptides',
                         'sumi',
                         'nsaf',
                         'empai',
@@ -297,10 +300,15 @@ class SearchRun(BaseDocument):
         all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower(), custom_order))
         return all_images
     
-    def get_distrimagefiles(self, ftype='.png'):
+    def get_PSMdistrimagefiles(self, ftype='.png'):
         distr_list = ['rt experimental',
                         'precursor mass',
-                        'peptide length',
+                        'peptide length'
+                      ]
+        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in distr_list]
+        return distr_images
+    def get_distrimagefiles(self, ftype='.png'):
+        distr_list = [
                         'rt experimental, peptides',
                         'precursor mass, peptides',
                         'peptide length, peptides'
