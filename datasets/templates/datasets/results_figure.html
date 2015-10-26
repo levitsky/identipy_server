@@ -54,6 +54,13 @@
         <div class = "vert_block" >
 		{% if searchrun.get_pepxmlfiles %}
 			<div id="img_list">
+                <p>PSM distributions</p>
+			{% for doc in searchrun.get_PSMdistrimagefiles %}
+
+            <div class="floated_img">
+                <img src="{{ doc.path }}" />
+            </div>
+			{% endfor %}
                 <p>Peptide distributions</p>
 			{% for doc in searchrun.get_distrimagefiles %}
 
