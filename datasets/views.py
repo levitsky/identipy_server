@@ -605,7 +605,7 @@ def files_view_spectra(request, c):
 
 def files_view_fasta(request, c):
     usedclass = FastaFile
-    return files_view(request, c, usedclass, 'chosenfasta')
+    return files_view(request, c, usedclass, 'chosenfasta', multiform=False)
 
 def files_view_params(request, c):
     usedclass = ParamsFile
