@@ -182,7 +182,7 @@ def index(request):
         elif(request.POST.get('del_protease')):
             request.POST = request.POST.copy()
             request.POST['del_protease'] = None
-            return add_protease(request, c = c)
+            return add_protease(request, c = c, delete=True)
         elif(request.POST.get('add_modification')):
             request.POST = request.POST.copy()
             request.POST['add_modification'] = None
@@ -501,7 +501,7 @@ def add_modification(request, c, sbm=False):
     c['modificationform'] = AddModificationForm()
     return render(request, 'datasets/add_modification.html', c)
 
-def add_protease(request, c, sbm=False):
+def add_protease(request, c, sbm=False, delete=False):
     import django.db
     django.db.connection.close()
     c = c
@@ -511,14 +511,15 @@ def add_protease(request, c, sbm=False):
     for pr in Protease.objects.filter(user=c['userid']):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
-    if request.POST.get('relates_to'):
-        proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
-        if proteases.is_valid():
-            for obj_id in proteases.cleaned_data.get('relates_to'):
-                obj = Protease.objects.get(user=c['userid'], id=obj_id)
-                obj.delete()
-            request.POST['relates_to'] = False
-        return add_protease(request, c, sbm=sbm)
+    if delete:
+        if request.POST.get('relates_to'):
+            proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
+            if proteases.is_valid():
+                for obj_id in proteases.cleaned_data.get('relates_to'):
+                    obj = Protease.objects.get(user=c['userid'], id=obj_id)
+                    obj.delete()
+                request.POST['relates_to'] = False
+            return add_protease(request, c, sbm=sbm)
 
     proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
     if sbm:
