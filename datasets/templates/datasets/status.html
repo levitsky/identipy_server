@@ -34,22 +34,23 @@
 		{% endif %}
 
 </form>
+            <form action="" method="post">{% csrf_token %}
 			<table type="bordered" id="processes_list">
                 <tr id="headings">
+                    <th><input type="submit" class="btn red" value="Delete selected" name="search_delete"/></th>
                     <th>Search name</th>
                     <th>Search date</th>
                     <th>Status</th>
                 </tr>
 			{% for doc in processes %}
             <tr>
-                <form action="" method="post">{% csrf_token %}
+                <td class="td1" style="width:2em"><input type="checkbox" name={{ doc.name|spacify }}></td>
                 <td class="td1" style="word-break:break-all"><input type="submit" class="link" value={{ doc.name|spacify }} name="search_details"/></td>
-                </form>
                 <td class="td1" style="width:20em">{{ doc.date_added }}</td>
                 <td class="td3" style="width:20em">{{ doc.status }}</td>
             </tr>
 			{% endfor %}
-			</table></h2>
+			</table></form></h2>
 		{% else %}
 			<h2><p>There are no searches</p></h2>
 		{% endif %}
