@@ -478,7 +478,7 @@ def add_modification(request, c, sbm=False):
         c['modificationform'] = AddModificationForm(request.POST)
         if c['modificationform'].is_valid():
             mod_name = c['modificationform'].cleaned_data['name']
-            mod_label = c['modificationform'].cleaned_data['label']
+            mod_label = c['modificationform'].cleaned_data['label'].lower()
             mod_mass = c['modificationform'].cleaned_data['mass']
             if c['modificationform'].cleaned_data['aminoacids'] == 'X':
                 c['modificationform'].cleaned_data['aminoacids'] = parser.std_amino_acids
