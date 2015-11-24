@@ -252,6 +252,10 @@ def index(request):
             request.POST['prev_runs'] = None
             c['res_page'] = c.get('res_page', 1) + 1
             return status(request, c=c)
+        elif(request.POST.get('search_delete')):
+            request.POST = request.POST.copy()
+            request.POST['search_delete'] = None
+            return status(request, c=c, delete=True)
         elif(request.POST.get('type1')):
             request.POST = request.POST.copy()
             request.POST['type1'] = None
@@ -408,13 +412,19 @@ def secured(request):
     return render(request, "index.html", c)
 
 
-def status(request, c):
+def status(request, c, delete=False):
     import django.db
     django.db.connection.close()
     c = c
     c.update(csrf(request))
     res_page = c.get('res_page', 1)
     c['search_run_filter'] = c.get('search_run_filter', '')
+    if delete:
+        for name, val in request.POST.iteritems():
+            if val == u'on':
+                processes = SearchGroup.objects.filter(user=request.user.id, groupname=name)
+                for obj in processes:
+                    obj.full_delete()
     if c['search_run_filter']:
         processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).count()) / 10))

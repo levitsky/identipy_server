@@ -13,7 +13,7 @@ import sys
 sys.path.append('../identipy/')
 import csv
 from identipy.utils import CustomRawConfigParser
-
+import shutil
 
 # def upload_to(instance, filename):
 #     allowed_extensions = {'.raw', '.baf', '.yep', '.mgf', '.mzml', '.mzxml', '.fasta'}
@@ -181,7 +181,11 @@ class SearchGroup(BaseDocument):
         self.status = message
         self.save()
 
-
+    def full_delete(self):
+        for sr in self.get_searchruns_all():
+            sr.full_delete()
+        self.delete()
+        shutil.rmtree('results/%s/%s' % (str(self.user.id), self.name().encode('ASCII')))
 
 class SearchRun(BaseDocument):
     searchgroup_parent = models.ForeignKey(SearchGroup)
@@ -201,6 +205,14 @@ class SearchRun(BaseDocument):
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)
     union = models.BooleanField(default=False)
+
+    def full_delete(self):
+        for im in self.get_resimagefiles():
+            im.delete()
+        for cs in self.csvfiles.all():
+            cs.delete()
+        for pe in self.pepxmlfiles.all():
+            pe.delete()
 
     def set_FDRs(self):
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
