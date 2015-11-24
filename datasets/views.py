@@ -112,7 +112,7 @@ def index(request):
                 c['sbm_modform'] = False
                 return select_modifications(request, c, fixed=c['fixed'], upd=True)
             else:
-                return files_view(request, c)
+                return files_view_modifications(request, c)
         elif(request.POST.get('del')):
             request.POST = request.POST.copy()
             request.POST['del'] = None
@@ -329,7 +329,10 @@ def delete(request, c):
     cc = []
     for doc in documents:
         if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
-            cc.append((doc.id, doc.name()))
+            try:
+                cc.append((doc.id, doc.name()))
+            except:
+                cc.append((doc.id, doc.name))
     form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
     if form.is_valid():
         for x in form.cleaned_data.get('relates_to'):
@@ -563,7 +566,7 @@ def select_modifications(request, c, fixed=True, upd=False):
             save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
             return searchpage(request, c)
     modform = MultFilesForm(custom_choices=cc, labelname='Select modifications', multiform=True)
-    c.update({'usedclass': Modification, 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
+    c.update({'usedclass': Modification, 'usedname': 'chosenmods', 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
 def files_view(request, c, usedclass=None, usedname=None, multiform=True):
@@ -611,6 +614,10 @@ def files_view_fasta(request, c):
 def files_view_params(request, c):
     usedclass = ParamsFile
     return files_view(request, c, usedclass, 'chosenparams', multiform=False)
+
+def files_view_modifications(request, c):
+    usedclass = Modification
+    return files_view(request, c, usedclass, 'chosenmods')
 
 def identiprot_view(request, c):
     c = runidentiprot(request, c)
