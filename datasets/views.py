@@ -800,8 +800,9 @@ def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=Fa
             whitelabels = [x for x in res_dict.labelform.cleaned_data.get('relates_to')]
             res_dict.custom_labels(whitelabels)
             request.POST['relates_to'] = False
-    else:
-        res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
+    # else:
+    res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
+    res_dict.labelform.fields['relates_to'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
     c.update({'results_detailed': res_dict})
     return render(request, 'datasets/results_detailed.html', c)
 
