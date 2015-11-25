@@ -109,6 +109,9 @@ class SearchGroup(BaseDocument):
     parameters = models.ManyToManyField(ParamsFile)
     status = models.CharField(max_length=80, default='No info')
 
+    def get_notification(self):
+        return SearchRun.objects.filter(searchgroup_parent=self)[0].get_notification()
+
     def add_files(self, c):
         import django.db
         django.db.connection.close()
@@ -205,6 +208,14 @@ class SearchRun(BaseDocument):
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)
     union = models.BooleanField(default=False)
+    notification = models.BooleanField(default=False)
+
+    def set_notification(self, settings):
+        self.notification = settings.getboolean('options', 'send email notification')
+        self.save()
+
+    def get_notification(self):
+        return self.notification
 
     def full_delete(self):
         for im in self.get_resimagefiles():
