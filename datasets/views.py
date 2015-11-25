@@ -482,6 +482,10 @@ def email(request, c):
         form = ContactForm(initial={'from_email': request.user.username})
     return render(request, "datasets/email.html", {'form': form})
 
+def email_to_user(username, searchname):
+    # send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, [username, ])
+    send_mail('Identiprot notification', 'Search %s was finished' % (searchname), 'from@emample.com', ['markmipt@gmail.com', ])
+
 def add_modification(request, c, sbm=False):
     import django.db
     django.db.connection.close()
@@ -723,7 +727,7 @@ def runidentiprot(request, c):
         newrun.add_pepxml(pepxmlfile)
         return 1
 
-    def start_union(newgroup, rn, c):
+    def start_union(newgroup, rn, c, sendnotification=False):
         import django.db
         django.db.connection.close()
         try:
@@ -736,9 +740,12 @@ def runidentiprot(request, c):
                     un_run.add_pepxml(pepf)
                     un_run.save()
             run_search(un_run, rn, c)
+
+        if sendnotification:
+            email_to_user(newgroup)
         newgroup.change_status('Task is finished')
 
-    def start_all(newgroup, rn, c):
+    def start_all(newgroup, rn, c, sendnotification=False):
         import django.db
         django.db.connection.close()
         tmp_procs = []
@@ -748,7 +755,7 @@ def runidentiprot(request, c):
             tmp_procs.append(p)
         for p in tmp_procs:
             p.join()
-        p = Process(target=start_union, args=(newgroup, rn, c))
+        p = Process(target=start_union, args=(newgroup, rn, c, sendnotification))
         p.start()
 
     if not os.path.exists('results'):
@@ -762,7 +769,8 @@ def runidentiprot(request, c):
         rn = newgroup.name()
         os.mkdir('results/%s/%s' % (str(newgroup.user.id), rn.encode('ASCII')))
         newgroup.change_status('Search is running')
-        p = Process(target=start_all, args=(newgroup, rn, c))
+        sendnotification = settings.getboolean('options', 'send email notification')
+        p = Process(target=start_all, args=(newgroup, rn, c, sendnotification))
         p.start()
         messages.add_message(request, messages.INFO, 'Identiprot started')
     else:
