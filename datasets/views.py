@@ -483,8 +483,7 @@ def email(request, c):
     return render(request, "datasets/email.html", {'form': form})
 
 def email_to_user(username, searchname):
-    # send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, [username, ])
-    send_mail('Identiprot notification', 'Search %s was finished' % (searchname), 'from@emample.com', ['markmipt@gmail.com', ])
+    send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
 
 def add_modification(request, c, sbm=False):
     import django.db
@@ -645,6 +644,7 @@ def runidentiprot(request, c):
         settings.set('misc', 'iterate', 'peptides')
         settings.set('input', 'database', fastafile.encode('ASCII'))
         settings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('ASCII')))
+        newrun.set_notification(settings)
         totalrun(settings, newrun, c['userid'], paramfile)
         return 1
 
@@ -727,7 +727,7 @@ def runidentiprot(request, c):
         newrun.add_pepxml(pepxmlfile)
         return 1
 
-    def start_union(newgroup, rn, c, sendnotification=False):
+    def start_union(newgroup, rn, c):
         import django.db
         django.db.connection.close()
         try:
@@ -741,11 +741,11 @@ def runidentiprot(request, c):
                     un_run.save()
             run_search(un_run, rn, c)
 
-        if sendnotification:
-            email_to_user(newgroup)
+        if newgroup.get_notification():
+            email_to_user(newgroup.user.username, newgroup.groupname)
         newgroup.change_status('Task is finished')
 
-    def start_all(newgroup, rn, c, sendnotification=False):
+    def start_all(newgroup, rn, c):
         import django.db
         django.db.connection.close()
         tmp_procs = []
@@ -755,7 +755,7 @@ def runidentiprot(request, c):
             tmp_procs.append(p)
         for p in tmp_procs:
             p.join()
-        p = Process(target=start_union, args=(newgroup, rn, c, sendnotification))
+        p = Process(target=start_union, args=(newgroup, rn, c))
         p.start()
 
     if not os.path.exists('results'):
@@ -769,8 +769,7 @@ def runidentiprot(request, c):
         rn = newgroup.name()
         os.mkdir('results/%s/%s' % (str(newgroup.user.id), rn.encode('ASCII')))
         newgroup.change_status('Search is running')
-        sendnotification = settings.getboolean('options', 'send email notification')
-        p = Process(target=start_all, args=(newgroup, rn, c, sendnotification))
+        p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
         messages.add_message(request, messages.INFO, 'Identiprot started')
     else:
