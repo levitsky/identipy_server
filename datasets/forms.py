@@ -153,7 +153,8 @@ class SearchParametersForm(forms.Form):
                         )
                 else:
                     self.fields[param[1]] = get_field(fieldtype=param[0], label=label, initial=param[2])
-        key_order = ["use auto optimization",
+        key_order = ["send email notification",
+                    "use auto optimization",
                     "enzyme",
                     "number of missed cleavages",
                     "precursor accuracy unit",
