@@ -112,7 +112,7 @@ def index(request):
                 c['sbm_modform'] = False
                 return select_modifications(request, c, fixed=c['fixed'], upd=True)
             else:
-                return files_view_modifications(request, c)
+                return files_view(request, c)
         elif(request.POST.get('del')):
             request.POST = request.POST.copy()
             request.POST['del'] = None
@@ -624,10 +624,6 @@ def files_view_fasta(request, c):
 def files_view_params(request, c):
     usedclass = ParamsFile
     return files_view(request, c, usedclass, 'chosenparams', multiform=False)
-
-def files_view_modifications(request, c):
-    usedclass = Modification
-    return files_view(request, c, usedclass, 'chosenmods')
 
 def identiprot_view(request, c):
     c = runidentiprot(request, c)
