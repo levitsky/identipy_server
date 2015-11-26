@@ -14,6 +14,7 @@ sys.path.append('../identipy/')
 import csv
 from identipy.utils import CustomRawConfigParser
 import shutil
+from time import time
 
 # def upload_to(instance, filename):
 #     allowed_extensions = {'.raw', '.baf', '.yep', '.mgf', '.mzml', '.mzxml', '.fasta'}
@@ -439,6 +440,27 @@ class SearchRun(BaseDocument):
         elif ftype in ['peptide', 'psm']:
             rd.custom_labels(['sequence', 'm/z exp', 'RT exp', 'missed cleavages'])
         return rd
+
+
+class Tasker(models.Model):
+    user = models.ForeignKey(User)
+    lastsearchtime = models.DecimalField(default=0, max_digits=21, decimal_places=6)
+    taskcounter = models.IntegerField(default=0)
+    cursearches = models.IntegerField(default=0)
+
+    def ask_for_run(self):
+        self.taskcounter += 1
+        self.save()
+
+    def start_run(self):
+        self.lastsearchtime = time()
+        self.taskcounter -= 1
+        self.cursearches += 1
+        self.save()
+
+    def finish_run(self):
+        self.cursearches -= 1
+        self.save()
 
 class Protease(models.Model):
     name = models.CharField(max_length=80)
