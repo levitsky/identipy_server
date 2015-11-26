@@ -10,10 +10,10 @@ from django.template import RequestContext
 from django.core.files import File
 from django.core.mail import send_mail, BadHeaderError
 from django.contrib import messages
-from django.db.models import Max
+from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
 
-from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
+from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification, Tasker
 from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
 from os import path
 from django.conf import settings
@@ -27,6 +27,7 @@ import math
 from copy import copy
 from django.utils.safestring import mark_safe
 import tempfile
+from time import sleep, time
 
 from pyteomics import parser
 import sys
@@ -37,8 +38,16 @@ from multiprocessing import Process
 from aux import save_mods, save_params_new, Menubar, ResultsDetailed
 
 globalc = dict()
-
+search_limit = settings.NUMBER_OF_PARALLEL_RUNS if hasattr(settings, 'NUMBER_OF_PARALLEL_RUNS') else 1
 #Startup check for broken searches
+
+tasks = Tasker.objects.all()
+for task in tasks:
+    task.lastsearchtime = time()
+    task.taskcounter = 0
+    task.cursearches = 0
+    task.save()
+
 searchgroups = SearchGroup.objects.all()
 for searchgroup in searchgroups:
     if searchgroup.status != 'Task is finished':
@@ -640,32 +649,49 @@ def runidentiprot(request, c):
         django.db.connection.close()
         paramfile = newrun.parameters.all()[0].path()
         fastafile = newrun.fasta.all()[0].path()
-        settings = main.settings(paramfile)
-        settings.set('misc', 'iterate', 'peptides')
-        settings.set('input', 'database', fastafile.encode('ASCII'))
-        settings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('ASCII')))
-        newrun.set_notification(settings)
-        totalrun(settings, newrun, c['userid'], paramfile)
+        idsettings = main.settings(paramfile)
+        idsettings.set('misc', 'iterate', 'peptides')
+        idsettings.set('input', 'database', fastafile.encode('ASCII'))
+        idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('ASCII')))
+        newrun.set_notification(idsettings)
+        totalrun(idsettings, newrun, c['userid'], paramfile)
         return 1
 
-    def set_pepxml_path(settings, inputfile):
-        if settings.has_option('output', 'path'):
-            outpath = settings.get('output', 'path')
+    def set_pepxml_path(idsettings, inputfile):
+        if idsettings.has_option('output', 'path'):
+            outpath = idsettings.get('output', 'path')
         else:
             outpath = path.dirname(inputfile)
 
         return path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
 
-    def totalrun(settings, newrun, usr, paramfile):
+    def totalrun(idsettings, newrun, usr, paramfile):
         import django.db
         django.db.connection.close()
+        try:
+            tasker = Tasker.objects.get(user=newrun.user)
+        except:
+            tasker = Tasker(user=newrun.user)
+            tasker.save()
+        tasker.ask_for_run()
+
+        while 1:
+            min_time = Tasker.objects.exclude(taskcounter=0).aggregate(Min('lastsearchtime'))['lastsearchtime__min']
+            try:
+                if Tasker.objects.aggregate(Sum('cursearches'))['cursearches__sum'] < search_limit and newrun.user == Tasker.objects.get(lastsearchtime = min_time).user:
+                    break
+            except:
+                sleep(1)
+            sleep(1)
+
+        tasker.start_run()
         procs = []
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
         if not newrun.union:
             for obj in newrun.spectra.all():
                 inputfile = obj.path()
-                p = Process(target=runproc, args=(inputfile, settings, newrun, usr))
+                p = Process(target=runproc, args=(inputfile, idsettings, newrun, usr))
                 p.start()
                 procs.append(p)
             for p in procs:
@@ -714,11 +740,11 @@ def runidentiprot(request, c):
         newrun.calc_results()
         return 1
 
-    def runproc(inputfile, settings, newrun, usr):
+    def runproc(inputfile, idsettings, newrun, usr):
         import django.db
         django.db.connection.close()
-        filename = set_pepxml_path(settings, inputfile)
-        utils.write_pepxml(inputfile, settings, main.process_file(inputfile, settings))
+        filename = set_pepxml_path(idsettings, inputfile)
+        utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
         fl = open(filename, 'r')
         djangofl = File(fl)
         pepxmlfile = PepXMLFile(docfile = djangofl, user = usr)
@@ -743,6 +769,8 @@ def runidentiprot(request, c):
 
         if newgroup.get_notification():
             email_to_user(newgroup.user.username, newgroup.groupname)
+        tasker = Tasker.objects.get(user=newgroup.user)
+        tasker.finish_run()
         newgroup.change_status('Task is finished')
 
     def start_all(newgroup, rn, c):
