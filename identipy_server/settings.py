@@ -78,7 +78,10 @@ WSGI_APPLICATION = 'identipy_server.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 100
+        }
     }
 }
 
@@ -114,3 +117,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'identiprot@gmail.com'
 EMAIL_HOST_PASSWORD = 'theorchromo'
+
+NUMBER_OF_PARALLEL_RUNS = 3
