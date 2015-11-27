@@ -508,18 +508,23 @@ def add_modification(request, c, sbm=False):
             if c['modificationform'].cleaned_data['aminoacids'] == 'X':
                 c['modificationform'].cleaned_data['aminoacids'] = parser.std_amino_acids
             added = []
-            for aminoacid in c['modificationform'].cleaned_data['aminoacids']:
-                if aminoacid in parser.std_amino_acids + ['[', ']']:
+            allowed_set = set(parser.std_amino_acids + ['[', ']'])
+            for aminoacid in c['modificationform'].cleaned_data['aminoacids'].split(','):
+                if (len(aminoacid) == 1 and aminoacid in allowed_set) \
+                        or (len(aminoacid) == 2 and ((aminoacid[0]=='[' and aminoacid[1] in allowed_set) or (aminoacid[1]==']' and aminoacid[0] in allowed_set))):
                     if not Modification.objects.filter(user=request.user, label=mod_label, mass=mod_mass, aminoacid=aminoacid).count():
                         modification_object = Modification(name=mod_name+aminoacid, label=mod_label, mass=mod_mass, aminoacid=aminoacid, user=request.user)
                         modification_object.save()
                         added.append(aminoacid)
-            if added:
+                    else:
+                        messages.add_message(request, messages.INFO, 'A modification with mass %f, label %s already exists for selected aminoacids' % (mod_mass, mod_label))
+                        return render(request, 'datasets/add_modification.html', c)
+            if not added:
+                messages.add_message(request, messages.INFO, 'Unknown aminoacid')
+                return render(request, 'datasets/add_modification.html', c)
+            else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
                 return searchpage(request, c)
-            else:
-                messages.add_message(request, messages.INFO, 'A modification with mass %f, label %s already exists for selected aminoacids' % (mod_mass, mod_label))
-                return render(request, 'datasets/add_modification.html', c)
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'datasets/add_modification.html', c)
