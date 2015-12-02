@@ -52,6 +52,9 @@ class Command(BaseCommand):
             ['pS', 'p', 79.966331, 'S'],
             ['pT', 'p', 79.966331, 'T'],
             ['pY', 'p', 79.966331, 'Y'],
+            ['waterlossE', 'wl', -18.0106, '[E'],
+            ['ammoniumlossQ', 'al', -17.0265, '[Q'],
+            ['ammoniumlossC', 'al', -17.0265, '[C'],
         ]
         for mod in default_mods:
             mod_object = Modification(name=mod[0], label=mod[1], mass=mod[2], aminoacid=mod[3], user=user)
