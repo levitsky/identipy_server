@@ -117,5 +117,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'identiprot@gmail.com'
 EMAIL_HOST_PASSWORD = 'theorchromo'
+EMAIL_SEND_TO = ['markmipt@gmail.com', 'lev.levitsky@phystech.edu']
 
 NUMBER_OF_PARALLEL_RUNS = 3
