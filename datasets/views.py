@@ -584,7 +584,8 @@ def select_modifications(request, c, fixed=True, upd=False):
     modifications = Modification.objects.filter(user=request.user)
     cc = []
     for doc in modifications:
-        cc.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
+        if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
+            cc.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
     if upd:
         modform = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if modform.is_valid():
