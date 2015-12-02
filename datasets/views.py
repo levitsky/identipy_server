@@ -491,7 +491,7 @@ def email(request, c):
             message = form.cleaned_data['message']
             messages.add_message(request, messages.INFO, 'Your message was sent to the developers. We will respond as soon as possible.')
             try:
-                send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, ['markmipt@gmail.com'])
+                send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, settings.EMAIL_SEND_TO)
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             return contacts(request, c)
