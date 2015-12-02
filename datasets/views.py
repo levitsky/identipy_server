@@ -483,11 +483,11 @@ def about(request,c):
     return render(request, 'datasets/index.html', c)
 
 def email(request, c):
-    if all(z in request.POST.keys() for z in ['subject', 'from_email', 'message']):
+    if all(z in request.POST.keys() for z in ['subject', 'message']):
         form = ContactForm(request.POST)
         if form.is_valid():
             subject = form.cleaned_data['subject']
-            from_email = form.cleaned_data['from_email']
+            from_email = request.user.username
             message = form.cleaned_data['message']
             messages.add_message(request, messages.INFO, 'Your message was sent to the developers. We will respond as soon as possible.')
             try:
