@@ -109,7 +109,14 @@ def index(request):
             request.POST = request.POST.copy()
             request.POST['runidentiprot'] = None
             c['runname'] = request.POST['runname']
-            return identiprot_view(request, c = c)
+            if not c.get('chosenspectra', []):
+                messages.add_message(request, messages.INFO, 'Please choose spectra for search')
+                return searchpage(request, c)
+            elif not c.get('chosenfasta', []):
+                messages.add_message(request, messages.INFO, 'Please choose fasta for search')
+                return searchpage(request, c)
+            else:
+                return identiprot_view(request, c = c)
         elif(request.POST.get('statusback')):
             request.POST = request.POST.copy()
             request.POST['statusback'] = None
