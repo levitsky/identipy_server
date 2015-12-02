@@ -34,13 +34,15 @@
             <tr>
                 <td class="leftcolumn">
                     {{ modificationform.subject.errors }}
-                    <label for="{{ modificationform.mass.id_for_label }}">Mass change:</label></td>
+                    <span for="{{ modificationform.mass.id_for_label }}" title="Examples: 12.345 or -67.89 or C2H6O1 or N-1H-3" style="cursor:help">Mass change or formula:</span></td>
                     <td class="rightcolumn">{{ modificationform.mass }}</td>
                 </tr>
         <tr>
                 <td class="leftcolumn">
                     {{ modificationform.subject.errors }}
-                    <label for="{{ modificationform.aminoacids.id_for_label }}">Amino acids:</label></td>
+                    <span for="{{ modificationform.aminoacids.id_for_label }}" title="Examples: [ or Q or R,K or ]K,[R,C .
+labels '[' and ']' mean n-terminal and c-terminal modifications
+']K' means modify only n-terminal K" style="cursor:help">Amino acids:</span></td>
                     <td class="rightcolumn">{{ modificationform.aminoacids }}</td>
             </tr>
           <tr><td class="leftcolumn">

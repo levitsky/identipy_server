@@ -213,5 +213,5 @@ class AddProteaseForm(forms.Form):
 class AddModificationForm(forms.Form):
     name = forms.CharField(max_length=80, required=True)
     label = forms.CharField(max_length=30, required=True)
-    mass = forms.FloatField(required=True)
+    mass = forms.CharField(max_length=80, required=True)
     aminoacids = forms.CharField(max_length=25, required=True)

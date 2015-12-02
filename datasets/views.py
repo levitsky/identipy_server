@@ -29,7 +29,7 @@ from django.utils.safestring import mark_safe
 import tempfile
 from time import sleep, time
 
-from pyteomics import parser
+from pyteomics import parser, mass
 import sys
 sys.path.append('../identipy/')
 sys.path.append('../mp-score/')
@@ -512,7 +512,15 @@ def add_modification(request, c, sbm=False):
         if c['modificationform'].is_valid():
             mod_name = c['modificationform'].cleaned_data['name']
             mod_label = c['modificationform'].cleaned_data['label'].lower()
-            mod_mass = c['modificationform'].cleaned_data['mass']
+            mod_mass = str(c['modificationform'].cleaned_data['mass'])
+            try:
+                mod_mass = float(mod_mass)
+            except:
+                try:
+                    mod_mass = mass.calculate_mass(mass.Composition(mod_mass))
+                except:
+                    messages.add_message(request, messages.INFO, 'Invalid modification mass. Examples: 12.345 or -67.89 or C2H6O1 or N-1H-3')
+                    return render(request, 'datasets/add_modification.html', c)
             if c['modificationform'].cleaned_data['aminoacids'] == 'X':
                 c['modificationform'].cleaned_data['aminoacids'] = parser.std_amino_acids
             added = []
