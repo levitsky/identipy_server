@@ -11,6 +11,8 @@ from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
 
+from pyteomics import parser
+
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
         return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
@@ -131,15 +133,17 @@ class SearchParametersForm(forms.Form):
                 label = mark_safe(get_label(param[1]))
                 if 'class>protease' in param[0]:
                     proteases = Protease.objects.filter(user=userid)
-                    if proteases.count():
-                        choices = []
-                        initial = param[2]
-                        for p in proteases.order_by('order_val'):
-                            choices.append([p.rule, p.name])
+                    if not proteases.count():
+                        protease_object = Protease(name='trypsin', rule=parser.expasy_rules['trypsin'], order_val=1, user=userid)
+                        protease_object.save()
+                    choices = []
+                    initial = param[2]
+                    for p in proteases.order_by('order_val'):
+                        choices.append([p.rule, p.name])
+                    try:
                         initial = choices[[z[1] for z in choices].index(initial)][0]
-                    else:
-                        initial = 'trypsin'
-                        choices = [['[RK]', 'trypsin'], ]
+                    except:
+                        initial = choices[0][0]
                     self.fields[param[1]] = forms.ChoiceField(
                         label=label,
                         choices=choices[::-1],
