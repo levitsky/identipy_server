@@ -148,6 +148,7 @@ def index(request):
             request.POST = request.POST.copy()
             request.POST['getstatus'] = None
             c['res_page'] = 1
+            c['search_run_filter'] = ''
             return status(request, c = c)
         elif(request.POST.get('search_runname')):
             request.POST = request.POST.copy()
