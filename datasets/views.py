@@ -593,6 +593,15 @@ def select_modifications(request, c, fixed=True, upd=False):
             save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
             return searchpage(request, c)
     modform = MultFilesForm(custom_choices=cc, labelname='Select modifications', multiform=True)
+    if not fixed:
+        initvals = []
+        for nn in ['ammoniumlossC', 'ammoniumlossQ', 'waterlossE']:
+            try:
+                tmpmod = Modification.objects.get(name=nn)
+                initvals.append(tmpmod.id)
+            except:
+                pass
+        modform.fields['relates_to'].initial = initvals
     c.update({'usedclass': Modification, 'usedname': 'chosenmods', 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'datasets/choose.html', c)
 
