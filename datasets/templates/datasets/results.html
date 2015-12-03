@@ -23,8 +23,8 @@
                     <th>Search name</th>
                     <th>MSMS</th>
                     <th>Unfiltered PSMs</th>
-                    <th>PSM FDR</th>
-                    <th>Protein FDR</th>
+                    <th>FDR, %</th>
+                    <th>FDR type</th>
                     <th>PSMs</th>
                     <th>Peptides</th>
                     <th>Proteins</th>
@@ -39,7 +39,7 @@
                 <td class="td2">{{ searchrun.numMSMS }}</td>
                 <td class="td2">{{ searchrun.totalPSMs }}</td>
                 <td class="td2">{{ searchrun.fdr_psms }}</td>
-                <td class="td2">{{ searchrun.get_prots_FDR }}</td>
+                <td class="td2">{{ searchrun.fdr_type }}</td>
                 <td class="td2">{{ searchrun.numPSMs }}</td>
                 <td class="td2">{{ searchrun.numPeptides }}</td>
                 <td class="td2">{{ searchrun.numProteins }}</td>
