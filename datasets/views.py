@@ -173,10 +173,6 @@ def index(request):
             request.POST = request.POST.copy()
             request.POST['uploadfasta'] = None
             return files_view_fasta(request, c = c)
-        elif(request.POST.get('uploadparams')):
-            request.POST = request.POST.copy()
-            request.POST['uploadparams'] = None
-            return files_view_params(request, c = c)
         elif(request.POST.get('saveparams')):
             request.POST = request.POST.copy()
             if request.POST.get('paramsname'):
