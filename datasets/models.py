@@ -204,7 +204,7 @@ class SearchRun(BaseDocument):
     numMSMS = models.BigIntegerField(default=0)
     totalPSMs = models.BigIntegerField(default=0)
     fdr_psms = models.FloatField(default=0.0)
-    fdr_prots = models.FloatField(default=-1.0)
+    fdr_type = models.CharField(max_length=80, default='-')
     numPSMs = models.BigIntegerField(default=0)
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)
@@ -230,14 +230,8 @@ class SearchRun(BaseDocument):
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(self.parameters.all()[0].path())
         self.fdr_psms = raw_config.getfloat('options', 'FDR')
-        self.fdr_prots = raw_config.getfloat('options', 'protFDR')
+        self.fdr_type = raw_config.get('options', 'FDR_type')
         self.save()
-
-    def get_prots_FDR(self):
-        if self.fdr_prots >= 0:
-            return self.fdr_prots
-        else:
-            return 'no'
 
     def add_files(self, c):
         import django.db
