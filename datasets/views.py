@@ -639,7 +639,7 @@ def files_view(request, c, usedclass=None, usedname=None, multiform=True):
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
             if usedname == 'chosenparams':
                 paramfile = chosenfiles[0]
-                dst = os.path.join(os.path.dirname(paramfile.docfile.name.encode('ASCII')), 'latest_params_3.cfg')
+                dst = os.path.join(os.path.dirname(paramfile.docfile.name.encode('ASCII')), 'latest_params_%s.cfg' % (paramfile.type, ))
                 shutil.copy(paramfile.docfile.name.encode('ASCII'), dst)
                 c['paramtype'] = paramfile.type
                 return searchpage(request, c, upd=True)
