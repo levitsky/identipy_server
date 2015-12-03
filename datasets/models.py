@@ -152,7 +152,7 @@ class SearchGroup(BaseDocument):
         import django.db
         django.db.connection.close()
         from aux import save_params_new
-        paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=False, paramtype=paramtype, request=False)
+        paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=self.groupname, paramtype=paramtype, request=False)
         self.parameters.add(paramobj)
         self.save()
 
