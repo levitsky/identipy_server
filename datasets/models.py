@@ -101,6 +101,7 @@ def upload_to_params(instance, filename):
 class ParamsFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_params)
     type = models.IntegerField(default=3)
+    visible = models.BooleanField(default=True)
 
 
 class SearchGroup(BaseDocument):
@@ -152,7 +153,7 @@ class SearchGroup(BaseDocument):
         import django.db
         django.db.connection.close()
         from aux import save_params_new
-        paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=self.groupname, paramtype=paramtype, request=False)
+        paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=self.groupname, paramtype=paramtype, request=False, visible=False)
         self.parameters.add(paramobj)
         self.save()
 
