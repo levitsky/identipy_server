@@ -179,6 +179,9 @@ def index(request):
                 # save_params(c['SearchParametersForm'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
                 save_params_new(c['SearchForms'], c['userid'], request.POST.get('paramsname'), c['paramtype'])
             request.POST['saveparams'] = None
+            messages.add_message(request, messages.INFO, 'Parameters were saved')
+            if request.POST.get('results_figure_searchgroupid'):
+                return showparams(request, searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
             return searchpage(request, c = c)
         elif(request.POST.get('loadparams')):
             request.POST = request.POST.copy()
@@ -241,6 +244,10 @@ def index(request):
         elif(request.POST.get('results_figure')):
             request.POST = request.POST.copy()
             return results_figure(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
+        elif(request.POST.get('showparams')):
+            request.POST = request.POST.copy()
+            request.POST['showparams'] = None
+            return showparams(request, searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
         elif(request.POST.get('download_csv')):
             c['down_type'] = 'csv'
             return getfiles(c=c)
@@ -853,6 +860,24 @@ def results_figure(request, runname, searchgroupid, c):
     runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj})
     return render(request, 'datasets/results_figure.html', c)
+
+
+def showparams(request, searchgroupid, c):
+    import django.db
+    django.db.connection.close()
+    c = c
+    c.update(csrf(request))
+    runobj = SearchGroup.objects.get(id=searchgroupid, user=request.user)
+    params_file = runobj.parameters.all()[0]
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(params_file.path())
+    print params_file.path()
+
+    c['SearchForms'] = {}
+    for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
+        c['SearchForms'][sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+    return render(request, 'datasets/params.html', c)
+
 
 
 def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=False, dbname=False):
