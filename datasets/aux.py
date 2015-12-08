@@ -112,7 +112,7 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
 
 
-def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False):
+def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid, type=paramtype)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
@@ -152,7 +152,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False):
         fl.close()
         fl = open(paramsname + '.cfg')
         djangofl = File(fl)
-        paramobj = ParamsFile(docfile = djangofl, user = uid, type=paramtype)
+        paramobj = ParamsFile(docfile=djangofl, user=uid, type=paramtype, visible=visible)
         paramobj.save()
         fl.close()
         os.remove(paramsname + '.cfg')
