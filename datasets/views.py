@@ -637,7 +637,7 @@ def files_view(request, c, usedclass=None, usedname=None, multiform=True):
     documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
-        if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
+        if not usedname == 'chosenparams' or (not doc.name().startswith('latest_params') and doc.visible):
             cc.append((doc.id, doc.name()))
     if request.POST.get('relates_to'):
         form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
