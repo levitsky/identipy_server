@@ -8,7 +8,7 @@
        {% if processes %}
               Page {{ res_page }} of {{ max_res_page  }}
         {% if search_run_filter %}
-        <input type="text" id="searchinput" name="search_button" value={{ search_run_filter }}  placeholder="Enter run name"/>
+        <input type="text" id="searchinput" name="search_button" value={{ search_run_filter|spacify }}  placeholder="Enter run name"/>
         {% else %}
         <input type="text" id="searchinput" name="search_button" value=""  placeholder="Enter run name"/>
 		{% endif %}
