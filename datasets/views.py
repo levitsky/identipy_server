@@ -152,7 +152,7 @@ def index(request):
             return status(request, c = c)
         elif(request.POST.get('search_runname')):
             request.POST = request.POST.copy()
-            c['search_run_filter'] = request.POST['search_button']
+            c['search_run_filter'] = request.POST['search_button'].replace(u'\xa0', ' ')
             c['res_page'] = 1
             # tmp_val = request.POST['search_button']
             request.POST['search_runname'] = None
