@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname }}/{{ searchrun.name}}{% endblock%}
-{% block content %}
 {% load stringfilter %}
+{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
+{% block content %}
         <div id="tab">
         <form action="" method="post">{% csrf_token %}
         
         
-           <h2> <p style="word-break:break-word">Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname }} name="search_details">/{{ searchrun.name}}</p>
+           <h2> <p style="word-break:break-word">Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname|spacify }} name="search_details">/{{ searchrun.name|spacify}}</p>
         
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">

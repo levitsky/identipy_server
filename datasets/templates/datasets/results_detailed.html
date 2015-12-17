@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname }}/{{ searchrun.name}}{% endblock%}
-{% block content %}
 {% load stringfilter %}
+{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
+{% block content %}
         <form action="" method="post">{% csrf_token %}
         <div id="tab">
         
             <h2><form action="" method="post">{% csrf_token %}
-        <p style="word-break:break-word">Search results: <input type="submit" class="link" name="search_details" value = {{ searchrun.searchgroup_parent.groupname }} />/<input type="submit" class="link" name="results_figure" value={{ searchrun.name|spacify }} />
+        <p style="word-break:break-word">Search results: <input type="submit" class="link" name="search_details" value = {{ searchrun.searchgroup_parent.groupname|spacify }} />/<input type="submit" class="link" name="results_figure" value={{ searchrun.name|spacify }} />
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}></p>
             
