@@ -203,6 +203,10 @@ def index(request):
             request.POST = request.POST.copy()
             request.POST['add_modification'] = None
             return add_modification(request, c = c)
+        elif(request.POST.get('mod_back')):
+            request.POST = request.POST.copy()
+            request.POST['mod_back'] = None
+            return select_modifications(request, c = c, fixed=c['fixed'])
         elif(request.POST.get('select_fixed')):
             request.POST = request.POST.copy()
             request.POST['select_fixed'] = None
@@ -546,7 +550,10 @@ def add_modification(request, c, sbm=False):
                 return render(request, 'datasets/add_modification.html', c)
             else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
-                return searchpage(request, c)
+                return select_modifications(request, c = c, fixed=c['fixed'])
+                # if c['fixed'] == True:
+                #     return
+                # return searchpage(request, c)
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'datasets/add_modification.html', c)
