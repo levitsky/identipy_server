@@ -255,6 +255,9 @@ def index(request):
             request.POST = request.POST.copy()
             request.POST['download_custom_csv'] = None
             return get_custom_csv(request, c=c)
+        elif(request.POST.get('download_selected')):
+            c['down_type'] = c['usedname']
+            return getfiles(c=c, request=request)
         elif(request.POST.get('download_pepxml')):
             c['down_type'] = 'pepxml'
             return getfiles(c=c)
@@ -924,27 +927,44 @@ def get_custom_csv(request, c):
     os.remove(tmpfile_path)
     return response
 
-def getfiles(c):
-    searchgroup = c['searchgroup']
+def getfiles(c, request=False):
     filenames = []
-    for searchrun in searchgroup.get_searchruns_all():
-        if c['down_type'] == 'csv':
-            for down_fn in searchrun.get_csvfiles_paths():
-                filenames.append(down_fn)
-        elif c['down_type'] == 'pepxml':
-            for down_fn in searchrun.get_pepxmlfiles_paths():
-                filenames.append(down_fn)
-        elif c['down_type'] == 'mgf':
-            for down_fn in searchrun.get_spectrafiles_paths():
-                filenames.append(down_fn)
-        elif c['down_type'] == 'figs':
-            for down_fn in searchrun.get_resimage_paths():
-                filenames.append(down_fn)
-        elif c['down_type'] == 'figs_svg':
-            for down_fn in searchrun.get_resimage_paths(ftype='.svg'):
-                filenames.append(down_fn)
+    import django.db
+    django.db.connection.close()
+    print c['down_type']
+    if request:
+        cc = []
+        documents = c['usedclass'].objects.filter(user=c['userid'])
+        for doc in documents:
+            cc.append((doc.id, doc.name()))
+        form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+        if form.is_valid():
+            for x in form.cleaned_data.get('relates_to'):
+                obj = c['usedclass'].objects.get(user=c['userid'], id=x)
+                filenames.append(obj.path())
+                print obj.path()
+        zip_subdir = c['down_type'] + '_files'
+    else:
+        searchgroup = c['searchgroup']
+        for searchrun in searchgroup.get_searchruns_all():
+            if c['down_type'] == 'csv':
+                for down_fn in searchrun.get_csvfiles_paths():
+                    filenames.append(down_fn)
+            elif c['down_type'] == 'pepxml':
+                for down_fn in searchrun.get_pepxmlfiles_paths():
+                    filenames.append(down_fn)
+            elif c['down_type'] == 'mgf':
+                for down_fn in searchrun.get_spectrafiles_paths():
+                    filenames.append(down_fn)
+            elif c['down_type'] == 'figs':
+                for down_fn in searchrun.get_resimage_paths():
+                    filenames.append(down_fn)
+            elif c['down_type'] == 'figs_svg':
+                for down_fn in searchrun.get_resimage_paths(ftype='.svg'):
+                    filenames.append(down_fn)
 
-    zip_subdir = searchgroup.name() + '_' + c['down_type'] + '_files'
+        zip_subdir = searchgroup.name() + '_' + c['down_type'] + '_files'
+
     zip_filename = "%s.zip" % zip_subdir
 
     s = StringIO.StringIO()
