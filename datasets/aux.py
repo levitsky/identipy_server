@@ -12,6 +12,14 @@ from identipy.utils import CustomRawConfigParser
 from forms import SubmitButtonField
 from django.utils.safestring import mark_safe
 
+def get_size(start_path = '.'):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+    return float(total_size)
+
 class ResultsDetailed():
     def __init__(self, ftype, path_to_csv):
         self.ftype = ftype
