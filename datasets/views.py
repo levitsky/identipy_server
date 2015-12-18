@@ -35,7 +35,7 @@ sys.path.append('../identipy/')
 sys.path.append('../mp-score/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_mods, save_params_new, Menubar, ResultsDetailed
+from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size
 
 globalc = dict()
 search_limit = settings.NUMBER_OF_PARALLEL_RUNS if hasattr(settings, 'NUMBER_OF_PARALLEL_RUNS') else 1
@@ -469,6 +469,9 @@ def upload(request, c):
     c = c
     c.update(csrf(request))
     c['menubar'] = Menubar('upload', request.user.is_authenticated())
+    c['system_size'] = get_size(path.join('results', str(c['userid'].id)))
+    for dirn in ['spectra', 'fasta', 'params']:
+        c['system_size'] += get_size(path.join('uploads', dirn, str(c['userid'].id)))
     return render(request, 'datasets/upload.html', c)
 
 def searchpage(request, c, upd=False):
