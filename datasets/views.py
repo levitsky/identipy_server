@@ -328,6 +328,9 @@ def index(request):
                         pass
                 messages.add_message(request, messages.INFO, 'Upload successful')
                 return upload(request, c = c)
+            else:
+                messages.add_message(request, messages.INFO, 'Choose files for upload')
+                return upload(request, c = c)
         else:
             commonform = CommonForm()
 
