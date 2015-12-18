@@ -37,11 +37,12 @@
 			<p>There are no searches</p>
 		{% endif %}
 
-        
-        <div id="colored">
-            Download: 
+
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+    	{% if searchrun.totalPSMs %}
+        <div id="colored">
+            Download:
         <input type="submit" class="btn" value="csv files" name="download_csv">
         
         <input type="submit" class="btn" value="pepxml files" name="download_pepxml">
@@ -53,7 +54,6 @@
             </div></h2>
 <h2>
         <div class = "vert_block" >
-		{% if searchrun.get_pepxmlfiles %}
 			<div id="img_list">
                 <p>PSM distributions</p>
 			{% for doc in searchrun.get_PSMdistrimagefiles %}
