@@ -60,12 +60,6 @@ def update_searchparams_form_new(request, paramtype, sftype):
     raw_config.read(get_user_latest_params_path(paramtype, request.user))
     return SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
 
-def update_searchparams_form(request, c):
-    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-    c['SearchParametersForm'] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='')
-    return c
-
 def get_forms(request, c):
     c['userid'] = request.user
     c['paramtype'] = c.get('paramtype', 3)
@@ -99,12 +93,6 @@ def index(request):
     if request.user.is_authenticated():
         print request.POST.items()
         c = get_forms(request, c)
-        # if 'SearchParametersForm' in c:
-        #     if any(v.name in request.POST for v in c['SearchParametersForm']):
-        #         save_params(c['SearchParametersForm'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
-        #         c = update_searchparams_form(request=request, c=c)
-        # else:
-        #     c = update_searchparams_form(request=request, c=c)
         if(request.POST.get('runidentiprot')):
             request.POST = request.POST.copy()
             request.POST['runidentiprot'] = None
