@@ -393,6 +393,8 @@ table[type="bordered"]{
     margin-left:0;
     margin-top:1em;
     margin-bottom:1em;
+    background-color:#fff;
+    box-sizing: border-box;
   
 }
 
@@ -409,6 +411,8 @@ table[type="bordered"]{
 table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
         border: 1px solid #BBBBBB;
    padding:0.4em;
+        box-sizing: border-box;
+
 }
 
 .middlebutton{
@@ -678,3 +682,21 @@ div#colored{
     vertical-align: middle;
     margin-left: 5%;
 }
+.mega {
+    height:20em;
+    
+    overflow: auto;
+    background: #eee;
+    position:relative;
+    
+}
+.header{
+    position:absolute; 
+    background-color:#fff;
+    }
+.header+* {margin-top:2em;}
+
+#processes_list{
+    margin:0;}
+#reslist{
+    margin-top:3em;}
