@@ -2,7 +2,9 @@
 {% load stringfilter %}
 {% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
 {% block content %}
-        <form action="" method="post">{% csrf_token %}
+
+
+<form action="" method="post">{% csrf_token %}
         <div id="tab">
         
             <h2><form action="" method="post">{% csrf_token %}
@@ -40,18 +42,22 @@
 		{% endif %}
 
           <h4><form action="" method="post">{% csrf_token %}      {% if results_detailed %}
-           
-        <table width="100%"><tr><td width="80%"> 
+           <table width="100%"><tr><td width="80%"> 
             <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
             {{ results_detailed.labelform.as_p }}</td>
             <td align="right"><input type="submit" class="btn" value="show selected columns" name="select_labels"></td></tr></table>
               </form></h4>
-            <h2><div class="scroll short"> <form action="" method="post">{% csrf_token %}
+            <h2><div class="mega"> <form action="" method="post">{% csrf_token %}
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
-            <table id="processes_list" type="bordered">
+            <table class="header" id="processes_list" type="bordered">
                 <tr id="headings">
+			        {% for label in results_detailed.get_labels %}
+                    <th><input type="submit" class="link" value={{ label|spacify }} name=order_by></th>
+			        {% endfor %}
+                </tr></table>
+                <table class="dt" id="processes_list" type="bordered"><tr id="headings">
 			        {% for label in results_detailed.get_labels %}
                     <th><input type="submit" class="link" value={{ label|spacify }} name=order_by></th>
 			        {% endfor %}
@@ -77,4 +83,15 @@
             </h2>
         
 </div>
+    <script>
+
+$(".header").width($(".dt").width());
+$header = $('.header');
+var x = $header.find('td');
+
+$('.mega').on('scroll',function(){$header.css('top',$(this).scrollTop());});
+$(".header tr th").each(function (i){
+       $(this).width($($(".dt tr:first th")[i]).width());
+})
+</script>
 {% endblock %}
