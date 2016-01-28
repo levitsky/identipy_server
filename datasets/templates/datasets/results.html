@@ -35,14 +35,20 @@
                 <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ searchrun.name|spacify }} name="results_figure"/></td>
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
                 <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
-                </form>
                 <td class="td2">{{ searchrun.numMSMS }}</td>
                 <td class="td2">{{ searchrun.totalPSMs }}</td>
                 <td class="td2">{{ searchrun.fdr_psms }}</td>
                 <td class="td2">{{ searchrun.fdr_type }}</td>
-                <td class="td2">{{ searchrun.numPSMs }}</td>
-                <td class="td2">{{ searchrun.numPeptides }}</td>
-                <td class="td2">{{ searchrun.numProteins }}</td>
+                {% if searchrun.numPSMs %}
+                    <td class="td2"><input type="submit" class="link" value={{ searchrun.numPSMs }} name="show_psms"></td>
+                    <td class="td2"><input type="submit" class="link" value={{ searchrun.numPeptides }} name="show_peptides"></td>
+                    <td class="td2"><input type="submit" class="link" value={{ searchrun.numProteins }} name="show_proteins"></td>
+                {% else %}
+                    <td class="td2">{{ searchrun.numPSMs }}</td>
+                    <td class="td2">{{ searchrun.numPeptides }}</td>
+                    <td class="td2">{{ searchrun.numProteins }}</td>
+                {% endif %}
+                </form>
                 </tr>
             {% endfor %}
             </table>
