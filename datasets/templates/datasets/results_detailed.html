@@ -28,9 +28,15 @@
                 </tr>
             <tr>
             <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
-            <td class="td2"><input type="submit" class="link" value={{ searchrun.numPSMs }} name="show_psms"></td>
-            <td class="td2"><input type="submit" class="link" value={{ searchrun.numPeptides }} name="show_peptides"></td>
-            <td class="td2"><input type="submit" class="link" value={{ searchrun.numProteins }} name="show_proteins"></td>
+            {% if searchrun.numPSMs %}
+                <td class="td2"><input type="submit" class="link" value={{ searchrun.numPSMs }} name="show_psms"></td>
+                <td class="td2"><input type="submit" class="link" value={{ searchrun.numPeptides }} name="show_peptides"></td>
+                <td class="td2"><input type="submit" class="link" value={{ searchrun.numProteins }} name="show_proteins"></td>
+		    {% else %}
+                <td class="td2">{{ searchrun.numPSMs }}</td>
+                <td class="td2">{{ searchrun.numPeptides }}</td>
+                <td class="td2">{{ searchrun.numProteins }}</td>
+		    {% endif %}
             <td class="td2">{{ searchrun.fdr_psms }}</td>
             <td class="td2">{{ searchrun.fdr_type }}</td>
             <td class="td2">{{ searchrun.numMSMS }}</td>
