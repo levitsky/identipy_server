@@ -814,7 +814,11 @@ def runidentiprot(request, c):
     def start_all(newgroup, rn, c):
         import django.db
         django.db.connection.close()
-        tasker = Tasker.objects.get(user=newgroup.user)
+        try:
+            tasker = Tasker.objects.get(user=newgroup.user)
+        except:
+            tasker = Tasker(user=newgroup.user)
+            tasker.save()
         tmp_procs = []
         for newrun in newgroup.get_searchruns():
             p = Process(target=run_search, args=(newrun, rn, c))
