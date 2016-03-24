@@ -77,7 +77,12 @@ params_map = {
     'precursor mass difference, ppm': ('precursor mass difference', ''),
     'isotopes mass difference, da': ('isotopes mass error', ''),
     'missed cleavages': ('missed cleavages', ''),
-    'rt difference, min': ('RT difference', '')
+    'rt difference, min': ('RT difference', ''),
+    'precursor isotope mass error': ('precursor isotope mass error', "When the value for this parameter is True, \
+the parent ion mass tolerance is expanded by opening up multiple tolerance windows centered on the first and second 13C isotope peaks for a peptide. \
+This behavior is necessary to compensate for the tendency of automated peak finding software to return the most intense peak from a cluster of isotopes, \
+rather than the all-12C peak."),
+    'shifts': ('peptide mass shift', 'example: 0, 16.000, 23.000, 12')
 }
 
 def get_label(name):
@@ -164,6 +169,7 @@ class SearchParametersForm(forms.Form):
                     "precursor accuracy unit",
                     "precursor accuracy left",
                     "precursor accuracy right",
+                    "precursor isotope mass error",
                     "product accuracy",
                     "fdr",
                     "fdr_type",
