@@ -316,43 +316,43 @@ class SearchRun(BaseDocument):
                         'charge states',
                         'scores']
         all_images = [doc for doc in self.resimagefiles.filter(ftype=ftype)]
-        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower(), custom_order))
+        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('_', 1)[-1].replace(ftype, '').lower(), custom_order))
         return all_images
     
     def get_PSMdistrimagefiles(self, ftype='.png'):
-        distr_list = ['rt experimental',
-                        'precursor mass',
-                        'peptide length'
+        distr_list = ['rt_experimental',
+                        'precursor_mass',
+                        'peptide_length'
                       ]
-        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in distr_list]
+        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_', 1)[-1].replace(ftype, '').lower() in distr_list]
         return distr_images
     def get_distrimagefiles(self, ftype='.png'):
         distr_list = [
-                        'rt experimental, peptides',
-                        'precursor mass, peptides',
-                        'peptide length, peptides'
+                        'rt_experimental_peptides',
+                        'precursor_mass_peptides',
+                        'peptide_length_peptides'
                       ]
-        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in distr_list]
+        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_', 1)[-1].replace(ftype, '').lower() in distr_list]
         return distr_images
     
     def get_quantimagefiles(self, ftype='.png'):
         quant_list = ['sumi',
                         'nsaf',
                         'empai']
-        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in quant_list]
+        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_', 1)[-1].replace(ftype, '').lower() in quant_list]
         return quant_images
     
     def get_mpimagefiles(self, ftype='.png'):
-        MP_list = ['rt difference, min',
-                        'precursor mass difference, ppm',
-                        'fragment mass tolerance, da',
-                        'isotopes mass difference, da',
-                        'missed cleavages, protease 1',
-                        'psm count',
-                        'psms per protein',
-                        'charge states',
+        MP_list = ['rt_difference_min',
+                        'precursor_mass_difference_ppm',
+                        'fragment_mass_tolerance_da',
+                        'isotopes_mass_difference_da',
+                        'missed_cleavages_protease_1',
+                        'psm_count',
+                        'psms_per_protein',
+                        'charge_states',
                         'scores']
-        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower() in MP_list or doc.docfile.name.encode('ASCII').split('_')[-1].replace(ftype, '').lower().startswith('potential modifications')]
+        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('_', 1)[-1].replace(ftype, '').lower() in MP_list or doc.docfile.name.encode('ASCII').split('_', 1)[-1].replace(ftype, '').lower().startswith('potential modifications')]
         return mp_images
     
     def get_pepxmlfiles(self):
@@ -398,7 +398,7 @@ class SearchRun(BaseDocument):
         #         fname = self.csvfiles.filter(ftype=ftype)[0].docfile.name.encode('ASCII')
         #     else:
         #         fname = self.csvfiles.all()[0].docfile.name.encode('ASCII')
-        #     return [os.path.dirname(fname) + '/union_' + os.path.basename(fname).split('_')[-1]]
+        #     return [os.path.dirname(fname) + '/union_' + os.path.basename(fname).split('_', 1)[-1]]
 
     def name(self):
         return os.path.split(self.runname)[-1]
