@@ -7,7 +7,7 @@ import os
 os.chdir(settings.BASE_DIR)
 import sys
 import csv
-sys.path.append('../identipy/')
+sys.path.insert(0, '../identipy/')
 from identipy.utils import CustomRawConfigParser
 from forms import SubmitButtonField
 from django.utils.safestring import mark_safe
