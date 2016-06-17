@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 import sys
-sys.path.append('../identipy/')
+sys.path.insert(0, '../identipy/')
 import csv
 from identipy.utils import CustomRawConfigParser
 import shutil

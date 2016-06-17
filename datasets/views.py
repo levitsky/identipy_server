@@ -31,8 +31,8 @@ from time import sleep, time
 
 from pyteomics import parser, mass
 import sys
-sys.path.append('../identipy/')
-sys.path.append('../mp-score/')
+sys.path.insert(0, '../identipy/')
+sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 from multiprocessing import Process
 from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size
