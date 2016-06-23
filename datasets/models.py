@@ -294,26 +294,26 @@ class SearchRun(BaseDocument):
         django.db.connection.close()
         def get_index(val, custom_list):
             for idx, v in enumerate(custom_list):
-                if val == v or (v == 'potential modifications' and val.startswith(v)):
+                if val == v or (v == 'potential_modifications' and val.startswith(v)):
                     return idx
-        custom_order = ['RT experimental',
-                        'precursor mass',
-                        'peptide length',
-                        'rt experimental, peptides',
-                        'precursor mass, peptides',
-                        'peptide length, peptides',
+        custom_order = ['RT_experimental',
+                        'precursor_mass',
+                        'peptide_length',
+                        'rt_experimental_peptides',
+                        'precursor mass_peptides',
+                        'peptide length_peptides',
                         'sumi',
                         'nsaf',
                         'empai',
-                        'rt difference, min',
-                        'precursor mass difference, ppm',
-                        'fragment mass tolerance, da',
-                        'potential modifications',
-                        'isotopes mass difference, da',
-                        'missed cleavages, protease 1',
-                        'psm count',
-                        'psms per protein',
-                        'charge states',
+                        'rt_difference_min',
+                        'precursor_mass difference_ppm',
+                        'fragment_mass_tolerance_da',
+                        'potential_modifications',
+                        'isotopes_mass_difference_da',
+                        'missed_cleavages_protease_1',
+                        'psm_count',
+                        'psms_per_protein',
+                        'charge_states',
                         'scores']
         all_images = [doc for doc in self.resimagefiles.filter(ftype=ftype)]
         all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower(), custom_order))
