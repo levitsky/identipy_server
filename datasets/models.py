@@ -352,7 +352,7 @@ class SearchRun(BaseDocument):
                         'psms_per_protein',
                         'charge_states',
                         'scores']
-        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in MP_list or doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower().startswith('potential modifications')]
+        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in MP_list or doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
         return mp_images
     
     def get_pepxmlfiles(self):
