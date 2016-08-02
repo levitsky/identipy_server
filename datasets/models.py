@@ -37,6 +37,10 @@ class BaseDocument(models.Model):
     def path(self):
         return os.path.join(settings.MEDIA_ROOT, self.docfile.name)
 
+    def customdel(self):
+        os.remove(self.path())
+        self.delete()
+
     class Meta:
         abstract = True
 
