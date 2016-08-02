@@ -359,7 +359,8 @@ def delete(request, c):
     if form.is_valid():
         for x in form.cleaned_data.get('relates_to'):
             obj = c['usedclass'].objects.get(user=c['userid'], id=x)
-            obj.delete()
+            # obj.delete()
+            obj.customdel()
     return searchpage(request, c)
 
 def logout_view(request):
