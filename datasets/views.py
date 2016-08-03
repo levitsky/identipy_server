@@ -844,6 +844,8 @@ def runidentiprot(request, c):
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
+        newgroup.processpid = p.pid
+        newgroup.save()
         messages.add_message(request, messages.INFO, 'Identiprot started')
     else:
         messages.add_message(request, messages.INFO, 'Results with name %s already exist, choose another name' % (c['runname'], ))
