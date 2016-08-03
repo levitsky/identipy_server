@@ -66,6 +66,16 @@
             
         </div></div></h2>
 
+
+            <div id="run_identiprot" class="rightside"><h3>
+            <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/></span></h3>
+            <h2><div id="runbtn"> <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot"></div>
+
+
+            </h2>
+
+            </div>
+
             <div id="vert_block" class="rightside">
             <h2 id="paramtitle">    Specify search parameters<br></h2>
                 
@@ -95,13 +105,11 @@
                 
                 </div>
  {% endif %}
- 
+
     <div id="chromoConditionsBlock">
                 <table id="SearchParametersTable"><tr valign="top"><td>
 
-                <input type="text" id="textinput" name="paramsname" value=""  placeholder="Enter parameters name"/></td>
-                <td><input type="submit" class="link" value="save parameters" name="saveparams"><br>
-                    <input type="submit" class="link" value="load parameters" name="loadparams"></td></tr>
+
                     <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
                         {{ SearchForms.main.as_table }}
 </table>
@@ -110,27 +118,24 @@
         <h2><br><span title="Select descriptors to use for enhanced FDR filtering" style="cursor: help">Post-search validation</span></h2>
         <table id="SearchParametersTable">
                         {{ SearchForms.postsearch.as_table }}
+
+
                </table>
                         {% endif %}
+<br>
+        <table id="SearchParametersTable"><tr valign="top"><td>
 
+                            <input type="text" id="textinput" name="paramsname" value=""  placeholder="Enter parameters name"/></td>
+                <td><input type="submit" class="link" value="save parameters" name="saveparams"><br>
+                    <input type="submit" class="link" value="load parameters" name="loadparams"></td></tr>
+
+        </table>
    
 
                 
         </div></h3>
 
-      
-            <div id="run_identiprot"><h3>
-            <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/></span></h3>
-            <h2><div id="runbtn"> <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot"></div>
-            
 
-            <div id="clear">
-            
-             <input type="submit" class="btn" value="Clear chosen files" name="clear">
-           
-            </div></h2>
-
-            </div>
     </div></form></div>
         
 
