@@ -16,6 +16,20 @@ from identipy.utils import CustomRawConfigParser
 import shutil
 from time import time
 
+import psutil, os
+
+def kill_proc_tree(pid, including_parent=True):
+    parent = psutil.Process(pid)
+    children = parent.children(recursive=True)
+    for child in children:
+        child.kill()
+    psutil.wait_procs(children, timeout=5)
+    if including_parent:
+        parent.kill()
+        parent.wait(5)
+
+
+
 # def upload_to(instance, filename):
 #     allowed_extensions = {'.raw', '.baf', '.yep', '.mgf', '.mzml', '.mzxml', '.fasta'}
 #     fext = os.path.splitext(filename)[-1].lower()
@@ -114,6 +128,7 @@ class SearchGroup(BaseDocument):
     fasta = models.ManyToManyField(FastaFile)
     parameters = models.ManyToManyField(ParamsFile)
     status = models.CharField(max_length=80, default='No info')
+    processpid = models.IntegerField(default=9999)
 
     def get_notification(self):
         return SearchRun.objects.filter(searchgroup_parent=self)[0].get_notification()
@@ -191,6 +206,11 @@ class SearchGroup(BaseDocument):
         self.save()
 
     def full_delete(self):
+        if self.status == 'Search is running':
+            try:
+                kill_proc_tree(self.processpid)
+            except:
+                pass
         for sr in self.get_searchruns_all():
             sr.full_delete()
         self.delete()
