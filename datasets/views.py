@@ -27,7 +27,8 @@ import math
 from copy import copy
 from django.utils.safestring import mark_safe
 import tempfile
-from time import sleep, time
+from time import sleep
+import time
 
 from pyteomics import parser, mass
 import sys
@@ -43,7 +44,7 @@ search_limit = settings.NUMBER_OF_PARALLEL_RUNS if hasattr(settings, 'NUMBER_OF_
 
 tasks = Tasker.objects.all()
 for task in tasks:
-    task.lastsearchtime = time()
+    task.lastsearchtime = time.time()
     task.taskcounter = 0
     task.cursearches = 0
     task.save()
@@ -831,6 +832,8 @@ def runidentiprot(request, c):
         p = Process(target=start_union, args=(newgroup, rn, c))
         p.start()
 
+    if not c['runname']:
+        c['runname'] = time.strftime("%Y-%m-%d_%H-%M-%S")
     if not os.path.exists('results'):
         os.mkdir('results')
     if not os.path.exists(os.path.join('results', str(c['userid'].id))):
