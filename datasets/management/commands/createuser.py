@@ -37,10 +37,22 @@ class Command(BaseCommand):
             paramobj.save()
             fl.close()
 
-        priority_list = ['pepsin ph2.0', 'glutamyl endopeptidase', 'ntcb', 'cnbr', 'lysc', 'trypsin']
-        for protease in parser.expasy_rules:
-            bonus = priority_list.index(protease) + 1 if protease in priority_list else 0
-            protease_object = Protease(name=protease, rule=parser.expasy_rules[protease], order_val=1+bonus, user=user)
+        default_proteases = [
+            ['trypsin', '[KR]|{P}'],
+            ['lysc', '[K]|[X]'],
+            ['cnbr', '[M]|[X]'],
+            ['ntcb', '[X]|[C]'],
+            ['gluc', '[E]|[X]'],
+            ['pepsin ph2', '[FL]|{P}'],
+            ['pepsin ph1.3', '[FLWY]|{P}'],
+            ['iodosobenzoic acid', '[W]|[X]'],
+            ['bnps-skatole', '[W]|[X]'],
+            ['arg-c', '[R]|[X]'],
+            ['arg-n', '[X]|[D]']
+        ]
+
+        for idx, protease in enumerate(default_proteases[::-1]):
+            protease_object = Protease(name=protease[0], rule=protease[1], order_val=1+idx, user=user)
             protease_object.save()
 
         default_mods = [
