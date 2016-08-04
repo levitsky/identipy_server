@@ -40,21 +40,28 @@ from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size
 
 globalc = dict()
 search_limit = settings.NUMBER_OF_PARALLEL_RUNS if hasattr(settings, 'NUMBER_OF_PARALLEL_RUNS') else 1
+
 #Startup check for broken searches
+#These try-except made for makemigrations works when Tasker or SearchGroup model are changed
+try:
+    tasks = Tasker.objects.all()
+    for task in tasks:
+        task.lastsearchtime = time.time()
+        task.taskcounter = 0
+        task.cursearches = 0
+        task.save()
+except:
+    'Smth wrong with Tasker model'
 
-tasks = Tasker.objects.all()
-for task in tasks:
-    task.lastsearchtime = time.time()
-    task.taskcounter = 0
-    task.cursearches = 0
-    task.save()
-
-searchgroups = SearchGroup.objects.all()
-for searchgroup in searchgroups:
-    if searchgroup.status != 'Task is finished':
-        searchgroup.change_status('Task is dead')
-#        searchgroup.delete()
-#        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
+try:
+    searchgroups = SearchGroup.objects.all()
+    for searchgroup in searchgroups:
+        if searchgroup.status != 'Task is finished':
+            searchgroup.change_status('Task is dead')
+    #        searchgroup.delete()
+    #        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
+except:
+    'Smth wrong with SearchGroup model'
 
 def update_searchparams_form_new(request, paramtype, sftype):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
