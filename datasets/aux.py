@@ -140,7 +140,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
                         tempval = SearchParametersForm_values[param[0]]
                     raw_config.set(section, param[0], tempval + '|' + orig_choices)
     enz = raw_config.get('search', 'enzyme')
-    protease = Protease.objects.get(user=uid, rule=enz)
+    protease = Protease.objects.filter(user=uid, rule=enz).first()
     raw_config.set('search', 'enzyme', protease.name + '|' + raw_config.get_choices('search', 'enzyme'))
     if raw_config.getboolean('options', 'use auto optimization'):
         raw_config.set('misc', 'first stage', 'identipy.extras.optimization')
