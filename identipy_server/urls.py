@@ -2,15 +2,16 @@ from django.conf.urls import include, url
 from django.conf import settings
 from django.contrib import admin
 from django.views.generic.base import RedirectView
+import datasets
 
 urlpatterns = [
 	url(r'^data/', include('datasets.urls', namespace='datasets')),
-    url(r'^login/', 'datasets.views.loginview'),
-    url(r'^auth/', 'datasets.views.auth_and_login'),
+    url(r'^login/', datasets.views.loginview),
+    url(r'^auth/', datasets.views.auth_and_login),
     # url(r'^choose/', 'datasets.views.files_view'),
-    url(r'^choose_spectra/', 'datasets.views.files_view_spectra'),
+    url(r'^choose_spectra/', datasets.views.files_view_spectra),
     # url(r'^signup/', 'datasets.views.sign_up_in'),
-    url(r'^logout/', 'datasets.views.logout_view'),
+    url(r'^logout/', datasets.views.logout_view),
         url(r'^admin/', include(admin.site.urls)),
         url(r'^$', RedirectView.as_view(url='/data')),
 ]
