@@ -56,7 +56,7 @@ except:
 try:
     searchgroups = SearchGroup.objects.all()
     for searchgroup in searchgroups:
-        if searchgroup.status != 'Task is finished':
+        if not searchgroup.status.startswith('Task is finished'):
             searchgroup.change_status('Task is dead')
     #        searchgroup.delete()
     #        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
@@ -821,7 +821,7 @@ def runidentiprot(request, c):
             email_to_user(newgroup.user.username, newgroup.groupname)
         tasker = Tasker.objects.get(user=newgroup.user)
         tasker.finish_run()
-        newgroup.change_status('Task is finished')
+        newgroup.change_status('Task is finished at %s' % (time.strftime("%d_%H-%M-%S"), ))
 
     def start_all(newgroup, rn, c):
         import django.db
