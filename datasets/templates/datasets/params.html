@@ -9,9 +9,12 @@
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}></p>
         </h2>
-
-		
     <div id="chromoConditionsBlock">
+        Used protein database:
+        <br>
+        <h2>
+		{{ fastaname }}</h2>
+        <br>
                 <table id="SearchParametersTable"><tr valign="center"><td>
 
                 <input type="text" id="textinput" name="paramsname" value=""  placeholder="Enter parameters name"/></td>
