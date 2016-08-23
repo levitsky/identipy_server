@@ -902,6 +902,7 @@ def showparams(request, searchgroupid, c):
     c['SearchForms'] = {}
     for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
         c['SearchForms'][sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+    c['fastaname'] = runobj.fasta.all()[0].name()
     return render(request, 'datasets/params.html', c)
 
 
