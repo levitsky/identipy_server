@@ -11,6 +11,7 @@ sys.path.insert(0, '../identipy/')
 from identipy.utils import CustomRawConfigParser
 from forms import SubmitButtonField
 from django.utils.safestring import mark_safe
+import numpy as np
 
 def get_size(start_path = '.'):
     total_size = 0
@@ -27,9 +28,17 @@ class ResultsDetailed():
         with open(path_to_csv, "r") as cf:
             reader = csv.reader(cf, delimiter='\t')
             self.labels = reader.next()
+            if self.labels[-1] == 'is decoy':
+                self.labels = self.labels[:-1]
+                rmvlast = True
+            else:
+                rmvlast = False
             self.whiteind = [True for _ in range(len(self.labels))]
             self.order_by_label = self.labels[0]
-            self.values = [val for val in reader]
+            if rmvlast:
+                self.values = [val[:-1] for val in reader]
+            else:
+                self.values = [val for val in reader]
             self.dbname = False
 
     def special_links(self, value, name, dbname):
