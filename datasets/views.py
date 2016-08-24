@@ -595,7 +595,7 @@ def add_protease(request, c, sbm=False, delete=False):
                 messages.add_message(request, messages.INFO, 'Cleavage rule with name %s already exists' % (protease_name, ))
                 return render(request, 'datasets/add_protease.html', c)
             try:
-                protease_rule = utils.convert_tandem_cleave_rule_to_regexp(c['proteaseform'].cleaned_data['cleavage_rule'])
+                protease_rule = c['proteaseform'].cleaned_data['cleavage_rule']
             except:
                 messages.add_message(request, messages.INFO, 'Cleavage rule is incorrect')
                 return render(request, 'datasets/add_protease.html', c)
