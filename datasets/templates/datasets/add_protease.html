@@ -18,8 +18,10 @@
         <tr>
                 <td class="leftcolumn">
                     {{ proteaseform.subject.errors }}
-                    <span for="{{ proteaseform.label.id_for_label }}" title="Examples: [RK]|{P} means cut after R and K but not before P
-[X]|[C] means cut after any aminoacid but before C" style="cursor:help">Cleavage rule:</span></td>
+                    <span for="{{ proteaseform.label.id_for_label }}" title="Examples:
+[RK]|{P} means cut after R and K but not before P
+[X]|[C] means cut after any aminoacid but before C
+[RK]|{P},[E]|[X] means mix of trypsin and GluC proteases" style="cursor:help">Cleavage rule:</span></td>
                     <td class="rightcolumn">{{ proteaseform.cleavage_rule }}</td>
             </tr>
             
