@@ -15,7 +15,7 @@ import csv
 from identipy.utils import CustomRawConfigParser
 import shutil
 from time import time
-
+import subprocess
 import psutil, os
 
 def kill_proc_tree(pid, including_parent=True):
@@ -435,11 +435,19 @@ class SearchRun(BaseDocument):
         from pyteomics import mgf, pepxml, mzml
         for fn in self.get_spectrafiles_paths():
             if fn.lower().endswith('.mgf'):
-                self.numMSMS += sum(1 for _ in mgf.read(fn))
+                try:
+                    msmsnum = int(subprocess.check_output(['grep', '-c', 'BEGIN IONS', '%s' % (fn, )]))
+                except:
+                    msmsnum = sum(1 for _ in mgf.read(fn))
             elif fn.lower().endswith('.mzml'):
-                self.numMSMS += sum(1 for _ in mzml.read(fn))
+                msmsnum = sum(1 for _ in mzml.read(fn))
+            self.numMSMS += msmsnum
         for fn in self.get_pepxmlfiles_paths():
-            self.totalPSMs += sum(1 for _ in pepxml.read(fn))
+            try:
+                psmsnum = int(subprocess.check_output(['grep', '-c', '<spectrum_query', '%s' % (fn, )]))
+            except:
+                psmsnum = sum(1 for _ in pepxml.read(fn))
+            self.totalPSMs = psmsnum
         for fn in self.get_csvfiles_paths(ftype='psm'):
             with open(fn, "r") as cf:
                 self.numPSMs += sum(1 for _ in csv.reader(cf)) - 1
