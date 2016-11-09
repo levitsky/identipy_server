@@ -39,7 +39,7 @@ from multiprocessing import Process
 from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size
 
 globalc = dict()
-search_limit = settings.NUMBER_OF_PARALLEL_RUNS if hasattr(settings, 'NUMBER_OF_PARALLEL_RUNS') else 1
+search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 
 #Startup check for broken searches
 #These try-except made for makemigrations works when Tasker or SearchGroup model are changed
@@ -51,7 +51,7 @@ try:
         task.cursearches = 0
         task.save()
 except:
-    'Smth wrong with Tasker model'
+    print 'Smth wrong with Tasker model'
 
 try:
     searchgroups = SearchGroup.objects.all()
@@ -61,7 +61,7 @@ try:
     #        searchgroup.delete()
     #        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
 except:
-    'Smth wrong with SearchGroup model'
+    print 'Smth wrong with SearchGroup model'
 
 def update_searchparams_form_new(request, paramtype, sftype):
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -330,6 +330,27 @@ def index(request):
         else:
             commonform = CommonForm()
 
+        # Handle local import
+        if request.method == 'POST' and request.POST.get('fileimport'):
+            request.POST = request.POST.copy()
+            request.POST['submit'] = None
+            fname = request.POST.get('filePath').encode('utf-8')
+            print 'IMPORTING FILE', fname
+            fext = os.path.splitext(fname)[-1][1:].lower()
+            dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'cfg': 'params'}[fext]
+            dirname = os.path.join('uploads', dirn, str(request.user.id))
+            print 'Saving to', dirname
+            shutil.copy(fname, dirname)
+            newfname = os.path.join(dirname, os.path.split(fname)[1])
+            print newfname
+            with open(newfname, 'rb') as f:
+                djf = File(f)
+                uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
+                        docfile=djf, user=request.user)
+                uploaded.save()
+            messages.add_message(request, messages.INFO, 'Import successful')
+            return local_import(request, c)
+            
         if 'chosenparams' in c:
             os.remove(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
             shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
@@ -475,7 +496,13 @@ def upload(request, c):
     c['system_size'] = get_size(path.join('results', str(c['userid'].id)))
     for dirn in ['spectra', 'fasta', 'params']:
         c['system_size'] += get_size(path.join('uploads', dirn, str(c['userid'].id)))
+    li = getattr(settings, 'LOCAL_IMPORT', False)
+    print 'Local import', li
+    c['LOCAL_IMPORT'] = li
     return render(request, 'datasets/upload.html', c)
+
+def local_import(request, c):
+    return upload(request, c) 
 
 def searchpage(request, c, upd=False):
     c = c
