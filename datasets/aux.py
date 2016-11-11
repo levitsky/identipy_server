@@ -1,7 +1,7 @@
 from models import ParamsFile, Protease
 from forms import SearchParametersForm
 from django.core.files import File
-
+from time import time
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
@@ -12,6 +12,53 @@ from identipy.utils import CustomRawConfigParser
 from forms import SubmitButtonField
 from django.utils.safestring import mark_safe
 import numpy as np
+
+class Tasker():
+    def __init__(self):
+        self.data = {}
+
+    def check_user(self, user):
+        if user not in self.data:
+            self.data[user] = {'taskcounter': 0,
+                               'lastsearchtime': 0.0,
+                               'cursearches': 0}
+
+    def ask_for_run(self, user):
+        self.data[user]['taskcounter'] += 1
+
+    def start_run(self, user):
+        self.data[user]['lastsearchtime'] = time()
+        self.data[user]['taskcounter'] -= 1
+        self.data[user]['cursearches'] += 1
+
+    def finish_run(self, user):
+        self.data[user]['cursearches'] -= 1
+
+    def get_user_with_min_time(self):
+        mintime = min(v['lastsearchtime'] for v in self.data.values() if v['taskcounter'] != 0)
+        for k, v in self.data.iteritems():
+            if v['lastsearchtime'] == mintime:
+                return k
+
+    def get_total_cursearches(self):
+        return sum(v['cursearches'] for v in self.data.values())
+
+    # def ask_for_run(self):
+    #     self.taskcounter += 1
+    #     self.save()
+    #
+    # def start_run(self):
+    #     self.lastsearchtime = time()
+    #     self.taskcounter -= 1
+    #     self.cursearches += 1
+    #     self.save()
+    #
+    # def finish_run(self):
+    #     print self.cursearches, 'Cursearch before'
+    #     self.cursearches -= 1
+    #     print self.cursearches, 'Cursearch after'
+    #     self.save()
+
 
 def get_size(start_path = '.'):
     total_size = 0

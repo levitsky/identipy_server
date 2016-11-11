@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
 
-from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification, Tasker
+from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
 from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
 from os import path
 from django.conf import settings
@@ -29,6 +29,7 @@ from django.utils.safestring import mark_safe
 import tempfile
 from time import sleep
 import time
+import random
 
 from pyteomics import parser, mass
 import sys
@@ -36,22 +37,13 @@ sys.path.insert(0, '../identipy/')
 sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size
+from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size, Tasker
 
 globalc = dict()
 search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 
-#Startup check for broken searches
-#These try-except made for makemigrations works when Tasker or SearchGroup model are changed
-try:
-    tasks = Tasker.objects.all()
-    for task in tasks:
-        task.lastsearchtime = time.time()
-        task.taskcounter = 0
-        task.cursearches = 0
-        task.save()
-except:
-    print 'Smth wrong with Tasker model'
+global taskker
+taskker = Tasker()
 
 try:
     searchgroups = SearchGroup.objects.all()
@@ -748,23 +740,6 @@ def runidentiprot(request, c):
     def totalrun(idsettings, newrun, usr, paramfile):
         import django.db
         django.db.connection.close()
-        try:
-            tasker = Tasker.objects.get(user=newrun.user)
-        except:
-            tasker = Tasker(user=newrun.user)
-            tasker.save()
-        tasker.ask_for_run()
-
-        while 1:
-            min_time = Tasker.objects.exclude(taskcounter=0).aggregate(Min('lastsearchtime'))['lastsearchtime__min']
-            try:
-                if Tasker.objects.aggregate(Sum('cursearches'))['cursearches__sum'] < search_limit and newrun.user == Tasker.objects.get(lastsearchtime = min_time).user:
-                    break
-            except:
-                sleep(1)
-            sleep(1)
-
-        tasker.start_run()
         procs = []
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
@@ -849,26 +824,34 @@ def runidentiprot(request, c):
 
         if newgroup.get_notification():
             email_to_user(newgroup.user.username, newgroup.groupname)
-        tasker = Tasker.objects.get(user=newgroup.user)
-        tasker.finish_run()
         newgroup.change_status('Task is finished at %s' % (time.strftime("%d_%H-%M-%S"), ))
 
     def start_all(newgroup, rn, c):
         import django.db
         django.db.connection.close()
-        try:
-            tasker = Tasker.objects.get(user=newgroup.user)
-        except:
-            tasker = Tasker(user=newgroup.user)
-            tasker.save()
+        taskker.check_user(newgroup.user)
+
         tmp_procs = []
         for newrun in newgroup.get_searchruns():
+            taskker.ask_for_run(newrun.user)
+
+            while 1:
+                min_time_user = taskker.get_user_with_min_time()
+                if taskker.get_total_cursearches() < search_limit and newrun.user == min_time_user:
+                    break
+                else:
+                    for idx, p in enumerate(tmp_procs):
+                        if not p.is_alive():
+                            taskker.finish_run(newrun.user)
+                            tmp_procs.pop(idx)
+                sleep(5)
+
+            taskker.start_run(newrun.user)
             p = Process(target=run_search, args=(newrun, rn, c))
             p.start()
             tmp_procs.append(p)
         for p in tmp_procs:
             p.join()
-            tasker.finish_run()
         p = Process(target=start_union, args=(newgroup, rn, c))
         p.start()
 
