@@ -152,6 +152,8 @@ def index(request):
         elif(request.POST.get('searchpage')):
             request.POST = request.POST.copy()
             request.POST['searchpage'] = None
+            if c.get('sbm_modform', False):
+                c['sbm_modform'] = False
             return searchpage(request, c = c)
         elif(request.POST.get('uploadspectra')):
             request.POST = request.POST.copy()
@@ -669,6 +671,8 @@ def files_view(request, c, usedclass=None, usedname=None, multiform=True):
         usedname=c['usedname']
         del c['usedclass']
         del c['usedname']
+    else:
+        c.update({'usedclass': usedclass, 'usedname': usedname})
     documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
