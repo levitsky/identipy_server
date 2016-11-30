@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Select files{% endblock%}
+{% block content %}
+
+
+<div id="tab"><form method="post" id="selectionform">{% csrf_token %}
+    <h2><div id="fixedpanel" >
+        
+
+        
+                <input class = "btn" type="submit" value="submit" name="sbm">
+                <input type="submit" class="btn" value="cancel" name="searchpage">
+                <input class = "btn red" type="submit" value="delete" name="del">
+                {% if select_form == 'form' and usedname != 'chosenparams' %}
+                    <input type="submit" class="btn" value="download" name="download_selected">
+                    <input type="submit" class="btn" value="upload new files" name="uploadform">
+                {% elif select_form == 'modform' %}
+                    <input type="submit" class="btn" value="add custom modification" name="add_modification">
+                {% endif %}
+        
+                   
+            </div>
+                {% if select_form == 'form' %}
+                    {{ form.as_p }}
+                {% elif select_form == 'modform' %}
+                    {{ modform.as_p }}
+                {% endif %}
+{% if topbtn %}
+          <div id="vert_block" >
+        
+                
+                <input class = "btn" type="submit" value="submit" name="sbm">
+                <input type="submit" class="btn" value="cancel" name="searchpage">
+                <input class = "btn red" type="submit" value="delete" name="del">
+                {% if select_form == 'form' and usedname != 'chosenparams' %}
+                    <input type="submit" class="btn" value="upload new files" name="uploadform">
+                {% elif select_form == 'modform' %}
+                    <input type="submit" class="btn" value="download" name="download_selected">
+                    <input type="submit" class="btn" value="add custom modification" name="add_modification">
+                {% endif %}
+               
+            </div>{% endif %}    
+        </h2> </form>
+         
+
+    </div>  
+{% endblock %}

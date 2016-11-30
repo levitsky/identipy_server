@@ -1,0 +1,165 @@
+*{margin:0;padding:0;}
+
+body{
+  background:#567;
+  font-family:sans-serif,sans-serif;
+}
+
+#data{
+  width: 80%;
+  margin:0 auto;
+  margin-top:8px;
+  margin-bottom:2%;
+  transition:opacity 1s;
+  -webkit-transition:opacity 1s;
+}
+
+#data h1{
+  background:#3399cc;
+  padding:3% 2%;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
+
+#data h2{
+  background:#3399cc;
+  padding:3% 2%;
+  font-size:140%;
+  font-weight:300;
+  text-align:left;
+  color:#fff;
+  border-bottom: 5px solid white;
+}
+
+#data h3{
+  background:#ff0000;
+  padding:3% 2%;
+  font-size:140%;
+  font-weight:1600;
+  text-align:center;
+  color:#fff;
+  border-bottom: 5px solid white;
+}
+
+#data h4{
+  background:#3399cc;
+  padding:3% 2%;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
+
+#data h5{
+  background:#3399cc;
+  padding:3% 2%;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
+
+#data h6{
+  background:#0000FF;
+  padding:1% 1%;
+  font-size:250%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+}
+
+input[class="topbtn"]{
+  width:100%;
+  background:#00FF00;
+  padding:1% 1%;
+  font-size:250%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+  border-bottom: 5px solid white;
+}
+
+input[class="backbtn"]{
+  width:100%;
+  background:#FF0000;
+  padding:1% 1%;
+  font-size:250%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+  border-bottom: 5px solid white;
+}
+
+input[name="clear"]{
+  width:100%;
+  background:#0000FF;
+  padding:1% 1%;
+  font-size:250%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+}
+
+input[class="searchname"]{
+    font-size: 40px
+}
+
+input[class="docname"]{
+  width:50%;
+  background:#00FF00;
+  padding:1% 1%;
+  font-size:150%;
+  font-weight:1000;
+  text-align:center;
+  color:#fff;
+  border-bottom: 5px solid white;
+}
+
+td[class="td1"]{
+  table-layout: fixed;
+  width: 40%;
+  max-width: 40%;
+  min-width: 40%;
+  padding: 0.5rem;
+  font-size:100%;
+  font-weight:900;
+  text-align: center;
+}
+
+td[class="td2"]{
+  table-layout: fixed;
+  width: 10%;
+  max-width:10%;
+  min-width:10%;
+  padding: 0.5rem;
+  font-size:100%;
+  font-weight:900;
+  text-align: center;
+}
+
+td[class="td3"]{
+  table-layout: fixed;
+  width: 20%;
+  max-width:10%;
+  min-width:10%;
+  padding: 0.5rem;
+  font-size:100%;
+  font-weight:900;
+  text-align: center;
+}
+
+.index_img {
+  overflow: auto;
+  display: block;
+}
+.index_img > div {
+  margin: 20px;
+  width: 29%;
+  background: white;
+  float: left;
+  color: #000;
+  text-align: center;
+}
+

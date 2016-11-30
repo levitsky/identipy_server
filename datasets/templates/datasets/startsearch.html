@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}New Search{% endblock%}
+{% block content %}
+
+<div id="tab">
+<form action="" method="post">{% csrf_token %}
+    <h2>        
+    <div id="vert_block" class="leftside">
+            
+            {% if chosenspectra %}
+        Selected spectra:
+
+                <table type="bordered">
+                    <tr id="headings">
+                        <th width="60%">Filename</th>
+                        <th width="15%">Size</th>
+                        <th>Upload date</th>
+                    </tr>
+                {% for doc in chosenspectra %}
+                <tr>
+                    <td style="word-break:break-all">{{ doc.name }}</td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                MS files not selected
+            {% endif %}
+   
+
+   <div>
+   
+        <input type="submit" class="btn" value="Choose preloaded spectra" name="uploadspectra">
+
+   
+            </div><br>
+
+        
+            {% if chosenfasta %}
+                <table type="bordered">
+                    Selected protein database file:
+                    <tr id="headings">
+                        <th width="60%">Filename</th>
+                        <th width="15%">Size</th>
+                        <th>Upload date</th>
+                    </tr>
+                {% for doc in chosenfasta %}
+                <tr>
+                    <td style="word-break:break-all">{{ doc.name }}</td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                Protein database file not selected
+            {% endif %}
+            
+
+            <div id="upload_fasta">
+            
+
+             <input type="submit" class="btn" value="Choose preloaded&#10;protein database file" name="uploadfasta">
+
+            
+        </div></div></h2>
+
+
+            <div id="run_identiprot" class="rightside"><h3>
+            <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value=""  placeholder="Enter search run name"/></span></h3>
+            <h2><div id="runbtn"> <input type="submit" class="backbtn" value="RUN&#10;identiprot" name="runidentiprot"></div>
+
+
+            </h2>
+
+            </div>
+
+            <div id="vert_block" class="rightside">
+            <h2 id="paramtitle">    Specify search parameters<br></h2>
+                
+                 <h3>       
+{% if paramtype == 1 %}
+            <div id="upload_parameters">
+           
+                  <input type="submit" class="menubar current" value="Minimal" name="type1">
+                 <input type="submit" class="menubar" value="Medium" name="type2">
+               <input type="submit" class="menubar" value="Advanced" name="type3">
+                
+                </div>
+ {% elif paramtype == 2 %}
+            <div id="upload_parameters">
+           
+                  <input type="submit" class="menubar" value="Minimal" name="type1">
+                 <input type="submit" class="menubar current" value="Medium" name="type2">
+               <input type="submit" class="menubar" value="Advanced" name="type3">
+                
+                </div>
+{% elif paramtype == 3 %}
+            <div id="upload_parameters">
+           
+                  <input type="submit" class="menubar" value="Minimal" name="type1">
+                 <input type="submit" class="menubar" value="Medium" name="type2">
+               <input type="submit" class="menubar current" value="Advanced" name="type3">
+                
+                </div>
+ {% endif %}
+
+    <div id="chromoConditionsBlock">
+                <table id="SearchParametersTable"><tr valign="top"><td>
+
+
+                    <!--a href="help#lcparameters" class="help">Enter your search parameters</a-->
+                        {{ SearchForms.main.as_table }}
+</table>
+
+                        {% if SearchForms.postsearch %}
+        <h2><br><span title="Select descriptors to use for enhanced FDR filtering" style="cursor: help">Post-search validation</span></h2>
+        <table id="SearchParametersTable">
+                        {{ SearchForms.postsearch.as_table }}
+
+
+               </table>
+                        {% endif %}
+<br>
+        <table id="SearchParametersTable"><tr valign="top"><td>
+
+                            <input type="text" id="textinput" name="paramsname" value=""  placeholder="Enter parameters name"/></td>
+                <td><input type="submit" class="link" value="save parameters" name="saveparams"><br>
+                    <input type="submit" class="link" value="load parameters" name="loadparams"></td></tr>
+
+        </table>
+   
+
+                
+        </div></h3>
+
+
+    </div></form></div>
+        
+
+{% endblock %}

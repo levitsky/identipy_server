@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}IdentiPROT server{% endblock%}
+{% block content %}
+
+   {% if user.username %}   
+   
+     <div id="tab">
+         <h2><p>Login successful</p></h2>
+         <form action="" method="post">{% csrf_token %}
+         <p>Dear {{user.username}}, you were successfully logged in on IdentiPROT server. You look beautiful today.</p>
+         <p>Do you want to identify something biological in your mass spectrometric data? You can <input type="submit" class="link" value="upload" name="uploadform"> new files or <input type="submit" class="link" value="start a search" name="searchpage"> if all the neсessary files are already uploaded.</p>
+         </form>
+</div>
+
+{% else %}
+
+
+<div id="tab">
+    <h2><p>IdentiPROT search engine</p></h2>
+         <form action="" method="post">{% csrf_token %}
+<p>
+Software performs:
+<br>
+-database search for peptide and protein matching with calculation of HyperScore [1] or MorpheusScore [2] for ranking peptide-spectrum matches;
+<br>
+-filtering to a given percentage of global false discovery rate (FDR) using target-decoy approach [3];
+<br>
+-validation of the protein identification results using MPscore algorithm [4];
+<br>
+-label free quantitation using spectral count based methods (Normalized Spectral Index [5], Exponentially Modified Protein Abundance Index [6], Normalized Spectral Abundance Factor [7]).
+<br>
+Software has convenient web-interface to specify the parameters for your searches. Engine will process your input data provided in the following formats:
+fasta for protein db
+mgf or mzML for your experimental data
+An example of the standard search input and output can be viewed
+             <a href="http://pubdata.theorchromo.ru/IdentiProt_presentation/IdentiProt.ppt">here.</a>
+
+<br>
+<form action="" method="post">{% csrf_token %}<p>To start your search, please, LOG IN or <input type="submit" class="link" value="contact" name="contacts"> our administrators to create account.</p></form>
+
+<br>
+Cited literature:
+<br>
+1.	Craig R., Beavis R.C. TANDEM: matching proteins with tandem mass spectra // Bioinformatics. 2004. Vol. 20, № 9. P. 1466–1467.
+<br>
+2.	Wenger C.D., Coon J.J. A Proteomics Search Algorithm Specifically Designed for High-Resolution Tandem Mass Spectra // J. Proteome Res. 2013. Vol. 12, № 3. P. 1377–1386.
+<br>
+3.	Elias J.E., Gygi S.P. Target-decoy search strategy for increased confidence in large-scale protein identifications by mass spectrometry // Nat. Methods. 2007. Vol. 4, № 3. P. 207–214.
+<br>
+4.	Ivanov M.V. et al. Empirical Multidimensional Space for Scoring Peptide Spectrum Matches in Shotgun Proteomics // J. Proteome Res. 2014. Vol. 13, № 4. P. 1911–1920.
+<br>
+5.	Griffin N.M. et al. Label-free, normalized quantification of complex mass spectrometry data for proteomic analysis // Nat. Biotechnol. 2010. Vol. 28, № 1. P. 83–89.
+<br>
+6.	Ishihama Y. et al. Exponentially modified protein abundance index (emPAI) for estimation of absolute protein amount in proteomics by the number of sequenced peptides per protein // Mol. Cell. Proteomics MCP. 2005. Vol. 4, № 9. P. 1265–1272.
+<br>
+7.	Zybailov B.L., Florens L., Washburn M.P. Quantitative shotgun proteomics using a protease with broad specificity and normalized spectral abundance factors // Mol. Biosyst. 2007. Vol. 3, № 5. P. 354–360.
+
+</p>
+         </form>
+</div>
+
+{% endif %}
+            
+        
+        
+{% endblock %}
