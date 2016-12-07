@@ -2,7 +2,7 @@
 {% block title %}{{ document.name }}{% endblock%}
 {% block content %}
 <h id="name">{{ doc.name }}</h>
-<p id="date_added">Добавлен: {{ document.date_added }}</p>
-<p id="size">Размер: {{ document.docfile.size | filesizeformat }}</p>
-<p><a class="delete" href="{% url 'datasets:delete' document.id %}">Удалить файл</a></p>
+<p id="date_added">Added: {{ document.date_added }}</p>
+<p id="size">Size: {{ document.docfile.size | filesizeformat }}</p>
+<p><a class="delete" href="{% url 'datasets:delete' document.id %}">Delete file</a></p>
 {% endblock %}

@@ -79,6 +79,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 100
+        }
     }
 }
 
@@ -100,4 +103,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+MEDIA_ROOT=''
+MEDIA_URL='/'
+
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR,
+]
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'identiprot@gmail.com'
+EMAIL_HOST_PASSWORD = 'theorchromo'
+EMAIL_SEND_TO = ['markmipt@gmail.com', 'lev.levitsky@phystech.edu']
+
+NUMBER_OF_PARALLEL_RUNS = 3
+
+LOCAL_IMPORT = False

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Contact us{% endblock %}
+{% block content %}
+
+{% if user.username %}
+<div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
+
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar current" value="contacts" name="contacts"></div></li>
+
+      </ul></form>
+    </div>
+
+{% else %}
+<div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
+        <li><div id="about"><input type="submit" class="menubar" value="about" name="about"></div></li>
+        <li><div id="loginform"><input type="submit" class="menubar" value="log in" name="loginform"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar current" value="contacts" name="contacts"></div></li>
+
+      </ul></form>
+    </div>
+{% endif %}
+<div id="tab">
+<h2>
+<form id="feedbackform" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <div class="form-actions">
+      <input type="submit" class="backbtn" value="Send" name="sendemail">
+    </div>
+    </form></h2></div>
+{% endblock %}
