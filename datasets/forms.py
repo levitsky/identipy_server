@@ -13,24 +13,31 @@ os.chdir(settings.BASE_DIR)
 
 from pyteomics import parser
 
+
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
         return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
+
     def render2(self, label, help, attrs=None):
-        if html.escape(help): return '<span title="%s" style="cursor:help">%s</span>' % (html.escape(help), html.escape(label))
-        else: return '<span title="" >%s</span>' % (html.escape(label))
+        if html.escape(help):
+            return '<span title="%s" style="cursor:help">%s</span>' % (html.escape(help), html.escape(label))
+        else:
+            return '<span title="" >%s</span>' % (html.escape(label))
+
     def render3(self, name):
         try:
             return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (html.escape(name).split('|')[1], html.escape(name))
         except:
             return html.escape(name)
-        # return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (, html.escape(name))
+        # return '<a target="_blank"
+        # href="http://www.uniprot.org/uniprot/%s">%s</a>' % (,
+        # html.escape(name))
+
     def render4(self, id, name, value, dbname, attrs=None):
         return '<button id="%s" type="submit" class="link" value="%s" name="%s">%s</button>' % (html.escape(id), html.escape(dbname), html.escape(value), html.escape(name))
+
     def render5(self, name):
         return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (html.escape(name.split('OS=')[0]), html.escape(name))
-
-
 
 
 class SubmitButtonField(forms.Field):
@@ -58,7 +65,8 @@ sftype_map = {
 }
 
 params_map = {
-    'enzyme':'enzyme:\t'+SubmitButtonField(label="", initial="").widget.render('enzymelink', 'add custom cleavage rule', 'add_protease'),
+    'enzyme': 'enzyme:\t' + SubmitButtonField(label="", initial="").widget.render(
+        'enzymelink', 'add custom cleavage rule', 'add_protease'),
     'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'select_fixed'),
     'variable': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select potential modifications', 'select_potential'),
     'show empty': ('show unmached spectra in results', ''),
@@ -82,12 +90,15 @@ params_map = {
     'isotopes mass difference, da': ('isotopes mass error', ''),
     'missed cleavages': ('missed cleavages', ''),
     'rt difference, min': ('RT difference', ''),
-    'precursor isotope mass error': ('precursor isotope mass error', "When the value for this parameter is not 0,\
-the parent ion mass tolerance is expanded by opening up multiple tolerance windows centered on the first N 13C isotope peaks for a peptide.\
-This behavior is necessary to compensate for the tendency of automated peak finding software to return the most intense peak from a cluster of isotopes,\
-rather than the all-12C peak."),
+    'precursor isotope mass error': ('precursor isotope mass error', "When the value for this parameter is not 0, "
+                                     "the parent ion mass tolerance is expanded by opening up multiple tolerance windows "
+                                     "centered on the first N 13C isotope peaks for a peptide. "
+                                     "This behavior is necessary to compensate for the tendency of automated "
+                                     "peak finding software to return the most intense peak from a cluster of isotopes, "
+                                     "rather than the all-12C peak."),
     'shifts': ('peptide mass shift', 'example: 0, 16.000, 23.000, 12')
 }
+
 
 def get_label(name):
     if name not in ['enzyme', 'fixed', 'variable']:
@@ -96,8 +107,11 @@ def get_label(name):
     else:
         return params_map[name]
 
+
 class CommonForm(forms.Form):
-    commonfiles = MultiFileField(min_num=1, max_num=100, max_file_size=1024*1024*1024*100, label='Upload')
+    commonfiles = MultiFileField(
+        min_num=1, max_num=100, max_file_size=1024 * 1024 * 1024 * 100, label='Upload')
+
 
 class MultFilesForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -108,9 +122,11 @@ class MultFilesForm(forms.Form):
             labelname = 'Select files'
         super(MultFilesForm, self).__init__(*args, **kwargs)
         if multiform:
-            self.fields['relates_to'] = forms.MultipleChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
+            self.fields['relates_to'] = forms.MultipleChoiceField(
+                label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
         else:
-            self.fields['relates_to'] = forms.ChoiceField(label=labelname, choices=relates_to_queryset, widget=forms.RadioSelect, required=False)
+            self.fields['relates_to'] = forms.ChoiceField(
+                label=labelname, choices=relates_to_queryset, widget=forms.RadioSelect, required=False)
 
 
 class SearchParametersForm(forms.Form):
@@ -134,84 +150,93 @@ class SearchParametersForm(forms.Form):
             elif fieldtype == 'type>int':
                 return forms.IntegerField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>string':
-                return forms.CharField(label=label, initial=initial, required=False, widget=forms.TextInput(attrs=({'readonly': 'readonly'} if label in [get_label('fixed'), get_label('variable')] else {})))
+                return forms.CharField(label=label, initial=initial, required=False,
+                                       widget=forms.TextInput(attrs=(
+                                           {'readonly': 'readonly'} if label in [get_label('fixed'), get_label('variable')] else {})))
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
+
         if raw_config:
             for param in get_allowed_values(raw_config, self.sftype):
                 label = mark_safe(get_label(param[1]))
                 if 'class>protease' in param[0]:
                     proteases = Protease.objects.filter(user=userid)
                     if not proteases.count():
-                        protease_object = Protease(name='trypsin', rule=parser.expasy_rules['trypsin'], order_val=1, user=userid)
+                        protease_object = Protease(name='trypsin', rule=parser.expasy_rules[
+                                                   'trypsin'], order_val=1, user=userid)
                         protease_object.save()
                     choices = []
                     initial = param[2]
                     for p in proteases.order_by('order_val'):
                         choices.append([p.rule, p.name])
                     try:
-                        initial = choices[[z[1] for z in choices].index(initial)][0]
+                        initial = choices[[z[1]
+                                           for z in choices].index(initial)][0]
                     except:
                         initial = choices[0][0]
                     self.fields[param[1]] = forms.ChoiceField(
                         label=label,
                         choices=choices[::-1],
                         initial=initial,
-                        )
+                    )
                 elif 'type' not in param[0]:
                     self.fields[param[1]] = forms.ChoiceField(
                         label=label,
                         choices=[[x, x] for x in param[0].split(',')],
                         initial=param[2],
-                        )
+                    )
                 else:
-                    self.fields[param[1]] = get_field(fieldtype=param[0], label=label, initial=param[2])
-        key_order = ["send email notification",
-                    "use auto optimization",
-                    "enzyme",
-                    "number of missed cleavages",
-                    "precursor accuracy unit",
-                    "precursor accuracy left",
-                    "precursor accuracy right",
-                    "precursor isotope mass error",
-                    "product accuracy",
-                    "fdr",
-                    "fdr_type",
-                    "minimum charge",
-                    "maximum charge",
-                    "add decoy",
-                    "decoy method",
-                    "decoy prefix",
-                    "dynamic range",
-                    "peptide minimum length",
-                    "peptide maximum length",
-                    "peptide minimum mass",
-                    "peptide maximum mass",
-                    "minimum peaks",
-                    "maximum peaks",
-                    "product minimum m/z",
-                    "maximum fragment charge",
-                    "minimum matched",
-                    "score",
-                    "score threshold",
-                    "show empty",
-                    "candidates",
-                    "model",
-                    "psm count",
-                    "psms per protein",
-                    "charge states",
-                    "potential modifications",
-                    "fragment mass tolerance, da",
-                    "precursor mass difference, ppm",
-                    "isotopes mass difference, da",
-                    "missed cleavages",
-                    "rt difference, min",
-                    "fixed",
-                    "variable"]
+                    self.fields[param[1]] = get_field(
+                        fieldtype=param[0], label=label, initial=param[2])
 
-        od = OrderedDict((k, self.fields[k]) for k in key_order if k in self.fields)
+        key_order = ["send email notification",
+                     "use auto optimization",
+                     "enzyme",
+                     "number of missed cleavages",
+                     "precursor accuracy unit",
+                     "precursor accuracy left",
+                     "precursor accuracy right",
+                     "precursor isotope mass error",
+                     "product accuracy",
+                     "fdr",
+                     "fdr_type",
+                     "minimum charge",
+                     "maximum charge",
+                     "add decoy",
+                     "decoy method",
+                     "decoy prefix",
+                     "dynamic range",
+                     "peptide minimum length",
+                     "peptide maximum length",
+                     "peptide minimum mass",
+                     "peptide maximum mass",
+                     "minimum peaks",
+                     "maximum peaks",
+                     "product minimum m/z",
+                     "maximum fragment charge",
+                     "minimum matched",
+                     "score",
+                     "score threshold",
+                     "show empty",
+                     "candidates",
+                     "model",
+                     "psm count",
+                     "psms per protein",
+                     "charge states",
+                     "potential modifications",
+                     "fragment mass tolerance, da",
+                     "precursor mass difference, ppm",
+                     "isotopes mass difference, da",
+                     "missed cleavages",
+                     "rt difference, min",
+                     "fixed",
+                     "variable"]
+
+        od = OrderedDict((k, self.fields[k])
+                         for k in key_order if k in self.fields)
         od.update(self.fields)
         self.fields = od
+
 
 class ContactForm(forms.Form):
     subject = forms.CharField(required=True)
