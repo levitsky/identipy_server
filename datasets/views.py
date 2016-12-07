@@ -43,8 +43,8 @@ from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size, 
 globalc = dict()
 search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 
-global taskker
-taskker = Tasker()
+global tasker
+tasker = Tasker()
 
 try:
     searchgroups = SearchGroup.objects.all()
@@ -839,24 +839,24 @@ def runidentiprot(request, c):
     def start_all(newgroup, rn, c):
         import django.db
         django.db.connection.close()
-        taskker.check_user(newgroup.user)
+        tasker.check_user(newgroup.user)
 
         tmp_procs = []
         for newrun in newgroup.get_searchruns():
-            taskker.ask_for_run(newrun.user)
+            tasker.ask_for_run(newrun.user)
 
             while 1:
-                min_time_user = taskker.get_user_with_min_time()
-                if taskker.get_total_cursearches() < search_limit and newrun.user == min_time_user:
+                min_time_user = tasker.get_user_with_min_time()
+                if tasker.get_total_cursearches() < search_limit and newrun.user == min_time_user:
                     break
                 else:
                     for idx, p in enumerate(tmp_procs):
                         if not p.is_alive():
-                            taskker.finish_run(newrun.user)
+                            tasker.finish_run(newrun.user)
                             tmp_procs.pop(idx)
                 sleep(5)
 
-            taskker.start_run(newrun.user)
+            tasker.start_run(newrun.user)
             p = Process(target=run_search, args=(newrun, rn, c))
             p.start()
             tmp_procs.append(p)
