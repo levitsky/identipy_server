@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.core.files.storage import default_storage, FileSystemStorage
 from django.contrib.auth.models import User
-
+from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.files import File
 import sys
 sys.path.insert(0, '../identipy/')
 import csv
 from identipy.utils import CustomRawConfigParser
 import shutil
-from time import time
 import subprocess
 import psutil, os
 

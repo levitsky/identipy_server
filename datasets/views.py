@@ -14,6 +14,7 @@ from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
+from .models import upload_to_basic
 from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
 from os import path
 from django.conf import settings
@@ -309,18 +310,18 @@ def index(request):
                 for uploadedfile in request.FILES.getlist('commonfiles'):
                     fext = os.path.splitext(uploadedfile.name)[-1].lower()
                     if fext in ['.mgf', '.mzml']:
-                        newdoc = SpectraFile(docfile = uploadedfile, user = request.user)
+                        newdoc = SpectraFile(docfile=uploadedfile, user=request.user)
                         newdoc.save()
                     if fext == '.fasta':
-                        newdoc = FastaFile(docfile = uploadedfile, user = request.user)
+                        newdoc = FastaFile(docfile=uploadedfile, user=request.user)
                         newdoc.save()
                     else:
                         pass
                 messages.add_message(request, messages.INFO, 'Upload successful')
-                return upload(request, c = c)
+                return upload(request, c=c)
             else:
                 messages.add_message(request, messages.INFO, 'Choose files for upload')
-                return upload(request, c = c)
+                return upload(request, c=c)
         else:
             commonform = CommonForm()
 
@@ -332,16 +333,21 @@ def index(request):
             print 'IMPORTING FILE', fname
             fext = os.path.splitext(fname)[-1][1:].lower()
             dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'cfg': 'params'}[fext]
-            dirname = os.path.join('uploads', dirn, str(request.user.id))
-            print 'Saving to', dirname
-            shutil.copy(fname, dirname)
-            newfname = os.path.join(dirname, os.path.split(fname)[1])
-            print newfname
-            with open(newfname, 'rb') as f:
-                djf = File(f)
-                uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
-                        docfile=djf, user=request.user)
-                uploaded.save()
+            # newfname = os.path.join(dirname, os.path.split(fname)[1])
+            # print newfname
+            path = upload_to_basic(dirn, os.path.split(fname)[1], request.user.id)
+            uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
+                        docfile=path, user=request.user)
+            uploaded.save()
+            print 'docfile', path
+            with open(fname, 'rb') as fin:
+                with open(path, 'wb') as ff:
+                    while True:
+                        chunk = fin.read(5*1024*1024)
+                        if chunk:
+                            ff.write(chunk)
+                        else:
+                            break
             messages.add_message(request, messages.INFO, 'Import successful')
             return local_import(request, c)
             
