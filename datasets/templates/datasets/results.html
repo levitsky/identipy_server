@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Searches: {{searchgroup.groupname}}{% endblock%}
+{% block content %}
+{% load stringfilter %}
+        <div id="menu"><form action="" method="post">{% csrf_token %}
+        <ul>
+            
+        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
+        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
+        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
+        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
+            
+      </ul></form>
+    </div>
+
+<div id="tab">
+        
+        <h2>
+		{% if searchgroup %}
+            <p>Searches: {{searchgroup.groupname}}</p>
+            <table type="bordered">
+                <tr id="headings">
+                    <th>Search name</th>
+                    <th>MSMS</th>
+                    <th>Unfiltered PSMs</th>
+                    <th>FDR, %</th>
+                    <th>FDR type</th>
+                    <th>PSMs</th>
+                    <th>Peptides</th>
+                    <th>Proteins</th>
+                </tr>
+            {% for searchrun in searchgroup.get_searchruns_all %}
+                <tr>
+                <form action="" method="post">{% csrf_token %}
+                <td class="td1" style="word-break:break-word"><input type="submit" class="link" value={{ searchrun.name|spacify }} name="results_figure"/></td>
+                <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
+                <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+                <td class="td2">{{ searchrun.numMSMS }}</td>
+                <td class="td2">{{ searchrun.totalPSMs }}</td>
+                <td class="td2">{{ searchrun.fdr_psms }}</td>
+                <td class="td2">{{ searchrun.fdr_type }}</td>
+                {% if searchrun.numPSMs %}
+                    <td class="td2"><input type="submit" class="link" value={{ searchrun.numPSMs }} name="show_psms"></td>
+                    <td class="td2"><input type="submit" class="link" value={{ searchrun.numPeptides }} name="show_peptides"></td>
+                    <td class="td2"><input type="submit" class="link" value={{ searchrun.numProteins }} name="show_proteins"></td>
+                {% else %}
+                    <td class="td2">{{ searchrun.numPSMs }}</td>
+                    <td class="td2">{{ searchrun.numPeptides }}</td>
+                    <td class="td2">{{ searchrun.numProteins }}</td>
+                {% endif %}
+                </form>
+                </tr>
+            {% endfor %}
+            </table>
+		{% else %}
+			<p>There are no searches.</p>
+		{% endif %}
+
+        
+        <div id="colored">
+        <form action="" method="post">{% csrf_token %}
+         Download:
+        <input type="submit" class="btn" value="csv files" name="download_csv">
+        <input type="submit" class="btn" value="pepxml files" name="download_pepxml">
+        <input type="submit" class="btn" value="mgf files" name="download_mgf">
+        <input type="submit" class="btn" value="show parameters" name="showparams">
+        </form>
+         </div> 
+            <form action="" method="post">{% csrf_token %}
+        
+            <input type="submit" class="backbtn" value="Back to&#10;search history" name="getstatus">
+            </form>
+        
+</h2>
+{% endblock %}
