@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.core.files import File
-from datasets.models import FastaFile, ParamsFile, Protease, Modification
+from identipy_app.models import FastaFile, ParamsFile, Protease, Modification
 
 from pyteomics import parser
 from os import path, listdir
