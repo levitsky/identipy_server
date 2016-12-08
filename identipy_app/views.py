@@ -360,15 +360,15 @@ def index(request):
 
         c.update({'commonform': commonform})
         c['menubar'] = Menubar('about', request.user.is_authenticated())
-        return render(request, 'datasets/index.html', c)
+        return render(request, 'identipy_app/index.html', c)
     else:
         c['menubar'] = Menubar('loginform', request.user.is_authenticated())
         c.update(csrf(request))
-        return render(request, 'datasets/login.html', c)
+        return render(request, 'identipy_app/login.html', c)
 
 def details(request, pK):
     doc = get_object_or_404(SpectraFile, id=pK)
-    return render(request, 'datasets/details.html',
+    return render(request, 'identipy_app/details.html',
             {'document': doc})
 
 def delete(request, c):
@@ -423,7 +423,7 @@ def loginview(request, message=None):
         c['menubar'] = Menubar('', request.user.is_authenticated())
         return email(request, c = c)
     c['menubar'] = Menubar('loginform', request.user.is_authenticated())
-    return render(request, 'datasets/login.html', c)
+    return render(request, 'identipy_app/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
     if(request.POST.get('contacts')):
@@ -454,7 +454,7 @@ def user_exists(username):
         return False
     return True
 
-@login_required(login_url='datasets/login/')
+@login_required(login_url='identipy_app/login/')
 def secured(request):
     c = {}
     c.update(csrf(request))
@@ -484,7 +484,7 @@ def status(request, c, delete=False):
         processes = SearchGroup.objects.filter(user=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
     c.update({'processes': processes})
     c['menubar'] = Menubar('get_status', request.user.is_authenticated())
-    return render(request, 'datasets/status.html', c)
+    return render(request, 'identipy_app/status.html', c)
 
 def get_user_latest_params_path(paramtype, userid):
     return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
@@ -499,7 +499,7 @@ def upload(request, c):
     li = getattr(settings, 'LOCAL_IMPORT', False)
     print 'Local import', li
     c['LOCAL_IMPORT'] = li
-    return render(request, 'datasets/upload.html', c)
+    return render(request, 'identipy_app/upload.html', c)
 
 def local_import(request, c):
     return upload(request, c) 
@@ -513,17 +513,17 @@ def searchpage(request, c, upd=False):
 
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
     c['menubar'] = Menubar('searchpage', request.user.is_authenticated())
-    return render(request, 'datasets/startsearch.html', c)
+    return render(request, 'identipy_app/startsearch.html', c)
 
 def contacts(request,c):
     c.update(csrf(request))
     c['menubar'] = Menubar('contacts', request.user.is_authenticated())
-    return render(request, 'datasets/contacts.html', c)
+    return render(request, 'identipy_app/contacts.html', c)
 
 def about(request,c):
     c.update(csrf(request))
     c['menubar'] = Menubar('about', request.user.is_authenticated())
-    return render(request, 'datasets/index.html', c)
+    return render(request, 'identipy_app/index.html', c)
 
 def email(request, c):
     if all(z in request.POST.keys() for z in ['subject', 'message']):
@@ -540,7 +540,7 @@ def email(request, c):
             return contacts(request, c)
     else:
         form = ContactForm(initial={'from_email': request.user.username})
-    return render(request, "datasets/email.html", {'form': form})
+    return render(request, "identipy_app/email.html", {'form': form})
 
 def email_to_user(username, searchname):
     send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
@@ -563,7 +563,7 @@ def add_modification(request, c, sbm=False):
                     mod_mass = mass.calculate_mass(mass.Composition(mod_mass))
                 except:
                     messages.add_message(request, messages.INFO, 'Invalid modification mass. Examples: 12.345 or -67.89 or C2H6O1 or N-1H-3')
-                    return render(request, 'datasets/add_modification.html', c)
+                    return render(request, 'identipy_app/add_modification.html', c)
             if c['modificationform'].cleaned_data['aminoacids'] == 'X':
                 c['modificationform'].cleaned_data['aminoacids'] = parser.std_amino_acids
             added = []
@@ -577,10 +577,10 @@ def add_modification(request, c, sbm=False):
                         added.append(aminoacid)
                     else:
                         messages.add_message(request, messages.INFO, 'A modification with mass %f, label %s already exists for selected aminoacids' % (mod_mass, mod_label))
-                        return render(request, 'datasets/add_modification.html', c)
+                        return render(request, 'identipy_app/add_modification.html', c)
             if not added:
                 messages.add_message(request, messages.INFO, 'Unknown aminoacid')
-                return render(request, 'datasets/add_modification.html', c)
+                return render(request, 'identipy_app/add_modification.html', c)
             else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
                 return select_modifications(request, c = c, fixed=c['fixed'])
@@ -589,9 +589,9 @@ def add_modification(request, c, sbm=False):
                 # return searchpage(request, c)
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
-            return render(request, 'datasets/add_modification.html', c)
+            return render(request, 'identipy_app/add_modification.html', c)
     c['modificationform'] = AddModificationForm()
-    return render(request, 'datasets/add_modification.html', c)
+    return render(request, 'identipy_app/add_modification.html', c)
 
 def add_protease(request, c, sbm=False, delete=False):
     import django.db
@@ -620,12 +620,12 @@ def add_protease(request, c, sbm=False, delete=False):
             protease_name = c['proteaseform'].cleaned_data['name']
             if Protease.objects.filter(user=request.user, name=protease_name).count():
                 messages.add_message(request, messages.INFO, 'Cleavage rule with name %s already exists' % (protease_name, ))
-                return render(request, 'datasets/add_protease.html', c)
+                return render(request, 'identipy_app/add_protease.html', c)
             try:
                 protease_rule = c['proteaseform'].cleaned_data['cleavage_rule']
             except:
                 messages.add_message(request, messages.INFO, 'Cleavage rule is incorrect')
-                return render(request, 'datasets/add_protease.html', c)
+                return render(request, 'identipy_app/add_protease.html', c)
             protease_order_val = Protease.objects.filter(user=request.user).aggregate(Max('order_val'))['order_val__max'] + 1
             protease_object = Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=request.user)
             protease_object.save()
@@ -633,10 +633,10 @@ def add_protease(request, c, sbm=False, delete=False):
             return searchpage(request, c)
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
-            return render(request, 'datasets/add_protease.html', c)
+            return render(request, 'identipy_app/add_protease.html', c)
     c['proteaseform'] = AddProteaseForm()
     c['proteases'] = proteases
-    return render(request, 'datasets/add_protease.html', c)
+    return render(request, 'identipy_app/add_protease.html', c)
 
 def select_modifications(request, c, fixed=True, upd=False):
     import django.db
@@ -666,7 +666,7 @@ def select_modifications(request, c, fixed=True, upd=False):
                 pass
         modform.fields['relates_to'].initial = initvals
     c.update({'usedclass': Modification, 'usedname': 'chosenmods', 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
-    return render(request, 'datasets/choose.html', c)
+    return render(request, 'identipy_app/choose.html', c)
 
 def files_view(request, c, usedclass=None, usedname=None, multiform=True):
     import django.db
@@ -702,7 +702,7 @@ def files_view(request, c, usedclass=None, usedname=None, multiform=True):
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
     c.update(csrf(request))
     c.update({'menubar': Menubar('choose', request.user.is_authenticated()), 'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
-    return render(request, 'datasets/choose.html', c)
+    return render(request, 'identipy_app/choose.html', c)
 
 def files_view_spectra(request, c):
     usedclass = SpectraFile
@@ -899,7 +899,7 @@ def search_details(request, runname, c):
     sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
     if sruns.count() == 1:
         return results_figure(request, sruns[0].runname, runobj.id, c)
-    return render(request, 'datasets/results.html', c)
+    return render(request, 'identipy_app/results.html', c)
 
 def results_figure(request, runname, searchgroupid, c):
     import django.db
@@ -908,7 +908,7 @@ def results_figure(request, runname, searchgroupid, c):
     c.update(csrf(request))
     runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj})
-    return render(request, 'datasets/results_figure.html', c)
+    return render(request, 'identipy_app/results_figure.html', c)
 
 
 def showparams(request, searchgroupid, c):
@@ -926,7 +926,7 @@ def showparams(request, searchgroupid, c):
     for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
         c['SearchForms'][sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     c['fastaname'] = runobj.fasta.all()[0].name()
-    return render(request, 'datasets/params.html', c)
+    return render(request, 'identipy_app/params.html', c)
 
 
 
@@ -957,7 +957,7 @@ def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=Fa
     c.update({'results_detailed': res_dict})
     runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj})
-    return render(request, 'datasets/results_detailed.html', c)
+    return render(request, 'identipy_app/results_detailed.html', c)
 
 def get_custom_csv(request, c):
     tmpfile_name = c['searchrun'].searchgroup_parent.groupname + '_' + c['searchrun'].name() + '_' + c['results_detailed'].ftype + 's_selectedfields.csv'
