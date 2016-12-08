@@ -13,7 +13,7 @@
             
 <div id="login">
   <h1>WELCOME<br>The single entry point for your proteomic data mining</h1>
- <h3> <form action="/auth/" method="POST"> {% csrf_token %}
+  <h3> <form action="{% url 'identipy_app:auth' %}" method="POST"> {% csrf_token %}
     <input type="email" name="email" id="email" value=""  placeholder="Email"/>
     <input type="password" name="password" id="password" value=""  placeholder="Password"/>
     <!--<input type="submit" name="submit" value="Log in" />-->
