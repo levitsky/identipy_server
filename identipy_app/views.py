@@ -38,7 +38,7 @@ sys.path.insert(0, '../identipy/')
 sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 from multiprocessing import Process
-from aux import save_mods, save_params_new, Menubar, ResultsDetailed, get_size, Tasker
+from aux import save_mods, save_params_new, ResultsDetailed, get_size, Tasker
 
 globalc = dict()
 search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
@@ -79,14 +79,16 @@ def index(request):
     if request.user not in globalc:
         globalc[request.user] = dict()
     c = globalc[request.user]
-    if(request.POST.get('contacts')):
-        request.POST = request.POST.copy()
-        request.POST['contacts'] = None
-        return contacts(request, c = c)
-    elif(request.POST.get('about')):
-        request.POST = request.POST.copy()
-        request.POST['about'] = None
-        return about(request, c = {})
+    if False:
+        pass
+#   if(request.POST.get('contacts')):
+#       request.POST = request.POST.copy()
+#       request.POST['contacts'] = None
+#       return contacts(request, c = c)
+#   elif(request.POST.get('about')):
+#       request.POST = request.POST.copy()
+#       request.POST['about'] = None
+#       return about(request, c = {})
     elif(request.POST.get('sendemail')):
         request.POST = request.POST.copy()
         request.POST['sendemail'] = None
@@ -359,10 +361,10 @@ def index(request):
             # fd.close()
 
         c.update({'commonform': commonform})
-        c['menubar'] = Menubar('about', request.user.is_authenticated())
+        c['current'] = 'about'
         return render(request, 'identipy_app/index.html', c)
     else:
-        c['menubar'] = Menubar('loginform', request.user.is_authenticated())
+        c['current'] = 'loginform'
         c.update(csrf(request))
         return render(request, 'identipy_app/login.html', c)
 
@@ -406,7 +408,7 @@ def loginview(request, message=None):
     if(request.POST.get('contacts')):
         request.POST = request.POST.copy()
         request.POST['contacts'] = None
-        c['menubar'] = Menubar('contacts', request.user.is_authenticated())
+        c['current'] = 'contacts'
         return contacts(request, c = {})
     if(request.POST.get('loginform')):
         request.POST = request.POST.copy()
@@ -415,14 +417,14 @@ def loginview(request, message=None):
     if(request.POST.get('about')):
         request.POST = request.POST.copy()
         request.POST['about'] = None
-        c['menubar'] = Menubar('about', request.user.is_authenticated())
+        c['current'] = 'about'
         return about(request, c = {})
     elif(request.POST.get('sendemail')):
         request.POST = request.POST.copy()
         request.POST['sendemail'] = None
-        c['menubar'] = Menubar('', request.user.is_authenticated())
+        c['current'] = ''
         return email(request, c = c)
-    c['menubar'] = Menubar('loginform', request.user.is_authenticated())
+    c['current'] = 'loginform'
     return render(request, 'identipy_app/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
@@ -483,16 +485,16 @@ def status(request, c, delete=False):
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id).count()) / 10))
         processes = SearchGroup.objects.filter(user=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
     c.update({'processes': processes})
-    c['menubar'] = Menubar('get_status', request.user.is_authenticated())
+    c['current'] = 'get_status'
     return render(request, 'identipy_app/status.html', c)
 
 def get_user_latest_params_path(paramtype, userid):
     return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
 
-def upload(request, c):
-    c = c
+def upload(request):
+    c = {}
     c.update(csrf(request))
-    c['menubar'] = Menubar('upload', request.user.is_authenticated())
+    c['current'] = 'upload'
     c['system_size'] = get_size(path.join('results', str(c['userid'].id)))
     for dirn in ['spectra', 'fasta', 'params']:
         c['system_size'] += get_size(path.join('uploads', dirn, str(c['userid'].id)))
@@ -505,24 +507,25 @@ def local_import(request, c):
     return upload(request, c) 
 
 def searchpage(request, c, upd=False):
-    c = c
     c.update(csrf(request))
     for sf in c['SearchForms'].values():
         c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
 
     raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
-    c['menubar'] = Menubar('searchpage', request.user.is_authenticated())
+    c['current'] = 'searchpage'
     return render(request, 'identipy_app/startsearch.html', c)
 
-def contacts(request,c):
+def contacts(request):
+    c = {}
     c.update(csrf(request))
-    c['menubar'] = Menubar('contacts', request.user.is_authenticated())
+    c['current'] = 'contacts'
     return render(request, 'identipy_app/contacts.html', c)
 
-def about(request,c):
+def about(request):
+    c = {}
     c.update(csrf(request))
-    c['menubar'] = Menubar('about', request.user.is_authenticated())
+    c['current'] = 'about'
     return render(request, 'identipy_app/index.html', c)
 
 def email(request, c):
@@ -701,7 +704,7 @@ def files_view(request, c, usedclass=None, usedname=None, multiform=True):
     else:
         form = MultFilesForm(custom_choices=cc, labelname=None, multiform=multiform)
     c.update(csrf(request))
-    c.update({'menubar': Menubar('choose', request.user.is_authenticated()), 'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
+    c.update({'currrent': 'choose', 'form': form, 'usedclass': usedclass, 'usedname': usedname, 'select_form': 'form', 'topbtn': (True if len(form.fields.values()[0].choices) >= 15 else False)})
     return render(request, 'identipy_app/choose.html', c)
 
 def files_view_spectra(request, c):
