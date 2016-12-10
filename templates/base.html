@@ -3,30 +3,34 @@
 {% block content2 %}
 	
       
-        <div class="inthemiddle">
-            {% if user.username %}
-            
-       <div id="session"><form action="/logout/" method="POST"> {% csrf_token %}<span>Current session: {{ user.username }}</span>
-             
-    
-    <button class="btn" type="submit" name="submit" value="submit-value">Log out</button>
-    </form>
-    </div> {% endif %}
-         <span> <div id="logo">
-             <h1><a href="{% url 'identipy_app:index'  %}">IdentiPROT</a></h1>
-            </div></span>
-
-     {% if menubar %}
-    <div id="menu"><form action="" method="post">{% csrf_token %}
-    <ul>
-    {% for bar in menubar.get_elements %}
-        <li><div id={{ bar.id }}><input type="submit" class={{ bar.class|safe }}{{ bar.class2|safe }} value={{ bar.value }} name={{ bar.name }}></div></li>
-
-    {% endfor %}
-
-    </ul></form>
+    <div class="inthemiddle">
+    {% if user.username %}
+    <div id="session">
+        <form action="{% url 'identipy_app:logout' %}" method="POST"> {% csrf_token %}<span>Current session: {{ user.username }}</span>
+            <button class="btn" type="submit" name="submit" value="submit-value">Log out</button>
+        </form>
     </div>
-{% endif %}
+    {% endif %}
+     
+    <span> 
+       <div id="logo">
+            <h1><a href="{% url 'identipy_app:index' %}">IdentiPROT</a></h1>
+       </div>
+    </span>
+
+    
+    {% if menubar %}
+    <div id="menu">
+        <ul>
+        {% for item in menubar %}
+            {% with urlvalue='identipy_app:'|add:item.name %}
+            <li><div id={{ item.id }}><a class="menubar {% if item.id == current %}current{% endif %}" href="{% url urlvalue %}">{{ item.value }}</a></div></li>
+            {% endwith %}
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
 
     {% if messages %}
     <ul class="messages">
