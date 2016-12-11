@@ -490,12 +490,13 @@ def local_import(request):
 def searchpage(request, upd=False):
     c = {}
     c.update(csrf(request))
+    c['paramtype'] = int(request.GET.get('params', '3'))
     add_forms(request, c)
     for sf in c['SearchForms'].values():
         c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
 
-    raw_config.read(get_user_latest_params_path(c.get('paramtype', 3), c['userid']) )
+    raw_config.read(get_user_latest_params_path(c['paramtype'], c['userid']))
     c['current'] = 'searchpage'
     return render(request, 'identipy_app/startsearch.html', c)
 
