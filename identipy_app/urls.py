@@ -12,9 +12,9 @@ urlpatterns = [
     url(r'^choose_spectra/', views.files_view_spectra, name='choose'),
     url(r'^logout/', views.logout_view, name='logout'),
     url(r'^contacts/', views.contacts, name='contacts'),
-    url(r'^start/', views.index, name='searchpage'),
+    url(r'^start/', views.searchpage, name='searchpage'),
     url(r'^upload/', views.upload, name='upload'),
-    url(r'^status/', views.index, name='getstatus'),
+    url(r'^status/', views.status, name='getstatus'),
     url(r'^about/', views.about, name='about'),
     url(r'^import/', views.local_import, name='local_import'),
 ]
