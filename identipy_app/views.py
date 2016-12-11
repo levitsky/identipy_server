@@ -16,7 +16,6 @@ from django.utils.encoding import smart_str
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
 from .models import upload_to_basic
 from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
-from os import path
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
@@ -43,7 +42,6 @@ from aux import save_mods, save_params_new, ResultsDetailed, get_size, Tasker
 globalc = dict()
 search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 
-global tasker
 tasker = Tasker()
 
 try:
@@ -303,56 +301,7 @@ def index(request):
             c['res_page'] = c.get('res_page', 1) - 1
             return status(request, c=c)
         c.update(csrf(request))
-        # Handle file upload
-        if request.method == 'POST' and request.POST.get('submit'):
-            request.POST = request.POST.copy()
-            request.POST['submit'] = None
-            commonform = CommonForm(request.POST, request.FILES)
-            if 'commonfiles' in request.FILES:
-                for uploadedfile in request.FILES.getlist('commonfiles'):
-                    fext = os.path.splitext(uploadedfile.name)[-1].lower()
-                    if fext in ['.mgf', '.mzml']:
-                        newdoc = SpectraFile(docfile=uploadedfile, user=request.user)
-                        newdoc.save()
-                    if fext == '.fasta':
-                        newdoc = FastaFile(docfile=uploadedfile, user=request.user)
-                        newdoc.save()
-                    else:
-                        pass
-                messages.add_message(request, messages.INFO, 'Upload successful')
-                return upload(request, c=c)
-            else:
-                messages.add_message(request, messages.INFO, 'Choose files for upload')
-                return upload(request, c=c)
-        else:
-            commonform = CommonForm()
-
-        # Handle local import
-        if request.method == 'POST' and request.POST.get('fileimport'):
-            request.POST = request.POST.copy()
-            request.POST['submit'] = None
-            fname = request.POST.get('filePath').encode('utf-8')
-            print 'IMPORTING FILE', fname
-            fext = os.path.splitext(fname)[-1][1:].lower()
-            dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'cfg': 'params'}[fext]
-            # newfname = os.path.join(dirname, os.path.split(fname)[1])
-            # print newfname
-            path = upload_to_basic(dirn, os.path.split(fname)[1], request.user.id)
-            uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
-                        docfile=path, user=request.user)
-            uploaded.save()
-            print 'docfile', path
-            with open(fname, 'rb') as fin:
-                with open(path, 'wb') as ff:
-                    while True:
-                        chunk = fin.read(5*1024*1024)
-                        if chunk:
-                            ff.write(chunk)
-                        else:
-                            break
-            messages.add_message(request, messages.INFO, 'Import successful')
-            return local_import(request, c)
-            
+                    
         if 'chosenparams' in c:
             os.remove(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
             shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
@@ -360,7 +309,6 @@ def index(request):
             #     fd.write(chunk)
             # fd.close()
 
-        c.update({'commonform': commonform})
         c['current'] = 'about'
         return render(request, 'identipy_app/index.html', c)
     else:
@@ -495,16 +443,59 @@ def upload(request):
     c = {}
     c.update(csrf(request))
     c['current'] = 'upload'
-    c['system_size'] = get_size(path.join('results', str(c['userid'].id)))
+    c['system_size'] = get_size(os.path.join('results', str(request.user.id)))
     for dirn in ['spectra', 'fasta', 'params']:
-        c['system_size'] += get_size(path.join('uploads', dirn, str(c['userid'].id)))
+        c['system_size'] += get_size(os.path.join('uploads', dirn, str(request.user.id)))
     li = getattr(settings, 'LOCAL_IMPORT', False)
     print 'Local import', li
     c['LOCAL_IMPORT'] = li
+
+    # Handle file upload
+    if request.method == 'POST':
+        commonform = CommonForm(request.POST, request.FILES)
+        if 'commonfiles' in request.FILES:
+            for uploadedfile in request.FILES.getlist('commonfiles'):
+                fext = os.path.splitext(uploadedfile.name)[-1].lower()
+                if fext in ['.mgf', '.mzml']:
+                    newdoc = SpectraFile(docfile=uploadedfile, user=request.user)
+                    newdoc.save()
+                if fext == '.fasta':
+                    newdoc = FastaFile(docfile=uploadedfile, user=request.user)
+                    newdoc.save()
+                else:
+                    pass
+            messages.add_message(request, messages.INFO, 'Upload successful')
+        else:
+            messages.add_message(request, messages.INFO, 'Choose files for upload')
+    else:
+        commonform = CommonForm()
+
+    c['commonform'] = commonform
+
     return render(request, 'identipy_app/upload.html', c)
 
-def local_import(request, c):
-    return upload(request, c) 
+def local_import(request):
+    if request.method == 'POST':
+        fname = request.POST.get('filePath').encode('utf-8')
+        print 'IMPORTING FILE', fname
+        fext = os.path.splitext(fname)[-1][1:].lower()
+        dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'cfg': 'params'}[fext]
+        path = upload_to_basic(dirn, os.path.split(fname)[1], request.user.id)
+        uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
+                    docfile=path, user=request.user)
+        uploaded.save()
+        print 'docfile', path
+        with open(fname, 'rb') as fin:
+            with open(path, 'wb') as ff:
+                while True:
+                    chunk = fin.read(5*1024*1024)
+                    if chunk:
+                        ff.write(chunk)
+                    else:
+                        break
+        messages.add_message(request, messages.INFO, 'Import successful')
+    
+    return redirect('identipy_app:upload')
 
 def searchpage(request, c, upd=False):
     c.update(csrf(request))
