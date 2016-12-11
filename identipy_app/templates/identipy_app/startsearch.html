@@ -80,31 +80,14 @@
             <h2 id="paramtitle">    Specify search parameters<br></h2>
                 
                  <h3>       
-{% if paramtype == 1 %}
+
             <div id="upload_parameters">
            
-                  <input type="submit" class="menubar current" value="Minimal" name="type1">
-                 <input type="submit" class="menubar" value="Medium" name="type2">
-               <input type="submit" class="menubar" value="Advanced" name="type3">
+                <a class="menubar {% if paramtype == 1 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=1">Minimal</a>
+                <a class="menubar {% if paramtype == 2 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=2">Medium</a>
+                <a class="menubar {% if paramtype == 3 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=3">Advanced</a>
                 
-                </div>
- {% elif paramtype == 2 %}
-            <div id="upload_parameters">
-           
-                  <input type="submit" class="menubar" value="Minimal" name="type1">
-                 <input type="submit" class="menubar current" value="Medium" name="type2">
-               <input type="submit" class="menubar" value="Advanced" name="type3">
-                
-                </div>
-{% elif paramtype == 3 %}
-            <div id="upload_parameters">
-           
-                  <input type="submit" class="menubar" value="Minimal" name="type1">
-                 <input type="submit" class="menubar" value="Medium" name="type2">
-               <input type="submit" class="menubar current" value="Advanced" name="type3">
-                
-                </div>
- {% endif %}
+            </div>
 
     <div id="chromoConditionsBlock">
                 <table id="SearchParametersTable"><tr valign="top"><td>
