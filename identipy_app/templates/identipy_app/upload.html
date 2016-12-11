@@ -18,7 +18,7 @@
                <td>
                 <div class="intable">
                 <h3>
-                    <form id="uploadbuttons"  action="{% url 'datasets:index' %}" method="post" enctype="multipart/form-data">
+                    <form id="uploadbuttons"  action="{% url 'identipy_app:upload' %}" method="post" enctype="multipart/form-data">
                       <p>   {% csrf_token %}
                          {{ commonform.non_field_errors }} 
                     
@@ -36,7 +36,7 @@
 {% if LOCAL_IMPORT %}
     <div id="local_import">
         <h2>  Import local file:</h2>
-        <form id='importbutton' action="{% url 'datasets:index' %}" method="post">
+        <form id='importbutton' action="{% url 'identipy_app:local_import' %}" method="post">
             <p> {% csrf_token %} </p>
             <textarea id="filePath" class="text" name="filePath"></textarea>
             <p><input type="submit" name="fileimport" value="Import" class="uploadform"/></p><br>

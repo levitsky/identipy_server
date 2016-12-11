@@ -13,7 +13,8 @@ urlpatterns = [
     url(r'^logout/', views.logout_view, name='logout'),
     url(r'^contacts/', views.contacts, name='contacts'),
     url(r'^start/', views.index, name='searchpage'),
-    url(r'^upload/', views.index, name='uploadform'),
+    url(r'^upload/', views.upload, name='upload'),
     url(r'^status/', views.index, name='getstatus'),
     url(r'^about/', views.about, name='about'),
+    url(r'^import/', views.local_import, name='local_import'),
 ]
