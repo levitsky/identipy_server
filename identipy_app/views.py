@@ -12,6 +12,7 @@ from django.core.mail import send_mail, BadHeaderError
 from django.contrib import messages
 from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
+import django.db
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
 from .models import upload_to_basic
@@ -59,10 +60,10 @@ def update_searchparams_form_new(request, paramtype, sftype):
     raw_config.read(get_user_latest_params_path(paramtype, request.user))
     return SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
 
-def get_forms(request, c):
+def add_forms(request, c):
     c['userid'] = request.user
     c['paramtype'] = c.get('paramtype', 3)
-    if c.get('SearchForms', None):
+    if c.get('SearchForms'):
         for sf in c['SearchForms'].values():
             if any(sf.sftype + '-' + v.name in request.POST for v in sf):
                 save_params_new(c['SearchForms'], c['userid'], paramsname=False, paramtype=c.get('paramtype', 3), request=request)
@@ -71,7 +72,6 @@ def get_forms(request, c):
         c['SearchForms'] = {}
         for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
             c['SearchForms'][sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sftype)
-    return c
 
 def index(request):
     if request.user not in globalc:
@@ -93,7 +93,7 @@ def index(request):
         return email(request, c = c)
     if request.user.is_authenticated():
         print request.POST.items()
-        c = get_forms(request, c)
+        add_forms(request, c)
         if(request.POST.get('runidentiprot')):
             request.POST = request.POST.copy()
             request.POST['runidentiprot'] = None
@@ -133,12 +133,12 @@ def index(request):
                 if k in c:
                     del c[k]
             return searchpage(request, c=c)
-        elif(request.POST.get('getstatus')):
-            request.POST = request.POST.copy()
-            request.POST['getstatus'] = None
-            c['res_page'] = 1
-            c['search_run_filter'] = ''
-            return status(request, c = c)
+#       elif(request.POST.get('getstatus')):
+#           request.POST = request.POST.copy()
+#           request.POST['getstatus'] = None
+#           c['res_page'] = 1
+#           c['search_run_filter'] = ''
+#           return status(request, c = c)
         elif(request.POST.get('search_runname')):
             request.POST = request.POST.copy()
             c['search_run_filter'] = request.POST['search_button'].replace(u'\xa0', ' ')
@@ -146,16 +146,16 @@ def index(request):
             # tmp_val = request.POST['search_button']
             request.POST['search_runname'] = None
             return status(request, c = c)
-        elif(request.POST.get('uploadform')):
-            request.POST = request.POST.copy()
-            request.POST['uploadform'] = None
-            return upload(request, c = c)
-        elif(request.POST.get('searchpage')):
-            request.POST = request.POST.copy()
-            request.POST['searchpage'] = None
-            if c.get('sbm_modform', False):
-                c['sbm_modform'] = False
-            return searchpage(request, c = c)
+#       elif(request.POST.get('uploadform')):
+#           request.POST = request.POST.copy()
+#           request.POST['uploadform'] = None
+#           return upload(request, c = c)
+#       elif(request.POST.get('searchpage')):
+#           request.POST = request.POST.copy()
+#           request.POST['searchpage'] = None
+#           if c.get('sbm_modform', False):
+#               c['sbm_modform'] = False
+#           return searchpage(request, c = c)
         elif(request.POST.get('uploadspectra')):
             request.POST = request.POST.copy()
             request.POST['uploadspectra'] = None
@@ -279,21 +279,21 @@ def index(request):
             request.POST['type1'] = None
             del c['SearchForms']
             c['paramtype'] = 1
-            c = get_forms(request, c)
+            add_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('type2')):
             request.POST = request.POST.copy()
             request.POST['type2'] = None
             del c['SearchForms']
             c['paramtype'] = 2
-            c = get_forms(request, c)
+            add_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('type3')):
             request.POST = request.POST.copy()
             request.POST['type3'] = None
             del c['SearchForms']
             c['paramtype'] = 3
-            c = get_forms(request, c)
+            add_forms(request, c)
             return searchpage(request, c=c, upd=True)
         elif(request.POST.get('next_runs')):
             request.POST = request.POST.copy()
@@ -324,7 +324,6 @@ def details(request, pK):
 def delete(request, c):
     usedclass=c['usedclass']
     usedname=c['usedname']
-    import django.db
     django.db.connection.close()
     documents = usedclass.objects.filter(user=request.user)
     cc = []
@@ -396,14 +395,6 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
     else:
         return loginview(request, message='Wrong username or password')
 
-def user_exists(username):
-    import django.db
-    django.db.connection.close()
-    user_count = User.objects.filter(username=username).count()
-    if user_count == 0:
-        return False
-    return True
-
 @login_required(login_url='identipy_app/login/')
 def secured(request):
     c = {}
@@ -413,13 +404,12 @@ def secured(request):
     return render(request, "index.html", c)
 
 
-def status(request, c, delete=False):
-    import django.db
+def status(request, delete=False):
     django.db.connection.close()
-    c = c
+    c = {}
     c.update(csrf(request))
-    res_page = c.get('res_page', 1)
-    c['search_run_filter'] = c.get('search_run_filter', '')
+    res_page = c.setdefault('res_page', 1)
+    c.setdefault('search_run_filter', '')
     if delete:
         for name, val in request.POST.iteritems():
             if val == u'on':
@@ -497,8 +487,10 @@ def local_import(request):
     
     return redirect('identipy_app:upload')
 
-def searchpage(request, c, upd=False):
+def searchpage(request, upd=False):
+    c = {}
     c.update(csrf(request))
+    add_forms(request, c)
     for sf in c['SearchForms'].values():
         c['SearchForms'][sf.sftype] = update_searchparams_form_new(request=request, paramtype=c['paramtype'], sftype=sf.sftype)
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
