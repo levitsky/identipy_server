@@ -151,14 +151,29 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
 
 
+def search_forms_from_request(request):
+    print request.session.setdefault('paramtype', 3), request.user.id
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
+            user=request.user.id, type=request.session['paramtype'])
+    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(paramobj.docfile.name.encode('utf-8'))
+    sForms = {}
+    for sftype in ['main', 'postsearch']:
+        sForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config,
+                user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+    return sForms
+
+
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
-    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid, type=paramtype)
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
+            user=uid, type=paramtype)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
     if request:
         sfForms = {}
         for sftype in ['main', 'postsearch']:
-            sfForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+            sfForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config,
+                    user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     for sf in sfForms.values():
         SearchParametersForm_values = {v.name: v.value() for v in sf}
         for section in raw_config.sections():
@@ -181,7 +196,8 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
     raw_config.set('output', 'precursor accuracy left', raw_config.get('search', 'precursor accuracy left'))
     raw_config.set('output', 'precursor accuracy right', raw_config.get('search', 'precursor accuracy right'))
     raw_config.set('missed cleavages', 'protease1', raw_config.get('search', 'enzyme'))
-    raw_config.set('missed cleavages', 'number of missed cleavages', raw_config.get('search', 'number of missed cleavages'))
+    raw_config.set('missed cleavages', 'number of missed cleavages',
+            raw_config.get('search', 'number of missed cleavages'))
     raw_config.set('fragment mass', 'mass accuracy', raw_config.get('search', 'product accuracy'))
     raw_config.set('charges', 'min charge', raw_config.get('search', 'minimum charge'))
     raw_config.set('charges', 'max charge', raw_config.get('search', 'maximum charge'))
