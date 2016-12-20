@@ -101,7 +101,7 @@ params_map = {
 
 
 def get_label(name):
-    if name not in ['enzyme', 'fixed', 'variable']:
+    if name not in {'enzyme', 'fixed', 'variable'}:
         tmplabel, tmphelp = params_map.get(name, [name, ''])
         return SubmitButtonField(label="", initial="").widget.render2(tmplabel, tmphelp)
     else:
