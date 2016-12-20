@@ -58,16 +58,17 @@ except:
 def update_searchparams_form(request, paramtype=None):
     paramtype = paramtype or request.session.get('paramtype', 3)
     d = {}
-    for sftype in ['main'] + (['postsearch'] if c['paramtype'] == 3 else []):
+    for sftype in ['main'] + (['postsearch'] if paramtype == 3 else []):
         raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(get_user_latest_params_path(paramtype, request.user))
-        d[dftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+        d[sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     return d
 
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
     if not c['paramtype']:
         c['paramtype'] = request.session.setdefault('paramtype', 3)
+    request.session['paramtype'] = c['paramtype']
     if 'bigform' in request.session:
         print 'Returning forms from session'
         c['SearchForms'] = pickle.loads(request.session['bigform'])
@@ -94,7 +95,7 @@ def form_dispatch(request):
             'load parameters': (),
             }
     request.session['bigform'] = pickle.dumps(forms)
-    request.session['next'] = ['searchpage']
+#   request.session['next'] = ['searchpage']
     return redirect(*redirect_map[request.POST['submit_action']])
 #   if request.user.is_authenticated():
 #       request.session
@@ -411,7 +412,7 @@ def secured(request):
 def status(request, delete=False):
     django.db.connection.close()
     c = {}
-    c.update(csrf(request))
+#   c.update(csrf(request))
     res_page = c.setdefault('res_page', 1)
     c.setdefault('search_run_filter', '')
     if delete:
@@ -435,7 +436,7 @@ def get_user_latest_params_path(paramtype, userid):
 
 def upload(request):
     c = {}
-    c.update(csrf(request))
+#   c.update(csrf(request))
     c['current'] = 'upload'
     c['system_size'] = get_size(os.path.join('results', str(request.user.id)))
     for dirn in ['spectra', 'fasta', 'params']:
@@ -459,6 +460,9 @@ def upload(request):
                 else:
                     pass
             messages.add_message(request, messages.INFO, 'Upload successful')
+            next = request.session.get('next', [])
+            if next:
+                return redirect(*next.pop())
         else:
             messages.add_message(request, messages.INFO, 'Choose files for upload')
     else:
@@ -488,13 +492,21 @@ def local_import(request):
                     else:
                         break
         messages.add_message(request, messages.INFO, 'Import successful')
-    
+        next = request.session.get('next', [])
+        if next:
+            return redirect(*next.pop())
+
     return redirect('identipy_app:upload')
 
 def searchpage(request):
     c = {}
-    c.update(csrf(request))
-    c['paramtype'] = int(request.GET.get('params', '3'))
+#   c.update(csrf(request))
+    if 'params' in request.GET:
+        if request.session.get('paramtype') != int(request.GET['params']):
+            request.session.pop('bigform', None)
+        request.session['paramtype'] = c['paramtype'] = int(request.GET['params'])
+    else:
+        c['paramtype'] = request.session.setdefault('paramtype', 3)
     add_forms(request, c)
     c['current'] = 'searchpage'
     for key, klass in zip(['spectra', 'fasta'], [SpectraFile, FastaFile]):
@@ -655,9 +667,9 @@ def select_modifications(request, c, fixed=True, upd=False):
 
 def files_view(request, what):
     usedclass = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[what]
-    django.db.connection.close()
+#   django.db.connection.close()
     c = {}
-    c.update(csrf(request))
+#   c.update(csrf(request))
 #   usedname = None
     multiform = (usedclass in {SpectraFile,})
 #   c.update({'usedclass': usedclass, 'usedname': usedname})
@@ -667,6 +679,10 @@ def files_view(request, what):
         if not what == 'params' or (not doc.name().startswith('latest_params') and doc.visible):
             choices.append((doc.id, doc.name()))
     if request.method == 'POST':
+        request.session.setdefault('next', []).append(('identipy_app:choose', what))
+        action = request.POST['submit_action']
+        if action == 'upload new files':
+            return redirect('identipy_app:upload')
         form = MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
@@ -682,28 +698,14 @@ def files_view(request, what):
                 request.session['chosen_' + what] = chosenfilesids
             return redirect('identipy_app:searchpage')
     else:
-        form = MultFilesForm(custom_choices=choices, labelname=None, multiform=multiform)
+        if 'bigform' not in request.session:
+            return redirect('identipy_app:index')
+        form = MultFilesForm(custom_choices=choices, multiform=multiform)
     c.update({'form': form, 'usedclass': usedclass,
 #       'usedname': usedname,
         'select_form': 'form', 'topbtn': len(form.fields.values()[0].choices) >= 15})
     return render(request, 'identipy_app/choose.html', c)
 
-#def files_view_spectra(request, c):
-#    usedclass = SpectraFile
-#    return files_view(request, c, usedclass, 'chosenspectra')
-#
-#def files_view_fasta(request, c):
-#    usedclass = FastaFile
-#    return files_view(request, c, usedclass, 'chosenfasta', multiform=False)
-#
-#def files_view_params(request, c):
-#    usedclass = ParamsFile
-#    return files_view(request, c, usedclass, 'chosenparams', multiform=False)
-#
-#def identiprot_view(request, c):
-#    c = runidentiprot(request, c)
-#    return status(request, c)
-#
 def runidentiprot(request, c):
     django.db.connection.close()
     def run_search(newrun, rn, c):
