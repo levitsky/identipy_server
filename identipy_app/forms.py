@@ -115,18 +115,17 @@ class CommonForm(forms.Form):
 
 class MultFilesForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        relates_to_queryset = kwargs.pop('custom_choices')
-        labelname = kwargs.pop('labelname', None)
+        choices = kwargs.pop('custom_choices')
+        labelname = kwargs.pop('labelname', 'Select files')
         multiform = kwargs.pop('multiform', True)
-        if not labelname:
-            labelname = 'Select files'
         super(MultFilesForm, self).__init__(*args, **kwargs)
         if multiform:
-            self.fields['relates_to'] = forms.MultipleChoiceField(
-                label=labelname, choices=relates_to_queryset, widget=forms.CheckboxSelectMultiple, required=False)
+            Widget = forms.CheckboxSelectMultiple
+            Field = forms.MultipleChoiceField
         else:
-            self.fields['relates_to'] = forms.ChoiceField(
-                label=labelname, choices=relates_to_queryset, widget=forms.RadioSelect, required=False)
+            Widget = forms.RadioSelect
+            Field = forms.ChoiceField
+        self.fields['choices'] = Field(label=labelname, choices=choices, widget=Widget, required=False)
 
 
 class SearchParametersForm(forms.Form):
