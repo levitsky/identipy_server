@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Select files{% endblock%}
+{% block title %}Select {% if used_class != 'mods' %}files{% else %}modifications{% endif%}{% endblock%}
 {% block content %}
 
 <div id="tab">
@@ -8,30 +8,26 @@
         <input class = "btn" type="submit" value="submit" name="submit_action">
         <a class = "btn" type="submit" href="{% url 'identipy_app:searchpage' %}">cancel</a>
         <input class = "btn red" type="submit" value="delete" name="submit_action">
-        {% if select_form == 'form' %}
+        {% if used_class != 'mods' %}
             <input type="submit" class="btn" value="download" name="submit_action">
             <input type="submit" class="btn" value="upload new files" name="submit_action">
-        {% elif select_form == 'modform' %}
-            <input type="submit" class="btn" value="add custom modification" name="add_modification">
+        {% else %}
+            <input type="submit" class="btn" value="add custom modification" name="submit_action">
         {% endif %}
     </div>
 
-    {% if select_form == 'form' %}
-        {{ form.as_p }}
-    {% elif select_form == 'modform' %}
-        {{ modform.as_p }}
-    {% endif %}
+    {{ form.as_p }}
 
     {% if topbtn %}
           <div id="vert_block" >
                 <input class = "btn" type="submit" value="submit" name="submit_action">
                 <input class = "btn" type="submit" value="cancel" name="submit_action">
                 <input class = "btn red" type="submit" value="delete" name="submit_action">
-                {% if select_form == 'form' %}
+                {% if used_class != 'mods' %}
                     <input type="submit" class="btn" value="upload new files" name="submit_action">
-                {% elif select_form == 'modform' %}
-                    <input type="submit" class="btn" value="download" name="download_selected">
-                    <input type="submit" class="btn" value="add custom modification" name="add_modification">
+                    <input type="submit" class="btn" value="download" name="submit_action">
+                {% else %}
+                    <input type="submit" class="btn" value="add custom modification" name="submit_action">
                 {% endif %}
           </div>
     {% endif %}    
