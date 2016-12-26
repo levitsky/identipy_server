@@ -148,19 +148,23 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     raw_config.set('modifications', 'fixed' if fixed else 'variable', labels + '|type>string')
     for mod in chosenmods:
         raw_config.set('modifications', mod.label, mod.mass)
-    raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
+    with open(paramobj.docfile.name.encode('utf-8'), 'w') as f:
+        raw_config.write(f)
 
 
 def search_forms_from_request(request):
-    print request.session.setdefault('paramtype', 3), request.user.id
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
             user=request.user.id, type=request.session['paramtype'])
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('utf-8'))
     sForms = {}
     for sftype in ['main', 'postsearch']:
-        sForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config,
+        kwargs = dict(raw_config=raw_config,
                 user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+        if request.method == 'POST':
+            sForms[sftype] = SearchParametersForm(request.POST, **kwargs)
+        else:
+            sForms[sftype] = SearchParametersForm(**kwargs)
     return sForms
 
 
