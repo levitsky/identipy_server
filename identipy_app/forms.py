@@ -67,8 +67,8 @@ sftype_map = {
 params_map = {
     'enzyme': 'enzyme:\t' + SubmitButtonField(label="", initial="").widget.render(
         'enzymelink', 'add custom cleavage rule', 'add_protease'),
-    'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'select_fixed'),
-    'variable': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select potential modifications', 'select_potential'),
+    'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'submit_action'),
+    'variable': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select potential modifications', 'submit_action'),
     'show empty': ('show unmached spectra in results', ''),
     'fdr': ('FDR', 'false discovery rate in %'),
     'fdr_type': ('FDR type', ''),
@@ -169,8 +169,7 @@ class SearchParametersForm(forms.Form):
                     for p in proteases.order_by('order_val'):
                         choices.append([p.rule, p.name])
                     try:
-                        initial = choices[[z[1]
-                                           for z in choices].index(initial)][0]
+                        initial = choices[[z[1] for z in choices].index(initial)][0]
                     except:
                         initial = choices[0][0]
                     self.fields[param[1]] = forms.ChoiceField(

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.template.context_processors import csrf
+import django
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
@@ -55,15 +55,15 @@ try:
 except:
     print 'Smth wrong with SearchGroup model'
 
-def update_searchparams_form(request, paramtype=None):
-    paramtype = paramtype or request.session.get('paramtype', 3)
-    d = {}
-    for sftype in ['main'] + (['postsearch'] if paramtype == 3 else []):
-        raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-        raw_config.read(get_user_latest_params_path(paramtype, request.user))
-        d[sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
-    return d
-
+#def update_searchparams_form(request, paramtype=None):
+#    paramtype = paramtype or request.session.get('paramtype', 3)
+#    d = {}
+#    for sftype in ['main'] + (['postsearch'] if paramtype == 3 else []):
+#        raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+#        raw_config.read(get_user_latest_params_path(paramtype, request.user))
+#        d[sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+#    return d
+#
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
     if not c['paramtype']:
@@ -72,9 +72,11 @@ def add_forms(request, c):
     if 'bigform' in request.session:
         print 'Returning forms from session'
         c['SearchForms'] = pickle.loads(request.session['bigform'])
+        print c['SearchForms']['main']#.fields['fixed'].initial
+#       print '(just kidding, reading file anyway)'
     else:
-        c['SearchForms'] = update_searchparams_form(request)
-    print c['SearchForms']
+        c['SearchForms'] = search_forms_from_request(request)
+#   print c['SearchForms']
 
 def form_dispatch(request):
     c = {}
@@ -84,12 +86,14 @@ def form_dispatch(request):
 #       request.POST = request.POST.copy()
 #       request.POST['sendemail'] = None
 #       return email(request, c = c)
-#   print request.POST
+    print request.POST
     forms = search_forms_from_request(request)
 #   print forms
     redirect_map = {
             'Choose preloaded spectra': ('identipy_app:choose', 'spectra'),
             'Choose preloaded protein database file': ('identipy_app:choose', 'fasta'),
+            'select fixed modifications': ('identipy_app:choose', 'fmods'),
+            'select potential modifications': ('identipy_app:choose', 'vmods'),
             'RUN IdentiPROT': (),
             'save parameters': (),
             'load parameters': (),
@@ -353,11 +357,12 @@ def delete(request, c):
 
 def logout_view(request):
     logout(request)
+# TODO redirect
     return loginview(request)
 
 def loginview(request, message=None):
     c = {}
-    c.update(csrf(request))
+#   c.update(csrf(request))
     c['message'] = message
     if(request.POST.get('contacts')):
         request.POST = request.POST.copy()
@@ -431,8 +436,8 @@ def status(request, delete=False):
     c['current'] = 'get_status'
     return render(request, 'identipy_app/status.html', c)
 
-def get_user_latest_params_path(paramtype, userid):
-    return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
+#def get_user_latest_params_path(paramtype, userid):
+#    return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
 
 def upload(request):
     c = {}
@@ -515,13 +520,13 @@ def searchpage(request):
 
 def contacts(request):
     c = {}
-    c.update(csrf(request))
+#   c.update(csrf(request))
     c['current'] = 'contacts'
     return render(request, 'identipy_app/contacts.html', c)
 
 def about(request):
     c = {}
-    c.update(csrf(request))
+#   c.update(csrf(request))
     c['current'] = 'about'
     return render(request, 'identipy_app/index.html', c)
 
@@ -636,47 +641,58 @@ def add_protease(request, c, sbm=False, delete=False):
     c['proteases'] = proteases
     return render(request, 'identipy_app/add_protease.html', c)
 
-def select_modifications(request, c, fixed=True, upd=False):
-    django.db.connection.close()
-    c = c
-    c.update(csrf(request))
-    modifications = Modification.objects.filter(user=request.user)
-    cc = []
-    for doc in modifications:
-        if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
-            cc.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
-    if upd:
-        modform = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
-        if modform.is_valid():
-            chosenmodsids = [int(x) for x in modform.cleaned_data.get('relates_to')]
-            chosenmods = Modification.objects.filter(id__in=chosenmodsids)
-            save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
-            return searchpage(request, c)
-    modform = MultFilesForm(custom_choices=cc, labelname='Select modifications', multiform=True)
-    if not fixed:
-        initvals = []
-        for nn in ['ammoniumlossC', 'ammoniumlossQ', 'waterlossE']:
-            try:
-                tmpmod = Modification.objects.get(name=nn)
-                initvals.append(tmpmod.id)
-            except:
-                pass
-        modform.fields['relates_to'].initial = initvals
-    c.update({'usedclass': Modification, 'usedname': 'chosenmods', 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
-    return render(request, 'identipy_app/choose.html', c)
+#def select_modifications(request, c, fixed=True, upd=False):
+#    django.db.connection.close()
+#    c = c
+#    c.update(csrf(request))
+#    modifications = Modification.objects.filter(user=request.user)
+#    cc = []
+#    for doc in modifications:
+#        if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
+#            cc.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
+#    if upd:
+#        modform = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+#        if modform.is_valid():
+#            chosenmodsids = [int(x) for x in modform.cleaned_data.get('relates_to')]
+#            chosenmods = Modification.objects.filter(id__in=chosenmodsids)
+#            save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
+#            return searchpage(request, c)
+#    modform = MultFilesForm(custom_choices=cc, labelname='Select modifications', multiform=True)
+#    if not fixed:
+#        initvals = []
+#        for nn in ['ammoniumlossC', 'ammoniumlossQ', 'waterlossE']:
+#            try:
+#                tmpmod = Modification.objects.get(name=nn)
+#                initvals.append(tmpmod.id)
+#            except:
+#                pass
+#        modform.fields['relates_to'].initial = initvals
+#    c.update({'usedclass': Modification, 'usedname': 'chosenmods', 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
+#    return render(request, 'identipy_app/choose.html', c)
 
 def files_view(request, what):
-    usedclass = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[what]
+    if what == 'fmods':
+        what = 'mods'
+        fixed = True
+    elif what == 'vmods':
+        what = 'mods'
+        fixed = False
+
+    usedclass = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile,
+            'mods': Modification}[what]
 #   django.db.connection.close()
     c = {}
 #   c.update(csrf(request))
 #   usedname = None
-    multiform = (usedclass in {SpectraFile,})
+    multiform = (usedclass in {SpectraFile, Modification})
 #   c.update({'usedclass': usedclass, 'usedname': usedname})
     documents = usedclass.objects.filter(user=request.user)
     choices = []
     for doc in documents:
-        if not what == 'params' or (not doc.name().startswith('latest_params') and doc.visible):
+        if what == 'mods':
+            if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
+                choices.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
+        elif what in {'spectra', 'fasta'} or (what == 'params' and (not doc.name().startswith('latest_params') and doc.visible)):
             choices.append((doc.id, doc.name()))
     if request.method == 'POST':
         request.session.setdefault('next', []).append(('identipy_app:choose', what))
@@ -687,23 +703,48 @@ def files_view(request, what):
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
+            if what == 'mods':
+                save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
+                forms = pickle.loads(request.session['bigform'])
+                key = 'fixed' if fixed else 'variable' 
+                if forms['main'].is_valid():
+#                   forms['main'].fields[key] = django.forms.CharField(label=forms.params_map[key],
+#                           initial=','.join(mod.get_label() for mod in chosenfiles), required=False,
+#                           widget=django.forms.TextInput(attrs=({'readonly': 'readonly'})))
+
+#                   data = forms['main'].data.copy()
+#                   data[key] = ','.join(mod.get_label() for mod in chosenfiles)
+#                   forms['main'].data = data
+#                   print forms['main'].data
+                    print '---------------------'
+#                   print forms['main']
+                    print forms['main'].fields['fixed'].__dict__
+                request.session['bigform'] = pickle.dumps(forms)
             if what == 'params':
                 paramfile = chosenfiles[0]
                 parname = paramfile.docfile.name.encode('utf-8')
                 dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type, ))
                 shutil.copy(parname, dst)
                 request.session['paramtype'] = paramfile.type
-                request.session['bigform'] = pickle.dumps(update_searchparams_form(request))
+                request.session['bigform'] = pickle.dumps(search_forms_from_request(request))
             else:
                 request.session['chosen_' + what] = chosenfilesids
             return redirect('identipy_app:searchpage')
     else:
         if 'bigform' not in request.session:
             return redirect('identipy_app:index')
-        form = MultFilesForm(custom_choices=choices, multiform=multiform)
-    c.update({'form': form, 'usedclass': usedclass,
+        kwargs = dict(custom_choices=choices, multiform=multiform)
+        if what == 'mods':
+            kwargs['labelname'] = 'Select {} modifications:'.format('fixed' if fixed else 'variable')
+        form = MultFilesForm(**kwargs)
+        if what == 'mods' and not fixed:
+            initvals = [mod.id for mod in Modification.objects.filter(name__in=['ammoniumlossC', 'ammoniumlossQ', 'waterlossE'])]
+            form.fields['choices'].initial = initvals
+
+    c.update({'form': form, 'usedclass': what,
 #       'usedname': usedname,
-        'select_form': 'form', 'topbtn': len(form.fields.values()[0].choices) >= 15})
+#       'select_form': 'form',
+        'topbtn': len(form.fields.values()[0].choices) >= 15})
     return render(request, 'identipy_app/choose.html', c)
 
 def runidentiprot(request, c):
