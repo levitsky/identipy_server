@@ -16,7 +16,7 @@ import django.db
 
 from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
 from .models import upload_to_basic
-from .forms import MultFilesForm, CommonForm, SearchParametersForm, ContactForm, AddProteaseForm, AddModificationForm
+from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm, SearchParamsForm1, search_params_form
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
@@ -55,15 +55,6 @@ try:
 except:
     print 'Smth wrong with SearchGroup model'
 
-#def update_searchparams_form(request, paramtype=None):
-#    paramtype = paramtype or request.session.get('paramtype', 3)
-#    d = {}
-#    for sftype in ['main'] + (['postsearch'] if paramtype == 3 else []):
-#        raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-#        raw_config.read(get_user_latest_params_path(paramtype, request.user))
-#        d[sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
-#    return d
-#
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
     if not c['paramtype']:
@@ -72,10 +63,11 @@ def add_forms(request, c):
     if 'bigform' in request.session:
         print 'Returning forms from session'
         c['SearchForms'] = pickle.loads(request.session['bigform'])
-        print c['SearchForms']['main']#.fields['fixed'].initial
+#       print c['SearchForms']['main'].fields
 #       print '(just kidding, reading file anyway)'
     else:
-        c['SearchForms'] = search_forms_from_request(request)
+#       c['SearchForms'] = search_forms_from_request(request)
+        c['SearchForms'] = search_params_form(request)
 #   print c['SearchForms']
 
 def form_dispatch(request):
@@ -87,7 +79,7 @@ def form_dispatch(request):
 #       request.POST['sendemail'] = None
 #       return email(request, c = c)
     print request.POST
-    forms = search_forms_from_request(request)
+    forms = search_params_form(request)
 #   print forms
     redirect_map = {
             'Choose preloaded spectra': ('identipy_app:choose', 'spectra'),
@@ -705,21 +697,21 @@ def files_view(request, what):
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
             if what == 'mods':
                 save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
-                forms = pickle.loads(request.session['bigform'])
+                sforms = pickle.loads(request.session['bigform'])
                 key = 'fixed' if fixed else 'variable' 
-                if forms['main'].is_valid():
-#                   forms['main'].fields[key] = django.forms.CharField(label=forms.params_map[key],
-#                           initial=','.join(mod.get_label() for mod in chosenfiles), required=False,
-#                           widget=django.forms.TextInput(attrs=({'readonly': 'readonly'})))
+                if sforms['main'].is_valid():
 
 #                   data = forms['main'].data.copy()
 #                   data[key] = ','.join(mod.get_label() for mod in chosenfiles)
 #                   forms['main'].data = data
 #                   print forms['main'].data
+                    sforms['main'].fields[key] = django.forms.CharField(disabled=True, required=False,
+                            initial=','.join(mod.get_label() for mod in chosenfiles), label=SearchParamsForm1._labels[key])
+
                     print '---------------------'
 #                   print forms['main']
-                    print forms['main'].fields['fixed'].__dict__
-                request.session['bigform'] = pickle.dumps(forms)
+                    print sforms['main'].fields['fixed'].__dict__
+                request.session['bigform'] = pickle.dumps(sforms)
             if what == 'params':
                 paramfile = chosenfiles[0]
                 parname = paramfile.docfile.name.encode('utf-8')
