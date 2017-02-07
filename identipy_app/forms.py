@@ -235,6 +235,71 @@ class SearchParametersForm(forms.Form):
         od.update(self.fields)
         self.fields = od
 
+class SearchParamsFormBase(forms.Form):
+    _key_order = ["email", "optimization", "enzyme", "numer_of_missed_cleavages",
+            "precursor_accuracy_unit", "precursor_accuracy_left", "precursor_accuracy_right",
+            "precursor_isotope_mass_error", "product_accuracy", "fdr", "fdr_type",
+            "minimum_charge", "maximum_charge", "add_decoy", "decoy_method", "decoy_prefix",
+            "dynamic_range", "peptide_minimum_length", "peptide_maximum_length",
+            "peptide_minimum_mass", "peptide_maximum_mass", "minimum_peaks", "maximum_peaks",
+            "product_minimum_m/z", "maximum_fragment_charge", "minimum_matched", "score", "score_threshold",
+#_          "show_empty", "candidates",
+            "model", "psm_count", "psms_per_protein", "charge_states", "potential_modifications",
+            "fragment_mass_tolerance", "precursor_mass_difference", "isotopes_mass_difference",
+            "missed_cleavages", "rt_difference", "fixed", "variable"]
+    
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        kwargs.setdefault('field_order', SearchParamsFormBase._key_order)
+        super(SearchParamsFormBase, self).__init__(*args, **kwargs)
+
+class SearchParamsForm1(SearchParamsFormBase):
+    _labels = {'enzyme': mark_safe('enzyme:\t<input id="enzymelink" type="submit" class="link"'
+        ' value="add custom cleavage rule" name="submit_action">'),
+        'fixed': mark_safe('<input type="submit" class="link modiflink" value="select fixed modifications" name="submit_action">'),
+        'variable': mark_safe('<input type="submit" class="link modiflink" value="select potential modifications" name="submit_action">')}
+
+    def __init__(self, *args, **kwargs):
+        super(SearchParamsForm1, self).__init__(*args, **kwargs)
+        if 'enzyme' in self.fields:
+            e = self.fields['enzyme']
+            proteases = Protease.objects.filter(user=self.user).order_by('order_val')
+            choices = [(p.rule, p.name) for p in proteases]
+            if not choices: choices.append((parser.expasy_rules['trypsin'], 'trypsin'))
+            self.fields['enzyme'] = forms.ChoiceField(label=e.label, label_suffix=e.label_suffix,
+                    choices=choices, required=e.required, initial=choices[0])
+
+    email = forms.BooleanField(label='send email notification', required=False)
+#   optimization = forms.BooleanField(label='use auto optimization', required=False)
+    enzyme = forms.ChoiceField(label=_labels['enzyme'], label_suffix='',
+        choices=[], required=True)
+    precursor_isotope_mass_error = forms.IntegerField(min_value=0, initial=0) 
+    fdr = forms.FloatField(label='FDR', initial=1.0)
+    fdr_type = forms.ChoiceField(
+            choices = [('psm', 'psm'), ('peptide', 'peptide'), ('protein', 'protein')],
+            label = 'FDR type')
+    fixed = forms.CharField(disabled=True, required=False,
+            label=_labels['fixed'])
+    variable = forms.CharField(disabled=True, required=False,
+            label=_labels['variable'])
+
+class PostSearchForm(forms.Form):
+    pass #TODO
+
+def search_params_form(request):
+    paramtype = request.session['paramtype']
+    assert 1 <= paramtype <= 3, "Invalid paramtype"
+    mainformclass = SearchParamsForm1
+    postform = None
+    if request.method == 'POST':
+        mainform = mainformclass(request.POST, user=request.user.id)
+        if paramtype == 3:
+            postform = PostSearchForm(request.POST)
+    else:
+        mainform = mainformclass(user=request.user.id)
+        if paramtype == 3:
+            postform = PostSearchForm()
+    return {'main': mainform, 'postsearch': postform}
 
 class ContactForm(forms.Form):
     subject = forms.CharField(required=True)
