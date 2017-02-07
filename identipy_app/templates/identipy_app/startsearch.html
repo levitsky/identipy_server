@@ -3,7 +3,7 @@
 {% block content %}
 
 <div id="tab">
-    <form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
+<form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
     <div id="left_block" class="vert_block leftside">
         {% if chosenspectra %}
         Selected spectra:
@@ -25,7 +25,7 @@
             MS files not selected
         {% endif %}
 
-   <div> <input type="submit" class="btn" value="Choose preloaded spectra" name="submit_action"></div><br>
+   <div><input type="submit" class="btn" value="Choose preloaded spectra" name="submit_action"></div><br>
         
    {% if chosenfasta %}
    <table type="bordered">
@@ -48,47 +48,44 @@
    {% endif %}
             
    <div id="upload_fasta"><input type="submit" class="btn" value="Choose preloaded protein database file" name="submit_action"></div>
-</div>
+   </div>
 
 
-<div id="run_identiprot" class="rightside">
-     <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/></span>
-     <div id="runbtn"><h2><input type="submit" class="backbtn" value="RUN IdentiPROT" name="submit_action"></h2></div>
-</div>
-
-<div id=param_block" class="vert_block rightside">
-    <h2 id="paramtitle">Specify search parameters</h2>
-                
-    <div id="upload_parameters">
-    
-        <a class="menubar {% if paramtype == 1 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=1">Minimal</a>
-        <a class="menubar {% if paramtype == 2 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=2">Medium</a>
-        <a class="menubar {% if paramtype == 3 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=3">Advanced</a>
-        
+    <div id="run_identiprot" class="rightside">
+        <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/></span>
+         <div id="runbtn"><h2><input type="submit" class="backbtn" value="RUN IdentiPROT" name="submit_action"></h2></div>
     </div>
 
-    <div id="chromoConditionsBlock">
-        <table id="MainSearchParametersTable">
-              {{ SearchForms.main.as_table }}
-        </table>
+    <div id=param_block" class="vert_block rightside">
+        <h2 id="paramtitle">Specify search parameters</h2>
+                    
+        <div id="upload_parameters">
+            <a class="menubar {% if paramtype == 1 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=1">Minimal</a>
+            <a class="menubar {% if paramtype == 2 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=2">Medium</a>
+            <a class="menubar {% if paramtype == 3 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=3">Advanced</a>
+        </div>
 
-        {% if SearchForms.postsearch %}
-        <h2><span title="Select descriptors to use for enhanced FDR filtering" style="cursor: help">Post-search validation</span></h2>
-        <table id="SearchParametersTable">
-              {{ SearchForms.postsearch.as_table }}
-        </table>
-        {% endif %}
+        <div id="chromoConditionsBlock">
+            <table id="MainSearchParametersTable">
+                  {{ SearchForms.main.as_table }}
+            </table>
 
-        <table id="PostSearchParametersTable">
-            <tr valign="top">
-                <td><input type="text" id="textinput" name="paramsname" value="" placeholder="Enter parameters name"/></td>
-                <td><input type="submit" class="link" value="save parameters" name="submit_action"><br>
-                    <input type="submit" class="link" value="load parameters" name="submit_action"></td>
-            </tr>
-        </table>
+            {% if SearchForms.postsearch %}
+            <h2><span title="Select descriptors to use for enhanced FDR filtering" style="cursor: help">Post-search validation</span></h2>
+            <table id="PostSearchParametersTable">
+                  {{ SearchForms.postsearch.as_table }}
+            </table>
+            {% endif %}
+
+            <table id="PostSearchParametersTable">
+                <tr valign="top">
+                    <td><input type="text" id="textinput" name="paramsname" value="" placeholder="Enter parameters name"/></td>
+                    <td><input type="submit" class="link" value="save parameters" name="submit_action"><br>
+                        <input type="submit" class="link" value="load parameters" name="submit_action"></td>
+                </tr>
+            </table>
+        </div>
     </div>
-
-</div>
 </form>
 </div>
 {% endblock %}

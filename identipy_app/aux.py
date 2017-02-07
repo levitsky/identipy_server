@@ -167,7 +167,6 @@ def search_forms_from_request(request):
             sForms[sftype] = SearchParametersForm(**kwargs)
     return sForms
 
-
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
             user=uid, type=paramtype)
