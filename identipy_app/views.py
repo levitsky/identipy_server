@@ -86,7 +86,7 @@ def form_dispatch(request):
             'Choose preloaded protein database file': ('identipy_app:choose', 'fasta'),
             'select fixed modifications': ('identipy_app:choose', 'fmods'),
             'select potential modifications': ('identipy_app:choose', 'vmods'),
-            'RUN IdentiPROT': (),
+            'RUN IdentiPROT': ('identipy_app:run',),
             'save parameters': (),
             'load parameters': (),
             }
@@ -739,10 +739,10 @@ def files_view(request, what):
         'topbtn': len(form.fields.values()[0].choices) >= 15})
     return render(request, 'identipy_app/choose.html', c)
 
-def runidentiprot(request, c):
-    django.db.connection.close()
+def runidentiprot(request):
+#   django.db.connection.close()
     def run_search(newrun, rn, c):
-        django.db.connection.close()
+#       django.db.connection.close()
         paramfile = newrun.parameters.all()[0].path()
         fastafile = newrun.fasta.all()[0].path()
         idsettings = main.settings(paramfile)
@@ -760,12 +760,13 @@ def runidentiprot(request, c):
         if idsettings.has_option('output', 'path'):
             outpath = idsettings.get('output', 'path')
         else:
-            outpath = path.dirname(inputfile)
+            outpath = os.path.dirname(inputfile)
 
-        return path.join(outpath, path.splitext(path.basename(inputfile))[0] + path.extsep + 'pep' + path.extsep + 'xml')
+        return os.path.join(outpath, os.path.splitext(
+            os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
 
     def totalrun(idsettings, newrun, usr, paramfile):
-        django.db.connection.close()
+#       django.db.connection.close()
         procs = []
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
@@ -822,7 +823,7 @@ def runidentiprot(request, c):
         return 1
 
     def runproc(inputfile, idsettings, newrun, usr):
-        django.db.connection.close()
+#       django.db.connection.close()
         filename = set_pepxml_path(idsettings, inputfile)
         utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
         fl = open(filename, 'r')
@@ -834,7 +835,7 @@ def runidentiprot(request, c):
         return 1
 
     def start_union(newgroup, rn, c):
-        django.db.connection.close()
+#       django.db.connection.close()
         try:
             un_run = newgroup.get_union()[0]
         except:
@@ -851,7 +852,7 @@ def runidentiprot(request, c):
         newgroup.change_status('Task is finished at %s' % (time.strftime("%d_%H-%M-%S"), ))
 
     def start_all(newgroup, rn, c):
-        django.db.connection.close()
+#       django.db.connection.close()
         tasker.check_user(newgroup.user)
 
         tmp_procs = []
@@ -878,12 +879,19 @@ def runidentiprot(request, c):
         p = Process(target=start_union, args=(newgroup, rn, c))
         p.start()
 
-    if not c['runname']:
-        c['runname'] = time.strftime("%Y-%m-%d_%H-%M-%S")
+    c = {}
+    if not 'runname' in request.session:
+        c['runname'] = time.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        c['runname'] = request.session['runname']
     if not os.path.exists('results'):
         os.mkdir('results')
     if not os.path.exists(os.path.join('results', str(request.user.id))):
         os.mkdir(os.path.join('results', str(request.user.id)))
+    c['chosenfasta'] = request.session['chosen_fasta']
+    c['chosenspectra'] = request.session['chosen_spectra']
+    c['SearchForms'] = pickle.loads(request.session['bigform'])
+    c['paramtype'] = request.session['paramtype']
     if not os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
         newgroup = SearchGroup(groupname=c['runname'], user = request.user)
         newgroup.save()
@@ -898,7 +906,7 @@ def runidentiprot(request, c):
         messages.add_message(request, messages.INFO, 'Identiprot started')
     else:
         messages.add_message(request, messages.INFO, 'Results with name %s already exist, choose another name' % (c['runname'], ))
-    return c
+    return redirect('identipy_app:index')
 
 
 def search_details(request, runname, c):

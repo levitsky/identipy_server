@@ -171,14 +171,15 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
             user=uid, type=paramtype)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('ASCII'))
+    raw_config.read(paramobj.docfile.name.encode('utf-8'))
     if request:
         sfForms = {}
         for sftype in ['main', 'postsearch']:
             sfForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config,
                     user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     for sf in sfForms.values():
-        SearchParametersForm_values = {v.name: v.value() for v in sf}
+        SearchParametersForm_values = {v.name: v.value() or '' for v in sf}
+#       print SearchParametersForm_values
         for section in raw_config.sections():
             for param in raw_config.items(section):
                 if param[0] in SearchParametersForm_values:
@@ -187,6 +188,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
                         tempval = ('1' if SearchParametersForm_values[param[0]] else '0')
                     else:
                         tempval = SearchParametersForm_values[param[0]]
+                    print section, param[0], tempval, orig_choices
                     raw_config.set(section, param[0], tempval + '|' + orig_choices)
     enz = raw_config.get('search', 'enzyme')
     protease = Protease.objects.filter(user=uid, rule=enz).first()
@@ -214,6 +216,6 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
         paramobj.save()
         fl.close()
         os.remove(paramsname + '.cfg')
-    print paramobj.docfile.name.encode('ASCII')
-    raw_config.write(open(paramobj.docfile.name.encode('ASCII'), 'w'))
+    print paramobj.docfile.name.encode('utf-8')
+    raw_config.write(open(paramobj.docfile.name.encode('utf-8'), 'w'))
     return paramobj
