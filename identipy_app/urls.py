@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^status/',           views.status,         name='getstatus'),
     url(r'^about/',            views.about,          name='about'),
     url(r'^import/',           views.local_import,   name='local_import'),
+    url(r'^run/',              views.runidentiprot,  name='run'),
 ]
