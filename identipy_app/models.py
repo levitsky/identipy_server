@@ -130,12 +130,13 @@ class SearchGroup(BaseDocument):
         return SearchRun.objects.filter(searchgroup_parent=self)[0].get_notification()
 
     def add_files(self, c):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         self.add_fasta(c['chosenfasta'])
         self.add_params(sfForms=c['SearchForms'], paramtype=c['paramtype'])
         self.save()
-        for s in c['chosenspectra']:
+        for sid in c['chosenspectra']:
+            s = SpectraFile.objects.get(pk=sid)
             newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], user = self.user)
             newrun.save()
             newrun.add_fasta(self.fasta.all()[0])
@@ -159,45 +160,45 @@ class SearchGroup(BaseDocument):
     #     self.save()
 
     def add_fasta(self, fastaobject):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         self.fasta.add(fastaobject[0])
         self.save()
 
     def add_params(self, sfForms, paramtype=3):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         from aux import save_params_new
         paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=self.groupname, paramtype=paramtype, request=False, visible=False)
         self.parameters.add(paramobj)
         self.save()
 
     def get_searchruns(self):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         return self.searchrun_set.filter(union=False)
         # return self.searchruns.filter(union=False)
 
     def get_union(self):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         return self.searchrun_set.filter(union=True)
         # return self.searchruns.filter(union=True)
 
     def get_searchruns_all(self):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         return self.searchrun_set.all().order_by('union')
         # return self.searchruns.all().order_by('union')
 
     def name(self):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         return os.path.split(self.groupname)[-1]
 
     def change_status(self, message):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         self.status = message
         self.save()
 
