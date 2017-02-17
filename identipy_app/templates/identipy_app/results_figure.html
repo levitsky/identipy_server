@@ -6,7 +6,7 @@
         <form action="" method="post">{% csrf_token %}
         
         
-           <h2> <p style="word-break:break-word">Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname|spacify }} name="search_details">/{{ searchrun.name|spacify}}</p>
+            <h2> <p style="word-break:break-word">Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname|spacify }} name="search_details">/{{ searchrun.name|spacify}}</p></h2>
         
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
@@ -56,50 +56,47 @@
         <input type="submit" class="btn" value="figures in png format" name="download_figs">
         <input type="submit" class="btn" value="figures in svg format" name="download_figs_svg">
         <input type="submit" class="btn" value="show parameters" name="showparams">
-        
-            </div></h2>
-<h2>
+       </form> 
+            </div>
         <div class = "vert_block" >
 			<div id="img_list">
-                <p>PSM distributions</p>
-			{% for doc in searchrun.get_PSMdistrimagefiles %}
+            <h2>PSM distributions</h2>
+            {% for doc in searchrun.get_PSMdistrimagefiles %}
 
             <div class="floated_img">
-                <img src="{{ doc.path }}" />
+                <img src="{{ doc.docfile.url }}" />
             </div>
 			{% endfor %}
-                <p>Peptide distributions</p>
+                <h2>Peptide distributions</h2>
 			{% for doc in searchrun.get_distrimagefiles %}
 
             <div class="floated_img">
-                <img src="{{ doc.path }}" />
+                <img src="{{ doc.docfile.url }}" />
             </div>
 			{% endfor %}
-            <p>Label-free quantitation</p>
+            <h2>Label-free quantitation</h2>
 			{% for doc in searchrun.get_quantimagefiles %}
 
             <div class="floated_img">
-                <img src="{{ doc.path }}" />
+                <img src="{{ doc.docfile.url }}" />
             </div>
 			{% endfor %}
                 {% load staticfiles %}
-                <p>MP-score descriptors <img id="legend" src="{% static 'image/legend.png' %}" /></p>
+                <h2>MP-score descriptors</h2>
+                <img id="legend" src="{% static 'image/legend.png' %}" />
 			{% for doc in searchrun.get_mpimagefiles %}
 
             <div class="floated_img">
-                <img src="{{ doc.path }}" />
+                <img src="{{ doc.docfile.url }}" />
             </div>
 			{% endfor %}
 			</div>
             
-		{% else %}
 		{% endif %}
-        </div></h2></form><h2>
+        </div>
         <div id="get_status">
-        <form action="" method="post">{% csrf_token %}
-        <input type="submit" class="backbtn" value="Back to&#10;search history" name="getstatus">
-        </form>
-            </div></h2>
+            <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
+        </div>
            
 
 </div>

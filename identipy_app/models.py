@@ -256,67 +256,68 @@ class SearchRun(BaseDocument):
         self.save()
 
     def add_files(self, c):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         self.add_spectra(c['chosenspectra'])
         self.add_fasta(c['chosenfasta'])
         self.add_params(sfForms=c['SearchForms'])
 
     def add_spectra(self, spectraobject):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         # for s in spectraobjects:
         self.spectra.add(spectraobject)
         self.save()
 
     def add_spectra_files(self, spectrafiles):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         for s in spectrafiles:
             self.spectra.add(s)
             self.save()
 
     def add_fasta(self, fastaobject):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         # for s in fastaobjects:
         self.fasta.add(fastaobject)
         self.save()
 
     def add_params(self, paramsobject):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         # for s in paramsobjects:
         self.parameters.add(paramsobject)
         self.save()
 
     def add_pepxml(self, pepxmlfile):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         self.pepxmlfiles.add(pepxmlfile)
         self.save()
 
     def add_resimage(self, resimage):
 
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         self.resimagefiles.add(resimage)
         self.save()
 
     def add_rescsv(self, rescsv):
 
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         self.csvfiles.add(rescsv)
         self.save()
 
     def get_resimagefiles(self, ftype='.png'):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         def get_index(val, custom_list):
             for idx, v in enumerate(custom_list):
                 if val == v or (v == 'potential_modifications' and val.startswith(v)):
                     return idx
+
         custom_order = ['RT_experimental',
                         'precursor_mass',
                         'peptide_length',
@@ -337,83 +338,81 @@ class SearchRun(BaseDocument):
                         'charge_states',
                         'scores']
         all_images = [doc for doc in self.resimagefiles.filter(ftype=ftype)]
-        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower(), custom_order))
+        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower(), custom_order))
         return all_images
     
     def get_PSMdistrimagefiles(self, ftype='.png'):
-        distr_list = ['rt_experimental',
-                        'precursor_mass',
-                        'peptide_length'
-                      ]
-        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
+        distr_list = {'rt_experimental', 'precursor_mass', 'peptide_length'}
+        distr_images = [doc for doc in self.get_resimagefiles()
+                if doc.docfile.name.encode('utf-8').split('/')[-1].replace(
+                    self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
         return distr_images
+
     def get_distrimagefiles(self, ftype='.png'):
-        distr_list = [
-                        'rt_experimental_peptides',
-                        'precursor_mass_peptides',
-                        'peptide_length_peptides'
-                      ]
-        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
+        distr_list = {'rt_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides'}
+        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
         return distr_images
     
     def get_quantimagefiles(self, ftype='.png'):
-        quant_list = ['sumi',
-                        'nsaf',
-                        'empai']
-        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in quant_list]
+        quant_list = {'sumi', 'nsaf', 'empai'}
+        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in quant_list]
         return quant_images
     
     def get_mpimagefiles(self, ftype='.png'):
         MP_list = ['rt_difference_min',
-                        'precursor_mass_difference_ppm',
-                        'fragment_mass_tolerance_da',
-                        'isotopes_mass_difference_da',
-                        'missed_cleavages_protease_1',
-                        'psm_count',
-                        'psms_per_protein',
-                        'charge_states',
-                        'scores']
-        mp_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in MP_list or doc.docfile.name.encode('ASCII').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
+                   'precursor_mass_difference_ppm',
+                   'fragment_mass_tolerance_da',
+                   'isotopes_mass_difference_da',
+                   'missed_cleavages_protease_1',
+                   'psm_count',
+                   'psms_per_protein',
+                   'charge_states',
+                   'scores']
+        mp_images = [doc for doc in self.get_resimagefiles()
+                if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split(
+                    '/')[-1] + '_', '').replace(ftype, '').lower() in MP_list or
+                doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split(
+                    '/')[-1] + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
         return mp_images
     
     def get_pepxmlfiles(self):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         return self.pepxmlfiles.all()
 
     def get_pepxmlfiles_paths(self):
-        import django.db
-        django.db.connection.close()
-        return [pep.docfile.name.encode('ASCII') for pep in self.pepxmlfiles.all()]
+#       import django.db
+#       django.db.connection.close()
+        return [pep.docfile.name.encode('utf-8') for pep in self.pepxmlfiles.all()]
 
     def get_spectrafiles_paths(self):
-        import django.db
-        django.db.connection.close()
-        return [pep.docfile.name.encode('ASCII') for pep in self.spectra.all()]
+#       import django.db
+#       django.db.connection.close()
+        return [pep.docfile.name.encode('utf-8') for pep in self.spectra.all()]
 
     def get_fastafile_path(self):
-        import django.db
-        django.db.connection.close()
-        return [self.fasta.all()[0].docfile.name.encode('ASCII'), ]
+#       import django.db
+#       django.db.connection.close()
+        return [self.fasta.all()[0].docfile.name.encode('utf-8'), ]
 
     def get_resimage_paths(self, ftype='.png'):
-        import django.db
-        django.db.connection.close()
-        return [pep.docfile.name.encode('ASCII') for pep in self.get_resimagefiles(ftype=ftype)]
+#       import django.db
+#       django.db.connection.close()
+        return [pep.docfile.name.encode('utf-8') for pep in self.get_resimagefiles(ftype=ftype)]
 
     def get_paramfile_path(self):
-        import django.db
-        django.db.connection.close()
-        return [self.parameters.all()[0].docfile.name.encode('ASCII'), ]
+#       import django.db
+#       django.db.connection.close()
+        return [self.parameters.all()[0].docfile.name.encode('utf-8'), ]
 
     def get_csvfiles_paths(self, ftype=None):
-        import django.db
-        django.db.connection.close()
+#       import django.db
+#       django.db.connection.close()
         # if not os.path.isfile(os.path.dirname(self.csvfiles.filter(ftype='psm')[0].docfile.name.encode('ASCII')) + '/union_PSMs.csv'):
         if ftype:
-            return [pep.docfile.name.encode('ASCII') for pep in self.csvfiles.filter(ftype=ftype)]
+            return [pep.docfile.name.encode('utf-8') for pep in self.csvfiles.filter(ftype=ftype)]
         else:
-            return [pep.docfile.name.encode('ASCII') for pep in self.csvfiles.all()]
+            return [pep.docfile.name.encode('utf-8') for pep in self.csvfiles.all()]
         # else:
         #     if ftype:
         #         fname = self.csvfiles.filter(ftype=ftype)[0].docfile.name.encode('ASCII')

@@ -78,7 +78,7 @@ def form_dispatch(request):
 #       request.POST = request.POST.copy()
 #       request.POST['sendemail'] = None
 #       return email(request, c = c)
-    print request.POST
+#   print request.POST
     forms = search_params_form(request)
 #   print forms
     redirect_map = {
@@ -407,7 +407,7 @@ def secured(request):
 
 
 def status(request, delete=False):
-    django.db.connection.close()
+#   django.db.connection.close()
     c = {}
 #   c.update(csrf(request))
     res_page = c.setdefault('res_page', 1)
@@ -897,7 +897,7 @@ def runidentiprot(request):
         newgroup.save()
         newgroup.add_files(c)
         rn = newgroup.name()
-        os.mkdir('results/%s/%s' % (str(newgroup.user.id), rn.encode('ASCII')))
+        os.mkdir('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()
@@ -906,27 +906,29 @@ def runidentiprot(request):
         messages.add_message(request, messages.INFO, 'Identiprot started')
     else:
         messages.add_message(request, messages.INFO, 'Results with name %s already exist, choose another name' % (c['runname'], ))
-    return redirect('identipy_app:index')
+    return redirect('identipy_app:getstatus')
 
 
-def search_details(request, runname, c):
-    django.db.connection.close()
-    c = c
-    c.update(csrf(request))
-    runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
+def search_details(request, pk):
+#   django.db.connection.close()
+    c = {}
+#   c.update(csrf(request))
+    runobj = get_object_or_404(SearchGroup, id=pk)
+#   runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
     c.update({'searchgroup': runobj})
     print runobj.id, runobj.groupname
     sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
     if sruns.count() == 1:
-        return results_figure(request, sruns[0].runname, runobj.id, c)
+        return results_figure(request, sruns[0].id)
     return render(request, 'identipy_app/results.html', c)
 
-def results_figure(request, runname, searchgroupid, c):
-    django.db.connection.close()
-    c = c
-    c.update(csrf(request))
-    runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
-    c.update({'searchrun': runobj})
+def results_figure(request, pk):
+#   django.db.connection.close()
+    c = {}
+#   c.update(csrf(request))
+#   runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
+    runobj = get_object_or_404(SearchRun, id=pk)
+    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
     return render(request, 'identipy_app/results_figure.html', c)
 
 
