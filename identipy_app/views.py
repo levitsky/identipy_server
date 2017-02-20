@@ -14,9 +14,6 @@ from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
 import django.db
 
-from .models import SpectraFile, RawFile, FastaFile, SearchGroup, SearchRun, ParamsFile, PepXMLFile, ResImageFile, ResCSV, Protease, Modification
-from .models import upload_to_basic
-from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm, SearchParamsForm1, search_params_form
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
@@ -28,17 +25,24 @@ import math
 from copy import copy
 from django.utils.safestring import mark_safe
 import tempfile
-from time import sleep
 import time
 import random
 import pickle
-from pyteomics import parser, mass
 import sys
+from multiprocessing import Process
+
+from pyteomics import parser, mass
 sys.path.insert(0, '../identipy/')
 sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
-from multiprocessing import Process
+import MPscore
+
 from .aux import save_mods, save_params_new, ResultsDetailed, get_size, Tasker, search_forms_from_request
+from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
+from .models import SearchGroup, SearchRun, Protease, Modification 
+from .models import upload_to_basic
+from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm, SearchParamsForm1
+from .forms import search_params_form
 
 
 search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
@@ -399,11 +403,11 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
     else:
         return loginview(request, message='Wrong username or password')
 
-@login_required(login_url='identipy_app/login/')
-def secured(request):
-    c = {}
-    c.update(csrf(request))
-    return render(request, "index.html", c)
+#@login_required(login_url='identipy_app/login/')
+#def secured(request):
+#    c = {}
+#    c.update(csrf(request))
+#    return render(request, "index.html", c)
 
 
 def status(request, delete=False):
@@ -687,7 +691,7 @@ def files_view(request, what):
         elif what in {'spectra', 'fasta'} or (what == 'params' and (not doc.name().startswith('latest_params') and doc.visible)):
             choices.append((doc.id, doc.name()))
     if request.method == 'POST':
-        request.session.setdefault('next', []).append(('identipy_app:choose', what))
+#       request.session.setdefault('next', []).append(('identipy_app:choose', what))
         action = request.POST['submit_action']
         if action == 'upload new files':
             return redirect('identipy_app:upload')
@@ -750,8 +754,8 @@ def runidentiprot(request):
         protease = Protease.objects.filter(user=request.user, name=enz).first()
         idsettings.set('search', 'enzyme', protease.rule + '|' + idsettings.get_choices('search', 'enzyme'))
         idsettings.set('misc', 'iterate', 'peptides')
-        idsettings.set('input', 'database', fastafile.encode('ASCII'))
-        idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('ASCII')))
+        idsettings.set('input', 'database', fastafile.encode('urf-8'))
+        idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('utf-8')))
         newrun.set_notification(idsettings)
         totalrun(idsettings, newrun, request.user, paramfile)
         return 1
@@ -786,7 +790,6 @@ def runidentiprot(request):
             paramlist = [paramfile]
             bname = os.path.dirname(pepxmllist[0]) + '/union'
         newrun.set_FDRs()
-        import MPscore
         MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
         if not os.path.isfile(bname + '_PSMs.csv'):
             bname = os.path.dirname(bname) + '/union'
@@ -859,7 +862,7 @@ def runidentiprot(request):
         for newrun in newgroup.get_searchruns():
             tasker.ask_for_run(newrun.user)
 
-            while 1:
+            while True:
                 min_time_user = tasker.get_user_with_min_time()
                 if tasker.get_total_cursearches() < search_limit and newrun.user == min_time_user:
                     break
@@ -868,7 +871,7 @@ def runidentiprot(request):
                         if not p.is_alive():
                             tasker.finish_run(newrun.user)
                             tmp_procs.pop(idx)
-                sleep(5)
+                time.sleep(5)
 
             tasker.start_run(newrun.user)
             p = Process(target=run_search, args=(newrun, rn, c))
@@ -884,20 +887,20 @@ def runidentiprot(request):
         c['runname'] = time.strftime("%Y-%m-%d %H:%M:%S")
     else:
         c['runname'] = request.session['runname']
-    if not os.path.exists('results'):
-        os.mkdir('results')
-    if not os.path.exists(os.path.join('results', str(request.user.id))):
-        os.mkdir(os.path.join('results', str(request.user.id)))
+#   if not os.path.exists('results'):
+#       os.mkdir('results')
+#   if not os.path.exists(os.path.join('results', str(request.user.id))):
+#       os.mkdir(os.path.join('results', str(request.user.id)))
     c['chosenfasta'] = request.session['chosen_fasta']
     c['chosenspectra'] = request.session['chosen_spectra']
     c['SearchForms'] = pickle.loads(request.session['bigform'])
     c['paramtype'] = request.session['paramtype']
     if not os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
         newgroup = SearchGroup(groupname=c['runname'], user = request.user)
-        newgroup.save()
+#       newgroup.save()
         newgroup.add_files(c)
         rn = newgroup.name()
-        os.mkdir('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
+        os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
         newgroup.change_status('Search is running')
         p = Process(target=start_all, args=(newgroup, rn, c))
         p.start()

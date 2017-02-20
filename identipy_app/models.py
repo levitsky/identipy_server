@@ -14,6 +14,8 @@ import shutil
 import subprocess
 import psutil, os
 
+from . import aux
+
 def kill_proc_tree(pid, including_parent=True):
     parent = psutil.Process(pid)
     children = parent.children(recursive=True)
@@ -138,20 +140,20 @@ class SearchGroup(BaseDocument):
         for sid in c['chosenspectra']:
             s = SpectraFile.objects.get(pk=sid)
             newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], user = self.user)
-            newrun.save()
+#           newrun.save()
             newrun.add_fasta(self.fasta.all()[0])
             newrun.add_params(self.parameters.all()[0])
             newrun.add_spectra(s)
-            newrun.save()
+#           newrun.save()
             # self.add_searchrun(newrun)
             self.save()
         if len(c['chosenspectra']) > 1:
             newrun = SearchRun(searchgroup_parent=self, runname='union', user = self.user, union=True)
-            newrun.save()
+#           newrun.save()
             newrun.add_fasta(self.fasta.all()[0])
             newrun.add_params(self.parameters.all()[0])
             newrun.add_spectra_files(c['chosenspectra'])
-            newrun.save()
+#           newrun.save()
             # self.add_searchrun(newrun)
             self.save()
 
@@ -168,8 +170,8 @@ class SearchGroup(BaseDocument):
     def add_params(self, sfForms, paramtype=3):
 #       import django.db
 #       django.db.connection.close()
-        from aux import save_params_new
-        paramobj = save_params_new(sfForms=sfForms, uid=self.user, paramsname=self.groupname, paramtype=paramtype, request=False, visible=False)
+        paramobj = aux.save_params_new(sfForms=sfForms, uid=self.user,
+                paramsname=self.groupname, paramtype=paramtype, request=False, visible=False)
         self.parameters.add(paramobj)
         self.save()
 

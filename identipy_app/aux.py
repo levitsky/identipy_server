@@ -1,5 +1,3 @@
-from models import ParamsFile, Protease
-from forms import SearchParametersForm
 from django.core.files import File
 from time import time
 from django.conf import settings
@@ -9,7 +7,6 @@ import sys
 import csv
 sys.path.insert(0, '../identipy/')
 from identipy.utils import CustomRawConfigParser
-from forms import SubmitButtonField
 from django.utils.safestring import mark_safe
 import numpy as np
 
@@ -68,6 +65,87 @@ def get_size(start_path = '.'):
             total_size += os.path.getsize(fp)
     return float(total_size)
 
+def save_mods(uid, chosenmods, fixed, paramtype=3):
+    from . import models
+    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
+    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(paramobj.docfile.name.encode('ASCII'))
+    labels = ','.join([mod.get_label() for mod in chosenmods])
+    raw_config.set('modifications', 'fixed' if fixed else 'variable', labels + '|type>string')
+    for mod in chosenmods:
+        raw_config.set('modifications', mod.label, mod.mass)
+    with open(paramobj.docfile.name.encode('utf-8'), 'w') as f:
+        raw_config.write(f)
+
+def search_forms_from_request(request):
+    from . import models, forms
+    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
+            user=request.user.id, type=request.session['paramtype'])
+    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(paramobj.docfile.name.encode('utf-8'))
+    sForms = {}
+    for sftype in ['main', 'postsearch']:
+        kwargs = dict(raw_config=raw_config,
+                user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+        if request.method == 'POST':
+            sForms[sftype] = SearchParametersForm(request.POST, **kwargs)
+        else:
+            sForms[sftype] = SearchParametersForm(**kwargs)
+    return sForms
+
+def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
+    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
+            user=uid, type=paramtype)
+    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(paramobj.docfile.name.encode('utf-8'))
+    if request:
+        sfForms = {}
+        for sftype in ['main', 'postsearch']:
+            sfForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config,
+                    user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+    for sf in sfForms.values():
+        SearchParametersForm_values = {v.name: v.value() or '' for v in sf}
+#       print SearchParametersForm_values
+        for section in raw_config.sections():
+            for param in raw_config.items(section):
+                if param[0] in SearchParametersForm_values:
+                    orig_choices = raw_config.get_choices(section, param[0])
+                    if orig_choices == 'type>boolean':
+                        tempval = ('1' if SearchParametersForm_values[param[0]] else '0')
+                    else:
+                        tempval = SearchParametersForm_values[param[0]]
+                    print section, param[0], tempval, orig_choices
+                    raw_config.set(section, param[0], tempval + '|' + orig_choices)
+    enz = raw_config.get('search', 'enzyme')
+    protease = models.Protease.objects.filter(user=uid, rule=enz).first()
+    raw_config.set('search', 'enzyme', protease.name + '|' + raw_config.get_choices('search', 'enzyme'))
+    if raw_config.getboolean('options', 'use auto optimization'):
+        raw_config.set('misc', 'first stage', 'identipy.extras.optimization')
+    else:
+        raw_config.set('misc', 'first stage', '')
+    raw_config.set('output', 'precursor accuracy unit', raw_config.get('search', 'precursor accuracy unit'))
+    raw_config.set('output', 'precursor accuracy left', raw_config.get('search', 'precursor accuracy left'))
+    raw_config.set('output', 'precursor accuracy right', raw_config.get('search', 'precursor accuracy right'))
+    raw_config.set('missed cleavages', 'protease1', raw_config.get('search', 'enzyme'))
+    raw_config.set('missed cleavages', 'number of missed cleavages',
+            raw_config.get('search', 'number of missed cleavages'))
+    raw_config.set('fragment mass', 'mass accuracy', raw_config.get('search', 'product accuracy'))
+    raw_config.set('charges', 'min charge', raw_config.get('search', 'minimum charge'))
+    raw_config.set('charges', 'max charge', raw_config.get('search', 'maximum charge'))
+
+    if paramsname:
+        fl = open(paramsname + '.cfg', 'w')
+        fl.close()
+        fl = open(paramsname + '.cfg')
+        djangofl = File(fl)
+        paramobj = models.ParamsFile(docfile=djangofl, user=uid, type=paramtype, visible=visible)
+        paramobj.save()
+        fl.close()
+        os.remove(paramsname + '.cfg')
+    print paramobj.docfile.name.encode('utf-8')
+    raw_config.write(open(paramobj.docfile.name.encode('utf-8'), 'w'))
+    return paramobj
+
 class ResultsDetailed():
     def __init__(self, ftype, path_to_csv):
         self.ftype = ftype
@@ -90,15 +168,15 @@ class ResultsDetailed():
 
     def special_links(self, value, name, dbname):
         if self.ftype == 'protein' and name == 'dbname':
-            return SubmitButtonField(label="", initial="").widget.render3(value)
+            return forms.SubmitButtonField(label="", initial="").widget.render3(value)
         elif self.ftype == 'protein' and name == 'description':
-            return SubmitButtonField(label="", initial="").widget.render5(value)
+            return forms.SubmitButtonField(label="", initial="").widget.render5(value)
         elif self.ftype == 'protein' and name == 'PSMs':
-            return SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
+            return forms.SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
         elif self.ftype == 'protein' and name == 'peptides':
-            return SubmitButtonField(label="", initial="").widget.render4('Peptides_link', value, 'show_peptides', dbname)
+            return forms.SubmitButtonField(label="", initial="").widget.render4('Peptides_link', value, 'show_peptides', dbname)
         elif self.ftype == 'peptide' and name == 'sequence':
-            return SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
+            return forms.SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
         else:
             return value
 
@@ -140,82 +218,4 @@ class ResultsDetailed():
                             out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
                 yield out
 
-def save_mods(uid, chosenmods, fixed, paramtype=3):
-    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('ASCII'))
-    labels = ','.join([mod.get_label() for mod in chosenmods])
-    raw_config.set('modifications', 'fixed' if fixed else 'variable', labels + '|type>string')
-    for mod in chosenmods:
-        raw_config.set('modifications', mod.label, mod.mass)
-    with open(paramobj.docfile.name.encode('utf-8'), 'w') as f:
-        raw_config.write(f)
 
-
-def search_forms_from_request(request):
-    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
-            user=request.user.id, type=request.session['paramtype'])
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('utf-8'))
-    sForms = {}
-    for sftype in ['main', 'postsearch']:
-        kwargs = dict(raw_config=raw_config,
-                user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
-        if request.method == 'POST':
-            sForms[sftype] = SearchParametersForm(request.POST, **kwargs)
-        else:
-            sForms[sftype] = SearchParametersForm(**kwargs)
-    return sForms
-
-def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
-    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
-            user=uid, type=paramtype)
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('utf-8'))
-    if request:
-        sfForms = {}
-        for sftype in ['main', 'postsearch']:
-            sfForms[sftype] = SearchParametersForm(request.POST, raw_config=raw_config,
-                    user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
-    for sf in sfForms.values():
-        SearchParametersForm_values = {v.name: v.value() or '' for v in sf}
-#       print SearchParametersForm_values
-        for section in raw_config.sections():
-            for param in raw_config.items(section):
-                if param[0] in SearchParametersForm_values:
-                    orig_choices = raw_config.get_choices(section, param[0])
-                    if orig_choices == 'type>boolean':
-                        tempval = ('1' if SearchParametersForm_values[param[0]] else '0')
-                    else:
-                        tempval = SearchParametersForm_values[param[0]]
-                    print section, param[0], tempval, orig_choices
-                    raw_config.set(section, param[0], tempval + '|' + orig_choices)
-    enz = raw_config.get('search', 'enzyme')
-    protease = Protease.objects.filter(user=uid, rule=enz).first()
-    raw_config.set('search', 'enzyme', protease.name + '|' + raw_config.get_choices('search', 'enzyme'))
-    if raw_config.getboolean('options', 'use auto optimization'):
-        raw_config.set('misc', 'first stage', 'identipy.extras.optimization')
-    else:
-        raw_config.set('misc', 'first stage', '')
-    raw_config.set('output', 'precursor accuracy unit', raw_config.get('search', 'precursor accuracy unit'))
-    raw_config.set('output', 'precursor accuracy left', raw_config.get('search', 'precursor accuracy left'))
-    raw_config.set('output', 'precursor accuracy right', raw_config.get('search', 'precursor accuracy right'))
-    raw_config.set('missed cleavages', 'protease1', raw_config.get('search', 'enzyme'))
-    raw_config.set('missed cleavages', 'number of missed cleavages',
-            raw_config.get('search', 'number of missed cleavages'))
-    raw_config.set('fragment mass', 'mass accuracy', raw_config.get('search', 'product accuracy'))
-    raw_config.set('charges', 'min charge', raw_config.get('search', 'minimum charge'))
-    raw_config.set('charges', 'max charge', raw_config.get('search', 'maximum charge'))
-
-    if paramsname:
-        fl = open(paramsname + '.cfg', 'w')
-        fl.close()
-        fl = open(paramsname + '.cfg')
-        djangofl = File(fl)
-        paramobj = ParamsFile(docfile=djangofl, user=uid, type=paramtype, visible=visible)
-        paramobj.save()
-        fl.close()
-        os.remove(paramsname + '.cfg')
-    print paramobj.docfile.name.encode('utf-8')
-    raw_config.write(open(paramobj.docfile.name.encode('utf-8'), 'w'))
-    return paramobj
