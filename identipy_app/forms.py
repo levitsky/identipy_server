@@ -2,7 +2,6 @@
 from django import forms
 from multiupload.fields import MultiFileField
 from collections import OrderedDict
-from models import Protease
 
 from django.utils import html
 from django.utils.safestring import mark_safe
@@ -13,6 +12,7 @@ os.chdir(settings.BASE_DIR)
 
 from pyteomics import parser
 
+from . import models
 
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
@@ -159,9 +159,9 @@ class SearchParametersForm(forms.Form):
             for param in get_allowed_values(raw_config, self.sftype):
                 label = mark_safe(get_label(param[1]))
                 if 'class>protease' in param[0]:
-                    proteases = Protease.objects.filter(user=userid)
+                    proteases = models.Protease.objects.filter(user=userid)
                     if not proteases.count():
-                        protease_object = Protease(name='trypsin', rule=parser.expasy_rules[
+                        protease_object = models.Protease(name='trypsin', rule=parser.expasy_rules[
                                                    'trypsin'], order_val=1, user=userid)
                         protease_object.save()
                     choices = []
@@ -263,7 +263,7 @@ class SearchParamsForm1(SearchParamsFormBase):
         super(SearchParamsForm1, self).__init__(*args, **kwargs)
         if 'enzyme' in self.fields:
             e = self.fields['enzyme']
-            proteases = Protease.objects.filter(user=self.user).order_by('order_val')
+            proteases = models.Protease.objects.filter(user=self.user).order_by('order_val')
             choices = [(p.rule, p.name) for p in proteases]
             if not choices: choices.append((parser.expasy_rules['trypsin'], 'trypsin'))
             self.fields['enzyme'] = forms.ChoiceField(label=e.label, label_suffix=e.label_suffix,
@@ -316,3 +316,4 @@ class AddModificationForm(forms.Form):
     label = forms.CharField(max_length=30, required=True)
     mass = forms.CharField(max_length=80, required=True)
     aminoacids = forms.CharField(max_length=25, required=True)
+
