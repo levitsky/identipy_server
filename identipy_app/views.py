@@ -90,6 +90,7 @@ def form_dispatch(request):
             'Choose preloaded protein database file': ('identipy_app:choose', 'fasta'),
             'select fixed modifications': ('identipy_app:choose', 'fmods'),
             'select potential modifications': ('identipy_app:choose', 'vmods'),
+            'add custom cleavage rule': ('identipy_app:new_protease',),
             'RUN IdentiPROT': ('identipy_app:run',),
             'save parameters': (),
             'load parameters': (),
@@ -599,27 +600,27 @@ def add_modification(request):
         c['modificationform'] = AddModificationForm()
         return render(request, 'identipy_app/add_modification.html', c)
 
-def add_protease(request, c, sbm=False, delete=False):
-    django.db.connection.close()
-    c = c
-    c.update(csrf(request))
+def add_protease(request):
+#   django.db.connection.close()
+    c = {}
+#   c.update(csrf(request))
 
     cc = []
     for pr in Protease.objects.filter(user=request.user):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
-    if delete:
-        if request.POST.get('relates_to'):
-            proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
-            if proteases.is_valid():
-                for obj_id in proteases.cleaned_data.get('relates_to'):
-                    obj = Protease.objects.get(user=request.user, id=obj_id)
-                    obj.delete()
-                request.POST['relates_to'] = False
-            return add_protease(request, c, sbm=sbm)
+#   if delete:
+#       if request.POST.get('relates_to'):
+#           proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
+#           if proteases.is_valid():
+#               for obj_id in proteases.cleaned_data.get('relates_to'):
+#                   obj = Protease.objects.get(user=request.user, id=obj_id)
+#                   obj.delete()
+#               request.POST['relates_to'] = False
+#           return add_protease(request, c, sbm=sbm)
 
     proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
-    if sbm:
+    if request.method == 'POST':
         c['proteaseform'] = AddProteaseForm(request.POST)
         if c['proteaseform'].is_valid():
             protease_name = c['proteaseform'].cleaned_data['name']
@@ -635,13 +636,27 @@ def add_protease(request, c, sbm=False, delete=False):
             protease_object = Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=request.user)
             protease_object.save()
             messages.add_message(request, messages.INFO, 'A new cleavage rule was added')
-            return searchpage(request, c)
+            if 'bigform' in request.session:
+                sforms = pickle.loads(request.session['bigform'])
+                e = sforms['main'].fields['enzyme']
+                proteases = Protease.objects.filter(user=request.user).order_by('order_val')
+                choices = [(p.rule, p.name) for p in proteases]
+                e.choices = choices
+#               sforms['main'].fields['enzyme'] = django.forms.ChoiceField(
+#                       label=e.label, label_suffix=e.label_suffix,
+#                       choices=choices, required=e.required, initial=choices[-1])
+                data = sforms['main'].data.copy()
+                data['enzyme'] = protease_rule
+                sforms['main'].data = data
+                request.session['bigform'] = pickle.dumps(sforms)
+            return redirect('identipy_app:searchpage')
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'identipy_app/add_protease.html', c)
-    c['proteaseform'] = AddProteaseForm()
-    c['proteases'] = proteases
-    return render(request, 'identipy_app/add_protease.html', c)
+    else:
+        c['proteaseform'] = AddProteaseForm()
+        c['proteases'] = proteases
+        return render(request, 'identipy_app/add_protease.html', c)
 
 #def select_modifications(request, c, fixed=True, upd=False):
 #    django.db.connection.close()
@@ -705,6 +720,7 @@ def files_view(request, what):
         elif action == 'add custom modification':
             request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
             return redirect('identipy_app:new_mod')
+
         form = MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
@@ -738,7 +754,7 @@ def files_view(request, what):
             return redirect('identipy_app:searchpage')
     else:
         if 'bigform' not in request.session:
-            return redirect('identipy_app:index')
+            return redirect('identipy_app:searchpage')
         kwargs = dict(custom_choices=choices, multiform=multiform)
         if what == 'mods':
             kwargs['labelname'] = 'Select {} modifications:'.format('fixed' if fixed else 'variable')

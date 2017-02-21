@@ -6,41 +6,44 @@
 
 <form method="post" id="selectionform">{% csrf_token %}
 <div id="tab">
-    <h2><p>Add custom cleavage rule</p>
-    <div><table width="100%"><tr>
-
+    <h2>Add custom cleavage rule</h2>
+    <div>
+        <table width="100%">
+            <tr>
                 {{ proteaseform.non_field_errors }}
                 <td class="leftcolumn">
                     {{ proteaseform.subject.errors }}
-                    <label for="{{ proteaseform.name.id_for_label }}">Cleavage name:</label></td>
-                    <td class="rightcolumn">{{ proteaseform.name }}</td>
-        </tr>
-        <tr>
+                    <label for="{{ proteaseform.name.id_for_label }}">Cleavage name:</label>
+                </td>
+                <td class="rightcolumn">{{ proteaseform.name }}</td>
+            </tr>
+            <tr>
                 <td class="leftcolumn">
                     {{ proteaseform.subject.errors }}
-                    <span for="{{ proteaseform.label.id_for_label }}" title="Examples:
+                     <span for="{{ proteaseform.label.id_for_label }}" title="Examples:
 [RK]|{P} means cut after R and K but not before P
 [X]|[C] means cut after any aminoacid but before C
-[RK]|{P},[E]|[X] means mix of trypsin and GluC proteases" style="cursor:help">Cleavage rule:</span></td>
-                    <td class="rightcolumn">{{ proteaseform.cleavage_rule }}</td>
+[RK]|{P},[E]|[X] means mix of trypsin and GluC proteases" style="cursor:help">Cleavage rule:</span>
+                </td>
+                <td class="rightcolumn">{{ proteaseform.cleavage_rule }}</td>
             </tr>
             
-          <tr><td class="leftcolumn">
-             <input type="submit" class="btn" value="submit" name="sbm_protease"> </td>
-              <td class="rightcolumn">
-                  <input type="submit" class="btn" value="cancel" name="searchpage"></td>
+            <tr>
+                <td class="leftcolumn">
+                    <input type="submit" class="btn" value="submit" name="sbm_protease">
+                </td>
+                <td class="rightcolumn">
+                    <input type="submit" class="btn" value="cancel" name="searchpage">
+                </td>
                    
-        </table></div></h2>
-         
-
-    <h2>
-    <br>
-        <div id ="delprotease">
-   <p> <input class = "btn red" type="submit" value="Delete" name="del_protease">
-
-        {{ proteases.as_table }}</p>
-    </div></h2>
+        </table>
     </div>
+        
 
-    </form>
+   <div id ="delprotease">
+       <input class = "btn red" type="submit" value="Delete" name="del_protease">
+        {{ proteases.as_table }}
+   </div>
+</div>
+</form>
 {% endblock %}
