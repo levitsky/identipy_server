@@ -2,7 +2,7 @@
 {% block title %}Add custom modification{% endblock%}
 {% block content %}
 
-
+{% comment %}
 <div id="menu"><form action="" method="post">{% csrf_token %}
         <ul>
             
@@ -13,46 +13,54 @@
             
       </ul></form>
     </div>
+{% endcomment %}
 
-
-<div id="tab"><form method="post" id="selectionform">{% csrf_token %}
-    <h2><p>Add custom modification</p>
-    <div><table width="100%"><tr>
-
+<div id="tab">
+<form method="post" id="selectionform">{% csrf_token %}
+    <h2>Add custom modification</h2>
+    <div>
+        <table width="100%">
+            <tr>
                 {{ modificationform.non_field_errors }}
                 <td class="leftcolumn">
                     {{ modificationform.subject.errors }}
-                    <label for="{{ modificationform.name.id_for_label }}">Modification name:</label></td>
-                    <td class="rightcolumn">{{ modificationform.name }}</td>
-        </tr>
-        <tr>
-                <td class="leftcolumn">
-                    {{ modificationform.subject.errors }}
-                    <label for="{{ modificationform.label.id_for_label }}">Modification label:</label></td>
-                    <td class="rightcolumn">{{ modificationform.label }}</td>
+                    <label for="{{ modificationform.name.id_for_label }}">Modification name:</label>
+                </td>
+                <td class="rightcolumn">{{ modificationform.name }}</td>
             </tr>
             <tr>
                 <td class="leftcolumn">
                     {{ modificationform.subject.errors }}
-                    <span for="{{ modificationform.mass.id_for_label }}" title="Examples: 12.345 or -67.89 or C2H6O1 or N-1H-3" style="cursor:help">Mass change or formula:</span></td>
-                    <td class="rightcolumn">{{ modificationform.mass }}</td>
-                </tr>
-        <tr>
+                    <label for="{{ modificationform.label.id_for_label }}">Modification label:</label>
+                </td>
+                <td class="rightcolumn">{{ modificationform.label }}</td>
+            </tr>
+            <tr>
                 <td class="leftcolumn">
                     {{ modificationform.subject.errors }}
-                    <span for="{{ modificationform.aminoacids.id_for_label }}" title="Examples: [ or Q or R,K or ]K,[R,C .
-labels '[' and ']' mean n-terminal and c-terminal modifications
-']K' means modify only n-terminal K" style="cursor:help">Amino acids:</span></td>
-                    <td class="rightcolumn">{{ modificationform.aminoacids }}</td>
+                    <span for="{{ modificationform.mass.id_for_label }}" title="Examples: 12.345 or -67.89 or C2H6O1 or N-1H-3" style="cursor:help">Mass change or formula:</span>
+                </td>
+                <td class="rightcolumn">{{ modificationform.mass }}</td>
             </tr>
-          <tr><td class="leftcolumn">
-             <input type="submit" class="btn" value="submit" name="sbm_mod"> </td>
-              <td class="rightcolumn">
-                  <input type="submit" class="btn" value="cancel" name="mod_back"></td>
+            <tr>
+                <td class="leftcolumn">
+                    {{ modificationform.subject.errors }}
+                     <span for="{{ modificationform.aminoacids.id_for_label }}" title="Examples: [ or Q or R,K or ]K,[R,C .
+labels '[' and ']' mean n-terminal and c-terminal modifications
+']K' means modify only n-terminal K" style="cursor:help">Amino acids:</span>
+               </td>
+               <td class="rightcolumn">{{ modificationform.aminoacids }}</td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">
+                    <input type="submit" class="btn" value="submit" name="action">
+                </td>
+                <td class="rightcolumn">
+                    <input type="submit" class="btn" value="cancel" name="action">
+                </td>
                    
-        </table></div></h2>
-         </form>
-         
-
-    </div>  
+        </table>
+    </div>
+</form>
+</div>  
 {% endblock %}

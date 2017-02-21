@@ -546,11 +546,11 @@ def email(request, c):
 def email_to_user(username, searchname):
     send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
 
-def add_modification(request, c, sbm=False):
-    django.db.connection.close()
-    c = c
-    c.update(csrf(request))
-    if sbm:
+def add_modification(request):
+#   django.db.connection.close()
+    c = {}
+#   c.update(csrf(request))
+    if request.method == 'POST':
         c['modificationform'] = AddModificationForm(request.POST)
         if c['modificationform'].is_valid():
             mod_name = c['modificationform'].cleaned_data['name']
@@ -583,15 +583,21 @@ def add_modification(request, c, sbm=False):
                 return render(request, 'identipy_app/add_modification.html', c)
             else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
-                return select_modifications(request, c = c, fixed=c['fixed'])
+                if 'bigform' in request.session:
+                    next = request.session.get('next', [])
+                    return redirect(*next.pop())
+                else:
+                    return redirect('identipy_app:searchpage')
+                # return select_modifications(request, c = c, fixed=c['fixed'])
                 # if c['fixed'] == True:
                 #     return
                 # return searchpage(request, c)
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'identipy_app/add_modification.html', c)
-    c['modificationform'] = AddModificationForm()
-    return render(request, 'identipy_app/add_modification.html', c)
+    else:
+        c['modificationform'] = AddModificationForm()
+        return render(request, 'identipy_app/add_modification.html', c)
 
 def add_protease(request, c, sbm=False, delete=False):
     django.db.connection.close()
@@ -667,6 +673,7 @@ def add_protease(request, c, sbm=False, delete=False):
 #    return render(request, 'identipy_app/choose.html', c)
 
 def files_view(request, what):
+    what_orig = what
     if what == 'fmods':
         what = 'mods'
         fixed = True
@@ -695,6 +702,9 @@ def files_view(request, what):
         action = request.POST['submit_action']
         if action == 'upload new files':
             return redirect('identipy_app:upload')
+        elif action == 'add custom modification':
+            request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
+            return redirect('identipy_app:new_mod')
         form = MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
@@ -737,7 +747,7 @@ def files_view(request, what):
             initvals = [mod.id for mod in Modification.objects.filter(name__in=['ammoniumlossC', 'ammoniumlossQ', 'waterlossE'])]
             form.fields['choices'].initial = initvals
 
-    c.update({'form': form, 'usedclass': what,
+    c.update({'form': form, 'used_class': what,
 #       'usedname': usedname,
 #       'select_form': 'form',
         'topbtn': len(form.fields.values()[0].choices) >= 15})
