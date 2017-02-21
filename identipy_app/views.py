@@ -705,12 +705,12 @@ def files_view(request, what):
                 key = 'fixed' if fixed else 'variable' 
                 if sforms['main'].is_valid():
 
-#                   data = forms['main'].data.copy()
-#                   data[key] = ','.join(mod.get_label() for mod in chosenfiles)
-#                   forms['main'].data = data
+                    data = sforms['main'].data.copy()
+                    data[key] = ','.join(mod.get_label() for mod in chosenfiles)
+                    sforms['main'].data = data
 #                   print forms['main'].data
-                    sforms['main'].fields[key] = django.forms.CharField(disabled=True, required=False,
-                            initial=','.join(mod.get_label() for mod in chosenfiles), label=SearchParamsForm1._labels[key])
+#                   sforms['main'].fields[key] = django.forms.CharField(disabled=True, required=False,
+#                           initial=','.join(mod.get_label() for mod in chosenfiles), label=SearchParamsForm1._labels[key])
 
                     print '---------------------'
 #                   print forms['main']

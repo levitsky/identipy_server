@@ -278,9 +278,10 @@ class SearchParamsForm1(SearchParamsFormBase):
     fdr_type = forms.ChoiceField(
             choices = [('psm', 'psm'), ('peptide', 'peptide'), ('protein', 'protein')],
             label = 'FDR type')
-    fixed = forms.CharField(disabled=True, required=False,
+    _modwidget = forms.TextInput(attrs={'readonly': 'readonly'})
+    fixed = forms.CharField(widget=_modwidget, required=False,
             label=_labels['fixed'])
-    variable = forms.CharField(disabled=True, required=False,
+    variable = forms.CharField(widget=_modwidget, required=False,
             label=_labels['variable'])
 
 class PostSearchForm(forms.Form):
