@@ -1,9 +1,9 @@
 {% extends "identipy_app/title.html" %}
 {% block title %}Uploaded data{% endblock%}
 {% block content2 %}
-	
-      
-    <div class="inthemiddle">
+
+
+<div class="inthemiddle">
     {% if user.username %}
     <div id="session">
         <form action="{% url 'identipy_app:logout' %}" method="POST"> {% csrf_token %}<span>Current session: {{ user.username }}</span>
