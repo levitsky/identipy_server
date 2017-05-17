@@ -11,11 +11,7 @@
           {% load staticfiles %}
             <link rel="stylesheet" media="screen and (max-width: 1000px)" type="text/css" href="{% static 'css/test-small.css' %}" />
             <link rel="stylesheet" media="screen and (min-width: 1001px) and (max-width: 1500px)" type="text/css" href="{% static 'css/test-medium.css' %}" />
-            <link rel="stylesheet" media="screen and (min-width: 1501px)" type="text/css" href="{% static 'css/base-large.css' %}" />
- <!--       <div id="logo">
-            {% load staticfiles %}
-            <img src="{% static 'image/Title.png' %}"/>
-        </div> -->
+            <link rel="stylesheet" media="screen and (min-width: 1501px)" type="text/css" href="{% static 'css/test-large.css' %}" />
         <div id="content">
         {% block content2 %}
         {% endblock %}

@@ -4,17 +4,14 @@
 
    {% if user.username %}   
    
-     <div id="tab">
          <form action="" method="post">{% csrf_token %}
          <p>Login successful as {{user.username}}</p>
-         <p>Proceed to file <input type="submit" class="link" value="upload" name="uploadform"> or <input type="submit" class="link" value="start a search" name="searchpage"> if all the neсessary files are already uploaded.</p>
+             <p>Proceed to <a class="link" href="/app/upload">file upload</a> or <a class="link" href="/app/start">start a search</a> if all the neсessary files are already uploaded.</p>
          </form>
-</div>
 
 {% else %}
 
 
-<div id="tab">
 <p>IdentiPROT search engine, version 1.0, release date 01.01.2017</p>
 
 <p>Software performs:</p>
@@ -32,7 +29,7 @@
 <p>An example of the standard search input and output can be viewed
              <a href="http://pubdata.theorchromo.ru/IdentiProt_presentation/IdentiProt.ppt">here.</a></p>
 <form action="" method="post">{% csrf_token %}
-    <p>To start your search, please, LOG IN or <input type="submit" class="link" value="contact" name="contacts"> our administrators to create an account.</p></form>
+    <p>To start your search, please, <a class="link" href="/app/login">LOG IN</a> or <a class="link" href="/app/contacts">contact</a> our administrators to create an account.</p></form>
 
 <p>
 Cited literature:
@@ -52,7 +49,6 @@ Cited literature:
 <li>Zybailov B.L., Florens L., Washburn M.P. Quantitative shotgun proteomics using a protease with broad specificity and normalized spectral abundance factors // Mol. Biosyst. 2007. Vol. 3, № 5. P. 354–360.
     </li></ol>
 
-</div>
 
 {% endif %}
             

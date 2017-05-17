@@ -1,14 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Contacts{% endblock %}
 {% block content %}
-	
-<div id="tab">
-<table>
-    <tr valign="top">
-        <td width="50%">
-    <div class="intable"><p>
-        <b>Technical support</b>
-        <br>
+<b>Technical support</b>
+<br>
 
 Institute for Energy Problems of Chemical Physics,
         <br>
@@ -28,13 +22,10 @@ Our administrators:</b>
         <br>
 Mark V. Ivanov, bioinformatician
         <br>
-E-mail: markmipt@gmail.com
-        <br>
-        <br>
 
 Lev I. Levitsky, bioinformatician
         <br>
-E-mail: lev.levitsky@phystech.edu
+E-mail: IdentiProt@gmail.com
         <br>
         <br>
 
@@ -44,32 +35,18 @@ E-mail: lev.levitsky@phystech.edu
 Valeria Kudryavtseva
         <br>
 E-mail: vkistanova@mail.ru
-</p>
 
 
 
     <div id="contact_us"><h2>
         <form action="" method="post">{% csrf_token %}
-         <input type="submit" class="backbtn" value="Contact us" name="sendemail">
+         <input type="submit" class="btn" value="Contact us" name="sendemail">
         </form></h2>
            </div>
     {% if not user.username %}
      <div>  <h2>
-        <form action="" method="post">{% csrf_token %}
-         <input type="submit" class="backbtn" value="Back to&#10;log in" name="loginform">
-         </form></h2>
+         <a class="backbtn" href="/app/login">back to log in</a>
+         </h2>
            </div>
     {% endif %}
-</div>
-        </td>
-        <td>
-<div class="intable">
-    {% load staticfiles %}
-     
-            
-    </div>
-        </td>
-    </tr>
-    </table>
-</div>
 {% endblock %}
