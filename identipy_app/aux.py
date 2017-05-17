@@ -94,7 +94,8 @@ def search_forms_from_request(request):
     return sForms
 
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
-    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
+    from .models import ParamsFile, Protease
+    paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
             user=uid, type=paramtype)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('utf-8'))
@@ -117,7 +118,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
                     print section, param[0], tempval, orig_choices
                     raw_config.set(section, param[0], tempval + '|' + orig_choices)
     enz = raw_config.get('search', 'enzyme')
-    protease = models.Protease.objects.filter(user=uid, rule=enz).first()
+    protease = Protease.objects.filter(user=uid, rule=enz).first()
     raw_config.set('search', 'enzyme', protease.name + '|' + raw_config.get_choices('search', 'enzyme'))
     if raw_config.getboolean('options', 'use auto optimization'):
         raw_config.set('misc', 'first stage', 'identipy.extras.optimization')
@@ -138,7 +139,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
         fl.close()
         fl = open(paramsname + '.cfg')
         djangofl = File(fl)
-        paramobj = models.ParamsFile(docfile=djangofl, user=uid, type=paramtype, visible=visible)
+        paramobj = ParamsFile(docfile=djangofl, user=uid, type=paramtype, visible=visible)
         paramobj.save()
         fl.close()
         os.remove(paramsname + '.cfg')
