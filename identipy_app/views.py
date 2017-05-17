@@ -780,7 +780,7 @@ def runidentiprot(request):
         protease = Protease.objects.filter(user=request.user, name=enz).first()
         idsettings.set('search', 'enzyme', protease.rule + '|' + idsettings.get_choices('search', 'enzyme'))
         idsettings.set('misc', 'iterate', 'peptides')
-        idsettings.set('input', 'database', fastafile.encode('urf-8'))
+        idsettings.set('input', 'database', fastafile.encode('utf-8'))
         idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('utf-8')))
         newrun.set_notification(idsettings)
         totalrun(idsettings, newrun, request.user, paramfile)
@@ -923,7 +923,7 @@ def runidentiprot(request):
     c['paramtype'] = request.session['paramtype']
     if not os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
         newgroup = SearchGroup(groupname=c['runname'], user = request.user)
-#       newgroup.save()
+        newgroup.save()
         newgroup.add_files(c)
         rn = newgroup.name()
         os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
@@ -948,7 +948,8 @@ def search_details(request, pk):
     print runobj.id, runobj.groupname
     sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
     if sruns.count() == 1:
-        return results_figure(request, sruns[0].id)
+#       return results_figure(request, sruns[0].id)
+        return redirect('identipy_app:figure', sruns[0].id)
     return render(request, 'identipy_app/results.html', c)
 
 def results_figure(request, pk):
