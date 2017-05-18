@@ -49,12 +49,11 @@
     	{% if searchrun.totalPSMs %}
         <div id="colored">
             Download:
-        <input type="submit" class="btn" value="csv files" name="download_csv">
-        
-        <input type="submit" class="btn" value="pepxml files" name="download_pepxml">
-        <input type="submit" class="btn" value="mgf files" name="download_mgf"><br>
-        <input type="submit" class="btn" value="figures in png format" name="download_figs">
-        <input type="submit" class="btn" value="figures in svg format" name="download_figs_svg">
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv">csv files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml">pepxml files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf">mgf files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs">figures in png format</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg">figures in svg format</a>
         <input type="submit" class="btn" value="show parameters" name="showparams">
        </form> 
             </div>
