@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^run/',              views.runidentiprot,      name='run'),
     url(r'^new_mod/',          views.add_modification,   name='new_mod'),
     url(r'^new_protease/',     views.add_protease,       name='new_protease'),
+    url(r'^download/',         views.getfiles,           name='download'),
 ]
