@@ -206,7 +206,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
     padding:0 3em;
     margin-bottom:1em;
     margin-top:1em;
-    text-align:center;
+    
     word-break:break-all;
     background:#DBA400;
     color:#fff;
@@ -308,6 +308,14 @@ div.inthemiddle h2{
     margin-bottom:1em;
     text-align:center;
 }
+#img_list > div {
+  display:inline-block;
+  padding: 0 1%;
+  width: 29%;
+  background: white;
+  color: #000;
+  text-align: center;
+}
 
 /*********************************************************************************/
 /* tables                                                                        */
@@ -364,4 +372,8 @@ input[id="id_fixed"], input[id="id_variable"]{
 div.select{
     display:inline;
     margin:0;
+}
+
+#id_choices{
+    padding:0;
 }
