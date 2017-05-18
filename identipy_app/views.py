@@ -720,6 +720,8 @@ def files_view(request, what):
         elif action == 'add custom modification':
             request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
             return redirect('identipy_app:new_mod')
+        elif action == 'download':
+            return redirect('identipy_app:download')
 
         form = MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
