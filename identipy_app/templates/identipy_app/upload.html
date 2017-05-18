@@ -19,14 +19,14 @@
                 <div class="intable">
                 <h3>
                     <form id="uploadbuttons"  action="{% url 'identipy_app:upload' %}" method="post" enctype="multipart/form-data">
-                      <p>   {% csrf_token %}
+                         {% csrf_token %}
                          {{ commonform.non_field_errors }} 
                     
                          {{ commonform.commonfiles }}
                      
                          <button for="file" class="uploadform">Choose files</button>
-                      </p><br><br>
-                      <p><input type="submit" name="submit" value="Upload" class="uploadform"/></p><br>
+                      <br><br>
+                     <input type="submit" name="submit" value="Upload" class="uploadform"/><br>
                     </form>
                 </h3>
                 </div>

@@ -294,13 +294,13 @@ div.inthemiddle h2{
     overflow:hidden;
 }
 
-.leftside{
+.leftside, .intable_left{
     float:left;
     width:50%;
     margin-bottom:1em;
     text-align: center;
 }
-.rightside{
+.rightside, .intable_right{
     top:0;
     width:50%;
     margin-left:50%;
@@ -350,7 +350,7 @@ input[type="number"]{
    
 }
 
-input[id^="id_"]{
+input[id="id_fixed"], input[id="id_variable"]{
     width:100px; 
     font-size:0.9em;
     border:1px solid #BBB;
