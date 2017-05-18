@@ -47,13 +47,15 @@
    {% endif %}
             
    <div id="upload_fasta"><h2><input type="submit" class="btn" value="Choose preloaded protein database file" name="submit_action"></h2></div>
+        <br>
+        <h2><div id="run_identiprot">
+        <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/></span>
+         <div id="runbtn"><input type="submit" class="backbtn" value="RUN IdentiPROT" name="submit_action"></div>
+    </div></h2>
    </div>
 
 
-    <div id="run_identiprot" class="rightside">
-        <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/></span>
-         <div id="runbtn"><h2><input type="submit" class="backbtn" value="RUN IdentiPROT" name="submit_action"></h2></div>
-    </div>
+    
 
     <div id="param_block" class="vert_block rightside">
         <h2 id="paramtitle">Specify search parameters</h2>
@@ -64,7 +66,7 @@
             <a class="menubar {% if paramtype == 3 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=3">Advanced</a>
         </div>
 
-        <div id="chromoConditionsBlock">
+        <div id="params">
             <table id="MainSearchParametersTable" class="searchparams">
                   {{ SearchForms.main.as_table }}
             </table>
