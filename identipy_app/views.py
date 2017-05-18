@@ -944,6 +944,7 @@ def search_details(request, pk):
 #   c.update(csrf(request))
     runobj = get_object_or_404(SearchGroup, id=pk)
 #   runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
+    request.session.setdefault('searchgroupid', runobj.id)
     c.update({'searchgroup': runobj})
     print runobj.id, runobj.groupname
     sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
@@ -1025,11 +1026,11 @@ def get_custom_csv(request, c):
     os.remove(tmpfile_path)
     return response
 
-def getfiles(c, request=False):
+def getfiles(request):
     filenames = []
     django.db.connection.close()
-    print c['down_type']
-    if request:
+    down_type = request.GET['down_type']
+    if 0:#USED FOR download_selected method:
         cc = []
         documents = c['usedclass'].objects.filter(user=request.user)
         for doc in documents:
@@ -1040,27 +1041,28 @@ def getfiles(c, request=False):
                 obj = c['usedclass'].objects.get(user=request.user, id=x)
                 filenames.append(obj.path())
                 print obj.path()
-        zip_subdir = c['down_type'] + '_files'
+        zip_subdir = down_type + '_files'
     else:
-        searchgroup = c['searchgroup']
+        searchgroupid = request.session.get('searchgroupid')#c['searchgroup']
+        searchgroup = SearchGroup.objects.get(id=searchgroupid)
         for searchrun in searchgroup.get_searchruns_all():
-            if c['down_type'] == 'csv':
+            if down_type == 'csv':
                 for down_fn in searchrun.get_csvfiles_paths():
                     filenames.append(down_fn)
-            elif c['down_type'] == 'pepxml':
+            elif down_type == 'pepxml':
                 for down_fn in searchrun.get_pepxmlfiles_paths():
                     filenames.append(down_fn)
-            elif c['down_type'] == 'mgf':
+            elif down_type == 'mgf':
                 for down_fn in searchrun.get_spectrafiles_paths():
                     filenames.append(down_fn)
-            elif c['down_type'] == 'figs':
+            elif down_type == 'figs':
                 for down_fn in searchrun.get_resimage_paths():
                     filenames.append(down_fn)
-            elif c['down_type'] == 'figs_svg':
+            elif down_type == 'figs_svg':
                 for down_fn in searchrun.get_resimage_paths(ftype='.svg'):
                     filenames.append(down_fn)
 
-        zip_subdir = searchgroup.name() + '_' + c['down_type'] + '_files'
+        zip_subdir = searchgroup.name() + '_' + down_type + '_files'
 
     zip_filename = "%s.zip" % zip_subdir
 
