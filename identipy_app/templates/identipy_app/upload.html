@@ -6,19 +6,15 @@
         
 <h2><p>Upload files to server</p></h2>
 
-       <table>
-           <tr valign="top">
-               <td width=50%>
-                <div class="intable">
+       
+                <div class="intable_left">
                  <p> Total space used: {{ system_size|filesizeformat }} </p>
                  <p> If your datafiles are not on IdentiProt server yet, you can upload them now.</p>
                  <p> Feel free to upload the mass spectra either in MGF or mzML formats and protein database files in FASTA format.</p>
                 </div>
-               </td>
-               <td>
-                <div class="intable">
-                <h3>
-                    <form id="uploadbuttons"  action="{% url 'identipy_app:upload' %}" method="post" enctype="multipart/form-data">
+               
+                <div class="intable_right">
+                <form id="uploadbuttons"  action="{% url 'identipy_app:upload' %}" method="post" enctype="multipart/form-data">
                          {% csrf_token %}
                          {{ commonform.non_field_errors }} 
                     
@@ -28,11 +24,9 @@
                       <br><br>
                      <input type="submit" name="submit" value="Upload" class="uploadform"/><br>
                     </form>
-                </h3>
+               
                 </div>
-               </td>
-           </tr>
-       </table>
+               
 {% if LOCAL_IMPORT %}
     <div id="local_import">
         <h2>  Import local file:</h2>
