@@ -411,21 +411,20 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
 #    c = {}
 #    c.update(csrf(request))
 #    return render(request, "index.html", c)
+def delete_search(request):
+    for name, val in request.POST.iteritems():
+        if val == u'on':
+            processes = SearchGroup.objects.filter(user=request.user.id, groupname=name.replace(u'\xa0', ' '))
+            for obj in processes:
+                obj.full_delete()
+    return redirect(*('identipy_app:getstatus',))
 
-
-def status(request, name_filter=False, delete=False):
+def status(request, name_filter=False):
 #   django.db.connection.close()
     c = {}
 #   c.update(csrf(request))
     res_page = c.setdefault('res_page', 1)
     c.setdefault('search_run_filter', name_filter)
-    print c
-    if delete:
-        for name, val in request.POST.iteritems():
-            if val == u'on':
-                processes = SearchGroup.objects.filter(user=request.user.id, groupname=name)
-                for obj in processes:
-                    obj.full_delete()
     if c['search_run_filter']:
         processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).count()) / 10))
