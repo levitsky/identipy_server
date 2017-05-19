@@ -6,14 +6,14 @@
 <div id="tab">
 {% if processes %}
 <div id="vert_block">
-    <form action="" method="POST">{% csrf_token %}
+    <form action="{% url 'identipy_app:form_dispatch' %}" method="POST">{% csrf_token %}
         Page {{ res_page }} of {{ max_res_page  }}
         {% if search_run_filter %}
         <input type="text" id="searchinput" name="search_button" value={{ search_run_filter|spacify }}  placeholder="Enter run name"/>
         {% else %}
         <input type="text" id="searchinput" name="search_button" value=""  placeholder="Enter run name"/>
 		{% endif %}
-        <input type="submit" class="link" value="Search previous runs by name" name="search_runname"/>
+        <input type="submit" class="link" value="Search previous runs by name" name="submit_action"/>
     </form>
 </div>
         

@@ -94,6 +94,7 @@ def form_dispatch(request):
             'RUN IdentiPROT': ('identipy_app:run',),
             'save parameters': (),
             'load parameters': (),
+            'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
             }
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
@@ -412,12 +413,13 @@ def auth_and_login(request, onsuccess='/', onfail='/login/'):
 #    return render(request, "index.html", c)
 
 
-def status(request, delete=False):
+def status(request, name_filter=False, delete=False):
 #   django.db.connection.close()
     c = {}
 #   c.update(csrf(request))
     res_page = c.setdefault('res_page', 1)
-    c.setdefault('search_run_filter', '')
+    c.setdefault('search_run_filter', name_filter)
+    print c
     if delete:
         for name, val in request.POST.iteritems():
             if val == u'on':
