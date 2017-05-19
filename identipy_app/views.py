@@ -95,6 +95,7 @@ def form_dispatch(request):
             'save parameters': (),
             'load parameters': (),
             }
+    request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
 #   request.session['next'] = ['searchpage']
     return redirect(*redirect_map[request.POST['submit_action']])
@@ -329,28 +330,27 @@ def details(request, pK):
     return render(request, 'identipy_app/details.html',
             {'document': doc})
 
-def delete(request, c):
-    usedclass=c['usedclass']
-    usedname=c['usedname']
+def delete(request, usedclass):
+    usedname=usedclass.__name__
     django.db.connection.close()
     documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
-        if not usedname == 'chosenparams' or not doc.name().startswith('latest_params'):
+        if not usedname == 'ParamsFile' or not doc.name().startswith('latest_params'):
             try:
                 cc.append((doc.id, doc.name()))
             except:
                 cc.append((doc.id, doc.name))
     form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
     if form.is_valid():
-        for x in form.cleaned_data.get('relates_to'):
-            obj = c['usedclass'].objects.get(user=request.user, id=x)
-            # obj.delete()
+        for x in form.cleaned_data.get('choices'):
+            obj = usedclass.objects.get(user=request.user, id=x)
             try:
                 obj.customdel()
             except:
                 obj.delete()
-    return searchpage(request, c)
+
+    return redirect(*request.session['redirect'])
 
 def logout_view(request):
     logout(request)
@@ -723,6 +723,9 @@ def files_view(request, what):
         elif action == 'download':
             #return redirect('identipy_app:download')
             return getfiles(request, usedclass=usedclass)
+        elif action == 'delete':
+            #return redirect('identipy_app:download')
+            return delete(request, usedclass=usedclass)
 
         form = MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
