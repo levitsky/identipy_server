@@ -97,6 +97,7 @@ def form_dispatch(request):
             }
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
+    request.session['runname'] = request.POST.get('runname')
 #   request.session['next'] = ['searchpage']
     return redirect(*redirect_map[request.POST['submit_action']])
 #   if request.user.is_authenticated():
