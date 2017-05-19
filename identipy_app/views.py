@@ -721,7 +721,8 @@ def files_view(request, what):
             request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
             return redirect('identipy_app:new_mod')
         elif action == 'download':
-            return redirect('identipy_app:download')
+            #return redirect('identipy_app:download')
+            return getfiles(request, usedclass=usedclass)
 
         form = MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
@@ -1028,23 +1029,23 @@ def get_custom_csv(request, c):
     os.remove(tmpfile_path)
     return response
 
-def getfiles(request):
+def getfiles(request, usedclass=False):
     filenames = []
     django.db.connection.close()
-    down_type = request.GET['down_type']
-    if 0:#USED FOR download_selected method:
+    if request.method == 'POST' and usedclass:
         cc = []
-        documents = c['usedclass'].objects.filter(user=request.user)
+        documents = usedclass.objects.filter(user=request.user)
         for doc in documents:
             cc.append((doc.id, doc.name()))
         form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if form.is_valid():
-            for x in form.cleaned_data.get('relates_to'):
-                obj = c['usedclass'].objects.get(user=request.user, id=x)
+            for x in form.cleaned_data.get('choices'):
+                obj = usedclass.objects.get(user=request.user, id=x)
                 filenames.append(obj.path())
                 print obj.path()
-        zip_subdir = down_type + '_files'
-    else:
+        zip_subdir = 'down_files'
+    elif request.method == 'GET':
+        down_type = request.GET['down_type']
         searchgroupid = request.session.get('searchgroupid')#c['searchgroup']
         searchgroup = SearchGroup.objects.get(id=searchgroupid)
         for searchrun in searchgroup.get_searchruns_all():
