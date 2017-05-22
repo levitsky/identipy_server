@@ -12,7 +12,7 @@ os.chdir(settings.BASE_DIR)
 
 from pyteomics import parser
 
-from . import models
+import models
 
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):

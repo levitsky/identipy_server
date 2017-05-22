@@ -66,7 +66,7 @@ def get_size(start_path = '.'):
     return float(total_size)
 
 def save_mods(uid, chosenmods, fixed, paramtype=3):
-    from . import models
+    import models
     paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % (paramtype, ), user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('ASCII'))
@@ -78,7 +78,7 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
         raw_config.write(f)
 
 def search_forms_from_request(request):
-    from . import models, forms
+    import models
     paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
             user=request.user.id, type=request.session['paramtype'])
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -94,7 +94,7 @@ def search_forms_from_request(request):
     return sForms
 
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
-    from .models import ParamsFile, Protease
+    from models import ParamsFile, Protease
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
             user=uid, type=paramtype)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -168,6 +168,7 @@ class ResultsDetailed():
             self.dbname = False
 
     def special_links(self, value, name, dbname):
+        import forms
         if self.ftype == 'protein' and name == 'dbname':
             return forms.SubmitButtonField(label="", initial="").widget.render3(value)
         elif self.ftype == 'protein' and name == 'description':
