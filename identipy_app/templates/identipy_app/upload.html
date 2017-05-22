@@ -4,7 +4,7 @@
 <!-- List of uploaded documents -->
 
         
-<h2><p>Upload files to server</p></h2>
+<h2>Upload files to server</h2>
 
        
                 <div class="intable_left">
@@ -13,7 +13,7 @@
                  <p> Feel free to upload the mass spectra either in MGF or mzML formats and protein database files in FASTA format.</p>
                 </div>
                
-                <div class="intable_right">
+                <div class="intable_right centered">
                 <form id="uploadbuttons"  action="{% url 'identipy_app:upload' %}" method="post" enctype="multipart/form-data">
                          {% csrf_token %}
                          {{ commonform.non_field_errors }} 
@@ -28,20 +28,21 @@
                 </div>
                
 {% if LOCAL_IMPORT %}
-    <div id="local_import">
-        <h2>  Import local file:</h2>
+
+<div id="local_import">
+    <h2> Import local file:</h2>
         <form id='importbutton' action="{% url 'identipy_app:local_import' %}" method="post">
-            <p> {% csrf_token %} </p>
-            <textarea id="filePath" class="text" name="filePath"></textarea>
-            <p><input type="submit" name="fileimport" value="Import" class="uploadform"/></p><br>
+             {% csrf_token %}
+            <div class="intable_left"><textarea id="filePath" class="text" name="filePath"></textarea></div>
+            <div class="intable_right centered"><input type="submit" name="fileimport" value="Import" class="uploadform"/></div>
         </form>
     </div>
 {% endif %}
-    <div id="status_back">
-        <h2>
+    <div id="status_back" class="centered">
+        
             <form action="" method="post">{% csrf_token %}
-                <input type="submit" class="backbtn" value="Start a new&#10;search run" name="searchpage">
+                <input type="submit" class="backbtn" value="Start a new search run" name="searchpage">
             </form>
-        </h2>
+       
     </div>
 {% endblock %}

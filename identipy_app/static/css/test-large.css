@@ -144,7 +144,7 @@ body {
 }
 
 /*********************************************************************************/
-/* Buttons                                                                       */
+/* Buttons & inputs                                                              */
 /*********************************************************************************/
 
 .btn {
@@ -199,11 +199,10 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
     margin: 0 auto;
     margin-bottom: 6%;
 }
-.backbtn{
-    text-decoration:none;
+.backbtn, a.backbtn{
     display: inline-block;
-    font-size:1em;
-    padding:0 3em;
+    font-size:1.5em;
+    padding:0.5em 3em;
     margin-bottom:1em;
     margin-top:1em;
     
@@ -211,8 +210,10 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
     background:#DBA400;
     color:#fff;
     text-transform:uppercase;
+    text-decoration:none;
     cursor:pointer;
     border:0;
+    text-align: center;
 }
 
 .backbtn:hover{
@@ -259,7 +260,9 @@ input[type="file"]{
     border:0;
     
 }
-
+.searchname{
+    font-size:1.5em;
+}
 /*********************************************************************************/
 /* Divs                                                                          */
 /*********************************************************************************/
@@ -274,7 +277,7 @@ div.inthemiddle {
 
 div.inthemiddle h2{
     /*position:relative;*/
-    margin-bottom:0 ;
+    margin-bottom:0.5em ;
     margin-top:0;
     width:100%;
     text-align:center;
@@ -298,7 +301,10 @@ div.inthemiddle h2{
     float:left;
     width:50%;
     margin-bottom:1em;
-    text-align: center;
+}
+.leftside p, .intable_left p{
+    
+    text-align: left;
 }
 .rightside, .intable_right{
     top:0;
@@ -306,7 +312,6 @@ div.inthemiddle h2{
     margin-left:50%;
     overflow:hidden;
     margin-bottom:1em;
-    text-align:center;
 }
 #img_list > div {
   display:inline-block;
@@ -317,13 +322,67 @@ div.inthemiddle h2{
   text-align: center;
 }
 
+#local_import{
+    float:left;
+    width: 100%;
+}
+
+.centered{
+    text-align: center;
+}
+#local_import textarea{
+    margin:0;
+    padding:1em;
+}
+
+div#colored{
+    background:#eeeeff;
+    margin:0;
+    margin-bottom:1em;
+    padding:0;
+    width:100%;
+    overflow:hidden;
+    font-size:1.5em;
+}
+
+.scroll{
+    width:100%;
+    overflow:auto;
+}   
+.short{
+    height:15em;
+}
+
+.fullsize{
+    height:40em;
+    margin-bottom:1em;
+}
+
 /*********************************************************************************/
 /* tables                                                                        */
 /*********************************************************************************/
+table[type="bordered"]{
+    width:100%;
+    background-color:#fff;
+    border: 2px solid #BBBBBB;
+    margin-left:0;
+    margin-top:1em;
+    margin-bottom:1em;
+    box-sizing: border-box;
+    
+}
+
+#headings{
+    font-size:1.3em;
+    text-align:center;
+    text-decoration:bold;
+    
+}
 table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
    border: 1px solid #BBBBBB;
    box-sizing: border-box;
    padding:0.4em;
+   text-align: center;
 }
 .searchparams{
     font-size:1em;
@@ -364,6 +423,12 @@ input[id="id_fixed"], input[id="id_variable"]{
     border:1px solid #BBB;
     text-indent:0.2 em;
    
+}
+
+#local_import textarea{
+    margin:0;
+    padding:0;
+    font-size:1.5em;
 }
 /*********************************************************************************/
 /* lists                                                                         */
