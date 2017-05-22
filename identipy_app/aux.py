@@ -77,22 +77,6 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     with open(paramobj.docfile.name.encode('utf-8'), 'w') as f:
         raw_config.write(f)
 
-def search_forms_from_request(request):
-    import models
-    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
-            user=request.user.id, type=request.session['paramtype'])
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('utf-8'))
-    sForms = {}
-    for sftype in ['main', 'postsearch']:
-        kwargs = dict(raw_config=raw_config,
-                user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
-        if request.method == 'POST':
-            sForms[sftype] = SearchParametersForm(request.POST, **kwargs)
-        else:
-            sForms[sftype] = SearchParametersForm(**kwargs)
-    return sForms
-
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
     from models import ParamsFile, Protease
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
