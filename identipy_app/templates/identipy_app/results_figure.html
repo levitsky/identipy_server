@@ -25,9 +25,9 @@
             <tr>
             <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
             {% if searchrun.numPSMs %}
-                <td class="td2"><input type="submit" class="link" value={{ searchrun.numPSMs }} name="show_psms"></td>
-                <td class="td2"><input type="submit" class="link" value={{ searchrun.numPeptides }} name="show_peptides"></td>
-                <td class="td2"><input type="submit" class="link" value={{ searchrun.numProteins }} name="show_proteins"></td>
+                <td><a class="td2" class="link" value={{ searchrun.numPSMs }} href="{% url 'identipy_app:show' %}?show_type=psm">{{ searchrun.numPSMs }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=peptide">{{ searchrun.numPeptides }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=protein">{{ searchrun.numProteins }}</a></td>
 		    {% else %}
                 <td class="td2">{{ searchrun.numPSMs }}</td>
                 <td class="td2">{{ searchrun.numPeptides }}</td>
