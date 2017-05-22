@@ -1001,16 +1001,13 @@ def show(request):
     order_reverse = order_by_label == request.session.get('order_by')
     request.session['order_by'] = order_by_label
     django.db.connection.close()
-    upd = False
-    if not upd:
-        runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
-        res_dict = runobj.get_detailed(ftype=ftype)
+    dbname = request.GET.get('dbname')
+    runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
+    res_dict = runobj.get_detailed(ftype=ftype)
     # else:
     #     res_dict = c['results_detailed']
     if order_by_label:
         res_dict.custom_order(order_by_label, order_reverse)
-    # if dbname:
-    #     res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
     if request.POST.get('choices'):
         res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
@@ -1020,6 +1017,8 @@ def show(request):
             # request.POST['choices'] = False
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
+    if dbname:
+        res_dict.filter_dbname(dbname)
     c.update({'results_detailed': res_dict})
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
