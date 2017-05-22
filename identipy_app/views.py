@@ -1015,9 +1015,9 @@ def show(request):
     if request.POST.get('choices'):
         res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
         if res_dict.labelform.is_valid():
-            whitelabels = [x for x in res_dict.labelform.cleaned_data.get('relates_to')]
+            whitelabels = [x for x in res_dict.labelform.cleaned_data.get('choices')]
             res_dict.custom_labels(whitelabels)
-            request.POST['choices'] = False
+            # request.POST['choices'] = False
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
     c.update({'results_detailed': res_dict})
