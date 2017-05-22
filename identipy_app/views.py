@@ -919,7 +919,7 @@ def runidentiprot(request):
         p.start()
 
     c = {}
-    if not 'runname' in request.session:
+    if not request.session.get('runname'):
         c['runname'] = time.strftime("%Y-%m-%d %H:%M:%S")
     else:
         c['runname'] = request.session['runname']
