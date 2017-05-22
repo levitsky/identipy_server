@@ -57,15 +57,9 @@
             <h2><div class="mega"> <form action="" method="post">{% csrf_token %}
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
-            <table class="header" id="processes_list" type="bordered">
-                <tr id="headings">
-			        {% for label in results_detailed.get_labels %}
-                    <th><input type="submit" class="link" value={{ label|spacify }} name=order_by></th>
-			        {% endfor %}
-                </tr></table>
                 <table class="dt" id="processes_list" type="bordered"><tr id="headings">
 			        {% for label in results_detailed.get_labels %}
-                    <th><input type="submit" class="link" value={{ label|spacify }} name=order_by></th>
+                    <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}">{{ label|spacify }}</a></th>
 			        {% endfor %}
                 </tr>
             {% for prot in results_detailed.get_values %}

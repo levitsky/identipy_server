@@ -178,7 +178,7 @@ class ResultsDetailed():
         elif self.ftype == 'protein' and name == 'peptides':
             return forms.SubmitButtonField(label="", initial="").widget.render4('Peptides_link', value, 'show_peptides', dbname)
         elif self.ftype == 'peptide' and name == 'sequence':
-            return forms.SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
+            return forms.SubmitButtonField(label="", initial="").widget.render6(value, 'psm')
         else:
             return value
 
@@ -189,11 +189,12 @@ class ResultsDetailed():
         for idx, label in enumerate(self.labels):
             self.whiteind[idx] = label in whitelist
 
-    def change_order(self):
-        self.order_by_revers = not self.order_by_revers
+    def change_order(self, order_reverse):
+        self.order_by_revers = order_reverse
+        # self.order_by_revers = not self.order_by_revers
 
-    def custom_order(self, order_by_label=False):
-        self.change_order()
+    def custom_order(self, order_by_label=False, order_reverse=False):
+        self.change_order(order_reverse)
         sort_ind = self.labels.index(order_by_label.replace(u'\xa0', ' '))
         try:
             self.values.sort(key=lambda x: float(x[sort_ind]))
