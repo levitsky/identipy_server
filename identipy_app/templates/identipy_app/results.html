@@ -67,7 +67,9 @@
          </div> 
             <form action="" method="post">{% csrf_token %}
         
-            <input type="submit" class="backbtn" value="Back to search history" name="getstatus">
+            <div id="get_status" class="centered">
+                <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
+            </div>
             </form>
         
 {% endblock %}
