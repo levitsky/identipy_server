@@ -995,7 +995,8 @@ def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
     request.session['show_type'] = ftype
-    runid = request.session.get('searchrunid')
+    runid = request.GET.get('runid', request.session.get('searchrunid'))
+    request.session['searchrunid'] = runid
     searchgroupid = request.session.get('searchgroupid')
     order_by_label = request.GET.get('order_by', '')
     order_reverse = order_by_label == request.session.get('order_by')
