@@ -993,11 +993,13 @@ def showparams(request, searchgroupid, c):
 # def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=False, dbname=False):
 def show(request):
     c = {}
-    ftype = request.GET['show_type']
+    ftype = request.GET.get('show_type', request.session.get('show_type'))
+    request.session['show_type'] = ftype
     runid = request.session.get('searchrunid')
     searchgroupid = request.session.get('searchgroupid')
-    print runid
-    print ftype
+    order_by_label = request.GET.get('order_by', '')
+    order_reverse = order_by_label == request.session.get('order_by')
+    request.session['order_by'] = order_by_label
     django.db.connection.close()
     upd = False
     if not upd:
@@ -1005,8 +1007,8 @@ def show(request):
         res_dict = runobj.get_detailed(ftype=ftype)
     # else:
     #     res_dict = c['results_detailed']
-    # if order_by_label:
-    #     res_dict.custom_order(order_by_label)
+    if order_by_label:
+        res_dict.custom_order(order_by_label, order_reverse)
     # if dbname:
     #     res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
@@ -1019,8 +1021,6 @@ def show(request):
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
     c.update({'results_detailed': res_dict})
-    for x in res_dict.get_values():
-        print x
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
     return render(request, 'identipy_app/results_detailed.html', c)
