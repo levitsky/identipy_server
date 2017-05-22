@@ -178,7 +178,7 @@ class ResultsDetailed():
         elif self.ftype == 'protein' and name == 'peptides':
             return forms.SubmitButtonField(label="", initial="").widget.render4('Peptides_link', value, 'show_peptides', dbname)
         elif self.ftype == 'peptide' and name == 'sequence':
-            return forms.SubmitButtonField(label="", initial="").widget.render4('PSMs_link', value, 'show_psms', dbname)
+            return forms.SubmitButtonField(label="", initial="").widget.render6(value, 'psm')
         else:
             return value
 
