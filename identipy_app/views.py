@@ -952,7 +952,7 @@ def search_details(request, pk, c={}):
 #   c.update(csrf(request))
     runobj = get_object_or_404(SearchGroup, id=pk)
 #   runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
-    request.session.setdefault('searchgroupid', runobj.id)
+    request.session['searchgroupid'] = runobj.id
     c.update({'searchgroup': runobj})
     print runobj.id, runobj.groupname
     sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
@@ -995,7 +995,8 @@ def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
     request.session['show_type'] = ftype
-    runid = request.session.get('searchrunid')
+    runid = request.GET.get('runid', request.session.get('searchrunid'))
+    request.session['searchrunid'] = runid
     searchgroupid = request.session.get('searchgroupid')
     order_by_label = request.GET.get('order_by', '')
     order_reverse = order_by_label == request.session.get('order_by')
@@ -1004,8 +1005,6 @@ def show(request):
     dbname = request.GET.get('dbname')
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     res_dict = runobj.get_detailed(ftype=ftype)
-    # else:
-    #     res_dict = c['results_detailed']
     if order_by_label:
         res_dict.custom_order(order_by_label, order_reverse)
     labelname = 'Select columns for %ss' % (ftype, )
