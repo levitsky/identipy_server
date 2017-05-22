@@ -7,11 +7,9 @@
 <form action="" method="post">{% csrf_token %}
         <div id="tab">
         
-            <h2><form action="" method="post">{% csrf_token %}
-        <p style="word-break:break-word">Search results: <input type="submit" class="link" name="search_details" value = {{ searchrun.searchgroup_parent.groupname|spacify }} />/<input type="submit" class="link" name="results_figure" value={{ searchrun.name|spacify }} />
-        <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}></p>
-            
+            <h2>
+        <p style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup_parent.id %}">{{ searchrun.searchgroup_parent.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a>
+           
 				{% if searchgroup %}
             <table id="processes_list" type="bordered">
                 <tr id="headings">

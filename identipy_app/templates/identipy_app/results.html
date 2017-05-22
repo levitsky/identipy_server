@@ -30,7 +30,6 @@
                 </tr>
             {% for searchrun in searchgroup.get_searchruns_all %}
                 <tr>
-                <form action="" method="post">{% csrf_token %}
                 <td><a class="td1" style="word-break:break-word" href="{% url 'identipy_app:figure' searchrun.id %}" class="link" name="results_figure">{{ searchrun.name|spacify }}</a></td>
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
                 <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
@@ -47,7 +46,6 @@
                     <td class="td2">{{ searchrun.numPeptides }}</td>
                     <td class="td2">{{ searchrun.numProteins }}</td>
                 {% endif %}
-                </form>
                 </tr>
             {% endfor %}
             </table>
