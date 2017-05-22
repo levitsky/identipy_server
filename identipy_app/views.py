@@ -37,12 +37,12 @@ sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, ResultsDetailed, get_size, Tasker, search_forms_from_request
+from .aux import save_mods, save_params_new, ResultsDetailed, get_size, Tasker
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
-from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm, SearchParamsForm1
-from .forms import search_params_form
+from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm#, SearchParamsForm1
+from .forms import search_params_form, search_forms_from_request
 
 
 search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
@@ -70,8 +70,8 @@ def add_forms(request, c):
 #       print c['SearchForms']['main'].fields
 #       print '(just kidding, reading file anyway)'
     else:
-#       c['SearchForms'] = search_forms_from_request(request)
-        c['SearchForms'] = search_params_form(request)
+        c['SearchForms'] = search_forms_from_request(request)
+#       c['SearchForms'] = search_params_form(request)
 #   print c['SearchForms']
 
 def form_dispatch(request):
@@ -83,7 +83,8 @@ def form_dispatch(request):
 #       request.POST['sendemail'] = None
 #       return email(request, c = c)
 #   print request.POST
-    forms = search_params_form(request)
+#   forms = search_params_form(request)
+    forms = search_forms_from_request(request)
 #   print forms
     redirect_map = {
             'Choose preloaded spectra': ('identipy_app:choose', 'spectra'),
@@ -740,15 +741,16 @@ def files_view(request, what):
                 if sforms['main'].is_valid():
 
                     data = sforms['main'].data.copy()
-                    data[key] = ','.join(mod.get_label() for mod in chosenfiles)
+                    data[u'main-'+key] = u','.join(mod.get_label() for mod in chosenfiles)
                     sforms['main'].data = data
+                    print sforms['main'].data
 #                   print forms['main'].data
 #                   sforms['main'].fields[key] = django.forms.CharField(disabled=True, required=False,
 #                           initial=','.join(mod.get_label() for mod in chosenfiles), label=SearchParamsForm1._labels[key])
 
                     print '---------------------'
 #                   print forms['main']
-                    print sforms['main'].fields['fixed'].__dict__
+#                   print sforms['main'].fields['variable'].__dict__
                 request.session['bigform'] = pickle.dumps(sforms)
             if what == 'params':
                 paramfile = chosenfiles[0]
