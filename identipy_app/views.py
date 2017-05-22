@@ -946,9 +946,9 @@ def runidentiprot(request):
     return redirect('identipy_app:getstatus')
 
 
-def search_details(request, pk):
+def search_details(request, pk, c={}):
 #   django.db.connection.close()
-    c = {}
+    # c = {}
 #   c.update(csrf(request))
     runobj = get_object_or_404(SearchGroup, id=pk)
 #   runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
@@ -958,6 +958,7 @@ def search_details(request, pk):
     sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
     if sruns.count() == 1:
 #       return results_figure(request, sruns[0].id)
+        request.session['searchrunid'] = sruns[0].id
         return redirect('identipy_app:figure', sruns[0].id)
     return render(request, 'identipy_app/results.html', c)
 
@@ -989,33 +990,41 @@ def showparams(request, searchgroupid, c):
 
 
 
-def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=False, dbname=False):
+# def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=False, dbname=False):
+def show(request):
+    c = {}
+    ftype = request.GET['show_type']
+    runid = request.session.get('searchrunid')
+    searchgroupid = request.session.get('searchgroupid')
+    print runid
+    print ftype
     django.db.connection.close()
-    c = c
-    c.update(csrf(request))
+    upd = False
     if not upd:
-        runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
+        runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
         res_dict = runobj.get_detailed(ftype=ftype)
-    else:
-        res_dict = c['results_detailed']
-    if order_by_label:
-        res_dict.custom_order(order_by_label)
-    if dbname:
-        res_dict.filter_dbname(dbname)
+    # else:
+    #     res_dict = c['results_detailed']
+    # if order_by_label:
+    #     res_dict.custom_order(order_by_label)
+    # if dbname:
+    #     res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
-    if request.POST.get('relates_to'):
+    if request.POST.get('choices'):
         res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
         if res_dict.labelform.is_valid():
             whitelabels = [x for x in res_dict.labelform.cleaned_data.get('relates_to')]
             res_dict.custom_labels(whitelabels)
-            request.POST['relates_to'] = False
-    # else:
+            request.POST['choices'] = False
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
-    res_dict.labelform.fields['relates_to'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
+    res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
     c.update({'results_detailed': res_dict})
-    runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
-    c.update({'searchrun': runobj})
+    for x in res_dict.get_values():
+        print x
+    runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
+    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
     return render(request, 'identipy_app/results_detailed.html', c)
+    # return render(request, 'identipy_app/results_detailed.html', c)
 
 def get_custom_csv(request, c):
     tmpfile_name = c['searchrun'].searchgroup_parent.groupname + '_' + c['searchrun'].name() + '_' + c['results_detailed'].ftype + 's_selectedfields.csv'
