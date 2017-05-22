@@ -3,12 +3,12 @@
 {% block content %}
 
 <form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
-    <div id="left_block" class="vert_block leftside">
+    <div id="left_block" class="vert_block leftside centered">
         {% if chosenspectra %}
         <h2>Selected spectra:</h2>
         <table type="bordered">
              <tr id="headings">
-                 <th width="60%">Filename</th>
+                 <th width="50%">Filename</th>
                  <th width="15%">Size</th>
                  <th>Upload date</th>
               </tr>
@@ -30,7 +30,7 @@
    <table type="bordered">
        <h2>Selected protein database file:</h2>
        <tr id="headings">
-           <th width="60%">Filename</th>
+           <th width="50%">Filename</th>
            <th width="15%">Size</th>
            <th>Upload date</th>
        </tr>
@@ -48,16 +48,16 @@
             
    <div id="upload_fasta"><h2><input type="submit" class="btn" value="Choose preloaded protein database file" name="submit_action"></h2></div>
         <br>
-        <h2><div id="run_identiprot">
+        <div id="run_identiprot">
         <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/></span>
          <div id="runbtn"><input type="submit" class="backbtn" value="RUN IdentiPROT" name="submit_action"></div>
-    </div></h2>
+    </div>
    </div>
 
 
     
 
-    <div id="param_block" class="vert_block rightside">
+    <div id="param_block" class="vert_block rightside centered">
         <h2 id="paramtitle">Specify search parameters</h2>
                     
         <div id="upload_parameters">
