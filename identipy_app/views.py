@@ -92,12 +92,13 @@ def form_dispatch(request):
             'Choose preloaded protein database file': ('identipy_app:choose', 'fasta'),
             'select fixed modifications': ('identipy_app:choose', 'fmods'),
             'select potential modifications': ('identipy_app:choose', 'vmods'),
-            'add custom cleavage rule': ('identipy_app:new_protease',),
+            'enzyme': ('identipy_app:new_protease',),
             'RUN IdentiPROT': ('identipy_app:run',),
             'save parameters': ('identipy_app:save',),
             'load parameters': ('identipy_app:choose', 'params'),
             'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
             }
+    print request.POST.items()
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
     request.session['runname'] = request.POST.get('runname')
