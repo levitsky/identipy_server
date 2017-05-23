@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
 import django.db
-import urllib
+
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
@@ -30,6 +30,7 @@ import random
 import pickle
 import sys
 from multiprocessing import Process
+import urllib
 
 from pyteomics import parser, mass
 sys.path.insert(0, '../identipy/')
@@ -42,7 +43,7 @@ from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, Res
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
 from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm#, SearchParamsForm1
-from .forms import search_params_form, search_forms_from_request
+from .forms import search_forms_from_request#, search_params_form
 
 
 search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
@@ -93,13 +94,14 @@ def form_dispatch(request):
             'select potential modifications': ('identipy_app:choose', 'vmods'),
             'add custom cleavage rule': ('identipy_app:new_protease',),
             'RUN IdentiPROT': ('identipy_app:run',),
-            'save parameters': (),
-            'load parameters': (),
-            'Search previous runs by name': ('identipy_app:getstatus', urllib.quote_plus(request.POST.get('search_button') or '')),
+            'save parameters': ('identipy_app:save',),
+            'load parameters': ('identipy_app:choose', 'params'),
+            'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
             }
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
     request.session['runname'] = request.POST.get('runname')
+    request.session['paramsname'] = request.POST.get('paramsname')
 #   request.session['next'] = ['searchpage']
     return redirect(*redirect_map[request.POST['submit_action']])
 #   if request.user.is_authenticated():
@@ -319,6 +321,13 @@ def form_dispatch(request):
 #       c['current'] = 'loginform'
 #       c.update(csrf(request))
 #       return render(request, 'identipy_app/login.html', c)
+
+
+def save_parameters(request):
+    forms = pickle.loads(request.session['bigform'])
+    save_params_new(forms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
+    messages.add_message(request, messages.INFO, 'Parameters saved')
+    return redirect('identipy_app:searchpage')
 
 def index(request):
     # TODO: fix the double "if logged in" logic
@@ -758,7 +767,7 @@ def files_view(request, what):
                 dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type, ))
                 shutil.copy(parname, dst)
                 request.session['paramtype'] = paramfile.type
-                request.session['bigform'] = pickle.dumps(search_forms_from_request(request))
+                request.session['bigform'] = pickle.dumps(search_forms_from_request(request, ignore_post=True))
             else:
                 request.session['chosen_' + what] = chosenfilesids
             return redirect('identipy_app:searchpage')
