@@ -66,8 +66,8 @@ sftype_map = {
 }
 
 params_map = {
-    'enzyme': 'enzyme:\t' + SubmitButtonField(label="", initial="").widget.render(
-        'enzymelink', 'add custom cleavage rule', 'add_protease'),
+    'enzyme': SubmitButtonField(label="", initial="").widget.render(
+        'enzymelink', 'enzyme', 'submit_action'),
     'fixed': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select fixed modifications', 'submit_action'),
     'variable': SubmitButtonField(label="", initial="").widget.render('modiflink', 'select potential modifications', 'submit_action'),
     'show empty': ('show unmached spectra in results', ''),
