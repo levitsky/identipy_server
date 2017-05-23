@@ -92,12 +92,13 @@ def form_dispatch(request):
             'Choose preloaded protein database file': ('identipy_app:choose', 'fasta'),
             'select fixed modifications': ('identipy_app:choose', 'fmods'),
             'select potential modifications': ('identipy_app:choose', 'vmods'),
-            'add custom cleavage rule': ('identipy_app:new_protease',),
+            'enzyme': ('identipy_app:new_protease',),
             'RUN IdentiPROT': ('identipy_app:run',),
             'save parameters': ('identipy_app:save',),
             'load parameters': ('identipy_app:choose', 'params'),
             'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
             }
+    print request.POST.items()
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
     request.session['runname'] = request.POST.get('runname')
@@ -432,15 +433,27 @@ def delete_search(request):
 def status(request, name_filter=False):
 #   django.db.connection.close()
     c = {}
-#   c.update(csrf(request))
-    res_page = c.setdefault('res_page', 1)
-    c.setdefault('search_run_filter', urllib.unquote_plus(name_filter) if name_filter else name_filter)
+    request.session.setdefault('res_page', 1)
+    if request.method == 'GET':
+        request.session['res_page'] += int(request.GET.get('res_page', 0))
+        request.session['res_page'] = max(1, request.session['res_page'])
+    res_page = request.session.get('res_page', 1)
+    if name_filter:
+        nf = urllib.unquote_plus(name_filter)
+        request.session['name filter'] = nf
+    else:
+        nf = request.session.get('name_filter', False)
+    c.setdefault('search_run_filter', nf)
     if c['search_run_filter']:
-        processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).count()) / 10))
+        res_page = min(res_page, c['max_res_page'])
+        processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
     else:
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id).count()) / 10))
+        res_page = min(res_page, c['max_res_page'])
         processes = SearchGroup.objects.filter(user=request.user.id).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
+    request.session['res_page'] = res_page
+    c.setdefault('res_page', res_page)
     c.update({'processes': processes})
     c['current'] = 'get_status'
     return render(request, 'identipy_app/status.html', c)
