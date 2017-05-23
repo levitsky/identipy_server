@@ -11,7 +11,7 @@
            
 				{% if searchgroup %}
             <table id="processes_list" type="bordered">
-                <tr id="headings">
+                <tr id="headers">
                     <th>Search name</th>
                     <th>PSMs</th>
                     <th>Peptides</th>
@@ -45,7 +45,7 @@
 		{% endif %}
 
           <form action="" method="post">{% csrf_token %}      {% if results_detailed %}
-           <table width="100%"><tr><td width="80%"> 
+           <table width="100%"><tr><td width="80%" class="floating"> 
             <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
             {{ results_detailed.labelform.as_p }}</td>
@@ -55,12 +55,12 @@
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
 -            <table class="header" id="processes_list" type="bordered">
--                <tr id="headings">
+-                <tr id="headers">
 -                   {% for label in results_detailed.get_labels %}
 -                    <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}">{{ label|spacify }}</a></th>
 -                   {% endfor %}
 -                </tr></table>
-                <table class="dt" id="processes_list" type="bordered"><tr id="headings">
+                <table class="dt" id="processes_list" type="bordered"><tr id="headers">
 			        {% for label in results_detailed.get_labels %}
                     <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}">{{ label|spacify }}</a></th>
 			        {% endfor %}

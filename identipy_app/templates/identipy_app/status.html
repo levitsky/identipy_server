@@ -33,7 +33,7 @@
 </form>
 <form action="{% url 'identipy_app:delete_search' %}" method="post">{% csrf_token %}
 	<table type="bordered" id="processes_list">
-        <tr id="headings">
+        <tr id="headers">
             <th><input type="submit" class="btn red" value="Delete selected" name="submit_action"/></th>
             <th>Search name</th>
             <th>Search date</th>
