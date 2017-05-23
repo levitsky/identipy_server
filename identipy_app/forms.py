@@ -289,39 +289,42 @@ class SearchParametersForm(forms.Form):
 #    pass #TODO
 
 from identipy.utils import CustomRawConfigParser
-def search_params_form(request):
-    paramtype = request.session['paramtype']
-    assert 1 <= paramtype <= 3, "Invalid paramtype"
-    mainformclass = SearchParametersForm
-    postform = None
-    if request.method == 'POST':
-        mainform = mainformclass(request.POST, user=request.user.id)
-        if paramtype == 3:
-#           postform = PostSearchForm(request.POST)
-            postform = SearchParametersForm(request.POST, sftype='postsearch')
-    else:
-        mainform = mainformclass(user=request.user.id)
-        if paramtype == 3:
-#           postform = PostSearchForm()
-            postform = SearchParametersForm(sftype='postsearch')
-    return {'main': mainform, 'postsearch': postform}
+#def search_params_form(request):
+#    paramtype = request.session['paramtype']
+#    assert 1 <= paramtype <= 3, "Invalid paramtype"
+#    mainformclass = SearchParametersForm
+#    postform = None
+#    if request.method == 'POST':
+#        mainform = mainformclass(request.POST, user=request.user.id)
+#        if paramtype == 3:
+##           postform = PostSearchForm(request.POST)
+#            postform = SearchParametersForm(request.POST, sftype='postsearch')
+#    else:
+#        mainform = mainformclass(user=request.user.id)
+#        if paramtype == 3:
+##           postform = PostSearchForm()
+#            postform = SearchParametersForm(sftype='postsearch')
+#    return {'main': mainform, 'postsearch': postform}
 
-def search_forms_from_request(request):
+def search_forms_from_request(request, ignore_post=False):
 #   import models
-    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
-            user=request.user.id, type=request.session['paramtype'])
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('utf-8'))
     sForms = {}
+    kwargs = _kwargs_for_search_form(request)
     for sftype in ['main', 'postsearch']:
-        kwargs = dict(raw_config=raw_config,
-                user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
-        if request.method == 'POST':
+        kwargs.update(sftype=sftype, prefix=sftype)
+        if request.method == 'POST' and not ignore_post:
             sForms[sftype] = SearchParametersForm(request.POST, **kwargs)
         else:
             sForms[sftype] = SearchParametersForm(**kwargs)
     return sForms
 
+def _kwargs_for_search_form(request):
+    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
+            user=request.user.id, type=request.session['paramtype'])
+    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config.read(paramobj.docfile.name.encode('utf-8'))
+    kwargs = dict(raw_config=raw_config, user=request.user, label_suffix='')
+    return kwargs
 
 class ContactForm(forms.Form):
     subject = forms.CharField(required=True)
