@@ -2,20 +2,7 @@
 {% block title %}Add custom modification{% endblock%}
 {% block content %}
 
-{% comment %}
-<div id="menu"><form action="" method="post">{% csrf_token %}
-        <ul>
-            
-        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
-        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
-        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
-        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-            
-      </ul></form>
-    </div>
-{% endcomment %}
 
-<div id="tab">
 <form method="post" id="selectionform">{% csrf_token %}
     <h2>Add custom modification</h2>
     <div>
@@ -56,11 +43,10 @@ labels '[' and ']' mean n-terminal and c-terminal modifications
                     <input type="submit" class="btn" value="submit" name="action">
                 </td>
                 <td class="rightcolumn">
-                    <input type="submit" class="btn" value="cancel" name="action">
+                    <input type="submit" class="btn red" value="cancel" name="action">
                 </td>
                    
         </table>
     </div>
 </form>
-</div>  
 {% endblock %}
