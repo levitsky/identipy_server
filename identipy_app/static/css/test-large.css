@@ -229,6 +229,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
     font-family:sans-serif;
     color:#000099;
     font-weight: inherit;
+    padding:0;
     
 }
 .link:hover, a:hover{
@@ -270,9 +271,7 @@ input[type="file"]{
     font-size:1.5em;
 }
 
-#modiflink{
-    padding:0
-}
+
 /*********************************************************************************/
 /* Divs                                                                          */
 /*********************************************************************************/
@@ -443,7 +442,16 @@ input[id^="id_main"]{
     background-color:#fff;
     }
 .header+* {margin-top:-1em;}
+.leftcolumn{
+    width:50%;
+    text-align:right;
+    padding:0.1em 1em;
+}
 
+.rightcolumn{
+    text-align:left;
+    padding: 0.1em 1em;
+}
 /*********************************************************************************/
 /* lists                                                                         */
 /*********************************************************************************/
