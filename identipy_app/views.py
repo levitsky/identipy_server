@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
 import django.db
-
+import urllib
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
@@ -95,8 +95,9 @@ def form_dispatch(request):
             'RUN IdentiPROT': ('identipy_app:run',),
             'save parameters': (),
             'load parameters': (),
-            'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
+            'Search previous runs by name': ('identipy_app:getstatus', urllib.quote_plus(request.POST.get('search_button'))),
             }
+    print urllib.quote_plus(request.POST.get('search_button'))
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
     request.session['runname'] = request.POST.get('runname')
@@ -425,7 +426,7 @@ def status(request, name_filter=False):
     c = {}
 #   c.update(csrf(request))
     res_page = c.setdefault('res_page', 1)
-    c.setdefault('search_run_filter', name_filter)
+    c.setdefault('search_run_filter', urllib.unquote_plus(name_filter) if name_filter else name_filter)
     if c['search_run_filter']:
         processes = SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).order_by('date_added')[::-1][10*(res_page-1):10*res_page]
         c['max_res_page'] = int(math.ceil(float(SearchGroup.objects.filter(user=request.user.id, groupname__contains=c['search_run_filter']).count()) / 10))
