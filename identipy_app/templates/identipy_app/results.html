@@ -2,17 +2,7 @@
 {% block title %}Searches: {{searchgroup.groupname}}{% endblock%}
 {% block content %}
 {% load stringfilter %}
-        <div id="menu"><form action="" method="post">{% csrf_token %}
-        <ul>
-            
-        <li><div id="searchpage"><input type="submit" class="menubar" value="Start search" name="searchpage"></div></li>
-        <li><div id="upload"><input type="submit" class="menubar" value="Upload files" name="uploadform"></div></li>
-        <li><div id="get_status"><input type="submit" class="menubar" value="Search history" name="getstatus"></div></li>
-        <li><div id="contacts"><input type="submit" class="menubar" value="contacts" name="contacts"></div></li>
-            
-      </ul></form>
-    </div>
-
+        
 <div id="tab">
         
 		{% if searchgroup %}
@@ -54,7 +44,7 @@
 		{% endif %}
 
         
-        <div id="colored centered">
+        <div id="colored" class="centered">
         <form action="" method="post">{% csrf_token %}
          Download:
         <input type="submit" class="btn" value="csv files" name="download_csv">
@@ -63,7 +53,7 @@
         <input type="submit" class="btn" value="show parameters" name="showparams">
         </form>
          </div> 
-            <form action="" method="post">{% csrf_token %}
+            <form action="" method="post" class="centered">{% csrf_token %}
         
             <div id="get_status" class="centered">
                 <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
