@@ -919,7 +919,7 @@ def runidentiprot(request):
         p.start()
 
     c = {}
-    if not 'runname' in request.session:
+    if not request.session.get('runname'):
         c['runname'] = time.strftime("%Y-%m-%d %H:%M:%S")
     else:
         c['runname'] = request.session['runname']
@@ -1009,6 +1009,8 @@ def show(request):
     res_dict = runobj.get_detailed(ftype=ftype)
     if order_by_label:
         res_dict.custom_order(order_by_label, order_reverse)
+    if dbname:
+        res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
     if request.POST.get('choices'):
         res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
@@ -1018,8 +1020,6 @@ def show(request):
             # request.POST['choices'] = False
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
-    if dbname:
-        res_dict.filter_dbname(dbname)
     c.update({'results_detailed': res_dict})
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
