@@ -34,15 +34,12 @@ class SubmitButtonWidget(forms.Widget):
         # href="http://www.uniprot.org/uniprot/%s">%s</a>' % (,
         # html.escape(name))
 
-    def render4(self, id, name, value, dbname, attrs=None):
-        return '<button id="%s" type="submit" class="link" value="%s" name="%s">%s</button>' % (html.escape(id), html.escape(dbname), html.escape(value), html.escape(name))
-
     def render5(self, name):
         return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (html.escape(name.split('OS=')[0]), html.escape(name))
 
-    def render6(self, dbname, show_type):
-        # return '<button id="%s" type="submit" class="link" value="%s" name="%s">%s</button>' % (html.escape(id), html.escape(dbname), html.escape(value), html.escape(name))
-        return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s">%s</a>' % (reverse("identipy_app:show"), dbname, show_type, dbname)
+    def render6(self, dbname, show_type, value):
+        return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s">%s</a>' % (reverse("identipy_app:show"), dbname, show_type, value)
+
 
 class SubmitButtonField(forms.Field):
     def __init__(self, *args, **kwargs):
