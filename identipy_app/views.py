@@ -1021,11 +1021,16 @@ def show(request):
     if dbname:
         res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
+    sname = 'whitelabels' + ' ' + ftype
     if request.POST.get('choices'):
         res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
         if res_dict.labelform.is_valid():
             whitelabels = [x for x in res_dict.labelform.cleaned_data.get('choices')]
+            request.session[sname] = whitelabels
             res_dict.custom_labels(whitelabels)
+    elif request.session.get(sname, ''):
+        whitelabels = request.session.get(sname)
+        res_dict.custom_labels(whitelabels)        
             # request.POST['choices'] = False
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
