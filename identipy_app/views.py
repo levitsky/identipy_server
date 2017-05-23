@@ -1010,7 +1010,9 @@ def show(request):
     request.session['searchrunid'] = runid
     searchgroupid = request.session.get('searchgroupid')
     order_by_label = request.GET.get('order_by', '')
-    order_reverse = order_by_label == request.session.get('order_by')
+    order_reverse = request.session.get('order_reverse', False)
+    order_reverse = not order_reverse if order_by_label == request.session.get('order_by') else order_reverse
+    request.session['order_reverse'] = order_reverse
     request.session['order_by'] = order_by_label
     django.db.connection.close()
     dbname = request.GET.get('dbname')
