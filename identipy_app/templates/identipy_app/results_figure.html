@@ -6,12 +6,11 @@
         <form action="" method="post">{% csrf_token %}
         
         
-            <h2><p style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup_parent.id %}">{{ searchrun.searchgroup_parent.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a>
-        </p></h2>
+            <h2> <p style="word-break:break-word">Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname|spacify }} name="search_details">/{{ searchrun.name|spacify}}</p></h2>
         
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
-                <tr id="headings">
+                <tr id="headers">
                     <th>Search name</th>
                     <th>PSMs</th>
                     <th>Peptides</th>
@@ -26,7 +25,7 @@
             <tr>
             <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
             {% if searchrun.numPSMs %}
-                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=psm">{{ searchrun.numPSMs }}</a></td>
+                <td><a class="td2" class="link" value={{ searchrun.numPSMs }} href="{% url 'identipy_app:show' %}?show_type=psm">{{ searchrun.numPSMs }}</a></td>
                 <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=peptide">{{ searchrun.numPeptides }}</a></td>
                 <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=protein">{{ searchrun.numProteins }}</a></td>
 		    {% else %}
