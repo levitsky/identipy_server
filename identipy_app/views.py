@@ -95,9 +95,8 @@ def form_dispatch(request):
             'RUN IdentiPROT': ('identipy_app:run',),
             'save parameters': (),
             'load parameters': (),
-            'Search previous runs by name': ('identipy_app:getstatus', urllib.quote_plus(request.POST.get('search_button'))),
+            'Search previous runs by name': ('identipy_app:getstatus', urllib.quote_plus(request.POST.get('search_button') or '')),
             }
-    print urllib.quote_plus(request.POST.get('search_button'))
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
     request.session['runname'] = request.POST.get('runname')
