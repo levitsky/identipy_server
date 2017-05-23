@@ -262,7 +262,14 @@ input[type="file"]{
 }
 .searchname{
     font-size:1.5em;
+    text-align: center;
 }
+#local_import textarea{
+    margin:0;
+    padding:0;
+    font-size:1.5em;
+}
+
 /*********************************************************************************/
 /* Divs                                                                          */
 /*********************************************************************************/
@@ -366,7 +373,7 @@ table[type="bordered"]{
     background-color:#fff;
     border: 2px solid #BBBBBB;
     margin-left:0;
-    margin-top:1em;
+    margin-top:0;
     margin-bottom:1em;
     box-sizing: border-box;
     
@@ -425,10 +432,14 @@ input[id="id_fixed"], input[id="id_variable"]{
    
 }
 
-#local_import textarea{
-    margin:0;
-    padding:0;
-    font-size:1.5em;
+
+.mega {
+    height:15em;
+    
+    overflow: auto;
+    background: #eee;
+    position:relative;
+    
 }
 /*********************************************************************************/
 /* lists                                                                         */
@@ -441,4 +452,27 @@ div.select{
 
 #id_choices{
     padding:0;
+}
+
+
+
+#legend{
+        display: inline;
+    width: 20%;
+    vertical-align: middle;
+    margin-left: 5%;
+}
+
+#id_choices{
+    margin-top:0;
+    margin-left:0;
+    font-size:1em;
+    list-style-type:none;
+    text-align:left;
+}
+
+#id_choices li{
+    padding:0.3em ;
+    float:left;
+    padding-left:0;
 }
