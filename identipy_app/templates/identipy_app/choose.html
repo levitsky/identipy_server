@@ -21,7 +21,7 @@
     {% if topbtn %}
           <div id="vert_block" >
                 <input class = "btn" type="submit" value="submit" name="submit_action">
-                <input class = "btn" type="submit" value="cancel" name="submit_action">
+                <a class = "btn" type="submit" href="{% url 'identipy_app:searchpage' %}">cancel</a>
                 <input class = "btn red" type="submit" value="delete" name="submit_action">
                 {% if used_class != 'mods' %}
                     <input type="submit" class="btn" value="upload new files" name="submit_action">

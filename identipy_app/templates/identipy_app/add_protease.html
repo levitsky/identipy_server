@@ -30,7 +30,7 @@
             
             <tr>
                 <td class="leftcolumn">
-                    <input type="submit" class="btn" value="submit" name="sbm_protease">
+                    <input type="submit" class="btn" value="submit" name="submit_action">
                 </td>
                 <td class="rightcolumn">
                     <a class="btn" href="{% url 'identipy_app:searchpage' %}">cancel</a>
@@ -38,10 +38,12 @@
                    
         </table>
     </div>
+</form>
         
 
+<form method="post" id="selectionform">{% csrf_token %}
    <div id ="delprotease">
-       <input class = "btn red" type="submit" value="Delete" name="del_protease">
+       <input class = "btn red" type="submit" value="delete" name="submit_action">
         {{ proteases.as_table }}
    </div>
 </div>

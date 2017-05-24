@@ -98,7 +98,9 @@ def form_dispatch(request):
             'load parameters': ('identipy_app:choose', 'params'),
             'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
             }
+
     print request.POST.items()
+    print request.POST['submit_action'], '!!!'
     request.session['redirect'] = redirect_map[request.POST['submit_action']]
     request.session['bigform'] = pickle.dumps(forms)
     request.session['runname'] = request.POST.get('runname')
@@ -629,20 +631,30 @@ def add_protease(request):
 #   django.db.connection.close()
     c = {}
 #   c.update(csrf(request))
-
     cc = []
     for pr in Protease.objects.filter(user=request.user):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
-#   if delete:
-#       if request.POST.get('relates_to'):
-#           proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
-#           if proteases.is_valid():
-#               for obj_id in proteases.cleaned_data.get('relates_to'):
-#                   obj = Protease.objects.get(user=request.user, id=obj_id)
-#                   obj.delete()
-#               request.POST['relates_to'] = False
-#           return add_protease(request, c, sbm=sbm)
+    if request.POST.get('submit_action', '') == 'delete':
+        # request.POST = request.POST.copy()
+        if request.POST.get('choices'):
+            proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
+            if proteases.is_valid():
+                for obj_id in proteases.cleaned_data.get('choices'):
+                    obj = Protease.objects.get(user=request.user, id=obj_id)
+                    obj.delete()
+        # print type(proteases)
+        # for p in proteases:
+        #     print p
+        cc = []
+        for pr in Protease.objects.filter(user=request.user):
+            cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
+        proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
+                # request.POST['choices'] = False
+                # request.POST.pop('submit_action')
+        c['proteaseform'] = AddProteaseForm()
+        c['proteases'] = proteases
+        return render(request, 'identipy_app/add_protease.html', c)
 
     proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
     if request.method == 'POST':
