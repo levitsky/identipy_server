@@ -4,15 +4,13 @@
 ::-webkit-scrollbar { 
    display:always;
 }
-body
-	{
-        background-image: url(../image/background.jpg);
-		background-position: top;
-		background-size: cover;
-        font-family:sans-serif,sans-serif;
-        font-size:0.8em;
-	}
-*{margin:0;padding:0;}
+body {
+    background-image: url(../image/background.jpg);
+    background-size: cover;
+    font-family:sans-serif;
+    overflow-y:scroll;
+}
+
 
 /*********************************************************************************/
 /* Session                                                                       */
@@ -21,7 +19,7 @@ body
 #session
 {
   position: absolute;
-	right: 1em;
+	right: 1.5em;
 	top: 1em;
     font-size: 1em;
     color: #212121;
@@ -32,33 +30,23 @@ body
 /*********************************************************************************/
 /* Logo                                                                          */
 /*********************************************************************************/
-#logo{
-  display: inline;
-  margin:0;
-  
-  margin-bottom:2%;
-  transition:opacity 1s;
-  -webkit-transition:opacity 1s;
-}
+
 #logo h1
 {
 	display: inline-block;
 	font-size: 4em;
 	font-weight: 700;
-	color: /*basic-blue*/#000099;
+	color: #000099;
 	padding-top: 0.6em;
     padding-left:3%;
-    padding-bottom:0.3em;
-    margin-top:0;
 }
-
-
 
 #logo a
 {
 	text-decoration: none;
-	color: /*basic-blue*/#000099;
+	color: #000099;
 }
+
 /*********************************************************************************/
 /* Menu                                                                          */
 /*********************************************************************************/
@@ -68,9 +56,7 @@ body
 	position: absolute;
     display: inline-block;
     right: 0;
-	top: 4.4em;
-
-
+	top: 6em;
 
 }
 
@@ -84,34 +70,27 @@ body
 
 
 .menubar{
-    background: /*light-bg*/#FFFFFF;
-    border: 0;
-    display: inline;
-	padding: 0em 1em;
+    background: #FFFFFF;
+    border:0;
+	padding: 0em 1.5em;
 	letter-spacing: 0.10em;
 	text-decoration: none;
 	font-size: 0.9em;
 	text-transform: uppercase;
-    font-weight: 300;
 	line-height: 3em;
-	color: /*grey*/#999999;
+	color: #999999;
     cursor: pointer;
 }
 
-.current{
-    color: /*basic-blue*/#000099;
-    
-}
 
-.menubar:hover, .menubar:active, .menubarcurrent:active
+
+.menubar:hover, .menubar:active, .current:active
 {
-    background: /*light-bg*/#FFF;
-    color: /*light-blue*/#4f4fdf;
+    background: #FFF;
+    color: #4f4fdf;
 }
-
-.current:hover{
-    color: /*basic-blue*/#000099;
-    
+.current, .current:hover{
+    color: #000099;
 }
 
 /*********************************************************************************/
@@ -120,11 +99,11 @@ body
 
 .messages{
     list-style-type: none;
-    margin-left:3%;
     font-size:1.5em;
-    color:#AE0066;
+    color:/*message&warning redish*/#AE0066;
     text-decoration: underline;
     margin-bottom:1em;
+    padding:0;
 }
 /*********************************************************************************/
 /* Login                                                                          */
@@ -135,12 +114,14 @@ body
   position:relative;
   width:80%;
   left:10%;
+  
   margin-bottom:2em;
-  background:/*pale-blue*/#eeeeff;
+  background:#eeeeff;
 }
 
+
 #login h1{
-  background:/*basic-blue*/#000099;
+  background:#000099;
   padding:20px 5px;
   font-size:140%;
   font-weight:400;
@@ -149,7 +130,7 @@ body
 }
 
 #login h2{
-  background:/*warning-red*/#cc5555;
+  background:#7F004A;
   padding:20px 0;
   font-size:140%;
   font-weight:400;
@@ -170,7 +151,7 @@ body
   cursor:pointer;
   border:0;
   margin:0.3em 0;
-  text-decoration: none;
+  text-decoration:none;
 }
 
 .btn:hover{
@@ -199,14 +180,13 @@ form{
 input[type="email"],input[type="password"], input[id="email"], textarea{
   width:80%;
   margin:6%;
-  background:/*light-bg*/#FFFFFF;
+  background:#FFFFFF;
   margin-top: 4%; 
-  border:1px solid /*light-grey*/#ccc;
+  border:1px solid #ccc;
   padding:4%;
   font-size:95%;
   color:#555;
 }
-
 #loginbutton{
     display: block;
     width:70%;
@@ -233,6 +213,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
 
 .backbtn:hover{
     background:#FFBF00;
+    color:#fff;
 }
 .link, a{
     font-size: 1em;
@@ -256,8 +237,9 @@ input[type="file"]{
     z-index:1;
     opacity:0;
     cursor:pointer;
-    width:150pt;
-    height:25pt;
+    width:300pt;
+    height:40pt;;
+    border:1;
     
    
 }
@@ -267,12 +249,13 @@ input[type="file"]{
     z-index:0;
     top:0;
     cursor:pointer;
-    width:150pt;
-    height: 25pt;
+    width:300pt;
+    height: 40pt;
     font-size:1.5em;
     background:#000099;
     color:#FFF;
     border:0;
+    
 }
 .searchname{
     font-size:1.5em;
@@ -281,7 +264,7 @@ input[type="file"]{
 #local_import textarea{
     margin:0;
     padding:0;
-    font-size:1.2em;
+    font-size:1.5em;
 }
 
 
@@ -289,27 +272,25 @@ input[type="file"]{
 /* Divs                                                                          */
 /*********************************************************************************/
 div.inthemiddle {
-    position:relative;
+    position: relative;
     width: 80%;
-    margin:0 auto;
-    margin-top:50px;
+    margin:auto;
+    margin-top:70px;
     margin-bottom:2%;
     background-color: #ffffff;
-    border: 0;
-    
-   
-    
 }
+
 div.inthemiddle h2{
-    position:relative;
-    margin-bottom:0 ;
+    /*position:relative;*/
+    display:block;
+    margin-bottom:0.5em ;
     margin-top:0;
     width:100%;
     text-align:center;
-    font-size: 1.6em;
+    font-size: 1.5em;
     color:#555555;
-    font-weight:bold;
-    text-indent:0;
+   /* font-weight:bold;
+    text-indent:0;*/
         
 }
 .inthemiddle img{
@@ -327,7 +308,7 @@ div.inthemiddle h2{
     overflow:hidden;
 }
 
-.intable_left{
+.leftside, .intable_left{
     float:left;
     width:50%;
     margin-bottom:1em;
@@ -336,7 +317,7 @@ div.inthemiddle h2{
     
     text-align: left;
 }
-.intable_right{
+.rightside, .intable_right{
     top:0;
     width:50%;
     margin-left:50%;
@@ -417,7 +398,7 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 .searchparams tr td:first-child, .searchparams tr th:first-child{
     text-align:right;
     padding:0 1em;
-    width:60%;
+    width:70%;
 }
 select{
     width:102px; 
