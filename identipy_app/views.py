@@ -1030,6 +1030,9 @@ def showparams(request, searchgroupid, c):
 def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
+    dbname = request.GET.get('dbname', '')
+    if not dbname and ftype != request.session['show_type']:
+        request.session['dbname'] = ''
     request.session['show_type'] = ftype
     runid = request.GET.get('runid', request.session.get('searchrunid'))
     request.session['searchrunid'] = runid
@@ -1040,12 +1043,13 @@ def show(request):
     request.session['order_reverse'] = order_reverse
     request.session['order_by'] = order_by_label
     django.db.connection.close()
-    dbname = request.GET.get('dbname')
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     res_dict = runobj.get_detailed(ftype=ftype)
     if order_by_label:
+        dbname = request.session.get('dbname', '')
         res_dict.custom_order(order_by_label, order_reverse)
     if dbname:
+        request.session['dbname'] = dbname
         res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
     sname = 'whitelabels' + ' ' + ftype
