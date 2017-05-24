@@ -24,7 +24,7 @@
         <h2>MS files not selected</h2>
         {% endif %}
 
-   <h2><input type="submit" class="btn" value="Choose preloaded spectra" name="submit_action"></h2><br>
+   <h2><input type="submit" class="btn" value="Select spectra" name="submit_action"></h2><br>
         
    {% if chosenfasta %}
    <table type="bordered">
@@ -46,24 +46,21 @@
         <h2>Protein database file not selected</h2>
    {% endif %}
             
-   <div id="upload_fasta"><h2><input type="submit" class="btn" value="Choose preloaded protein database file" name="submit_action"></h2></div>
+   <div id="upload_fasta"><h2><input type="submit" class="btn" value="Select protein database" name="submit_action"></h2></div>
         <br>
         <div id="run_identiprot">
-        <span title="run name should not contain spaces"><input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/></span>
+        <input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/>
          <div id="runbtn"><input type="submit" class="backbtn" value="RUN IdentiPROT" name="submit_action"></div>
     </div>
    </div>
 
-
-    
-
-    <div id="param_block" class="vert_block rightside centered">
+   <div id="param_block" class="vert_block rightside centered">
         <h2 id="paramtitle">Specify search parameters</h2>
                     
         <div id="upload_parameters">
-            <a class="menubar {% if paramtype == 1 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=1">Minimal</a>
-            <a class="menubar {% if paramtype == 2 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=2">Medium</a>
-            <a class="menubar {% if paramtype == 3 %}current{% endif %}" href="{% url 'identipy_app:searchpage' %}?params=3">Advanced</a>
+            <input type='submit' class="menubar {% if paramtype == 1 %}current{% endif %}" name='submit_action' value='Minimal'>
+            <input type='submit' class="menubar {% if paramtype == 2 %}current{% endif %}" name='submit_action' value='Medium'>
+            <input type='submit' class="menubar {% if paramtype == 3 %}current{% endif %}" name='submit_action' value='Advanced'>
         </div>
 
         <div id="params">

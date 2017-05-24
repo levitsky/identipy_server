@@ -87,9 +87,10 @@ def form_dispatch(request):
 #   forms = search_params_form(request)
     forms = search_forms_from_request(request)
 #   print forms
+    action = request.POST['submit_action']
     redirect_map = {
-            'Choose preloaded spectra': ('identipy_app:choose', 'spectra'),
-            'Choose preloaded protein database file': ('identipy_app:choose', 'fasta'),
+            'Select spectra': ('identipy_app:choose', 'spectra'),
+            'Select protein database': ('identipy_app:choose', 'fasta'),
             'select fixed modifications': ('identipy_app:choose', 'fmods'),
             'select potential modifications': ('identipy_app:choose', 'vmods'),
             'enzyme': ('identipy_app:new_protease',),
@@ -97,14 +98,33 @@ def form_dispatch(request):
             'save parameters': ('identipy_app:save',),
             'load parameters': ('identipy_app:choose', 'params'),
             'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
+            'Minimal': ('identipy_app:searchpage',),
+            'Medium': ('identipy_app:searchpage',),
+            'Advanced': ('identipy_app:searchpage',),
             }
+
     print request.POST.items()
-    request.session['redirect'] = redirect_map[request.POST['submit_action']]
-    request.session['bigform'] = pickle.dumps(forms)
+    print request.POST['submit_action'], '!!!'
+    request.session['redirect'] = redirect_map[action]
     request.session['runname'] = request.POST.get('runname')
     request.session['paramsname'] = request.POST.get('paramsname')
 #   request.session['next'] = ['searchpage']
-    return redirect(*redirect_map[request.POST['submit_action']])
+    if action in {'Minimal', 'Medium', 'Advanced'}:
+        sessiontype = request.session.get('paramtype')
+        gettype = {'Minimal': 1, 'Medium': 2, 'Advanced': 3}[action]
+        if sessiontype != gettype:
+#           forms = request.session.pop('bigform', None)
+            if forms is not None:
+                save_params_new(forms, request.user, False, sessiontype)
+                request.session['paramtype'] = gettype
+                newforms = search_forms_from_request(request, ignore_post=True)
+                request.session['bigform'] = pickle.dumps(newforms)
+        request.session['paramtype'] = c['paramtype'] = gettype
+    else:
+        request.session['bigform'] = pickle.dumps(forms)
+
+
+    return redirect(*redirect_map[action])
 #   if request.user.is_authenticated():
 #       request.session
 #       print request.POST
@@ -528,12 +548,19 @@ def local_import(request):
 def searchpage(request):
     c = {}
 #   c.update(csrf(request))
-    if 'params' in request.GET:
-        if request.session.get('paramtype') != int(request.GET['params']):
-            request.session.pop('bigform', None)
-        request.session['paramtype'] = c['paramtype'] = int(request.GET['params'])
-    else:
-        c['paramtype'] = request.session.setdefault('paramtype', 3)
+#    if 'params' in request.GET:
+#        sessiontype = request.session.get('paramtype')
+#        gettype = int(request.GET['params'])
+#        if sessiontype != gettype:
+#            forms = request.session.pop('bigform', None)
+#            if forms is not None:
+#                save_params_new(pickle.loads(forms), request.user, False, sessiontype)
+#                request.session['paramtype'] = gettype
+#                newforms = search_forms_from_request(request)
+#                request.session['bigform'] = pickle.dumps(newforms)
+#        request.session['paramtype'] = c['paramtype'] = gettype
+#    else:
+    c['paramtype'] = request.session.setdefault('paramtype', 3)
     add_forms(request, c)
     c['current'] = 'searchpage'
     for key, klass in zip(['spectra', 'fasta'], [SpectraFile, FastaFile]):
@@ -564,13 +591,22 @@ def email(request, c):
                 send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, settings.EMAIL_SEND_TO)
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
+            except Exception as e:
+                print 'Could not send email:'
+                print e
             return contacts(request, c)
     else:
         form = ContactForm(initial={'from_email': request.user.username})
     return render(request, "identipy_app/email.html", {'form': form})
 
+
 def email_to_user(username, searchname):
-    send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
+    try:
+        send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
+    except Exception as e:
+        print 'Could not send email:'
+        print e
+
 
 def add_modification(request):
 #   django.db.connection.close()
@@ -629,20 +665,30 @@ def add_protease(request):
 #   django.db.connection.close()
     c = {}
 #   c.update(csrf(request))
-
     cc = []
     for pr in Protease.objects.filter(user=request.user):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
-#   if delete:
-#       if request.POST.get('relates_to'):
-#           proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
-#           if proteases.is_valid():
-#               for obj_id in proteases.cleaned_data.get('relates_to'):
-#                   obj = Protease.objects.get(user=request.user, id=obj_id)
-#                   obj.delete()
-#               request.POST['relates_to'] = False
-#           return add_protease(request, c, sbm=sbm)
+    if request.POST.get('submit_action', '') == 'delete':
+        # request.POST = request.POST.copy()
+        if request.POST.get('choices'):
+            proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
+            if proteases.is_valid():
+                for obj_id in proteases.cleaned_data.get('choices'):
+                    obj = Protease.objects.get(user=request.user, id=obj_id)
+                    obj.delete()
+        # print type(proteases)
+        # for p in proteases:
+        #     print p
+        cc = []
+        for pr in Protease.objects.filter(user=request.user):
+            cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
+        proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
+                # request.POST['choices'] = False
+                # request.POST.pop('submit_action')
+        c['proteaseform'] = AddProteaseForm()
+        c['proteases'] = proteases
+        return render(request, 'identipy_app/add_protease.html', c)
 
     proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
     if request.method == 'POST':
@@ -1018,6 +1064,11 @@ def showparams(request, searchgroupid, c):
 def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
+    dbname = request.GET.get('dbname', '')
+    if (not dbname and ftype != request.session['show_type']) and not request.GET.get('download_custom_csv', ''):
+        request.session['dbname'] = ''
+    elif not dbname:
+        dbname = request.session.get('dbname', '')
     request.session['show_type'] = ftype
     runid = request.GET.get('runid', request.session.get('searchrunid'))
     request.session['searchrunid'] = runid
@@ -1028,12 +1079,13 @@ def show(request):
     request.session['order_reverse'] = order_reverse
     request.session['order_by'] = order_by_label
     django.db.connection.close()
-    dbname = request.GET.get('dbname')
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     res_dict = runobj.get_detailed(ftype=ftype)
     if order_by_label:
+        dbname = request.session.get('dbname', '')
         res_dict.custom_order(order_by_label, order_reverse)
     if dbname:
+        request.session['dbname'] = dbname
         res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
     sname = 'whitelabels' + ' ' + ftype
@@ -1052,25 +1104,26 @@ def show(request):
     c.update({'results_detailed': res_dict})
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
-    return render(request, 'identipy_app/results_detailed.html', c)
-    # return render(request, 'identipy_app/results_detailed.html', c)
 
-def get_custom_csv(request, c):
-    tmpfile_name = c['searchrun'].searchgroup_parent.groupname + '_' + c['searchrun'].name() + '_' + c['results_detailed'].ftype + 's_selectedfields.csv'
-    tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
-    tmpfile.write('\t'.join(c['results_detailed'].get_labels()) + '\n')
-    tmpfile.flush()
-    for v in c['results_detailed'].get_values(rawformat=True):
-        tmpfile.write('\t'.join(v) + '\n')
+    if request.GET.get('download_custom_csv', ''):
+        tmpfile_name = runobj.searchgroup_parent.groupname + '_' + runobj.name() + '_' + ftype + 's_selectedfields.csv'
+        tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
+        tmpfile.write('\t'.join(res_dict.get_labels()) + '\n')
         tmpfile.flush()
-    tmpfile_path = tmpfile.name
-    tmpfile.close()
+        for v in res_dict.get_values(rawformat=True):
+            tmpfile.write('\t'.join(v) + '\n')
+            tmpfile.flush()
+        tmpfile_path = tmpfile.name
+        tmpfile.close()
 
-    response = HttpResponse(content_type='application/force-download')
-    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(tmpfile_name)
-    response.write(open(tmpfile_path).read())
-    os.remove(tmpfile_path)
-    return response
+        response = HttpResponse(content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(tmpfile_name)
+        response.write(open(tmpfile_path).read())
+        os.remove(tmpfile_path)
+        return response
+    else:
+        return render(request, 'identipy_app/results_detailed.html', c)
+
 
 def getfiles(request, usedclass=False):
     filenames = []

@@ -78,7 +78,8 @@
 		{% endif %}
 
         <div id="get_status" class="centered"><form action="" method="post">{% csrf_token %}
-        <h2><input type="submit" class="link" value="download as csv" name="download_custom_csv"/></h2>
+        
+        <h2><a class="link" href="{% url 'identipy_app:show' %}?download_custom_csv=True">download as csv</a></h2>
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
         
