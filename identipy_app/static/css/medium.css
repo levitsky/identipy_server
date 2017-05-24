@@ -1,9 +1,7 @@
 /*********************************************************************************/
 /* base.html                                                                     */
 /*********************************************************************************/
-::-webkit-scrollbar { 
-   display:always;
-}
+
 body
 	{
         background-image: url(../image/background.jpg);
@@ -11,7 +9,9 @@ body
 		background-size: cover;
         font-family:sans-serif,sans-serif;
         font-size:0.8em;
+        overflow-y:scroll;
 	}
+
 *{margin:0;padding:0;}
 
 /*********************************************************************************/
@@ -229,10 +229,17 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
     cursor:pointer;
     border:0;
     text-align: center;
+    -webkit-appearance:none;
 }
 
 .backbtn:hover{
     background:#FFBF00;
+    color:#fff;
+}
+.backbtn:active{
+    border:0;
+   -webkit-appearance:none;
+
 }
 .link, a{
     font-size: 1em;
@@ -306,10 +313,12 @@ div.inthemiddle h2{
     margin-top:0;
     width:100%;
     text-align:center;
-    font-size: 1.6em;
+    font-size: 1.5em;
     color:#555555;
     font-weight:bold;
     text-indent:0;
+    display:block;
+
         
 }
 .inthemiddle img{

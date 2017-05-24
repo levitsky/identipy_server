@@ -8,6 +8,7 @@ body {
     background-image: url(../image/background.jpg);
     background-size: cover;
     font-family:sans-serif;
+    overflow-y:scroll;
 }
 
 
@@ -78,6 +79,7 @@ body {
 	text-transform: uppercase;
 	line-height: 3em;
 	color: #999999;
+    cursor: pointer;
 }
 
 
@@ -211,6 +213,7 @@ input[type="email"],input[type="password"], input[id="email"], textarea{
 
 .backbtn:hover{
     background:#FFBF00;
+    color:#fff;
 }
 .link, a{
     font-size: 1em;
@@ -279,11 +282,12 @@ div.inthemiddle {
 
 div.inthemiddle h2{
     /*position:relative;*/
+    display:block;
     margin-bottom:0.5em ;
     margin-top:0;
     width:100%;
     text-align:center;
-    font-size: 2em;
+    font-size: 1.5em;
     color:#555555;
    /* font-weight:bold;
     text-indent:0;*/
