@@ -311,6 +311,8 @@ def search_forms_from_request(request, ignore_post=False):
     sForms = {}
     kwargs = _kwargs_for_search_form(request)
     for sftype in ['main', 'postsearch']:
+        if sftype == 'postsearch' and request.session.get('paramtype', 3) != 3:
+            continue
         kwargs.update(sftype=sftype, prefix=sftype)
         if request.method == 'POST' and not ignore_post:
             sForms[sftype] = SearchParametersForm(request.POST, **kwargs)
