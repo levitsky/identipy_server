@@ -1,0 +1,517 @@
+/*********************************************************************************/
+/* base.html                                                                     */
+/*********************************************************************************/
+::-webkit-scrollbar { 
+   display:always;
+}
+body
+	{
+        background-image: url(../image/background.jpg);
+		background-position: top;
+		background-size: cover;
+        font-family:sans-serif,sans-serif;
+        font-size:0.8em;
+	}
+*{margin:0;padding:0;}
+
+/*********************************************************************************/
+/* Session                                                                       */
+/*********************************************************************************/
+
+#session
+{
+  position: absolute;
+	right: 1em;
+	top: 1em;
+    font-size: 1em;
+    color: #212121;
+    text-decoration:none;
+    
+}
+
+/*********************************************************************************/
+/* Logo                                                                          */
+/*********************************************************************************/
+#logo{
+  display: inline;
+  margin:0;
+  
+  margin-bottom:2%;
+  transition:opacity 1s;
+  -webkit-transition:opacity 1s;
+}
+#logo h1
+{
+	display: inline-block;
+	font-size: 4em;
+	font-weight: 700;
+	color: /*basic-blue*/#000099;
+	padding-top: 0.6em;
+    padding-left:3%;
+    padding-bottom:0;
+    margin-top:0;
+}
+
+
+
+#logo a
+{
+	text-decoration: none;
+	color: /*basic-blue*/#000099;
+}
+/*********************************************************************************/
+/* Menu                                                                          */
+/*********************************************************************************/
+
+#menu
+{
+	position: relative;
+    display: block;
+    left:3%;
+	top: 0;
+
+
+
+}
+
+#menu li
+{
+	display: block;
+	float: left;
+	line-height: 3em;
+}
+
+
+.menubar{
+    background: /*light-bg*/#FFFFFF;
+    border: 0;
+    display: inline;
+	padding-top: 0;
+    padding-bottom:0;
+    padding-left:0;
+    padding-right:2em;
+	letter-spacing: 0.10em;
+	text-decoration: none;
+	font-size: 0.9em;
+	text-transform: uppercase;
+    font-weight: 300;
+	line-height: 3em;
+	color: /*grey*/#999999;
+    cursor: pointer;
+}
+
+.current{
+    color: /*basic-blue*/#000099;
+    
+}
+
+.menubar:hover, .menubar:active, .menubarcurrent:active
+{
+    background: /*light-bg*/#FFF;
+    color: /*light-blue*/#4f4fdf;
+}
+
+.current:hover{
+    color: /*basic-blue*/#000099;
+    
+}
+
+/*********************************************************************************/
+/* Messages                                                                      */
+/*********************************************************************************/
+
+.messages{
+    list-style-type: none;
+    margin-left:3%;
+    font-size:1.5em;
+    color:#AE0066;
+    text-decoration: underline;
+    margin-bottom:1em;
+}
+/*********************************************************************************/
+/* Login                                                                          */
+/*********************************************************************************/
+
+    
+#login{
+  position:relative;
+  width:80%;
+  left:10%;
+  margin-bottom:2em;
+  background:/*pale-blue*/#eeeeff;
+}
+
+#login h1{
+  background:/*basic-blue*/#000099;
+  padding:20px 5px;
+  font-size:140%;
+  font-weight:400;
+  text-align:center;
+  color:#fff;
+}
+
+#login h2{
+  background:/*warning-red*/#cc5555;
+  padding:20px 0;
+  font-size:140%;
+  font-weight:400;
+  text-align:center;
+  color:#fff;
+}
+
+/*********************************************************************************/
+/* Buttons & inputs                                                              */
+/*********************************************************************************/
+
+.btn {
+  display: inline-block;
+  font-size: 1em;
+  background:#000099;
+  padding:0 1em;
+  color:#fff;
+  cursor:pointer;
+  border:0;
+  margin:0.3em 0;
+  text-decoration: none;
+}
+
+.btn:hover{
+  background:#4f4fdf;
+  color: #ffffff; 
+}
+
+.red{
+  background:#AE0066;  
+  color:#fff;   
+}
+
+.red:hover{
+  background:#D4007C;
+  color: #ffffff;
+
+}
+
+
+form{
+  display: inline-block;
+    width:100%;
+  
+  }
+
+input[type="email"],input[type="password"], input[id="email"], textarea{
+  width:80%;
+  margin:6%;
+  background:/*light-bg*/#FFFFFF;
+  margin-top: 4%; 
+  border:1px solid /*light-grey*/#ccc;
+  padding:4%;
+  font-size:95%;
+  color:#555;
+}
+
+#loginbutton{
+    display: block;
+    width:70%;
+    font-size:3em;
+    margin: 0 auto;
+    margin-bottom: 6%;
+}
+.backbtn, a.backbtn{
+    display: inline-block;
+    font-size:1.5em;
+    padding:0.5em 3em;
+    margin-bottom:1em;
+    margin-top:1em;
+    
+    word-break:break-all;
+    background:#DBA400;
+    color:#fff;
+    text-transform:uppercase;
+    text-decoration:none;
+    cursor:pointer;
+    border:0;
+    text-align: center;
+}
+
+.backbtn:hover{
+    background:#FFBF00;
+}
+.link, a{
+    font-size: 1em;
+    background:0;
+    display:inline;
+    border:0;
+    cursor:pointer;
+    text-decoration:underline;
+    font-family:sans-serif;
+    color:#000099;
+    font-weight: inherit;
+    padding:0;
+    
+}
+.link:hover, a:hover{
+    color:#4f4fdf;}
+
+
+input[type="file"]{
+    position:absolute;
+    z-index:1;
+    opacity:0;
+    cursor:pointer;
+    width:150pt;
+    height:25pt;
+    
+   
+}
+
+.uploadform{
+    position:relative;
+    z-index:0;
+    top:0;
+    cursor:pointer;
+    width:150pt;
+    height: 25pt;
+    font-size:1.5em;
+    background:#000099;
+    color:#FFF;
+    border:0;
+}
+.searchname{
+    font-size:1.5em;
+    text-align: center;
+}
+#local_import textarea{
+    margin:0;
+    padding:0;
+    font-size:1.2em;
+}
+
+
+/*********************************************************************************/
+/* Divs                                                                          */
+/*********************************************************************************/
+div.inthemiddle {
+    position:relative;
+    width: 80%;
+    margin:0 auto;
+    margin-top:50px;
+    margin-bottom:2%;
+    background-color: #ffffff;
+    border: 0;
+    
+   
+    
+}
+div.inthemiddle h2{
+    position:relative;
+    margin-bottom:0 ;
+    margin-top:0;
+    width:100%;
+    text-align:center;
+    font-size: 1.6em;
+    color:#555555;
+    font-weight:bold;
+    text-indent:0;
+        
+}
+
+.inthemiddle img{
+    position:relative;
+    display:block;
+    width:100%;
+    margin:auto auto;
+}
+
+#tab{
+    position:relative;
+    margin:0;
+    width: 94%;
+    margin-left:3%;
+    background-color:#FFF;
+    overflow:hidden;
+}
+
+.intable_left{
+    float:left;
+    width:50%;
+    margin-bottom:1em;
+}
+.leftside p, .intable_left p{
+    
+    text-align: left;
+}
+.intable_right{
+    top:0;
+    width:50%;
+    margin-left:50%;
+    overflow:hidden;
+    margin-bottom:1em;
+}
+#img_list > div {
+  display:inline-block;
+  padding: 0 1%;
+  width: 29%;
+  background: white;
+  color: #000;
+  text-align: center;
+}
+
+#local_import{
+    float:left;
+    width: 100%;
+}
+
+.centered{
+    text-align: center;
+}
+
+div#colored{
+    background:#eeeeff;
+    margin:0;
+    margin-bottom:1em;
+    padding:0;
+    width:100%;
+    overflow:hidden;
+    font-size:1.5em;
+}
+
+.scroll{
+    width:100%;
+    overflow:auto;
+}   
+
+/*********************************************************************************/
+/* tables                                                                        */
+/*********************************************************************************/
+table[type="bordered"]{
+    width:100%;
+    background-color:#fff;
+    border: 2px solid #BBBBBB;
+    margin-left:0;
+    margin-top:0;
+    margin-bottom:1em;
+    box-sizing: border-box;
+    
+}
+
+#headers{
+    font-size:1.3em;
+    text-align:center;
+    text-decoration:bold;
+    
+}
+table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
+   border: 1px solid #BBBBBB;
+   box-sizing: border-box;
+   padding:0.4em;
+   text-align: center;
+}
+.searchparams{
+    font-size:1em;
+    width:75%;
+    left:0;
+    text-align: center;
+    border-spacing:0.15em;
+}
+
+.searchparams th{
+    font-weight:normal;
+}
+
+.searchparams tr td:first-child, .searchparams tr th:first-child{
+    text-align:right;
+    padding:0 1em;
+    width:60%;
+}
+select{
+    width:102px; 
+    font-size:0.9em;
+    border:1px solid #BBB;
+    text-align: center;
+
+}
+
+input[type="number"]{
+    width:100px; 
+    font-size:0.9em;
+    border:1px solid #BBB;
+    text-indent:0.2em;
+   
+}
+
+input[id="id_fixed"], input[id="id_variable"]{
+    width:100px; 
+    font-size:0.9em;
+    border:1px solid #BBB;
+    text-indent:0.2 em;
+   
+}
+
+input[id^="id_main"]{
+    width:100px; 
+    font-size:0.9em;
+    border:1px solid #BBB;
+    text-indent:0.2em;
+   
+}
+.mega {
+    height:15em;
+    
+    overflow: auto;
+    background: #eee;
+    position:relative;
+    
+}
+.header{
+    position:absolute; 
+    background-color:#fff;
+    }
+.header+* {margin-top:-1em;}
+.leftcolumn{
+    width:50%;
+    text-align:right;
+    padding:0.1em 1em;
+}
+
+.rightcolumn{
+    text-align:left;
+    padding: 0.1em 1em;
+}
+#SaveSearchParametersTable{
+    margin-bottom:1em;
+}
+/*********************************************************************************/
+/* lists                                                                         */
+/*********************************************************************************/
+
+div.select{
+    display:inline;
+    margin:0;
+}
+
+#id_choices{
+    padding:0;
+}
+
+
+
+#legend{
+        display: inline;
+    width: 20%;
+    vertical-align: middle;
+    margin-left: 5%;
+}
+
+.floating>#id_choices{
+    margin-top:0;
+    margin-left:0;
+    font-size:1em;
+    list-style-type:none;
+    text-align:left;
+}
+
+.floating>#id_choices li{
+    padding:0.3em ;
+    float:left;
+    padding-left:0;
+}
