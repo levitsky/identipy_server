@@ -1031,8 +1031,10 @@ def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
     dbname = request.GET.get('dbname', '')
-    if not dbname and ftype != request.session['show_type']:
+    if (not dbname and ftype != request.session['show_type']) and not request.GET.get('download_custom_csv', ''):
         request.session['dbname'] = ''
+    elif not dbname:
+        dbname = request.session.get('dbname', '')
     request.session['show_type'] = ftype
     runid = request.GET.get('runid', request.session.get('searchrunid'))
     request.session['searchrunid'] = runid
@@ -1068,25 +1070,26 @@ def show(request):
     c.update({'results_detailed': res_dict})
     runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
-    return render(request, 'identipy_app/results_detailed.html', c)
-    # return render(request, 'identipy_app/results_detailed.html', c)
 
-def get_custom_csv(request, c):
-    tmpfile_name = c['searchrun'].searchgroup_parent.groupname + '_' + c['searchrun'].name() + '_' + c['results_detailed'].ftype + 's_selectedfields.csv'
-    tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
-    tmpfile.write('\t'.join(c['results_detailed'].get_labels()) + '\n')
-    tmpfile.flush()
-    for v in c['results_detailed'].get_values(rawformat=True):
-        tmpfile.write('\t'.join(v) + '\n')
+    if request.GET.get('download_custom_csv', ''):
+        tmpfile_name = runobj.searchgroup_parent.groupname + '_' + runobj.name() + '_' + ftype + 's_selectedfields.csv'
+        tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
+        tmpfile.write('\t'.join(res_dict.get_labels()) + '\n')
         tmpfile.flush()
-    tmpfile_path = tmpfile.name
-    tmpfile.close()
+        for v in res_dict.get_values(rawformat=True):
+            tmpfile.write('\t'.join(v) + '\n')
+            tmpfile.flush()
+        tmpfile_path = tmpfile.name
+        tmpfile.close()
 
-    response = HttpResponse(content_type='application/force-download')
-    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(tmpfile_name)
-    response.write(open(tmpfile_path).read())
-    os.remove(tmpfile_path)
-    return response
+        response = HttpResponse(content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(tmpfile_name)
+        response.write(open(tmpfile_path).read())
+        os.remove(tmpfile_path)
+        return response
+    else:
+        return render(request, 'identipy_app/results_detailed.html', c)
+
 
 def getfiles(request, usedclass=False):
     filenames = []
