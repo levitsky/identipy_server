@@ -87,9 +87,10 @@ def form_dispatch(request):
 #   forms = search_params_form(request)
     forms = search_forms_from_request(request)
 #   print forms
+    action = request.POST['submit_action']
     redirect_map = {
-            'Choose preloaded spectra': ('identipy_app:choose', 'spectra'),
-            'Choose preloaded protein database file': ('identipy_app:choose', 'fasta'),
+            'Select spectra': ('identipy_app:choose', 'spectra'),
+            'Select protein database': ('identipy_app:choose', 'fasta'),
             'select fixed modifications': ('identipy_app:choose', 'fmods'),
             'select potential modifications': ('identipy_app:choose', 'vmods'),
             'enzyme': ('identipy_app:new_protease',),
@@ -97,16 +98,33 @@ def form_dispatch(request):
             'save parameters': ('identipy_app:save',),
             'load parameters': ('identipy_app:choose', 'params'),
             'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
+            'Minimal': ('identipy_app:searchpage',),
+            'Medium': ('identipy_app:searchpage',),
+            'Advanced': ('identipy_app:searchpage',),
             }
 
     print request.POST.items()
     print request.POST['submit_action'], '!!!'
-    request.session['redirect'] = redirect_map[request.POST['submit_action']]
-    request.session['bigform'] = pickle.dumps(forms)
+    request.session['redirect'] = redirect_map[action]
     request.session['runname'] = request.POST.get('runname')
     request.session['paramsname'] = request.POST.get('paramsname')
 #   request.session['next'] = ['searchpage']
-    return redirect(*redirect_map[request.POST['submit_action']])
+    if action in {'Minimal', 'Medium', 'Advanced'}:
+        sessiontype = request.session.get('paramtype')
+        gettype = {'Minimal': 1, 'Medium': 2, 'Advanced': 3}[action]
+        if sessiontype != gettype:
+#           forms = request.session.pop('bigform', None)
+            if forms is not None:
+                save_params_new(forms, request.user, False, sessiontype)
+                request.session['paramtype'] = gettype
+                newforms = search_forms_from_request(request, ignore_post=True)
+                request.session['bigform'] = pickle.dumps(newforms)
+        request.session['paramtype'] = c['paramtype'] = gettype
+    else:
+        request.session['bigform'] = pickle.dumps(forms)
+
+
+    return redirect(*redirect_map[action])
 #   if request.user.is_authenticated():
 #       request.session
 #       print request.POST
@@ -530,12 +548,19 @@ def local_import(request):
 def searchpage(request):
     c = {}
 #   c.update(csrf(request))
-    if 'params' in request.GET:
-        if request.session.get('paramtype') != int(request.GET['params']):
-            request.session.pop('bigform', None)
-        request.session['paramtype'] = c['paramtype'] = int(request.GET['params'])
-    else:
-        c['paramtype'] = request.session.setdefault('paramtype', 3)
+#    if 'params' in request.GET:
+#        sessiontype = request.session.get('paramtype')
+#        gettype = int(request.GET['params'])
+#        if sessiontype != gettype:
+#            forms = request.session.pop('bigform', None)
+#            if forms is not None:
+#                save_params_new(pickle.loads(forms), request.user, False, sessiontype)
+#                request.session['paramtype'] = gettype
+#                newforms = search_forms_from_request(request)
+#                request.session['bigform'] = pickle.dumps(newforms)
+#        request.session['paramtype'] = c['paramtype'] = gettype
+#    else:
+    c['paramtype'] = request.session.setdefault('paramtype', 3)
     add_forms(request, c)
     c['current'] = 'searchpage'
     for key, klass in zip(['spectra', 'fasta'], [SpectraFile, FastaFile]):
