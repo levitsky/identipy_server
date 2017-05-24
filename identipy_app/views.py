@@ -566,13 +566,22 @@ def email(request, c):
                 send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, settings.EMAIL_SEND_TO)
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
+            except Exception as e:
+                print 'Could not send email:'
+                print e
             return contacts(request, c)
     else:
         form = ContactForm(initial={'from_email': request.user.username})
     return render(request, "identipy_app/email.html", {'form': form})
 
+
 def email_to_user(username, searchname):
-    send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
+    try:
+        send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
+    except Exception as e:
+        print 'Could not send email:'
+        print e
+
 
 def add_modification(request):
 #   django.db.connection.close()
