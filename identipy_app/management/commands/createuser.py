@@ -29,7 +29,7 @@ class Command(BaseCommand):
             fastaobj = FastaFile(docfile = djangofl, user = user)
             fastaobj.save()
             fl.close()
-
+        
         for paramtype in [1, 2, 3]:
             fl = open('latest_params_%d.cfg' % (paramtype, ))
             djangofl = File(fl)
@@ -72,3 +72,8 @@ class Command(BaseCommand):
             mod_object = Modification(name=mod[0], label=mod[1], mass=mod[2], aminoacid=mod[3], user=user)
             mod_object.save()
         user.save()
+
+        for dirn in ['params', 'fasta', 'spectra']:
+            d = os.path.join('uploads', dirn, str(user.id))
+            if not os.path.isdir(d):
+                os.makedirs(d)
