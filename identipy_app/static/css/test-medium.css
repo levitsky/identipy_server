@@ -312,7 +312,12 @@ div.inthemiddle h2{
     text-indent:0;
         
 }
-
+.inthemiddle img{
+    position:relative;
+    display:block;
+    width:100%;
+    margin:auto auto;
+}
 #tab{
     position:relative;
     margin:0;
@@ -467,6 +472,9 @@ input[id^="id_main"]{
 .rightcolumn{
     text-align:left;
     padding: 0.1em 1em;
+}
+#SaveSearchParametersTable{
+    margin-bottom:1em;
 }
 /*********************************************************************************/
 /* lists                                                                         */
