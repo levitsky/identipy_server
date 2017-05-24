@@ -3,7 +3,7 @@
 {% block content %}
 {% load stringfilter %}
 
-<div id="tab">
+
 {% if processes %}
 <div id="vert_block">
     <form action="{% url 'identipy_app:form_dispatch' %}" method="POST">{% csrf_token %}
@@ -52,7 +52,6 @@
 {% endif %}
 <div id="status_back" class="centered"><a class="backbtn" href="{% url 'identipy_app:searchpage' %}">Start a new search run</a></div>
 
-</div>
 
 
 {% endblock %}
