@@ -27,4 +27,5 @@ urlpatterns = [
     url(r'^download/',         views.getfiles,           name='download'),
     url(r'^show/',             views.show,               name='show'),
     url(r'^save/',             views.save_parameters,    name='save'),
+    url(r'^email/',             views.email,    name='email'),
 ]

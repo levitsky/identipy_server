@@ -579,7 +579,8 @@ def about(request):
     c['current'] = 'about'
     return render(request, 'identipy_app/index.html', c)
 
-def email(request, c):
+def email(request):
+    c = {}
     if all(z in request.POST.keys() for z in ['subject', 'message']):
         form = ContactForm(request.POST)
         if form.is_valid():
@@ -594,7 +595,7 @@ def email(request, c):
             except Exception as e:
                 print 'Could not send email:'
                 print e
-            return contacts(request, c)
+            return contacts(request)
     else:
         form = ContactForm(initial={'from_email': request.user.username})
     return render(request, "identipy_app/email.html", {'form': form})
