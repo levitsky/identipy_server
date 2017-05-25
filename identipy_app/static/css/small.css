@@ -289,6 +289,17 @@ input[type="file"]{
     font-size:1.2em;
 }
 
+#prev{
+    position:absolute;
+    right:0;
+    top:0;
+}
+
+#newer{
+    position:absolute;
+    left:0;
+    top:0;
+}
 
 /*********************************************************************************/
 /* Divs                                                                          */
@@ -382,6 +393,11 @@ div#colored{
     width:100%;
     overflow:auto;
 }   
+.vert_block{
+    display:list-item;
+    margin-bottom:1em;
+    position:relative;
+}
 
 /*********************************************************************************/
 /* tables                                                                        */
