@@ -39,9 +39,8 @@ E-mail: vkistanova@mail.ru
 
 
     <div id="contact_us"><h2>
-        <form action="" method="post">{% csrf_token %}
-         <input type="submit" class="btn" value="Contact us" name="sendemail">
-        </form></h2>
+        <a class="btn" href="{% url 'identipy_app:email' %}">Contact us</a>
+        </h2>
            </div>
     {% if not user.username %}
      <div class="centered">  
