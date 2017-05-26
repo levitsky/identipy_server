@@ -340,24 +340,24 @@ class SearchRun(BaseDocument):
                         'charge_states',
                         'scores']
         all_images = [doc for doc in self.resimagefiles.filter(ftype=ftype)]
-        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower(), custom_order))
+        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower(), custom_order))
         return all_images
     
     def get_PSMdistrimagefiles(self, ftype='.png'):
         distr_list = {'rt_experimental', 'precursor_mass', 'peptide_length'}
         distr_images = [doc for doc in self.get_resimagefiles()
                 if doc.docfile.name.encode('utf-8').split('/')[-1].replace(
-                    self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
+                    self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower() in distr_list]
         return distr_images
 
     def get_distrimagefiles(self, ftype='.png'):
         distr_list = {'rt_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides'}
-        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
+        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower() in distr_list]
         return distr_images
     
     def get_quantimagefiles(self, ftype='.png'):
         quant_list = {'sumi', 'nsaf', 'empai'}
-        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in quant_list]
+        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower() in quant_list]
         return quant_images
     
     def get_mpimagefiles(self, ftype='.png'):
@@ -372,9 +372,9 @@ class SearchRun(BaseDocument):
                    'scores']
         mp_images = [doc for doc in self.get_resimagefiles()
                 if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split(
-                    '/')[-1] + '_', '').replace(ftype, '').lower() in MP_list or
+                    '/')[-1].encode('utf-8')  + '_', '').replace(ftype, '').lower() in MP_list or
                 doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split(
-                    '/')[-1] + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
+                    '/')[-1].encode('utf-8')  + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
         return mp_images
     
     def get_pepxmlfiles(self):

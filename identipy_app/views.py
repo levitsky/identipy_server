@@ -870,7 +870,7 @@ def runidentiprot(request):
             outpath = idsettings.get('output', 'path')
         else:
             outpath = os.path.dirname(inputfile)
-
+        outpath = outpath.decode('utf-8')
         return os.path.join(outpath, os.path.splitext(
             os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
 
@@ -889,11 +889,11 @@ def runidentiprot(request):
                 p.join()
             pepxmllist = newrun.get_pepxmlfiles_paths()
             paramlist = [paramfile]
-            bname = pepxmllist[0].split('.pep.xml')[0]
+            bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
         else:
             pepxmllist = newrun.get_pepxmlfiles_paths()
             paramlist = [paramfile]
-            bname = os.path.dirname(pepxmllist[0]) + '/union'
+            bname = os.path.dirname(pepxmllist[0].decode('utf-8')) + '/union'
         newrun.set_FDRs()
         MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
         if not os.path.isfile(bname + '_PSMs.csv'):
@@ -902,27 +902,27 @@ def runidentiprot(request):
         dname = os.path.dirname(pepxmllist[0])
         for tmpfile in os.listdir(dname):
             ftype = os.path.splitext(tmpfile)[-1]
-            if ftype in ['.png', '.svg'] and newrun.name() + '_' in os.path.basename(tmpfile):
-                fl = open(os.path.join(dname, tmpfile))
+            if ftype in ['.png', '.svg'] and newrun.name() + '_' in os.path.basename(tmpfile.decode('utf-8')):
+                fl = open(os.path.join(dname, tmpfile).decode('utf-8'))
                 djangofl = File(fl)
                 img = ResImageFile(docfile = djangofl, user = usr, ftype=ftype)
                 img.save()
                 newrun.add_resimage(img)
                 fl.close()
         if os.path.exists(bname + '_PSMs.csv'):
-            fl = open(bname + '_PSMs.csv')
+            fl = open(bname + '_PSMs.csv'.decode('utf-8'))
             djangofl = File(fl)
             csvf = ResCSV(docfile = djangofl, user = usr, ftype='psm')
             csvf.save()
             newrun.add_rescsv(csvf)
         if os.path.exists(bname + '_peptides.csv'):
-            fl = open(bname + '_peptides.csv')
+            fl = open(bname + '_peptides.csv'.decode('utf-8'))
             djangofl = File(fl)
             csvf = ResCSV(docfile = djangofl, user = usr, ftype='peptide')
             csvf.save()
             newrun.add_rescsv(csvf)
         if os.path.exists(bname + '_proteins.csv'):
-            fl = open(bname + '_proteins.csv')
+            fl = open(bname + '_proteins.csv'.decode('utf-8'))
             djangofl = File(fl)
             csvf = ResCSV(docfile = djangofl, user = usr, ftype='protein')
             csvf.save()
