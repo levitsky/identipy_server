@@ -302,6 +302,35 @@ input[type="file"]{
     left:0;
     top:0;
 }
+label[for="id_message"]{
+    display:block;
+    margin-top:1em;
+    font-size:1.5em;
+    margin-bottom:1em;
+}
+label[for="id_subject"]{
+    font-size:1.5em;
+    margin-top:1em;
+    display:inline-block;
+    
+}
+
+#id_message{
+    width:100%;
+    margin:0;
+    box-sizing:border-box;
+    font-size:1.5em;
+}
+#id_subject{
+    width:80%;
+    float:right;
+    padding: 1em;
+    font-size:1.2em;
+    margin:0;
+    border:1px solid #ccc;
+    color:#555;
+}
+
 
 /*********************************************************************************/
 /* Divs                                                                          */
