@@ -2,12 +2,11 @@
 {% block title %}Contact us{% endblock %}
 {% block content %}
 
-<div id="tab">
 <form id="feedbackform" method="post">
     {% csrf_token %}
     {{ form }}
-    <div class="form-actions">
+    <div class="form-actions centered">
       <input type="submit" class="backbtn" value="Send" name="sendemail">
     </div>
-    </form></div>
+    </form>
 {% endblock %}
