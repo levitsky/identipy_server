@@ -14,12 +14,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('user_name', type=str)
+        parser.add_argument('email', type=str)
         parser.add_argument('passwd', type=str)
 
     def handle(self, *args, **options):
         user_name = options['user_name']
+        email = options['email']
         user_passwd = options['passwd']
-        user = User.objects.create_user(user_name, user_name, user_passwd)
+
+        user = User.objects.create_user(user_name, email, user_passwd)
 
         df_dir = 'default_fasta'
         for flname in listdir(df_dir):
