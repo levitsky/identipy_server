@@ -12,6 +12,7 @@ from django.core.mail import send_mail, BadHeaderError
 from django.contrib import messages
 from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
+from django.utils.safestring import mark_safe
 import django.db
 
 from django.conf import settings
@@ -23,7 +24,6 @@ import StringIO
 import shutil
 import math
 from copy import copy
-from django.utils.safestring import mark_safe
 import tempfile
 import time
 import random
@@ -42,7 +42,7 @@ from .aux import save_mods, save_params_new, ResultsDetailed, get_size, Tasker
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
-from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm#, SearchParamsForm1
+from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm, SearchParametersForm
 from .forms import search_forms_from_request#, search_params_form
 
 
@@ -79,11 +79,6 @@ def form_dispatch(request):
     c = {}
     if request.GET or not request.user.is_authenticated():
         return redirect('identipy_app:index')
-#   elif(request.POST.get('sendemail')):
-#       request.POST = request.POST.copy()
-#       request.POST['sendemail'] = None
-#       return email(request, c = c)
-#   print request.POST
 #   forms = search_params_form(request)
     forms = search_forms_from_request(request)
 #   print forms
@@ -125,224 +120,6 @@ def form_dispatch(request):
 
 
     return redirect(*redirect_map[action])
-#   if request.user.is_authenticated():
-#       request.session
-#       print request.POST
-#       add_forms(request, c)
-#       if(request.POST.get('runidentiprot')):
-#           request.POST = request.POST.copy()
-#           request.POST['runidentiprot'] = None
-#           c['runname'] = request.POST['runname']
-#           if not c.get('chosenspectra', []):
-#               messages.add_message(request, messages.INFO, 'Please choose spectra for search')
-#               return searchpage(request, c)
-#           elif not c.get('chosenfasta', []):
-#               messages.add_message(request, messages.INFO, 'Please choose fasta for search')
-#               return searchpage(request, c)
-#           else:
-#               return identiprot_view(request, c = c)
-#       elif(request.POST.get('statusback')):
-#           request.POST = request.POST.copy()
-#           request.POST['statusback'] = None
-#           return index(request, c=c)
-#       elif(request.POST.get('sbm')):
-#           request.POST = request.POST.copy()
-#           request.POST['sbm'] = None
-#           if c.get('sbm_modform', False):
-#               c['sbm_modform'] = False
-#               return select_modifications(request, c, fixed=c['fixed'], upd=True)
-#           else:
-#               return files_view(request, c)
-#       elif(request.POST.get('del')):
-#           request.POST = request.POST.copy()
-#           request.POST['del'] = None
-#           return delete(request, c = c)
-#       elif(request.POST.get('cancel')):
-#           request.POST = request.POST.copy()
-#           request.POST['cancel'] = None
-#           return index(request, c=c)
-#       elif(request.POST.get('clear')):
-#           request.POST = request.POST.copy()
-#           request.POST['clear'] = None
-#           for k in ['chosenspectra', 'chosenfasta']:
-#               if k in c:
-#                   del c[k]
-#           return searchpage(request, c=c)
-#       elif(request.POST.get('getstatus')):
-#           request.POST = request.POST.copy()
-#           request.POST['getstatus'] = None
-#           c['res_page'] = 1
-#           c['search_run_filter'] = ''
-#           return status(request, c = c)
-#       elif(request.POST.get('search_runname')):
-#           request.POST = request.POST.copy()
-#           c['search_run_filter'] = request.POST['search_button'].replace(u'\xa0', ' ')
-#           c['res_page'] = 1
-#           # tmp_val = request.POST['search_button']
-#           request.POST['search_runname'] = None
-#           return status(request, c = c)
-#       elif(request.POST.get('uploadform')):
-#           request.POST = request.POST.copy()
-#           request.POST['uploadform'] = None
-#           return upload(request, c = c)
-#       elif(request.POST.get('searchpage')):
-#           request.POST = request.POST.copy()
-#           request.POST['searchpage'] = None
-#           if c.get('sbm_modform', False):
-#               c['sbm_modform'] = False
-#           return searchpage(request, c = c)
-#       elif(request.POST.get('uploadfasta')):
-#           request.POST = request.POST.copy()
-#           request.POST['uploadfasta'] = None
-#           return files_view_fasta(request, c = c)
-#       elif(request.POST.get('saveparams')):
-#           request.POST = request.POST.copy()
-#           if request.POST.get('paramsname'):
-#               save_params_new(c['SearchForms'], request.user, request.POST.get('paramsname'), c['paramtype'])
-#           request.POST['saveparams'] = None
-#           messages.add_message(request, messages.INFO, 'Parameters were saved')
-#           if request.POST.get('results_figure_searchgroupid'):
-#               return showparams(request, searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
-#           return searchpage(request, c = c)
-#       elif(request.POST.get('loadparams')):
-#           request.POST = request.POST.copy()
-#           request.POST['loadparams'] = None
-#           return files_view_params(request, c = c)
-#       elif(request.POST.get('add_protease')):
-#           request.POST = request.POST.copy()
-#           request.POST['add_protease'] = None
-#           return add_protease(request, c = c)
-#       elif(request.POST.get('sbm_protease')):
-#           request.POST = request.POST.copy()
-#           request.POST['sbm_protease'] = None
-#           return add_protease(request, c = c, sbm=True)
-#       elif(request.POST.get('del_protease')):
-#           request.POST = request.POST.copy()
-#           request.POST['del_protease'] = None
-#           return add_protease(request, c = c, delete=True)
-#       elif(request.POST.get('add_modification')):
-#           request.POST = request.POST.copy()
-#           request.POST['add_modification'] = None
-#           return add_modification(request, c = c)
-#       elif(request.POST.get('mod_back')):
-#           request.POST = request.POST.copy()
-#           request.POST['mod_back'] = None
-#           return select_modifications(request, c = c, fixed=c['fixed'])
-#       elif(request.POST.get('select_fixed')):
-#           request.POST = request.POST.copy()
-#           request.POST['select_fixed'] = None
-#           return select_modifications(request, c = c, fixed=True)
-#       elif(request.POST.get('select_potential')):
-#           request.POST = request.POST.copy()
-#           request.POST['select_potential'] = None
-#           return select_modifications(request, c = c, fixed=False)
-#       elif(request.POST.get('sbm_mod')):
-#           request.POST = request.POST.copy()
-#           request.POST['sbm_mod'] = None
-#           return add_modification(request, c = c, sbm=True)
-#       elif(request.POST.get('search_details')):
-#           request.POST = request.POST.copy()
-#           return search_details(request, runname=request.POST['search_details'], c=c)
-#       elif(request.POST.get('show_proteins')):
-#           request.POST = request.POST.copy()
-#           request.POST['show_proteins'] = None
-#           return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='protein')
-#       elif(request.POST.get('show_peptides')):
-#           request.POST = request.POST.copy()
-#           dbname = request.POST['show_peptides'] if not request.POST['show_peptides'].isdigit() else False
-#           request.POST['show_peptides'] = None
-#           return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='peptide', dbname=dbname)
-#       elif(request.POST.get('show_psms')):
-#           request.POST = request.POST.copy()
-#           dbname = request.POST['show_psms'] if not request.POST['show_psms'].isdigit() else False
-#           request.POST['show_psms'] = None
-#           return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype='psm', dbname=dbname)
-#       elif(request.POST.get('order_by')):
-#           request.POST = request.POST.copy()
-#           order_column = request.POST['order_by']
-#           request.POST['order_by'] = None
-#           return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed'].ftype, order_by_label=order_column, upd=True)
-#       elif(request.POST.get('select_labels')):
-#           request.POST = request.POST.copy()
-#           request.POST['select_labels'] = None
-#           return show(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c, ftype=c['results_detailed'].ftype, upd=True)
-#       elif(request.POST.get('results_figure')):
-#           request.POST = request.POST.copy()
-#           return results_figure(request, runname=request.POST['results_figure_actualname'], searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
-#       elif(request.POST.get('showparams')):
-#           request.POST = request.POST.copy()
-#           request.POST['showparams'] = None
-#           return showparams(request, searchgroupid=request.POST['results_figure_searchgroupid'], c=c)
-#       elif(request.POST.get('download_csv')):
-#           c['down_type'] = 'csv'
-#           return getfiles(c=c)
-#       elif(request.POST.get('download_custom_csv')):
-#           request.POST = request.POST.copy()
-#           request.POST['download_custom_csv'] = None
-#           return get_custom_csv(request, c=c)
-#       elif(request.POST.get('download_selected')):
-#           c['down_type'] = c['usedname']
-#           return getfiles(c=c, request=request)
-#       elif(request.POST.get('download_pepxml')):
-#           c['down_type'] = 'pepxml'
-#           return getfiles(c=c)
-#       elif(request.POST.get('download_mgf')):
-#           c['down_type'] = 'mgf'
-#           return getfiles(c=c)
-#       elif(request.POST.get('download_figs')):
-#           c['down_type'] = 'figs'
-#           return getfiles(c=c)
-#       elif(request.POST.get('download_figs_svg')):
-#           c['down_type'] = 'figs_svg'
-#           return getfiles(c=c)
-#       elif(request.POST.get('prev_runs')):
-#           request.POST = request.POST.copy()
-#           request.POST['prev_runs'] = None
-#           c['res_page'] = c.get('res_page', 1) + 1
-#           return status(request, c=c)
-#       elif(request.POST.get('search_delete')):
-#           request.POST = request.POST.copy()
-#           request.POST['search_delete'] = None
-#           return status(request, c=c, delete=True)
-#       elif(request.POST.get('type1')):
-#           request.POST = request.POST.copy()
-#           request.POST['type1'] = None
-#           del c['SearchForms']
-#           c['paramtype'] = 1
-#           add_forms(request, c)
-#           return searchpage(request, c=c, upd=True)
-#       elif(request.POST.get('type2')):
-#           request.POST = request.POST.copy()
-#           request.POST['type2'] = None
-#           del c['SearchForms']
-#           c['paramtype'] = 2
-#           add_forms(request, c)
-#           return searchpage(request, c=c, upd=True)
-#       elif(request.POST.get('type3')):
-#           request.POST = request.POST.copy()
-#           request.POST['type3'] = None
-#           del c['SearchForms']
-#           c['paramtype'] = 3
-#           add_forms(request, c)
-#           return searchpage(request, c=c, upd=True)
-#       elif(request.POST.get('next_runs')):
-#           request.POST = request.POST.copy()
-#           request.POST['next_runs'] = None
-#           c['res_page'] = c.get('res_page', 1) - 1
-#           return status(request, c=c)
-#       c.update(csrf(request))
-#                   
-#       if 'chosenparams' in c:
-#           os.remove(get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-#           shutil.copy(c['chosenparams'][0].docfile.name.encode('ASCII'), get_user_latest_params_path(c.get('paramtype', 3), c.get('userid', None)) )
-
-#       c['current'] = 'about'
-#       return render(request, 'identipy_app/index.html', c)
-#   else:
-#       c['current'] = 'loginform'
-#       c.update(csrf(request))
-#       return render(request, 'identipy_app/login.html', c)
-
 
 def save_parameters(request):
     forms = pickle.loads(request.session['bigform'])
@@ -360,12 +137,11 @@ def index(request):
 
 def details(request, pK):
     doc = get_object_or_404(SpectraFile, id=pK)
-    return render(request, 'identipy_app/details.html',
-            {'document': doc})
+    return render(request, 'identipy_app/details.html', {'document': doc})
 
 def delete(request, usedclass):
     usedname=usedclass.__name__
-    django.db.connection.close()
+#   django.db.connection.close()
     documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
@@ -547,19 +323,7 @@ def local_import(request):
 
 def searchpage(request):
     c = {}
-#   c.update(csrf(request))
-#    if 'params' in request.GET:
-#        sessiontype = request.session.get('paramtype')
-#        gettype = int(request.GET['params'])
-#        if sessiontype != gettype:
-#            forms = request.session.pop('bigform', None)
-#            if forms is not None:
-#                save_params_new(pickle.loads(forms), request.user, False, sessiontype)
-#                request.session['paramtype'] = gettype
-#                newforms = search_forms_from_request(request)
-#                request.session['bigform'] = pickle.dumps(newforms)
-#        request.session['paramtype'] = c['paramtype'] = gettype
-#    else:
+
     c['paramtype'] = request.session.setdefault('paramtype', 3)
     add_forms(request, c)
     c['current'] = 'searchpage'
@@ -729,35 +493,6 @@ def add_protease(request):
         c['proteaseform'] = AddProteaseForm()
         c['proteases'] = proteases
         return render(request, 'identipy_app/add_protease.html', c)
-
-#def select_modifications(request, c, fixed=True, upd=False):
-#    django.db.connection.close()
-#    c = c
-#    c.update(csrf(request))
-#    modifications = Modification.objects.filter(user=request.user)
-#    cc = []
-#    for doc in modifications:
-#        if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
-#            cc.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
-#    if upd:
-#        modform = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
-#        if modform.is_valid():
-#            chosenmodsids = [int(x) for x in modform.cleaned_data.get('relates_to')]
-#            chosenmods = Modification.objects.filter(id__in=chosenmodsids)
-#            save_mods(uid=request.user, chosenmods=chosenmods, fixed=fixed, paramtype=c['paramtype'])
-#            return searchpage(request, c)
-#    modform = MultFilesForm(custom_choices=cc, labelname='Select modifications', multiform=True)
-#    if not fixed:
-#        initvals = []
-#        for nn in ['ammoniumlossC', 'ammoniumlossQ', 'waterlossE']:
-#            try:
-#                tmpmod = Modification.objects.get(name=nn)
-#                initvals.append(tmpmod.id)
-#            except:
-#                pass
-#        modform.fields['relates_to'].initial = initvals
-#    c.update({'usedclass': Modification, 'usedname': 'chosenmods', 'modform': modform, 'sbm_modform': True, 'fixed': fixed, 'select_form': 'modform', 'topbtn': (True if len(modform.fields.values()[0].choices) >= 15 else False)})
-#    return render(request, 'identipy_app/choose.html', c)
 
 def files_view(request, what):
     what_orig = what
@@ -1043,10 +778,11 @@ def results_figure(request, pk):
     return render(request, 'identipy_app/results_figure.html', c)
 
 
-def showparams(request, searchgroupid, c):
-    django.db.connection.close()
-    c = c
-    c.update(csrf(request))
+def showparams(request):
+#   django.db.connection.close()
+    c = {}
+#   c.update(csrf(request))
+    searchgroupid = request.session.get('searchgroupid')
     runobj = SearchGroup.objects.get(id=searchgroupid, user=request.user)
     params_file = runobj.parameters.all()[0]
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -1057,6 +793,9 @@ def showparams(request, searchgroupid, c):
     for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
         c['SearchForms'][sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     c['fastaname'] = runobj.fasta.all()[0].name()
+
+    runobj = get_object_or_404(SearchGroup, id=searchgroupid)
+    c['searchrun'] = runobj
     return render(request, 'identipy_app/params.html', c)
 
 
@@ -1128,7 +867,7 @@ def show(request):
 
 def getfiles(request, usedclass=False):
     filenames = []
-    django.db.connection.close()
+#   django.db.connection.close()
     if request.method == 'POST' and usedclass:
         cc = []
         documents = usedclass.objects.filter(user=request.user)
