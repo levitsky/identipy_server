@@ -4,7 +4,7 @@ from django.core.files import File
 from identipy_app.models import FastaFile, ParamsFile, Protease, Modification
 
 from pyteomics import parser
-from os import path, listdir
+from getpass import getpass
 from django.conf import settings
 import os
 os.chdir(settings.BASE_DIR)
@@ -14,27 +14,29 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('user_name', type=str)
-        parser.add_argument('email', type=str)
-        parser.add_argument('passwd', type=str)
+        parser.add_argument('email', nargs='?', type=str)
+        parser.add_argument('passwd', nargs='?', type=str)
 
     def handle(self, *args, **options):
         user_name = options['user_name']
         email = options['email']
         user_passwd = options['passwd']
+        if not user_passwd:
+            user_passwd = getpass('Enter the user password: ')
 
         user = User.objects.create_user(user_name, email, user_passwd)
 
         df_dir = 'default_fasta'
-        for flname in listdir(df_dir):
-            fl = open(path.join(df_dir, flname))
+        for flname in os.listdir(df_dir):
+            fl = open(os.path.join(df_dir, flname))
             djangofl = File(fl)
-            djangofl.name = path.basename(djangofl.name)
+            djangofl.name = os.path.basename(djangofl.name)
             fastaobj = FastaFile(docfile = djangofl, user = user)
             fastaobj.save()
             fl.close()
         
         for paramtype in [1, 2, 3]:
-            fl = open('latest_params_%d.cfg' % (paramtype, ))
+            fl = open('latest_params_%d.cfg' % paramtype)
             djangofl = File(fl)
             paramobj = ParamsFile(docfile = djangofl, user = user, type=paramtype)
             paramobj.save()
