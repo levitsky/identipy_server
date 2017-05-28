@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.db import models
+from django.db import models, connection
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
@@ -25,18 +25,6 @@ def kill_proc_tree(pid, including_parent=True):
     if including_parent:
         parent.kill()
         parent.wait(5)
-
-
-
-# def upload_to(instance, filename):
-#     allowed_extensions = {'.raw', '.baf', '.yep', '.mgf', '.mzml', '.mzxml', '.fasta'}
-#     fext = os.path.splitext(filename)[-1].lower()
-#     if fext in allowed_extensions:
-#         upfolder = fext[1:]
-#     else:
-#         upfolder = 'other'
-#     return os.path.join('uploads', upfolder, filename)
-
 
 class BaseDocument(models.Model):
     # filepath = models.FileField(upload_to=upload_to)
@@ -177,7 +165,7 @@ class SearchGroup(BaseDocument):
 
     def get_searchruns(self):
 #       import django.db
-#       django.db.connection.close()
+        connection.close()
         return self.searchrun_set.filter(union=False)
         # return self.searchruns.filter(union=False)
 
