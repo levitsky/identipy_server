@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^results/([0-9]+)/', views.results_figure,     name='figure'),
     url(r'^delete/([0-9]+)/',  views.delete,             name='delete'),
     url(r'^login/',            views.loginview,          name='loginform'),
+    url(r'^logout/',           views.logout_view,        name='logout'),
     url(r'^auth/',             views.auth_and_login,     name='auth'),
     url(r'^choose/(\w*)/',     views.files_view,         name='choose'),
     url(r'^logout/',           views.logout_view,        name='logout'),

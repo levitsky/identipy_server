@@ -16,11 +16,10 @@
  
 
 <div class="inthemiddle">
-    {% if user.username %}
+    {% if user.is_authenticated %}
     <div id="session">
-        <form action="{% url 'identipy_app:logout' %}" method="POST"> {% csrf_token %}<span>Current session: {{ user.username }}</span>
-            <button class="btn" type="submit" name="submit" value="submit-value">Log out</button>
-        </form>
+        <span>Current session: {{ user.username }}</span>
+            <a class="btn" href="{% url 'identipy_app:logout' %}">Log out</a>
     </div>
     {% endif %}
      
