@@ -5,10 +5,10 @@
 <div id="tab">
         
    <form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
-   Search parameters for: <a href="{% url 'identipy_app:details' searchrun.id  %}">{{ searchrun.name|spacify }}</a>       
+    <p>Search parameters for: <a href="{% url 'identipy_app:details' searchrun.id  %}">{{ searchrun.name|spacify }}</a></p>
     <div id="chromoConditionsBlock">
-    Used protein database: {{ fastaname }} <br>
-   <table id="SearchParametersTable">
+       <p> Used protein database: {{ fastaname }} </p>
+       <table id="SearchParametersTable">
           <tr valign="center">
               <td>
                 <input type="text" id="textinput" name="paramsname" value="" placeholder="Enter parameters name"/>
@@ -17,8 +17,8 @@
                   <input type="submit" class="link" value="save parameters" name="submit_action">
               </td>
           </tr>
-    {{ SearchForms.main.as_table }}
-    </table>
+          {{ SearchForms.main.as_table }}
+       </table>
 
 {% if SearchForms.postsearch %}
 <h2>Post-search validation</h2>
