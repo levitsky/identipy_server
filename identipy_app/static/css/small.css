@@ -197,7 +197,7 @@ form{
   
   }
 
-input[type="email"],input[type="password"], input[id="email"], textarea{
+input[type="email"],input[type="password"], input[id="username"], textarea{
   width:80%;
   margin:6%;
   background:/*light-bg*/#FFFFFF;

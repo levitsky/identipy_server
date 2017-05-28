@@ -4,8 +4,8 @@
 
   
 <div class="intable_left">
-        <h2><p>Welcome to the home of IdentiPROT software!</p></h2>
-<p>If you have problems logging in, any questions or comments, please <a class="link" href="/app/contacts">contact</a> our administrators to create an account.</p>
+<h2><p>Welcome to the home of IdentiPROT software!</p></h2>
+<p>If you have problems logging in, any questions or comments, please <a class="link" href="{% url 'identipy_app:contacts' %}">contact</a> our administrators to create an account.</p>
 </div>
             
 <div class="intable_right">
@@ -13,20 +13,15 @@
 <div id="login">
   <h1>WELCOME<br>The single entry point for your proteomic data mining</h1>
   <form action="{% url 'identipy_app:auth' %}" method="POST"> {% csrf_token %}
-    <input type="email" name="email" id="email" value=""  placeholder="Email"/>
+    <input type="text" name="login" id="username" value=""  placeholder="Username"/>
     <input type="password" name="password" id="password" value=""  placeholder="Password"/>
-    <!--<input type="submit" name="submit" value="Log in" />-->
     <button class="btn" type="submit" name="submit" value="submit-value" id="loginbutton">Log in</button>
-      <!--<button type="submit" name="submit" value="submit-value">Sign in</button>-->
-    <!--<input type="email" placeholder="Email" />-->
-    <!--<input type="password" placeholder="Password" />-->
-    <!--<input type="submit" value="Log in" />-->
-     </form>
+  </form>
     {% if message %}
         <h2>{{ message }}</h2>
     {% endif %}
 </div>
     
-  </div>
+</div>
     
 {% endblock %}
