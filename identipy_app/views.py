@@ -168,50 +168,52 @@ def logout_view(request):
 
 def loginview(request, message=None):
     c = {}
-#   c.update(csrf(request))
+##   c.update(csrf(request))
     c['message'] = message
-    if(request.POST.get('contacts')):
-        request.POST = request.POST.copy()
-        request.POST['contacts'] = None
-        c['current'] = 'contacts'
-        return contacts(request, c = {})
-    if(request.POST.get('loginform')):
-        request.POST = request.POST.copy()
-        request.POST['loginform'] = None
-        return loginview(request)
-    if(request.POST.get('about')):
-        request.POST = request.POST.copy()
-        request.POST['about'] = None
-        c['current'] = 'about'
-        return about(request, c = {})
-    elif(request.POST.get('sendemail')):
-        request.POST = request.POST.copy()
-        request.POST['sendemail'] = None
-        c['current'] = ''
-        return email(request, c = c)
+#    if(request.POST.get('contacts')):
+#        request.POST = request.POST.copy()
+#        request.POST['contacts'] = None
+#        c['current'] = 'contacts'
+#        return contacts(request, c = {})
+#    if(request.POST.get('loginform')):
+#        request.POST = request.POST.copy()
+#        request.POST['loginform'] = None
+#        return loginview(request)
+#    if(request.POST.get('about')):
+#        request.POST = request.POST.copy()
+#        request.POST['about'] = None
+#        c['current'] = 'about'
+#        return about(request, c = {})
+#    elif(request.POST.get('sendemail')):
+#        request.POST = request.POST.copy()
+#        request.POST['sendemail'] = None
+#        c['current'] = ''
+#        return email(request, c = c)
     c['current'] = 'loginform'
     return render(request, 'identipy_app/login.html', c)
 
 def auth_and_login(request, onsuccess='/', onfail='/login/'):
-    if(request.POST.get('contacts')):
-        request.POST = request.POST.copy()
-        request.POST['contacts'] = None
-        return contacts(request, c = {})
-    if(request.POST.get('loginform')):
-        request.POST = request.POST.copy()
-        request.POST['loginform'] = None
-        return loginview(request)
-    elif(request.POST.get('sendemail')):
-        request.POST = request.POST.copy()
-        request.POST['sendemail'] = None
-        return email(request, c = {})
-    user = authenticate(username=request.POST['email'], password=request.POST['password'])
+#    if(request.POST.get('contacts')):
+#        request.POST = request.POST.copy()
+#        request.POST['contacts'] = None
+#        return contacts(request, c = {})
+#    if(request.POST.get('loginform')):
+#        request.POST = request.POST.copy()
+#        request.POST['loginform'] = None
+#        return loginview(request)
+#    elif(request.POST.get('sendemail')):
+#        request.POST = request.POST.copy()
+#        request.POST['sendemail'] = None
+#        return email(request, c = {})
+    user = authenticate(username=request.POST['login'], password=request.POST['password'])
     if user is not None:
         request.session.set_expiry(24*60*60)
         login(request, user)
         return redirect(onsuccess)
     else:
-        return loginview(request, message='Wrong username or password')
+#       return loginview(request, message='Wrong username or password')
+#       return render(request, 'identipy_app/login.html', {'message': 'Wrong username or password'})
+        return redirect(onfail, message='Wrong username or password')
 
 #@login_required(login_url='identipy_app/login/')
 #def secured(request):
