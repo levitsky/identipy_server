@@ -480,7 +480,7 @@ class Protease(models.Model):
 class Modification(models.Model):
     name = models.CharField(max_length=80)
     label = models.CharField(max_length=30)
-    aminoacid = models.CharField(max_length=1)
+    aminoacid = models.CharField(max_length=2)
     mass = models.FloatField()
     user = models.ForeignKey(User)
 
