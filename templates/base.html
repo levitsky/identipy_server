@@ -5,7 +5,7 @@
             <script src="{% static 'script/jquery-2.2.0.min.js' %}"></script>
 
 		<meta charset="utf-8">
-        <title>{% block title %}Identipy Server{% endblock %}</title>
+        <title>{% block title %}IdentiPy Server{% endblock %}</title>
 	</head>
         <body>
           {% load staticfiles %}
@@ -16,10 +16,11 @@
  
 
 <div class="inthemiddle">
-    {% if user.is_authenticated %}
+    {% if user.username %}
     <div id="session">
-        <span>Current session: {{ user.username }}</span>
-            <a class="btn" href="{% url 'identipy_app:logout' %}">Log out</a>
+        <form action="{% url 'identipy_app:logout' %}" method="POST"> {% csrf_token %}<span>Current session: {{ user.username }}</span>
+            <button class="btn" type="submit" name="submit" value="submit-value">Log out</button>
+        </form>
     </div>
     {% endif %}
      
