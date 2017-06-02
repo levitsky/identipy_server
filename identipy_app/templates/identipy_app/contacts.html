@@ -1,51 +1,15 @@
-{% extends "base.html" %}
+{% extends "identipy_app/base.html" %}
 {% block title %}Contacts{% endblock %}
 {% block content %}
-<b>Technical support</b>
-<br>
 
-Institute for Energy Problems of Chemical Physics,
-        <br>
-Russian Academy of Sciences
-        <br>
-119334 Moscow Russia
-        <br>
-38 Leninsky pr., bld 2
-        <br>
-Phone: +7 (499) 1378257
-        <br>
-Fax: +7 (499) 1378258
-        <br>
-        <br>
-<b>
-Our administrators:</b>
-        <br>
-Mark V. Ivanov, bioinformatician
-        <br>
+    Contact information must be filled in by the server administrator.
 
-Lev I. Levitsky, bioinformatician
-        <br>
-E-mail: IdentiProt@gmail.com
-        <br>
-        <br>
-
-
-<b>Distribution:</b>
-        <br>
-Valeria Kudryavtseva
-        <br>
-E-mail: vkistanova@mail.ru
-
-
-
-    <div id="contact_us"><h2>
+       <div id="contact_us">
         <a class="btn" href="{% url 'identipy_app:email' %}">Contact us</a>
-        </h2>
-           </div>
+       </div>
     {% if not user.username %}
      <div class="centered">  
-         <a class="backbtn" href="/app/login">back to log in</a>
-         
-           </div>
+         <a class="backbtn" href="{% url 'identipy_app:loginform' %}">back to log in</a>
+      </div>
     {% endif %}
 {% endblock %}
