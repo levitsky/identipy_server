@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% block title %}IdentiPROT server{% endblock%}
+{% extends "identipy_app/base.html" %}
 {% block content %}
 
    {% if user.username %}   
@@ -12,7 +11,7 @@
 {% else %}
 
 
-<p>IdentiPROT search engine, version 1.0, release date 01.01.2017</p>
+<p>IdentiPy Server, version 1.0, release date 01.01.2017</p>
 
 <p>Software performs:</p>
 <ul><li>database search for peptide and protein matching with calculation of HyperScore [1] or MorpheusScore [2] for ranking peptide-spectrum matches;</li>
@@ -26,10 +25,8 @@
 <p>Software has convenient web-interface to specify the parameters for your searches. Engine will process your input data provided in the following formats:</p>
              <ul><li>fasta for protein db</li>
                  <li>mgf or mzML for your experimental data</li></ul>
-<p>An example of the standard search input and output can be viewed
-             <a href="http://pubdata.theorchromo.ru/IdentiProt_presentation/IdentiProt.ppt">here.</a></p>
 <form action="" method="post">{% csrf_token %}
-    <p>To start your search, please, <a class="link" href="/app/login">LOG IN</a> or <a class="link" href="/app/contacts">contact</a> our administrators to create an account.</p></form>
+    <p>To start your search, please, <a class="link" href="{% url 'identipy_app:loginform' %} ">log in</a> or <a class="link" href="{% url 'identipy_app:contacts' %}">contact</a> our administrators to create an account.</p></form>
 
 <p>
 Cited literature:
