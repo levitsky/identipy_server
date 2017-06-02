@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "identipy_app/base.html" %}
 {% block content %}
 {% load stringfilter %}
 <form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
