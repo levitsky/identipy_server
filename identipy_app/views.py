@@ -89,7 +89,7 @@ def form_dispatch(request):
             'select fixed modifications': ('identipy_app:choose', 'fmods'),
             'select potential modifications': ('identipy_app:choose', 'vmods'),
             'enzyme': ('identipy_app:new_protease',),
-            'RUN IdentiPROT': ('identipy_app:run',),
+            'RUN IdentiPy': ('identipy_app:run',),
             'save parameters': ('identipy_app:save',),
             'load parameters': ('identipy_app:choose', 'params'),
             'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
@@ -336,7 +336,7 @@ def email(request):
 
 def email_to_user(username, searchname):
     try:
-        send_mail('Identiprot notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
+        send_mail('IdentiPy Server notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
     except Exception as e:
         print 'Could not send email:'
         print e
@@ -552,7 +552,7 @@ def files_view(request, what):
         'topbtn': len(form.fields.values()[0].choices) >= 15})
     return render(request, 'identipy_app/choose.html', c)
 
-def runidentiprot(request):
+def runidentipy(request):
 #   django.db.connection.close()
     def run_search(newrun, rn, c):
 #       django.db.connection.close()
@@ -715,7 +715,7 @@ def runidentiprot(request):
         p.start()
         newgroup.processpid = p.pid
         newgroup.save()
-        messages.add_message(request, messages.INFO, 'Identiprot started')
+        messages.add_message(request, messages.INFO, 'IdentiPy started')
     else:
         messages.add_message(request, messages.INFO, 'Results with name %s already exist, choose another name' % (c['runname'], ))
     return redirect('identipy_app:getstatus')
