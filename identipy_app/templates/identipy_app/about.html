@@ -1,0 +1,33 @@
+{% extends "identipy_app/base.html" %}
+{% block content %}
+
+<p>IdentiPy Server, version 1.0, release date 01.01.2017</p>
+
+<p>Software performs:</p>
+<ul>
+    <li>database search for peptide and protein matching with calculation of HyperScore [1] or MorpheusScore [2] for ranking peptide-spectrum matches;</li>
+    <li>filtering to a given percentage of global false discovery rate (FDR) using target-decoy approach [3];</li>
+    <li>validation of the protein identification results using MPscore algorithm [4];</li>
+    <li>label free quantitation using spectral count based methods (Normalized Spectral Index [5], Exponentially Modified Protein Abundance Index [6], Normalized Spectral Abundance Factor [7]).</li>
+</ul>
+
+<p>Software has convenient web-interface to specify the parameters for your searches. Engine will process your input data provided in the following formats:</p>
+<ul>
+    <li>fasta for protein db</li>
+    <li>mgf or mzML for your experimental data</li>
+</ul>
+
+<p>To start your search, please, <a class="link" href="{% url 'identipy_app:loginform' %} ">log in</a> or <a class="link" href="{% url 'identipy_app:contacts' %}">contact</a> our administrators to create an account.</p>
+
+<p> Cited literature: </p>
+<ol>
+    <li>Craig R., Beavis R.C. TANDEM: matching proteins with tandem mass spectra // Bioinformatics. 2004. Vol. 20, № 9. P. 1466–1467.</li>
+    <li>Wenger C.D., Coon J.J. A Proteomics Search Algorithm Specifically Designed for High-Resolution Tandem Mass Spectra // J. Proteome Res. 2013. Vol. 12, № 3. P. 1377–1386.</li>
+    <li>Elias J.E., Gygi S.P. Target-decoy search strategy for increased confidence in large-scale protein identifications by mass spectrometry // Nat. Methods. 2007. Vol. 4, № 3. P. 207–214.</li>
+    <li>Ivanov M.V. et al. Empirical Multidimensional Space for Scoring Peptide Spectrum Matches in Shotgun Proteomics // J. Proteome Res. 2014. Vol. 13, № 4. P. 1911–1920.</li>
+    <li>Griffin N.M. et al. Label-free, normalized quantification of complex mass spectrometry data for proteomic analysis // Nat. Biotechnol. 2010. Vol. 28, № 1. P. 83–89.</li>
+    <li>Ishihama Y. et al. Exponentially modified protein abundance index (emPAI) for estimation of absolute protein amount in proteomics by the number of sequenced peptides per protein // Mol. Cell. Proteomics MCP. 2005. Vol. 4, № 9. P. 1265–1272.</li>
+    <li>Zybailov B.L., Florens L., Washburn M.P. Quantitative shotgun proteomics using a protease with broad specificity and normalized spectral abundance factors // Mol. Biosyst. 2007. Vol. 3, № 5. P. 354–360.</li>
+</ol>
+
+{% endblock %}
