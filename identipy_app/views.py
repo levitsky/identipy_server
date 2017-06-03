@@ -130,10 +130,11 @@ def save_parameters(request):
 def index(request):
     # TODO: fix the double "if logged in" logic
     if request.user.is_authenticated():
-        return render(request, 'identipy_app/index.html', {})
+        messages.add_message(request, messages.INFO, 'Login successful.')
+        return redirect('identipy_app:searchpage')
+#       return render(request, 'identipy_app/index.html', {})
     else:
-        c = {'current': 'loginform'}
-        return render(request, 'identipy_app/login.html', {})
+        return redirect('identipy_app:loginform')
 
 def details(request, pK):
     doc = get_object_or_404(SpectraFile, id=pK)
@@ -182,11 +183,7 @@ def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app
         request.session['message'] = 'Wrong username or password'
         return redirect(onfail)
 
-#@login_required(login_url='identipy_app/login/')
-#def secured(request):
-#    c = {}
-#    c.update(csrf(request))
-#    return render(request, "index.html", c)
+
 def delete_search(request):
     for name, val in request.POST.iteritems():
         if val == u'on':
@@ -228,7 +225,6 @@ def status(request, name_filter=False):
 
 def upload(request):
     c = {}
-#   c.update(csrf(request))
     c['current'] = 'upload'
     c['system_size'] = get_size(os.path.join('results', str(request.user.id)))
     for dirn in ['spectra', 'fasta', 'params']:
@@ -302,15 +298,13 @@ def searchpage(request):
 
 def contacts(request):
     c = {}
-#   c.update(csrf(request))
     c['current'] = 'contacts'
     return render(request, 'identipy_app/contacts.html', c)
 
 def about(request):
     c = {}
-#   c.update(csrf(request))
     c['current'] = 'about'
-    return render(request, 'identipy_app/index.html', c)
+    return render(request, 'identipy_app/about.html', c)
 
 def email(request):
     c = {}
@@ -345,7 +339,6 @@ def email_to_user(username, searchname):
 def add_modification(request):
 #   django.db.connection.close()
     c = {}
-#   c.update(csrf(request))
     if request.method == 'POST':
         c['modificationform'] = AddModificationForm(request.POST)
         if c['modificationform'].is_valid():
@@ -398,7 +391,6 @@ def add_modification(request):
 def add_protease(request):
 #   django.db.connection.close()
     c = {}
-#   c.update(csrf(request))
     cc = []
     for pr in Protease.objects.filter(user=request.user):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
@@ -476,7 +468,6 @@ def files_view(request, what):
             'mods': Modification}[what]
 #   django.db.connection.close()
     c = {}
-#   c.update(csrf(request))
 #   usedname = None
     multiform = (usedclass in {SpectraFile, Modification})
 #   c.update({'usedclass': usedclass, 'usedname': usedname})
@@ -724,7 +715,6 @@ def runidentipy(request):
 def search_details(request, pk, c={}):
 #   django.db.connection.close()
     # c = {}
-#   c.update(csrf(request))
     runobj = get_object_or_404(SearchGroup, id=pk)
 #   runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
     request.session['searchgroupid'] = runobj.id
@@ -740,7 +730,6 @@ def search_details(request, pk, c={}):
 def results_figure(request, pk):
 #   django.db.connection.close()
     c = {}
-#   c.update(csrf(request))
 #   runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
     runobj = get_object_or_404(SearchRun, id=pk)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
@@ -750,7 +739,6 @@ def results_figure(request, pk):
 def showparams(request):
 #   django.db.connection.close()
     c = {}
-#   c.update(csrf(request))
     searchgroupid = request.session.get('searchgroupid')
     runobj = SearchGroup.objects.get(id=searchgroupid, user=request.user)
     params_file = runobj.parameters.all()[0]
