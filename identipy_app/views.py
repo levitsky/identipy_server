@@ -65,13 +65,13 @@ def add_forms(request, c):
     if not c['paramtype']:
         c['paramtype'] = request.session.setdefault('paramtype', 3)
     request.session['paramtype'] = c['paramtype']
-    if 'bigform' in request.session:
-        print 'Returning forms from session'
-        c['SearchForms'] = pickle.loads(request.session['bigform'])
+#   if 'bigform' in request.session:
+#       print 'Returning forms from session'
+#       c['SearchForms'] = pickle.loads(request.session['bigform'])
 #       print c['SearchForms']['main'].fields
 #       print '(just kidding, reading file anyway)'
-    else:
-        c['SearchForms'] = search_forms_from_request(request)
+#   else:
+    c['SearchForms'] = search_forms_from_request(request)
 #       c['SearchForms'] = search_params_form(request)
 #   print c['SearchForms']
 
@@ -81,6 +81,8 @@ def form_dispatch(request):
         return redirect('identipy_app:index')
 #   forms = search_params_form(request)
     forms = search_forms_from_request(request)
+    sessiontype = request.session.get('paramtype')
+    save_params_new(forms, request.user, False, sessiontype)
 #   print forms
     action = request.POST['submit_action']
     redirect_map = {
@@ -98,31 +100,29 @@ def form_dispatch(request):
             'Advanced': ('identipy_app:searchpage',),
             }
 
-    print request.POST.items()
-    print request.POST['submit_action'], '!!!'
+#   print request.POST.items()
+#   print request.POST['submit_action'], '!!!'
     request.session['redirect'] = redirect_map[action]
     request.session['runname'] = request.POST.get('runname')
     request.session['paramsname'] = request.POST.get('paramsname')
 #   request.session['next'] = ['searchpage']
     if action in {'Minimal', 'Medium', 'Advanced'}:
-        sessiontype = request.session.get('paramtype')
         gettype = {'Minimal': 1, 'Medium': 2, 'Advanced': 3}[action]
         if sessiontype != gettype:
 #           forms = request.session.pop('bigform', None)
             if forms is not None:
-                save_params_new(forms, request.user, False, sessiontype)
                 request.session['paramtype'] = gettype
                 newforms = search_forms_from_request(request, ignore_post=True)
-                request.session['bigform'] = pickle.dumps(newforms)
+#               request.session['bigform'] = pickle.dumps(newforms)
         request.session['paramtype'] = c['paramtype'] = gettype
-    else:
-        request.session['bigform'] = pickle.dumps(forms)
-
+#   else:
+#       request.session['bigform'] = pickle.dumps(forms)
 
     return redirect(*redirect_map[action])
 
 def save_parameters(request):
-    forms = pickle.loads(request.session['bigform'])
+#   forms = pickle.loads(request.session['bigform'])
+    forms = search_forms_from_request(request, ignore_post=True)
     save_params_new(forms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
     messages.add_message(request, messages.INFO, 'Parameters saved')
     return redirect('identipy_app:searchpage')
@@ -433,19 +433,20 @@ def add_protease(request):
             protease_object = Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=request.user)
             protease_object.save()
             messages.add_message(request, messages.INFO, 'A new cleavage rule was added')
-            if 'bigform' in request.session:
-                sforms = pickle.loads(request.session['bigform'])
-                e = sforms['main'].fields['enzyme']
-                proteases = Protease.objects.filter(user=request.user).order_by('order_val')
-                choices = [(p.rule, p.name) for p in proteases]
-                e.choices = choices
+#           if 'bigform' in request.session:
+#               sforms = pickle.loads(request.session['bigform'])
+            sforms = search_forms_from_request(request, ignore_post=True)
+            e = sforms['main'].fields['enzyme']
+            proteases = Protease.objects.filter(user=request.user).order_by('order_val')
+            choices = [(p.rule, p.name) for p in proteases]
+            e.choices = choices
 #               sforms['main'].fields['enzyme'] = django.forms.ChoiceField(
 #                       label=e.label, label_suffix=e.label_suffix,
 #                       choices=choices, required=e.required, initial=choices[-1])
-                data = sforms['main'].data.copy()
-                data['enzyme'] = protease_rule
-                sforms['main'].data = data
-                request.session['bigform'] = pickle.dumps(sforms)
+            data = sforms['main'].data.copy()
+            data['enzyme'] = protease_rule
+            sforms['main'].data = data
+            request.session['bigform'] = pickle.dumps(sforms)
             return redirect('identipy_app:searchpage')
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
@@ -498,9 +499,10 @@ def files_view(request, what):
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
+            sforms = search_forms_from_request(request, ignore_post=True)
             if what == 'mods':
                 save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
-                sforms = pickle.loads(request.session['bigform'])
+#               sforms = pickle.loads(request.session['bigform'])
                 key = 'fixed' if fixed else 'variable' 
                 if sforms['main'].is_valid():
 
@@ -515,20 +517,22 @@ def files_view(request, what):
                     print '---------------------'
 #                   print forms['main']
 #                   print sforms['main'].fields['variable'].__dict__
-                request.session['bigform'] = pickle.dumps(sforms)
+#               request.session['bigform'] = pickle.dumps(sforms)
+                save_params_new(sforms, request.user, False, request.session['paramtype'])
             if what == 'params':
                 paramfile = chosenfiles[0]
                 parname = paramfile.docfile.name.encode('utf-8')
                 dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type, ))
                 shutil.copy(parname, dst)
                 request.session['paramtype'] = paramfile.type
-                request.session['bigform'] = pickle.dumps(search_forms_from_request(request, ignore_post=True))
+#               request.session['bigform'] = pickle.dumps(search_forms_from_request(request, ignore_post=True))
+                save_params_new(sforms, request.user, False, request.session['paramtype'])
             else:
                 request.session['chosen_' + what] = chosenfilesids
             return redirect('identipy_app:searchpage')
     else:
-        if 'bigform' not in request.session:
-            return redirect('identipy_app:searchpage')
+#       if 'bigform' not in request.session:
+#           return redirect('identipy_app:searchpage')
         kwargs = dict(custom_choices=choices, multiform=multiform)
         if what == 'mods':
             kwargs['labelname'] = 'Select {} modifications:'.format('fixed' if fixed else 'variable')
@@ -693,7 +697,8 @@ def runidentipy(request):
 #       os.mkdir(os.path.join('results', str(request.user.id)))
     c['chosenfasta'] = request.session['chosen_fasta']
     c['chosenspectra'] = request.session['chosen_spectra']
-    c['SearchForms'] = pickle.loads(request.session['bigform'])
+#   c['SearchForms'] = pickle.loads(request.session['bigform'])
+    c['SearchForms'] = search_forms_from_request(request)
     c['paramtype'] = request.session['paramtype']
     if not os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
         newgroup = SearchGroup(groupname=c['runname'], user = request.user)
