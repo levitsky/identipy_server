@@ -766,12 +766,12 @@ def showparams(request):
 def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
-    request.session['show_type'] = ftype
     dbname = request.GET.get('dbname', '')
-    if (not dbname and ftype != request.session['show_type']) and not request.GET.get('download_custom_csv', ''):
+    if (not dbname and ftype != request.session.get('show_type', '')) and not request.GET.get('download_custom_csv', ''):
         request.session['dbname'] = ''
     elif not dbname:
         dbname = request.session.get('dbname', '')
+    request.session['show_type'] = ftype
     runid = request.GET.get('runid', request.session.get('searchrunid'))
     request.session['searchrunid'] = runid
     searchgroupid = request.session.get('searchgroupid')
