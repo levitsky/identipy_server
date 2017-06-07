@@ -541,10 +541,7 @@ def files_view(request, what):
             initvals = [mod.id for mod in Modification.objects.filter(name__in=['ammoniumlossC', 'ammoniumlossQ', 'waterlossE'])]
             form.fields['choices'].initial = initvals
 
-    c.update({'form': form, 'used_class': what,
-#       'usedname': usedname,
-#       'select_form': 'form',
-        'topbtn': len(form.fields.values()[0].choices) >= 15})
+    c.update({'form': form, 'used_class': what})
     return render(request, 'identipy_app/choose.html', c)
 
 def runidentipy(request):

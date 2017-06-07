@@ -2,7 +2,6 @@
 {% load stringfilter %}
 {% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
 {% block content %}
-        <div id="tab">
         <form action="" method="post">{% csrf_token %}
         
         
@@ -98,5 +97,4 @@
         </div>
            
 
-</div>
 {% endblock %}

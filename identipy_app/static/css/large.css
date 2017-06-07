@@ -3,10 +3,19 @@
 /*********************************************************************************/
 
 body {
-    background-image: url(../image/background.jpg);
+    background-image: url(../image/colors-4.png);
     background-size: cover;
     font-family:sans-serif;
+    font-size:1.5vh;
     overflow-y:scroll;
+    --basic:darkolivegreen;
+    --yellow:#FCAB54;
+    --yellowlight:#FFBB64;
+    --button:#609EC1;
+    --buttonlight:#70AED1;
+    --red:#FC6264;
+    --redlight:#FF7274;
+    
 }
 
 
@@ -34,7 +43,7 @@ body {
 	display: inline-block;
 	font-size: 4em;
 	font-weight: 700;
-	color: #000099;
+	color: var(--basic);
 	padding-top: 0.6em;
     padding-left:3%;
 }
@@ -42,7 +51,7 @@ body {
 #logo a
 {
 	text-decoration: none;
-	color: #000099;
+	color: var(--basic);
 }
 
 /*********************************************************************************/
@@ -85,10 +94,10 @@ body {
 .menubar:hover, .menubar:active, .current:active
 {
     background: #FFF;
-    color: #4f4fdf;
+    color:#B9B753;
 }
 .current, .current:hover{
-    color: #000099;
+    color: var(--basic);
 }
 
 /*********************************************************************************/
@@ -98,7 +107,7 @@ body {
 .messages{
     list-style-type: none;
     font-size:1.5em;
-    color:/*message&warning redish*/#AE0066;
+    color:/*message&warning redish*/var(--red);
     text-decoration: underline;
     margin-bottom:1em;
     padding:0;
@@ -114,17 +123,19 @@ body {
   left:10%;
   
   margin-bottom:2em;
-  background:#eeeeff;
+  background:var(--yellowlight);
+  border-radius:5px;
 }
 
 
 #login h1{
-  background:#000099;
+  background:var(--red);
   padding:20px 5px;
   font-size:140%;
   font-weight:400;
   text-align:center;
   color:#fff;
+  border-radius:5px;
 }
 
 #login h2{
@@ -143,27 +154,28 @@ body {
 .btn {
   display: inline-block;
   font-size: 1em;
-  background:#000099;
+  background:var(--button);
   padding:0 1em;
   color:#fff;
   cursor:pointer;
   border:0;
   margin:0.3em 0;
   text-decoration:none;
+    border-radius:5px;
 }
 
 .btn:hover{
-  background:#4f4fdf;
+  background:var(--buttonlight);
   color: #ffffff; 
 }
 
 .red{
-  background:#AE0066;  
+  background:var(--red);  
   color:#fff;   
 }
 
 .red:hover{
-  background:#D4007C;
+  background:var(--redlight);
   color: #ffffff;
 
 }
@@ -175,7 +187,7 @@ form{
   
   }
 
-input[type="email"],input[type="password"], input[id="username"], textarea{
+input[id="username"],input[type="password"], input[id="email"], textarea{
   width:80%;
   margin:6%;
   background:#FFFFFF;
@@ -184,6 +196,8 @@ input[type="email"],input[type="password"], input[id="username"], textarea{
   padding:4%;
   font-size:1em;
   color:#555;
+        border-radius:5px;
+
 }
 #loginbutton{
     display: block;
@@ -198,9 +212,10 @@ input[type="email"],input[type="password"], input[id="username"], textarea{
     padding:0.5em 3em;
     margin-bottom:1em;
     margin-top:1em;
-    
+        border-radius:5px;
+
     word-break:break-all;
-    background:#DBA400;
+    background:var(--yellow);
     color:#fff;
     text-transform:uppercase;
     text-decoration:none;
@@ -210,7 +225,7 @@ input[type="email"],input[type="password"], input[id="username"], textarea{
 }
 
 .backbtn:hover{
-    background:#FFBF00;
+    background:var(--yellowlight);
     color:#fff;
 }
 .link, a{
@@ -221,13 +236,13 @@ input[type="email"],input[type="password"], input[id="username"], textarea{
     cursor:pointer;
     text-decoration:underline;
     font-family:sans-serif;
-    color:#000099;
+    color:var(--basic);
     font-weight: inherit;
     padding:0;
     
 }
 .link:hover, a:hover{
-    color:#4f4fdf;}
+    color:#B9B753;}
 
 
 input[type="file"]{
@@ -238,6 +253,8 @@ input[type="file"]{
     width:300pt;
     height:40pt;;
     border:1;
+        border-radius:5px;
+
     
    
 }
@@ -250,19 +267,25 @@ input[type="file"]{
     width:300pt;
     height: 40pt;
     font-size:1.5em;
-    background:#000099;
+    background:var(--button);
     color:#FFF;
     border:0;
+        border-radius:5px;
+
     
 }
 .searchname{
     font-size:1.5em;
     text-align: center;
+        border-radius:5px;
+
 }
 #local_import textarea{
     margin:0;
     padding:0;
     font-size:1.5em;
+        border-radius:5px;
+
 }
 
 #prev{
@@ -294,6 +317,8 @@ label[for="id_subject"]{
     margin:0;
     box-sizing:border-box;
     font-size:1.5em;
+        border-radius:5px;
+
 }
 #id_subject{
     width:80%;
@@ -303,9 +328,19 @@ label[for="id_subject"]{
     margin:0;
     border:1px solid #ccc;
     color:#555;
+        border-radius:5px;
+
 }
 
-        
+#textinput{
+    border-radius:5px;
+    text-align:center;
+}
+
+.wide {
+    width:15em;
+    height:2em;
+}
 /*********************************************************************************/
 /* Divs                                                                          */
 /*********************************************************************************/
@@ -313,9 +348,11 @@ div.inthemiddle {
     position: relative;
     width: 80%;
     margin:auto;
-    margin-top:70px;
+    margin-top:8vh;
     margin-bottom:2%;
     background-color: #ffffff;
+        border-radius:15px;
+
 }
 
 div.inthemiddle h2{
@@ -411,6 +448,8 @@ table[type="bordered"]{
     margin-top:0;
     margin-bottom:1em;
     box-sizing: border-box;
+        border-radius:5px;
+
     
 }
 
@@ -448,6 +487,8 @@ select{
     font-size:0.9em;
     border:1px solid #BBB;
     text-align: center;
+        border-radius:5px;
+
 
 }
 
@@ -456,6 +497,8 @@ input[type="number"]{
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2em;
+        border-radius:5px;
+
    
 }
 
@@ -464,6 +507,8 @@ input[id="id_fixed"], input[id="id_variable"]{
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2 em;
+        border-radius:5px;
+
    
 }
 
@@ -472,13 +517,14 @@ input[id^="id_main"]{
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2em;
-   
+       border-radius:5px;
+
 }
 .mega {
-    height:15em;
+    height:40vh;
     
     overflow: auto;
-    background: #eee;
+    background: #fff;
     position:relative;
     
 }
@@ -500,6 +546,15 @@ input[id^="id_main"]{
 #SaveSearchParametersTable{
     margin-bottom:1em;
 }
+.scrollable {
+    height:60vh;
+    
+    overflow: auto;
+    background: #fff;
+    position:relative;
+    
+}
+
 /*********************************************************************************/
 /* lists                                                                         */
 /*********************************************************************************/
@@ -513,7 +568,9 @@ div.select{
     padding:0;
 }
 
-
+#id_choices li{
+    padding-bottom:0.5em;
+}
 
 #legend{
         display: inline;
