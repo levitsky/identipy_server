@@ -5,7 +5,6 @@
 
 
 <form action="" method="post">{% csrf_token %}
-        <div id="tab">
         
             <h2 style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup_parent.id %}">{{ searchrun.searchgroup_parent.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a></h2>
            
@@ -49,7 +48,7 @@
             <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
             {{ results_detailed.labelform.as_p }}</td>
-            <td align="right"><input type="submit" class="btn" value="show selected columns" name="select_labels"></td></tr></table>
+            <td align="right"><input type="submit" class="btn wide" value="Show selected columns" name="select_labels"></td></tr></table>
               </form>
             <div class="mega"> <form action="" method="post">{% csrf_token %}
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
@@ -79,14 +78,13 @@
 
         <div id="get_status" class="centered"><form action="" method="post">{% csrf_token %}
         
-        <h2><a class="link" href="{% url 'identipy_app:show' %}?download_custom_csv=True">download as csv</a></h2>
+        <h2><a class="btn" href="{% url 'identipy_app:show' %}?download_custom_csv=True">Download as csv</a></h2>
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
         
             </form>    </div>
            
         
-</div>
     <script>
 
 $(".header").width($(".dt").width());

@@ -24,7 +24,7 @@
         <h2>MS files not selected</h2>
         {% endif %}
 
-   <h2><input type="submit" class="btn" value="Select spectra" name="submit_action"></h2><br>
+   <h2><input type="submit" class="btn wide" value="Select spectra" name="submit_action"></h2><br>
         
    {% if chosenfasta %}
    <table type="bordered">
@@ -46,11 +46,11 @@
         <h2>Protein database file not selected</h2>
    {% endif %}
             
-   <div id="upload_fasta"><h2><input type="submit" class="btn" value="Select protein database" name="submit_action"></h2></div>
+   <div id="upload_fasta"><h2><input type="submit" class="btn wide" value="Select protein database" name="submit_action"></h2></div>
         <br>
         <div id="run_identipy">
-        <input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/>
-         <div id="runbtn"><input type="submit" class="backbtn" value="RUN IdentiPy" name="submit_action"></div>
+        <input type="text" class="searchname wide" name="runname" id="textinput" value="" placeholder="Enter search run name"/>
+         <div id="runbtn"><input type="submit" class="backbtn wide" value="RUN IdentiPy" name="submit_action"></div>
     </div>
    </div>
 
@@ -81,8 +81,8 @@
             <table id="SaveSearchParametersTable" class="searchparams">
                 <tr valign="top">
                     <td><input type="text" id="textinput" name="paramsname" value="" placeholder="Enter parameters name"/></td>
-                    <td><input type="submit" class="link" value="save parameters" name="submit_action"><br>
-                        <input type="submit" class="link" value="load parameters" name="submit_action"></td>
+                    <td><input type="submit" class="link" value="save parameters" name="submit_action"></td></tr>
+                <tr><td></td><td>    <input type="submit" class="link" value="load parameters" name="submit_action"></td>
                 </tr>
             </table>
         </div>

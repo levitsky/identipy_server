@@ -117,7 +117,7 @@ class CommonForm(forms.Form):
 class MultFilesForm(forms.Form):
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop('custom_choices')
-        labelname = kwargs.pop('labelname', 'Select files')
+        labelname = kwargs.pop('labelname', '')
         multiform = kwargs.pop('multiform', True)
         super(MultFilesForm, self).__init__(*args, **kwargs)
         if multiform:
