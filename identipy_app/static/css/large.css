@@ -123,28 +123,32 @@ body {
   left:10%;
   
   margin-bottom:2em;
-  background:var(--yellowlight);
-  border-radius:5px;
+  background:#fff;
+  border-radius:10px;
+  border:3px solid #B9B753;
 }
 
 
 #login h1{
-  background:var(--red);
+  background:#B9B753;
   padding:20px 5px;
   font-size:140%;
   font-weight:400;
   text-align:center;
   color:#fff;
   border-radius:5px;
+    margin:0;
 }
 
 #login h2{
-  background:#7F004A;
+  background:var(--red);
   padding:20px 0;
   font-size:140%;
   font-weight:400;
   text-align:center;
   color:#fff;
+    margin:0;
+    border-radius:5px;
 }
 
 /*********************************************************************************/
@@ -341,6 +345,7 @@ label[for="id_subject"]{
     width:15em;
     height:2em;
 }
+
 /*********************************************************************************/
 /* Divs                                                                          */
 /*********************************************************************************/
@@ -351,7 +356,7 @@ div.inthemiddle {
     margin-top:8vh;
     margin-bottom:2%;
     background-color: #ffffff;
-        border-radius:15px;
+    border-radius:15px;
 
 }
 
@@ -418,7 +423,7 @@ div.inthemiddle h2{
 }
 
 div#colored{
-    background:#eeeeff;
+    background:#fff;
     margin:0;
     margin-bottom:1em;
     padding:0;
@@ -555,6 +560,12 @@ input[id^="id_main"]{
     
 }
 
+.header #headers{
+    background: var(--button);
+}
+#headers th a{
+    color: #fff;
+}
 /*********************************************************************************/
 /* lists                                                                         */
 /*********************************************************************************/
