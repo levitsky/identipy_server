@@ -130,7 +130,6 @@ def save_parameters(request):
 def index(request):
     # TODO: fix the double "if logged in" logic
     if request.user.is_authenticated():
-        messages.add_message(request, messages.INFO, 'Login successful.')
         return redirect('identipy_app:searchpage')
 #       return render(request, 'identipy_app/index.html', {})
     else:
@@ -178,6 +177,7 @@ def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app
     if user is not None:
         request.session.set_expiry(24*60*60)
         login(request, user)
+        messages.add_message(request, messages.INFO, 'Login successful.')
         return redirect(onsuccess)
     else:
         request.session['message'] = 'Wrong username or password'
