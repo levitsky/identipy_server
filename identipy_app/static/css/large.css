@@ -6,7 +6,7 @@ body {
     background-image: url(../image/colors-4.png);
     background-size: cover;
     font-family:sans-serif;
-    font-size:1.5vh;
+    font-size:1em;
     overflow-y:scroll;
     --basic:darkolivegreen;
     --yellow:#FCAB54;
@@ -15,6 +15,7 @@ body {
     --buttonlight:#70AED1;
     --red:#FC6264;
     --redlight:#FF7274;
+    --greenlight:#B9B753;
     
 }
 
@@ -94,7 +95,7 @@ body {
 .menubar:hover, .menubar:active, .current:active
 {
     background: #FFF;
-    color:#B9B753;
+    color:var(--greenlight);
 }
 .current, .current:hover{
     color: var(--basic);
@@ -125,12 +126,12 @@ body {
   margin-bottom:2em;
   background:#fff;
   border-radius:10px;
-  border:3px solid #B9B753;
+  border:3px solid var(--greenlight);
 }
 
 
 #login h1{
-  background:#B9B753;
+  background:var(--greenlight);
   padding:20px 5px;
   font-size:140%;
   font-weight:400;
@@ -246,7 +247,7 @@ input[id="username"],input[type="password"], input[id="email"], textarea{
     
 }
 .link:hover, a:hover{
-    color:#B9B753;}
+    color:var(--greenlight);}
 
 
 input[type="file"]{
