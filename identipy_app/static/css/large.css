@@ -553,7 +553,8 @@ input[id^="id_main"]{
 }
 .scrollable {
     height:60vh;
-    
+    border: 1px solid #eee;
+    border-radius:5px;
     overflow: auto;
     background: #fff;
     position:relative;
