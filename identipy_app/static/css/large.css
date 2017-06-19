@@ -15,8 +15,7 @@ body {
     --buttonlight:#70AED1;
     --red:#FC6264;
     --redlight:#FF7274;
-    --greenlight:#B9B753;
-    
+    --basiclight:#B9B753;    
 }
 
 
@@ -24,23 +23,20 @@ body {
 /* Session                                                                       */
 /*********************************************************************************/
 
-#session
-{
-  position: absolute;
+#session{
+    position: absolute;
 	right: 1.5em;
 	top: 1em;
     font-size: 1em;
     color: #212121;
     text-decoration:none;
-    
 }
 
 /*********************************************************************************/
 /* Logo                                                                          */
 /*********************************************************************************/
 
-#logo h1
-{
+#logo h1{
 	display: inline-block;
 	font-size: 4em;
 	font-weight: 700;
@@ -49,8 +45,7 @@ body {
     padding-left:3%;
 }
 
-#logo a
-{
+#logo a{
 	text-decoration: none;
 	color: var(--basic);
 }
@@ -59,8 +54,7 @@ body {
 /* Menu                                                                          */
 /*********************************************************************************/
 
-#menu
-{
+#menu{
 	position: absolute;
     display: inline-block;
     right: 0;
@@ -68,8 +62,7 @@ body {
 
 }
 
-#menu li
-{
+#menu li{
 	display: block;
 	float: left;
 	text-align: center;
@@ -92,11 +85,11 @@ body {
 
 
 
-.menubar:hover, .menubar:active, .current:active
-{
+.menubar:hover, .menubar:active, .current:active{
     background: #FFF;
-    color:var(--greenlight);
+    color:var(--basiclight);
 }
+
 .current, .current:hover{
     color: var(--basic);
 }
@@ -119,35 +112,34 @@ body {
 
     
 #login{
-  position:relative;
-  width:80%;
-  left:10%;
-  
-  margin-bottom:2em;
-  background:#fff;
-  border-radius:10px;
-  border:3px solid var(--greenlight);
+    position:relative;
+    width:80%;
+    left:10%;
+    margin-bottom:2em;
+    background:#fff;
+    border-radius:10px;
+    border:3px solid var(--basiclight);
 }
 
 
 #login h1{
-  background:var(--greenlight);
-  padding:20px 5px;
-  font-size:140%;
-  font-weight:400;
-  text-align:center;
-  color:#fff;
-  border-radius:5px;
+    background:var(--basiclight);
+    padding:20px 5px;
+    font-size:140%;
+    font-weight:400;
+    text-align:center;
+    color:#fff;
+    border-radius:5px;
     margin:0;
 }
 
 #login h2{
-  background:var(--red);
-  padding:20px 0;
-  font-size:140%;
-  font-weight:400;
-  text-align:center;
-  color:#fff;
+    background:var(--red);
+    padding:20px 0;
+    font-size:140%;
+    font-weight:400;
+    text-align:center;
+    color:#fff;
     margin:0;
     border-radius:5px;
 }
@@ -157,51 +149,49 @@ body {
 /*********************************************************************************/
 
 .btn {
-  display: inline-block;
-  font-size: 1em;
-  background:var(--button);
-  padding:0 1em;
-  color:#fff;
-  cursor:pointer;
-  border:0;
-  margin:0.3em 0;
-  text-decoration:none;
+    display: inline-block;
+    font-size: 1em;
+    background:var(--button);
+    padding:0 1em;
+    color:#fff;
+    cursor:pointer;
+    border:0;
+    margin:0.3em 0;
+    text-decoration:none;
     border-radius:5px;
 }
 
 .btn:hover{
-  background:var(--buttonlight);
-  color: #ffffff; 
+    background:var(--buttonlight);
+    color: #ffffff; 
 }
 
 .red{
-  background:var(--red);  
-  color:#fff;   
+    background:var(--red);  
+    color:#fff;   
 }
 
 .red:hover{
-  background:var(--redlight);
-  color: #ffffff;
-
+    background:var(--redlight);
+    color: #ffffff;
 }
 
 
 form{
-  display: inline-block;
+    display: inline-block;
     width:100%;
-  
-  }
+}
 
 input[id="username"],input[type="password"], input[id="email"], textarea{
-  width:80%;
-  margin:6%;
-  background:#FFFFFF;
-  margin-top: 4%; 
-  border:1px solid #ccc;
-  padding:4%;
-  font-size:1em;
-  color:#555;
-        border-radius:5px;
+    width:80%;
+    margin:6%;
+    background:#FFFFFF;
+    margin-top: 4%; 
+    border:1px solid #ccc;
+    padding:4%;
+    font-size:1em;
+    color:#555;
+    border-radius:5px;
 
 }
 #loginbutton{
@@ -211,14 +201,14 @@ input[id="username"],input[type="password"], input[id="email"], textarea{
     margin: 0 auto;
     margin-bottom: 6%;
 }
+
 .backbtn, a.backbtn{
     display: inline-block;
     font-size:1.5em;
     padding:0.5em 3em;
     margin-bottom:1em;
     margin-top:1em;
-        border-radius:5px;
-
+    border-radius:5px;
     word-break:break-all;
     background:var(--yellow);
     color:#fff;
@@ -243,12 +233,12 @@ input[id="username"],input[type="password"], input[id="email"], textarea{
     font-family:sans-serif;
     color:var(--basic);
     font-weight: inherit;
-    padding:0;
-    
+    padding:0;    
 }
-.link:hover, a:hover{
-    color:var(--greenlight);}
 
+.link:hover, a:hover{
+    color:var(--basiclight);
+}
 
 input[type="file"]{
     position:absolute;
@@ -257,11 +247,7 @@ input[type="file"]{
     cursor:pointer;
     width:300pt;
     height:40pt;;
-    border:1;
-        border-radius:5px;
-
-    
-   
+    border:1;   
 }
 
 .uploadform{
@@ -275,22 +261,20 @@ input[type="file"]{
     background:var(--button);
     color:#FFF;
     border:0;
-        border-radius:5px;
-
-    
+    border-radius:5px;    
 }
+
 .searchname{
     font-size:1.5em;
     text-align: center;
-        border-radius:5px;
-
+    border-radius:5px;
 }
+
 #local_import textarea{
     margin:0;
     padding:0;
     font-size:1.5em;
-        border-radius:5px;
-
+    border-radius:5px;
 }
 
 #prev{
@@ -304,12 +288,14 @@ input[type="file"]{
     left:0;
     top:0;
 }
+
 label[for="id_message"]{
     display:block;
     margin-top:1em;
     font-size:1.5em;
     margin-bottom:1em;
 }
+
 label[for="id_subject"]{
     font-size:1.5em;
     margin-top:1em;
@@ -322,9 +308,10 @@ label[for="id_subject"]{
     margin:0;
     box-sizing:border-box;
     font-size:1.5em;
-        border-radius:5px;
+    border-radius:5px;
 
 }
+
 #id_subject{
     width:80%;
     float:right;
@@ -333,8 +320,7 @@ label[for="id_subject"]{
     margin:0;
     border:1px solid #ccc;
     color:#555;
-        border-radius:5px;
-
+    border-radius:5px;
 }
 
 #textinput{
@@ -371,15 +357,16 @@ div.inthemiddle h2{
     font-size: 1.5em;
     color:#555555;
    /* font-weight:bold;
-    text-indent:0;*/
-        
+    text-indent:0;*/ 
 }
+
 .inthemiddle img{
     position:relative;
     display:block;
     width:100%;
     margin:auto auto;
 }
+
 #tab{
     position:relative;
     margin:0;
@@ -394,10 +381,11 @@ div.inthemiddle h2{
     width:50%;
     margin-bottom:1em;
 }
+
 .leftside p, .intable_left p{
-    
     text-align: left;
 }
+
 .rightside, .intable_right{
     top:0;
     width:50%;
@@ -405,6 +393,7 @@ div.inthemiddle h2{
     overflow:hidden;
     margin-bottom:1em;
 }
+
 #img_list > div {
   display:inline-block;
   padding: 0 1%;
@@ -443,6 +432,16 @@ div#colored{
     margin-bottom:1em;
     position:relative;
 }
+
+.scrollable {
+    height:60vh;
+    border: 1px solid #eee;
+    border-radius:5px;
+    overflow: auto;
+    background: #fff;
+    position:relative;
+}
+
 /*********************************************************************************/
 /* tables                                                                        */
 /*********************************************************************************/
@@ -454,23 +453,22 @@ table[type="bordered"]{
     margin-top:0;
     margin-bottom:1em;
     box-sizing: border-box;
-        border-radius:5px;
-
-    
+    border-radius:5px; 
 }
 
 #headers{
     font-size:1.3em;
     text-align:center;
-    text-decoration:bold;
-    
+    text-decoration:bold; 
 }
+
 table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
    border: 1px solid #BBBBBB;
    box-sizing: border-box;
    padding:0.4em;
    text-align: center;
 }
+
 .searchparams{
     font-size:1em;
     width:75%;
@@ -488,14 +486,13 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
     padding:0 1em;
     width:70%;
 }
+
 select{
     width:102px; 
     font-size:0.9em;
     border:1px solid #BBB;
     text-align: center;
-        border-radius:5px;
-
-
+    border-radius:5px;
 }
 
 input[type="number"]{
@@ -503,9 +500,7 @@ input[type="number"]{
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2em;
-        border-radius:5px;
-
-   
+    border-radius:5px;   
 }
 
 input[id="id_fixed"], input[id="id_variable"]{
@@ -513,9 +508,7 @@ input[id="id_fixed"], input[id="id_variable"]{
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2 em;
-        border-radius:5px;
-
-   
+    border-radius:5px;
 }
 
 input[id^="id_main"]{
@@ -523,12 +516,10 @@ input[id^="id_main"]{
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2em;
-       border-radius:5px;
-
+    border-radius:5px;
 }
 .mega {
-    height:40vh;
-    
+    height:35vh;
     overflow: auto;
     background: #fff;
     position:relative;
@@ -552,22 +543,18 @@ input[id^="id_main"]{
 #SaveSearchParametersTable{
     margin-bottom:1em;
 }
-.scrollable {
-    height:60vh;
-    border: 1px solid #eee;
-    border-radius:5px;
-    overflow: auto;
-    background: #fff;
-    position:relative;
-    
-}
 
 .header #headers{
     background: var(--button);
 }
+.header #headers th:hover{
+    background: var(--buttonlight);
+}
+
 #headers th a{
     color: #fff;
 }
+
 /*********************************************************************************/
 /* lists                                                                         */
 /*********************************************************************************/
@@ -586,7 +573,7 @@ div.select{
 }
 
 #legend{
-        display: inline;
+    display: inline;
     width: 20%;
     vertical-align: middle;
     margin-left: 5%;
