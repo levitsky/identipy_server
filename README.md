@@ -1,8 +1,8 @@
 IdentiPy Server - a Django-based web interface for IdentiPy
-–----------------------------------------------------------
+============================================================
 
 Requirements
-............
+------------
 
  - Python 2.7
  - Django
@@ -21,7 +21,7 @@ IdentiPy and MP score are important from directories adjacent to IdentiPy
 Server. 
 
 Setup
-.....
+-----
 
 ```
 $ hg clone https://bitbucket.org/levitsky/identipy_server
