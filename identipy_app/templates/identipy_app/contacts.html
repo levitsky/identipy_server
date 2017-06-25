@@ -1,0 +1,15 @@
+{% extends "identipy_app/base.html" %}
+{% block title %}Contacts{% endblock %}
+{% block content %}
+
+    Contact information must be filled in by the server administrator.
+ 
+       <div id="contact_us" class="centered">
+           <h2><a class="btn" href="{% url 'identipy_app:email' %}">Contact us</a></h2>
+       </div>
+    {% if not user.username %}
+     <div class="centered">  
+         <a class="backbtn" href="{% url 'identipy_app:loginform' %}">back to log in</a>
+      </div>
+    {% endif %}
+{% endblock %}

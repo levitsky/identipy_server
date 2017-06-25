@@ -1,0 +1,99 @@
+{% extends "identipy_app/base.html" %}
+{% load stringfilter %}
+{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
+{% block content %}
+
+
+<form action="" method="post">{% csrf_token %}
+        
+            <h2 style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup_parent.id %}">{{ searchrun.searchgroup_parent.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a></h2>
+           
+				{% if searchgroup %}
+            <table id="processes_list" type="bordered">
+                <tr id="headers">
+                    <th>Search name</th>
+                    <th>PSMs</th>
+                    <th>Peptides</th>
+                    <th>Proteins</th>
+                    <th>FDR, %</th>
+                    <th>FDR type</th>
+                    <th>MS/MS</th>
+                    <th>Unfiltered PSMs</th>
+                    
+                    
+                </tr>
+            <tr>
+            <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
+            {% if searchrun.numPSMs %}
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=psm">{{ searchrun.numPSMs }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=peptide">{{ searchrun.numPeptides }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=protein">{{ searchrun.numProteins }}</a></td>
+		    {% else %}
+                <td class="td2">{{ searchrun.numPSMs }}</td>
+                <td class="td2">{{ searchrun.numPeptides }}</td>
+                <td class="td2">{{ searchrun.numProteins }}</td>
+		    {% endif %}
+            <td class="td2">{{ searchrun.fdr_psms }}</td>
+            <td class="td2">{{ searchrun.fdr_type }}</td>
+            <td class="td2">{{ searchrun.numMSMS }}</td>
+            <td class="td2">{{ searchrun.totalPSMs }}</td>
+            </tr>
+                </table>
+		{% else %}
+			<p>There are no searches</p>
+		{% endif %}
+
+          <form action="" method="post">{% csrf_token %}      {% if results_detailed %}
+           <table width="100%"><tr><td width="80%" class="floating"> 
+            <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+            {{ results_detailed.labelform.as_p }}</td>
+            <td align="right"><input type="submit" class="btn wide" value="Show selected columns" name="select_labels"></td></tr></table>
+              </form>
+            <div class="mega"> <form action="" method="post">{% csrf_token %}
+                <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+            <table class="header" id="processes_list" type="bordered">
+                <tr id="headers">
+                   {% for label in results_detailed.get_labels %}
+                    <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}">{{ label|spacify }}</a></th>
+                   {% endfor %}
+                </tr></table>
+                <table class="dt" id="processes_list" type="bordered"><tr id="headers">
+			        {% for label in results_detailed.get_labels %}
+                    <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}">{{ label|spacify }}</a></th>
+			        {% endfor %}
+                </tr>
+            {% for prot in results_detailed.get_values %}
+                <tr>
+                {% for val in prot %}
+                <td class="td2">{{ val }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+                </table></form></div>
+		{% else %}
+			<p>There are no searches</p>
+		{% endif %}
+
+        <div id="get_status" class="centered"><form action="" method="post">{% csrf_token %}
+        
+        <h2><a class="btn" href="{% url 'identipy_app:show' %}?download_custom_csv=True">Download as csv</a></h2>
+        <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+        
+            </form>    </div>
+           
+        
+    <script>
+
+$(".header").width($(".dt").width());
+$header = $('.header');
+var x = $header.find('td');
+
+$('.mega').on('scroll',function(){$header.css('top',$(this).scrollTop());});
+$(".header tr th").each(function (i){
+       $(this).width($($(".dt tr:first th")[i]).width());
+})
+</script>
+{% endblock %}

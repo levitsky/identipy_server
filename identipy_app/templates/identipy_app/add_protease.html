@@ -1,0 +1,51 @@
+{% extends "identipy_app/base.html" %}
+{% block title %}Add custom cleavage rule{% endblock%}
+{% block content %}
+
+
+
+<form method="post" id="selectionform">{% csrf_token %}
+<div id="tab">
+    <h2>Add custom cleavage rule</h2>
+    <div>
+        <table width="100%">
+            <tr>
+                {{ proteaseform.non_field_errors }}
+                <td class="leftcolumn">
+                    {{ proteaseform.subject.errors }}
+                    <label for="{{ proteaseform.name.id_for_label }}">Cleavage name:</label>
+                </td>
+                <td class="rightcolumn">{{ proteaseform.name }}</td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">
+                    {{ proteaseform.subject.errors }}
+                     <span for="{{ proteaseform.label.id_for_label }}" title="Examples:
+[RK]|{P} means cut after R and K but not before P
+[X]|[C] means cut after any aminoacid but before C
+[RK]|{P},[E]|[X] means mix of trypsin and GluC proteases" style="cursor:help">Cleavage rule:</span>
+                </td>
+                <td class="rightcolumn">{{ proteaseform.cleavage_rule }}</td>
+            </tr>
+            
+            <tr>
+                <td class="leftcolumn">
+                    <input type="submit" class="btn" value="submit" name="submit_action">
+                </td>
+                <td class="rightcolumn">
+                    <a class="btn" href="{% url 'identipy_app:searchpage' %}">cancel</a>
+                </td>
+                   
+        </table>
+    </div>
+</form>
+        
+
+<form method="post" id="selectionform">{% csrf_token %}
+   <div id ="delprotease">
+       <input class = "btn red" type="submit" value="delete" name="submit_action">
+        {{ proteases.as_table }}
+   </div>
+</div>
+</form>
+{% endblock %}

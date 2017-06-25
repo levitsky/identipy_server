@@ -1,0 +1,92 @@
+{% extends "identipy_app/base.html" %}
+{% block title %}New Search{% endblock%}
+{% block content %}
+
+<form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
+    <div id="left_block" class="vert_block leftside centered">
+        {% if chosenspectra %}
+        <h2>Selected spectra:</h2>
+        <table type="bordered">
+             <tr id="headers">
+                 <th width="50%">Filename</th>
+                 <th width="15%">Size</th>
+                 <th>Upload date</th>
+              </tr>
+              {% for doc in chosenspectra %}
+                <tr>
+                    <td style="word-break:break-all">{{ doc.name }}</td>
+                    <td>{{ doc.docfile.size | filesizeformat }}</td>
+                    <td>{{ doc.date_added }}</td>
+                </tr>
+              {% endfor %}
+        </table>
+        {% else %}
+        <h2>MS files not selected</h2>
+        {% endif %}
+
+   <h2><input type="submit" class="btn wide" value="Select spectra" name="submit_action"></h2><br>
+        
+   {% if chosenfasta %}
+   <table type="bordered">
+       <h2>Selected protein database file:</h2>
+       <tr id="headers">
+           <th width="50%">Filename</th>
+           <th width="15%">Size</th>
+           <th>Upload date</th>
+       </tr>
+       {% for doc in chosenfasta %}
+       <tr>
+           <td style="word-break:break-all">{{ doc.name }}</td>
+           <td>{{ doc.docfile.size | filesizeformat }}</td>
+           <td>{{ doc.date_added }}</td>
+       </tr>
+       {% endfor %}
+   </table>
+   {% else %}
+        <h2>Protein database file not selected</h2>
+   {% endif %}
+            
+   <div id="upload_fasta"><h2><input type="submit" class="btn wide" value="Select protein database" name="submit_action"></h2></div>
+        <br>
+        <div id="run_identipy">
+        <input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/>
+         <div id="runbtn"><input type="submit" class="backbtn wide" value="RUN IdentiPy" name="submit_action"></div>
+    </div>
+   </div>
+
+   <div id="param_block" class="vert_block rightside centered">
+        <h2 id="paramtitle">Specify search parameters</h2>
+                    
+        <div id="upload_parameters">
+            <input type='submit' class="menubar {% if paramtype == 1 %}current{% endif %}" name='submit_action' value='Minimal'>
+            <input type='submit' class="menubar {% if paramtype == 2 %}current{% endif %}" name='submit_action' value='Medium'>
+            <input type='submit' class="menubar {% if paramtype == 3 %}current{% endif %}" name='submit_action' value='Advanced'>
+        </div>
+
+        <div id="params">
+            <table id="MainSearchParametersTable" class="searchparams">
+                  {{ SearchForms.main.as_table }}
+            </table>
+
+            {% if SearchForms.postsearch %}
+            <br>
+            <h2><span title="Select descriptors to use for enhanced FDR filtering" style="cursor: help">Post-search validation</span></h2>
+            <table id="PostSearchParametersTable" class="searchparams">
+                  {{ SearchForms.postsearch.as_table }}
+            </table>
+            {% endif %}
+            <br>
+            <h2>Save/Load parameters</h2>
+
+            <table id="SaveSearchParametersTable" class="searchparams">
+                <tr valign="top">
+                    <td><input type="text" id="textinput" name="paramsname" value="" placeholder="Enter parameters name"/></td>
+                    <td><input type="submit" class="link" value="save parameters" name="submit_action"></td></tr>
+                <tr><td></td><td>    <input type="submit" class="link" value="load parameters" name="submit_action"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+<br>
+{% endblock %}

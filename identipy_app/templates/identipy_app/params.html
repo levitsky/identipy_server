@@ -1,0 +1,29 @@
+{% extends "identipy_app/base.html" %}
+{% block content %}
+{% load stringfilter %}
+<form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
+    <h2>Search parameters for: <a href="{% url 'identipy_app:details' searchrun.id  %}">{{ searchrun.name|spacify }}</a></h2>
+    <div id="params" class="centered">
+       <p> Used protein database: {{ fastaname }} </p>
+       <table id="SearchParametersTable" class="searchparams">
+          <tr valign="center">
+              <td>
+                <input type="text" id="textinput" name="paramsname" value="" placeholder="Enter parameters name"/>
+              </td>
+              <td>
+                  <input type="submit" class="link" value="save parameters" name="submit_action">
+              </td>
+          </tr>
+          {{ SearchForms.main.as_table }}
+       </table>
+
+{% if SearchForms.postsearch %}
+<h2>Post-search validation</h2>
+<table id="SearchParametersTable" class="centered searchparams">
+{{ SearchForms.postsearch.as_table }}
+</table>
+{% endif %}
+
+</div></form>
+
+{% endblock %}
