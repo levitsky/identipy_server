@@ -500,16 +500,19 @@ def files_view(request, what):
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
             sforms = search_forms_from_request(request, ignore_post=True)
+            print sforms
             if what == 'mods':
                 save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
 #               sforms = pickle.loads(request.session['bigform'])
                 key = 'fixed' if fixed else 'variable' 
-                if sforms['main'].is_valid():
+                if True:#sforms['main'].is_valid():
 
-                    data = sforms['main'].data.copy()
-                    data[u'main-'+key] = u','.join(mod.get_label() for mod in chosenfiles)
-                    sforms['main'].data = data
-                    print sforms['main'].data
+                    # data = sforms['main'].data.copy()
+                    # print data
+                    # data[u'main-'+key] = u','.join(mod.get_label() for mod in chosenfiles)
+                    sforms['main'][key].initial = ','.join(mod.get_label() for mod in chosenfiles)
+                    # sforms['main'].data = data
+                    # print sforms['main'].data
 #                   print forms['main'].data
 #                   sforms['main'].fields[key] = django.forms.CharField(disabled=True, required=False,
 #                           initial=','.join(mod.get_label() for mod in chosenfiles), label=SearchParamsForm1._labels[key])
@@ -518,6 +521,10 @@ def files_view(request, what):
 #                   print forms['main']
 #                   print sforms['main'].fields['variable'].__dict__
 #               request.session['bigform'] = pickle.dumps(sforms)
+                else:
+                    print 'MAIN SEARCH FORM INVALID'
+                    # c['SearchForms'] = sforms
+                    # return render(request, 'identipy_app/startsearch.html', c)
                 save_params_new(sforms, request.user, False, request.session['paramtype'])
             if what == 'params':
                 paramfile = chosenfiles[0]
