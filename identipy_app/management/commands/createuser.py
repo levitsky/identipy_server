@@ -27,13 +27,14 @@ class Command(BaseCommand):
         user = User.objects.create_user(user_name, email, user_passwd)
 
         df_dir = 'default_fasta'
-        for flname in os.listdir(df_dir):
-            fl = open(os.path.join(df_dir, flname))
-            djangofl = File(fl)
-            djangofl.name = os.path.basename(djangofl.name)
-            fastaobj = FastaFile(docfile = djangofl, user = user)
-            fastaobj.save()
-            fl.close()
+        if os.path.isdir(df_dir):
+            for flname in os.listdir(df_dir):
+                fl = open(os.path.join(df_dir, flname))
+                djangofl = File(fl)
+                djangofl.name = os.path.basename(djangofl.name)
+                fastaobj = FastaFile(docfile = djangofl, user = user)
+                fastaobj.save()
+                fl.close()
         
         for paramtype in [1, 2, 3]:
             fl = open('latest_params_%d.cfg' % paramtype)
