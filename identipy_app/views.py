@@ -356,7 +356,7 @@ def add_modification(request):
             if c['modificationform'].cleaned_data['aminoacids'] == 'X':
                 c['modificationform'].cleaned_data['aminoacids'] = parser.std_amino_acids
             added = []
-            allowed_set = set(parser.std_amino_acids + ['[', ']'])
+            allowed_set = set(list(mass.std_aa_mass) + ['[', ']'])
             for aminoacid in c['modificationform'].cleaned_data['aminoacids'].split(','):
                 if (len(aminoacid) == 1 and aminoacid in allowed_set) \
                         or (len(aminoacid) == 2 and ((aminoacid[0]=='[' and aminoacid[1] in allowed_set) or (aminoacid[1]==']' and aminoacid[0] in allowed_set))):
