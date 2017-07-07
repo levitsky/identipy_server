@@ -105,8 +105,7 @@ def get_label(name):
     if name not in {'enzyme', 'fixed', 'variable'}:
         tmplabel, tmphelp = params_map.get(name, [name, ''])
         return SubmitButtonField(label="", initial="").widget.render2(tmplabel, tmphelp)
-    else:
-        return params_map[name]
+    return params_map[name]
 
 
 class CommonForm(forms.Form):
@@ -132,7 +131,7 @@ class MultFilesForm(forms.Form):
 class SearchParametersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        raw_config = kwargs.pop('raw_config', 0)
+        raw_config = kwargs.pop('raw_config', None)
         userid = kwargs.pop('user', None)
         self.sftype = kwargs.pop('sftype', 'main')
         super(SearchParametersForm, self).__init__(*args, **kwargs)
@@ -325,6 +324,7 @@ def _kwargs_for_search_form(request):
             user=request.user.id, type=request.session['paramtype'])
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('utf-8'))
+    print 'Reading', paramobj.docfile.name
     kwargs = dict(raw_config=raw_config, user=request.user, label_suffix='')
     return kwargs
 
