@@ -6,19 +6,23 @@ Requirements
 
  - Python 2.7
  - Django
- - django-multiupload
  - identipy and its dependencies
+   - pyteomics
+   - pyteomics.cythonize
+   - scipy
  - MP score and its dependencies
+   - seaborn
+   - mechanize
 
-IdentiPy can be found at: https://bitbucket.org/levitsky/identipy
+IdentiPy: https://bitbucket.org/levitsky/identipy
 MP score: https://bitbucket.org/markmipt/mp-score
 
 How to run IdentiPy Server
 --------------------------
 
 IdentiPy Server currently works on Unix-like operating systems only.
-IdentiPy and MP score are important from directories adjacent to IdentiPy
-Server. 
+IdentiPy and MP score are imported from directories adjacent to IdentiPy
+Server.
 
 Setup
 -----
