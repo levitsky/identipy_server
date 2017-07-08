@@ -7,12 +7,12 @@ Requirements
  - Python 2.7
  - Django
  - identipy and its dependencies
-   - pyteomics
-   - pyteomics.cythonize
-   - scipy
+    * pyteomics
+    * pyteomics.cythonize
+    * scipy
  - MP score and its dependencies
-   - seaborn
-   - mechanize
+    * seaborn
+    * mechanize
 
 IdentiPy: https://bitbucket.org/levitsky/identipy
 MP score: https://bitbucket.org/markmipt/mp-score
