@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from multiupload.fields import MultiFileField
+# from multiupload.fields import MultiFileField
 from collections import OrderedDict
 
 from django.urls import reverse
@@ -109,8 +109,8 @@ def get_label(name):
 
 
 class CommonForm(forms.Form):
-    commonfiles = MultiFileField(
-        min_num=1, max_num=100, max_file_size=1024 * 1024 * 1024 * 100, label='Upload')
+    commonfiles = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
+        label='Upload')
 
 
 class MultFilesForm(forms.Form):
