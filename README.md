@@ -50,8 +50,10 @@ You can then run Django development server to test your setup:
 $ python2 manage.py runserver
 ```
 
+While the development server is running, you can log into IdentiPy Server and use it in your browser.
+
 For more reliable use (especially for multiple-user installations), we recommend running IndetiPy Server with a WSGI-compatible
-web server application like Apache or Nginx+uWSGI:
+web server application like Apache or Nginx+uWSGI, instead of the Django development server:
 
 https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
 
