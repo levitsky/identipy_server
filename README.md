@@ -41,6 +41,7 @@ Run these commands to initialize the database:
 ```
 $ cd identipy_server
 $ python2 manage.py migrate
+$ python2 manage.py createsuperuser
 $ python2 manage.py createuser <username>
 ```
 
