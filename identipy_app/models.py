@@ -478,7 +478,6 @@ class Modification(models.Model):
     def get_label(self):
         if self.aminoacid == '[':
             return self.label + '-'
-        elif self.aminoacid == ']':
+        if self.aminoacid == ']':
             return '-' + self.label
-        else:
-            return self.label + self.aminoacid
+        return self.label + self.aminoacid

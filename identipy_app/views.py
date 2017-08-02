@@ -578,7 +578,7 @@ def runidentipy(request):
             os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
 
     def totalrun(idsettings, newrun, usr, paramfile):
-#       django.db.connection.close()
+        django.db.connection.close()
         procs = []
         spectralist = newrun.get_spectrafiles_paths()
         fastalist = newrun.get_fastafile_path()
