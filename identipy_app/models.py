@@ -433,7 +433,7 @@ class SearchRun(BaseDocument):
                 psmsnum = int(subprocess.check_output(['grep', '-c', '<spectrum_query', '%s' % (fn, )]))
             except:
                 psmsnum = sum(1 for _ in pepxml.read(fn))
-            self.totalPSMs = psmsnum
+            self.totalPSMs += psmsnum
         for fn in self.get_csvfiles_paths(ftype='psm'):
             with open(fn, "r") as cf:
                 self.numPSMs += sum(1 for _ in csv.reader(cf)) - 1
