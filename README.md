@@ -13,17 +13,17 @@ Requirements
     * scipy
     * lxml
  - MP score and its dependencies
-    * seaborn
-      + matplotlib
-        + cycler, pyparsing, python-dateutil, functools32
+    * matplotlib
+       + cycler, pyparsing, python-dateutil, functools32
     * mechanize
-    * pyteomics.biolccc
  - psutil
  - Pillow
 
 IdentiPy: https://bitbucket.org/levitsky/identipy
 
 MP score: https://bitbucket.org/markmipt/mp-score
+
+The other dependencies can be installed using `pip` or the package manager of your operating system.
 
 How to run IdentiPy Server
 --------------------------
