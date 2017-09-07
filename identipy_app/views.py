@@ -850,7 +850,12 @@ def getfiles(request, usedclass=False):
         down_type = request.GET['down_type']
         searchgroupid = request.session.get('searchgroupid')#c['searchgroup']
         searchgroup = SearchGroup.objects.get(id=searchgroupid)
-        for searchrun in searchgroup.get_searchruns_all():
+        runid = request.GET.get('runid')
+        if runid is not None:
+            runs = [SearchRun.objects.get(id=runid)]
+        else:
+            runs = searchgroup.get_searchruns_all()
+        for searchrun in runs:
             if down_type == 'csv':
                 for down_fn in searchrun.get_csvfiles_paths():
                     filenames.append(down_fn)

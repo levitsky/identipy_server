@@ -2,10 +2,8 @@
 {% load stringfilter %}
 {% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
 {% block content %}
-        <form action="" method="post">{% csrf_token %}
         
-        
-            <h2> <p style="word-break:break-word">Search results: <input type="submit" class="link" value = {{ searchrun.searchgroup_parent.groupname|spacify }} name="search_details">/{{ searchrun.name|spacify}}</p></h2>
+<h2> <p style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup_parent.id %}">{{ searchrun.searchgroup_parent.groupname|spacify }}</a>/{{ searchrun.name|spacify}}</p></h2>
         
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
@@ -18,15 +16,13 @@
                     <th>FDR type</th>
                     <th>MS/MS</th>
                     <th>Unfiltered PSMs</th>
-                    
-                    
                 </tr>
             <tr>
             <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
             {% if searchrun.numPSMs %}
-                <td><a class="td2" class="link" value={{ searchrun.numPSMs }} href="{% url 'identipy_app:show' %}?show_type=psm">{{ searchrun.numPSMs }}</a></td>
-                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=peptide">{{ searchrun.numPeptides }}</a></td>
-                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=protein">{{ searchrun.numProteins }}</a></td>
+            <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{searchrun.id}}&show_type=psm">{{ searchrun.numPSMs }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{searchrun.id}}&show_type=peptide">{{ searchrun.numPeptides }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{searchrun.id}}&show_type=protein">{{ searchrun.numProteins }}</a></td>
 		    {% else %}
                 <td class="td2">{{ searchrun.numPSMs }}</td>
                 <td class="td2">{{ searchrun.numPeptides }}</td>
@@ -42,20 +38,16 @@
 			<p>There are no searches</p>
 		{% endif %}
 
-
-        <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
     	{% if searchrun.totalPSMs %}
         <div id="colored" class="centered">
             Download:
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv">csv files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml">pepxml files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf">mgf files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs">figures in png format</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg">figures in svg format</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&runid={{searchrun.id}}">csv files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&runid={{searchrun.id}}">pepxml files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&runid={{searchrun.id}}">mgf files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&runid={{searchrun.id}}">figures in png format</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&runid={{searchrun.id}}">figures in svg format</a>
         <a class="btn" href="{% url 'identipy_app:showparams' %}">show parameters</a>
-       
-            </div>
+        </div>
         <div class = "vert_block" >
 			<div id="img_list">
             <h2>PSM distributions</h2>
