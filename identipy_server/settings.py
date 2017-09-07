@@ -25,7 +25,7 @@ SECRET_KEY = 'pv0^x(*qfo_e$#3@f_v_9%@hr3i#+7-y!pjd)p7byzg6bli4q-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'calc-server']
 
 
 # Application definition

@@ -20,8 +20,6 @@
             {% for searchrun in searchgroup.get_searchruns_all %}
                 <tr>
                 <td><a class="td1" style="word-break:break-word" href="{% url 'identipy_app:figure' searchrun.id %}" class="link" name="results_figure">{{ searchrun.name|spacify }}</a></td>
-                <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-                <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
                 <td class="td2">{{ searchrun.numMSMS }}</td>
                 <td class="td2">{{ searchrun.totalPSMs }}</td>
                 <td class="td2">{{ searchrun.fdr_psms }}</td>
@@ -42,21 +40,18 @@
 			<p>There are no searches.</p>
 		{% endif %}
 
-        
         <div id="colored" class="centered">
-        <form action="" method="post">{% csrf_token %}
          Download:
-        <input type="submit" class="btn" value="csv files" name="download_csv">
-        <input type="submit" class="btn" value="pepxml files" name="download_pepxml">
-        <input type="submit" class="btn" value="mgf files" name="download_mgf">
-        <input type="submit" class="btn" value="show parameters" name="showparams">
-        </form>
-         </div> 
-            <form action="" method="post" class="centered">{% csrf_token %}
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv">csv files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml">pepxml files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf">mgf files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs">figures in png format</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg">figures in svg format</a>
+        <a class="btn" href="{% url 'identipy_app:showparams' %}">show parameters</a>
+        </div> 
         
-            <div id="get_status" class="centered">
-                <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
-            </div>
-            </form>
+        <div id="get_status" class="centered">
+          <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
+        </div>
         
 {% endblock %}
