@@ -12,6 +12,7 @@ Requirements
     * numpy
     * scipy
     * lxml
+      + (if installed with pip, lxml will need development packages of libxml2 and libxslt to compile)
  - MP score and its dependencies
     * matplotlib
        + cycler, pyparsing, python-dateutil, functools32
