@@ -79,12 +79,13 @@ def form_dispatch(request):
     c = {}
     if request.GET or not request.user.is_authenticated():
         return redirect('identipy_app:index')
-#   forms = search_params_form(request)
-    forms = search_forms_from_request(request)
-    sessiontype = request.session.get('paramtype')
-    save_params_new(forms, request.user, False, sessiontype)
-#   print forms
     action = request.POST['submit_action']
+    if action != 'Search previous runs by name':
+#   forms = search_params_form(request)
+        forms = search_forms_from_request(request)
+        sessiontype = request.session.get('paramtype')
+        save_params_new(forms, request.user, False, sessiontype)
+#   print forms
     redirect_map = {
             'Select spectra': ('identipy_app:choose', 'spectra'),
             'Select protein database': ('identipy_app:choose', 'fasta'),
