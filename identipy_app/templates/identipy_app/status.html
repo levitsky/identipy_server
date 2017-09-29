@@ -17,17 +17,13 @@
     </form>
 </div>
 <div class="vert_block">
-        
+
         {% if res_page != max_res_page %}
-        
         <a id="prev" class="btn" href="{% url 'identipy_app:getstatus' %}?res_page=+1" name="prev_runs">older runs >></a>
         {% endif %}
 
         {% if res_page != 1 %}
-        
         <a id="newer" class="btn" href="{% url 'identipy_app:getstatus' %}?res_page=-1" name="next_runs"><< newer runs</a>
- 
-            
 		{% endif %}
 </div>
 <form action="{% url 'identipy_app:delete_search' %}" method="post">{% csrf_token %}
@@ -35,7 +31,7 @@
         <tr id="headers">
             <th><input type="submit" class="btn red" value="Delete" name="submit_action"/></th>
             <th>Search name</th>
-            <th>Search date</th>
+            <th>Start date</th>
             <th>Status</th>
         </tr>
 	{% for doc in processes %}
