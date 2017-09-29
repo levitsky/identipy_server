@@ -53,7 +53,7 @@ tasker = Tasker()
 try:
     searchgroups = SearchGroup.objects.all()
     for searchgroup in searchgroups:
-        if not searchgroup.status.startswith('Task is finished'):
+        if not searchgroup.status.startswith('Task finished'):
             searchgroup.change_status('Task is dead')
     #        searchgroup.delete()
     #        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
@@ -661,7 +661,7 @@ def runidentipy(request):
 
         if newgroup.get_notification():
             email_to_user(newgroup.user.username, newgroup.groupname)
-        newgroup.change_status('Task is finished at %s' % (time.strftime("%d_%H-%M-%S"), ))
+        newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
 
     def start_all(newgroup, rn, c):
 #       django.db.connection.close()
