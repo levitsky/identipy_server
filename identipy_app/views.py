@@ -692,6 +692,12 @@ def runidentipy(request):
         p.start()
 
     c = {}
+    failure = ''
+    if not request.session.get('chosen_fasta'):
+        failure += 'No database selected. '
+    if not request.session.get('chosen_spectra'):
+        failure += 'No spectrum files selected. '
+
     if not request.session.get('runname'):
         c['runname'] = time.strftime("%Y-%m-%d %H:%M:%S")
     else:
@@ -705,7 +711,9 @@ def runidentipy(request):
 #   c['SearchForms'] = pickle.loads(request.session['bigform'])
     c['SearchForms'] = search_forms_from_request(request)
     c['paramtype'] = request.session['paramtype']
-    if not os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
+    if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
+        failure += 'Results with name "%s" already exist, choose another name' % c['runname']
+    if not failure:
         newgroup = SearchGroup(groupname=c['runname'], user = request.user)
         newgroup.save()
         newgroup.add_files(c)
@@ -717,10 +725,10 @@ def runidentipy(request):
         newgroup.processpid = p.pid
         newgroup.save()
         messages.add_message(request, messages.INFO, 'IdentiPy started')
+        return redirect('identipy_app:getstatus')
     else:
-        messages.add_message(request, messages.INFO, 'Results with name %s already exist, choose another name' % (c['runname'], ))
-    return redirect('identipy_app:getstatus')
-
+        messages.add_message(request, messages.INFO, failure)
+        return redirect('identipy_app:searchpage')
 
 def search_details(request, pk, c={}):
 #   django.db.connection.close()
