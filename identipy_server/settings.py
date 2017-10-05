@@ -25,8 +25,9 @@ SECRET_KEY = 'pv0^x(*qfo_e$#3@f_v_9%@hr3i#+7-y!pjd)p7byzg6bli4q-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.0.3']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+DATETIME_FORMAT = 'M j, H:i:s'
 
 # Application definition
 
