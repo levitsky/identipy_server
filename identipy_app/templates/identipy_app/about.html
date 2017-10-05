@@ -8,16 +8,17 @@
     <li>database search for peptide and protein matching with calculation of HyperScore [1] or MorpheusScore [2] for ranking peptide-spectrum matches;</li>
     <li>filtering to a given percentage of global false discovery rate (FDR) using target-decoy approach [3];</li>
     <li>validation of the protein identification results using MPscore algorithm [4];</li>
-    <li>label free quantitation using spectral count based methods (Normalized Spectral Index [5], Exponentially Modified Protein Abundance Index [6], Normalized Spectral Abundance Factor [7]).</li>
+    <li>label-free quantitation using spectral count based methods (Normalized Spectral Index [5], Exponentially Modified Protein Abundance Index [6], Normalized Spectral Abundance Factor [7]).</li>
 </ul>
 
-<p>Software has convenient web-interface to specify the parameters for your searches. Engine will process your input data provided in the following formats:</p>
+<p>This software provides a Web interface for specification of search parameters and inspection of results.
+IdentiPy search engine supports the following formats:</p>
 <ul>
-    <li>fasta for protein db</li>
-    <li>mgf or mzML for your experimental data</li>
+    <li>FASTA for protein databases</li>
+    <li>MGF or mzML for MS/MS data</li>
 </ul>
 
-<p>To start your search, please, <a class="link" href="{% url 'identipy_app:loginform' %} ">log in</a> or <a class="link" href="{% url 'identipy_app:contacts' %}">contact</a> our administrators to create an account.</p>
+<p>To start your search, please, <a class="link" href="{% url 'identipy_app:loginform' %} ">log in</a> or <a class="link" href="{% url 'identipy_app:contacts' %}">contact</a> the administrators to create an account.</p>
 
 <p> Cited literature: </p>
 <ol>
