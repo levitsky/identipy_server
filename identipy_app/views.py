@@ -191,7 +191,7 @@ def delete_search(request):
             processes = SearchGroup.objects.filter(user=request.user.id, groupname=name.replace(u'\xa0', ' '))
             for obj in processes:
                 obj.full_delete()
-    return redirect(*('identipy_app:getstatus',))
+    return redirect('identipy_app:getstatus')
 
 def status(request, name_filter=False):
 #   django.db.connection.close()
@@ -373,9 +373,9 @@ def add_modification(request):
                 return render(request, 'identipy_app/add_modification.html', c)
             else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
-                if 'bigform' in request.session:
-                    next = request.session.get('next', [])
-                    return redirect(*next.pop())
+                if 'next' in request.session:
+                    print request.session['next']
+                    return redirect(*request.session['next'].pop())
                 else:
                     return redirect('identipy_app:searchpage')
                 # return select_modifications(request, c = c, fixed=c['fixed'])
@@ -441,13 +441,7 @@ def add_protease(request):
             proteases = Protease.objects.filter(user=request.user).order_by('order_val')
             choices = [(p.rule, p.name) for p in proteases]
             e.choices = choices
-#               sforms['main'].fields['enzyme'] = django.forms.ChoiceField(
-#                       label=e.label, label_suffix=e.label_suffix,
-#                       choices=choices, required=e.required, initial=choices[-1])
-            data = sforms['main'].data.copy()
-            data['enzyme'] = protease_rule
-            sforms['main'].data = data
-            request.session['bigform'] = pickle.dumps(sforms)
+            save_params_new(sforms, request.user, False, request.session['paramtype'])
             return redirect('identipy_app:searchpage')
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
@@ -506,26 +500,7 @@ def files_view(request, what):
                 save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
 #               sforms = pickle.loads(request.session['bigform'])
                 key = 'fixed' if fixed else 'variable' 
-                if True:#sforms['main'].is_valid():
-
-                    # data = sforms['main'].data.copy()
-                    # print data
-                    # data[u'main-'+key] = u','.join(mod.get_label() for mod in chosenfiles)
-                    sforms['main'][key].initial = ','.join(mod.get_label() for mod in chosenfiles)
-                    # sforms['main'].data = data
-                    # print sforms['main'].data
-#                   print forms['main'].data
-#                   sforms['main'].fields[key] = django.forms.CharField(disabled=True, required=False,
-#                           initial=','.join(mod.get_label() for mod in chosenfiles), label=SearchParamsForm1._labels[key])
-
-                    print '---------------------'
-#                   print forms['main']
-#                   print sforms['main'].fields['variable'].__dict__
-#               request.session['bigform'] = pickle.dumps(sforms)
-                else:
-                    print 'MAIN SEARCH FORM INVALID'
-                    # c['SearchForms'] = sforms
-                    # return render(request, 'identipy_app/startsearch.html', c)
+                sforms['main'][key].initial = ','.join(mod.get_label() for mod in chosenfiles)
                 save_params_new(sforms, request.user, False, request.session['paramtype'])
             if what == 'params':
                 paramfile = chosenfiles[0]
