@@ -6,7 +6,6 @@ body{
     font-size:0.8em;
 }
 
-*{margin:0;padding:0;}
 
 /*********************************************************************************/
 /* Session                                                                       */
@@ -35,7 +34,7 @@ body{
 	position: absolute;
     display: inline-block;
     right: 0;
-	top: 4.4em;
+	top:3.3em;
 }
 
 #menu li{
