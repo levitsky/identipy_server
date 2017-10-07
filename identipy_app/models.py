@@ -85,6 +85,7 @@ class OverwriteStorage(FileSystemStorage):
 
 class PepXMLFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    filtered = models.BooleanField(default=False)
 
 
 class ResImageFile(BaseDocument):
@@ -201,7 +202,11 @@ class SearchGroup(BaseDocument):
         for sr in self.get_searchruns_all():
             sr.full_delete()
         self.delete()
-        shutil.rmtree('results/%s/%s' % (str(self.user.id), self.name().encode('ASCII')))
+        tree = 'results/%s/%s' % (str(self.user.id), self.name().encode('utf-8'))
+        try:
+            shutil.rmtree(tree)
+        except Exception:
+            print 'Could not remove tree:', tree
 
 class SearchRun(BaseDocument):
     searchgroup_parent = models.ForeignKey(SearchGroup)
@@ -365,15 +370,15 @@ class SearchRun(BaseDocument):
                     '/')[-1].encode('utf-8')  + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
         return mp_images
     
-    def get_pepxmlfiles(self):
+    def get_pepxmlfiles(self, filtered=False):
 #       import django.db
 #       django.db.connection.close()
-        return self.pepxmlfiles.all()
+        return self.pepxmlfiles.filter(filtered=filtered)
 
-    def get_pepxmlfiles_paths(self):
+    def get_pepxmlfiles_paths(self, filtered=False):
 #       import django.db
 #       django.db.connection.close()
-        return [pep.docfile.name.encode('utf-8') for pep in self.pepxmlfiles.all()]
+        return [pep.docfile.name.encode('utf-8') for pep in self.get_pepxmlfiles(filtered=filtered)]
 
     def get_spectrafiles_paths(self):
 #       import django.db

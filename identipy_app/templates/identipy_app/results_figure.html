@@ -41,11 +41,12 @@
     	{% if searchrun.totalPSMs %}
         <div id="colored" class="centered">
             Download:
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&runid={{searchrun.id}}">csv files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&runid={{searchrun.id}}">pepxml files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&runid={{searchrun.id}}">mgf files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&runid={{searchrun.id}}">figures in png format</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&runid={{searchrun.id}}">figures in svg format</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&runid={{searchrun.id}}">CSV files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&runid={{searchrun.id}}">pepXML files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&runid={{searchrun.id}}&filtered=true">filtered pepXML files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&runid={{searchrun.id}}">MGF files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&runid={{searchrun.id}}">PNG figures</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&runid={{searchrun.id}}">SVG figures</a>
         <a class="btn" href="{% url 'identipy_app:showparams' %}">show parameters</a>
         </div>
         <div class = "vert_block" >

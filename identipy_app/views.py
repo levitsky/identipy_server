@@ -581,7 +581,7 @@ def runidentipy(request):
         dname = os.path.dirname(pepxmllist[0])
         for tmpfile in os.listdir(dname):
             ftype = os.path.splitext(tmpfile)[-1]
-            if ftype in ['.png', '.svg'] and newrun.name() + '_' in os.path.basename(tmpfile.decode('utf-8')):
+            if ftype in {'.png', '.svg'} and newrun.name() + '_' in os.path.basename(tmpfile.decode('utf-8')):
                 fl = open(os.path.join(dname, tmpfile).decode('utf-8'))
                 djangofl = File(fl)
                 img = ResImageFile(docfile = djangofl, user = usr, ftype=ftype)
@@ -594,6 +594,13 @@ def runidentipy(request):
             csvf = ResCSV(docfile = djangofl, user = usr, ftype='psm')
             csvf.save()
             newrun.add_rescsv(csvf)
+        if os.path.exists(bname + '_PSMs.pep.xml'):
+            fl = open(bname + '_PSMs.pep.xml', 'rb')
+            djangofl = File(fl)
+            pepxmlfile = PepXMLFile(docfile=djangofl, user=usr, filtered=True)
+            pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
+            pepxmlfile.save()
+            newrun.add_pepxml(pepxmlfile)
         if os.path.exists(bname + '_peptides.csv'):
             fl = open(bname + '_peptides.csv'.decode('utf-8'))
             djangofl = File(fl)
@@ -606,6 +613,11 @@ def runidentipy(request):
             csvf = ResCSV(docfile = djangofl, user = usr, ftype='protein')
             csvf.save()
             newrun.add_rescsv(csvf)
+        for pxml in newrun.get_pepxmlfiles():
+            full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
+            shutil.move(pxml.docfile.name, full)
+            pxml.docfile.name = full
+            pxml.save()
         newrun.calc_results()
         return 1
 
@@ -844,7 +856,8 @@ def getfiles(request, usedclass=False):
                 for down_fn in searchrun.get_csvfiles_paths():
                     filenames.append(down_fn)
             elif down_type == 'pepxml':
-                for down_fn in searchrun.get_pepxmlfiles_paths():
+                filtered = bool(request.GET.get('filtered'))
+                for down_fn in searchrun.get_pepxmlfiles_paths(filtered=filtered):
                     filenames.append(down_fn)
             elif down_type == 'mgf':
                 for down_fn in searchrun.get_spectrafiles_paths():
