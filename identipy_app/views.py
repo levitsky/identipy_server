@@ -31,6 +31,7 @@ import pickle
 import sys
 from multiprocessing import Process
 import urllib
+import glob
 
 from pyteomics import parser, mass
 sys.path.insert(0, '../identipy/')
@@ -248,12 +249,12 @@ def upload(request):
                     newdoc.save()
                 else:
                     pass
-            messages.add_message(request, messages.INFO, 'Upload successful')
+            messages.add_message(request, messages.INFO, 'Upload successful.')
             next = request.session.get('next', [])
             if next:
                 return redirect(*next.pop())
         else:
-            messages.add_message(request, messages.INFO, 'Choose files for upload')
+            messages.add_message(request, messages.INFO, 'Choose files for upload.')
     else:
         commonform = CommonForm()
 
@@ -261,17 +262,15 @@ def upload(request):
 
     return render(request, 'identipy_app/upload.html', c)
 
-def local_import(request):
-    if request.method == 'POST':
-        fname = request.POST.get('filePath').encode('utf-8')
-        print 'IMPORTING FILE', fname
-        fext = os.path.splitext(fname)[-1][1:].lower()
+def _local_import(fname, user):
+    fext = os.path.splitext(fname)[-1][1:].lower()
+    try:
         dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'cfg': 'params'}[fext]
-        path = upload_to_basic(dirn, os.path.split(fname)[1], request.user.id)
-        uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
-                    docfile=path, user=request.user)
-        uploaded.save()
-        print 'docfile', path
+    except KeyError as ke:
+        return ke.args[0]
+    path = upload_to_basic(dirn, os.path.split(fname)[1], user.id)
+    print 'docfile', path
+    try:
         with open(fname, 'rb') as fin:
             with open(path, 'wb') as ff:
                 while True:
@@ -280,7 +279,35 @@ def local_import(request):
                         ff.write(chunk)
                     else:
                         break
-        messages.add_message(request, messages.INFO, 'Import successful')
+    except IOError as e:
+        print 'Error importing', fname, ':', e.args
+    uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
+                docfile=path, user=user)
+    print 'IMPORTING FILE', fname
+    uploaded.save()
+
+def local_import(request):
+    if request.method == 'POST':
+        fname = request.POST.get('filePath').encode('utf-8')
+        if os.path.isfile(fname):
+            ret = _local_import(fname, request.user)
+            if ret is None:
+                message = 'Import successful.'
+            else:
+                message = 'Unsupported file extension: {}'.format(ret)
+        else:
+            ret = []
+            if os.path.isdir(fname):
+                for root, dirs, files in os.walk(fname):
+                    for f in files:
+                        ret.append(_local_import(os.path.join(root, f), request.user))
+            else:
+                for f in glob.glob(fname):
+                    ret.append(_local_import(f, request.user))
+            n = sum(r is None for r in ret)
+            message = '{} file(s) imported.'.format(n)
+
+        messages.add_message(request, messages.INFO, message)
         next = request.session.get('next', [])
         if next:
             return redirect(*next.pop())
