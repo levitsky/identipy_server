@@ -145,7 +145,8 @@ class SearchParametersForm(forms.Form):
 
         def get_field(fieldtype, label, initial):
             if fieldtype == 'type>float':
-                return forms.FloatField(label=label, initial=initial, required=False)
+                return forms.FloatField(label=label, initial=initial, required=False,
+                    widget=forms.NumberInput(attrs={'step': 0.01 if 'product accuracy, Da' in label else 1}))
             elif fieldtype == 'type>int':
                 return forms.IntegerField(label=label, initial=initial, required=False)
             elif fieldtype == 'type>string':
