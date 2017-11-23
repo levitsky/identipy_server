@@ -17,7 +17,6 @@ import django.db
 
 from django.conf import settings
 import os
-os.chdir(settings.BASE_DIR)
 import subprocess
 import zipfile
 import StringIO
@@ -35,6 +34,7 @@ import urllib
 import glob
 
 from pyteomics import parser, mass
+os.chdir(settings.BASE_DIR)
 sys.path.insert(0, '../identipy/')
 sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
@@ -226,6 +226,17 @@ def status(request, name_filter=False):
 #def get_user_latest_params_path(paramtype, userid):
 #    return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
 
+def _save_uploaded_file(uploadedfile, user):
+    fext = os.path.splitext(uploadedfile.name)[-1].lower()
+    if fext in {'.mgf', '.mzml'}:
+        newdoc = SpectraFile(docfile=uploadedfile, user=user)
+        newdoc.save()
+    elif fext in {'.fasta', '.faa'}:
+        newdoc = FastaFile(docfile=uploadedfile, user=user)
+        newdoc.save()
+    else:
+        print 'Unsupported file uploaded:', uploadedfile
+
 def upload(request):
     c = {}
     c['current'] = 'upload'
@@ -241,15 +252,7 @@ def upload(request):
         commonform = CommonForm(request.POST, request.FILES)
         if 'commonfiles' in request.FILES:
             for uploadedfile in request.FILES.getlist('commonfiles'):
-                fext = os.path.splitext(uploadedfile.name)[-1].lower()
-                if fext in ['.mgf', '.mzml']:
-                    newdoc = SpectraFile(docfile=uploadedfile, user=request.user)
-                    newdoc.save()
-                if fext == '.fasta':
-                    newdoc = FastaFile(docfile=uploadedfile, user=request.user)
-                    newdoc.save()
-                else:
-                    pass
+                _save_uploaded_file(uploadedfile, request.user)
             messages.add_message(request, messages.INFO, 'Upload successful.')
             next = request.session.get('next', [])
             if next:
@@ -266,7 +269,7 @@ def upload(request):
 def _local_import(fname, user):
     fext = os.path.splitext(fname)[-1][1:].lower()
     try:
-        dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'cfg': 'params'}[fext]
+        dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'faa': 'fasta', 'cfg': 'params'}[fext]
     except KeyError as ke:
         return ke.args[0]
     path = upload_to_basic(dirn, os.path.split(fname)[1], user.id)
