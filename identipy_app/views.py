@@ -30,6 +30,7 @@ import random
 import pickle
 import sys
 from multiprocessing import Process
+from threading import Thread
 import urllib
 import glob
 
@@ -554,157 +555,162 @@ def files_view(request, what):
     c.update({'form': form, 'used_class': what})
     return render(request, 'identipy_app/choose.html', c)
 
-def runidentipy(request):
+def _run_search(request, newrun, rn, c):
 #   django.db.connection.close()
-    def run_search(newrun, rn, c):
-#       django.db.connection.close()
-        paramfile = newrun.parameters.all()[0].path()
-        fastafile = newrun.fasta.all()[0].path()
-        idsettings = main.settings(paramfile)
-        enz = idsettings.get('search', 'enzyme')
-        protease = Protease.objects.filter(user=request.user, name=enz).first()
-        idsettings.set('search', 'enzyme', protease.rule + '|' + idsettings.get_choices('search', 'enzyme'))
-        idsettings.set('misc', 'iterate', 'peptides')
-        idsettings.set('input', 'database', fastafile.encode('utf-8'))
-        idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('utf-8')))
-        newrun.set_notification(idsettings)
-        totalrun(idsettings, newrun, request.user, paramfile)
-        return 1
+    paramfile = newrun.parameters.all()[0].path()
+    fastafile = newrun.fasta.all()[0].path()
+    idsettings = main.settings(paramfile)
+    enz = idsettings.get('search', 'enzyme')
+    protease = Protease.objects.filter(user=request.user, name=enz).first()
+    idsettings.set('search', 'enzyme', protease.rule + '|' + idsettings.get_choices('search', 'enzyme'))
+    idsettings.set('misc', 'iterate', 'peptides')
+    idsettings.set('input', 'database', fastafile.encode('utf-8'))
+    idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('utf-8')))
+    newrun.set_notification(idsettings)
+    _totalrun(request, idsettings, newrun, paramfile)
+    django.db.connection.close()
+    return 1
 
-    def set_pepxml_path(idsettings, inputfile):
-        if idsettings.has_option('output', 'path'):
-            outpath = idsettings.get('output', 'path')
-        else:
-            outpath = os.path.dirname(inputfile)
-        outpath = outpath.decode('utf-8')
-        return os.path.join(outpath, os.path.splitext(
-            os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
+def _set_pepxml_path(idsettings, inputfile):
+    if idsettings.has_option('output', 'path'):
+        outpath = idsettings.get('output', 'path')
+    else:
+        outpath = os.path.dirname(inputfile)
+    outpath = outpath.decode('utf-8')
+    return os.path.join(outpath, os.path.splitext(
+        os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
 
-    def totalrun(idsettings, newrun, usr, paramfile):
-        django.db.connection.close()
-        procs = []
-        spectralist = newrun.get_spectrafiles_paths()
-        fastalist = newrun.get_fastafile_path()
-        if not newrun.union:
-            for obj in newrun.spectra.all():
-                inputfile = obj.path()
-                p = Process(target=runproc, args=(inputfile, idsettings, newrun, usr))
-                p.start()
-                procs.append(p)
-            for p in procs:
-                p.join()
-            pepxmllist = newrun.get_pepxmlfiles_paths()
-            paramlist = [paramfile]
-            bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
-        else:
-            pepxmllist = newrun.get_pepxmlfiles_paths()
-            paramlist = [paramfile]
-            bname = os.path.dirname(pepxmllist[0].decode('utf-8')) + '/union'
-        newrun.set_FDRs()
-        MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
-        if not os.path.isfile(bname + '_PSMs.csv'):
-            bname = os.path.dirname(bname) + '/union'
+def _totalrun(request, idsettings, newrun, paramfile):
+    django.db.connection.close()
+    procs = []
+    spectralist = newrun.get_spectrafiles_paths()
+    fastalist = newrun.get_fastafile_path()
+    if not newrun.union:
+        for obj in newrun.spectra.all():
+            inputfile = obj.path()
+#           p = Process(target=_runproc, args=(request, inputfile, idsettings, newrun, request.user))
+            p = Thread(target=_runproc, args=(request, inputfile, idsettings, newrun), name='runproc')
+            p.start()
+            procs.append(p)
+        for p in procs:
+            p.join()
+        pepxmllist = newrun.get_pepxmlfiles_paths()
+        paramlist = [paramfile]
+        bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
+    else:
+        pepxmllist = newrun.get_pepxmlfiles_paths()
+        paramlist = [paramfile]
+        bname = os.path.dirname(pepxmllist[0].decode('utf-8')) + '/union'
+    newrun.set_FDRs()
+    MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
+    if not os.path.isfile(bname + '_PSMs.csv'):
+        bname = os.path.dirname(bname) + '/union'
 
-        dname = os.path.dirname(pepxmllist[0])
-        for tmpfile in os.listdir(dname):
-            ftype = os.path.splitext(tmpfile)[-1]
-            if ftype in {'.png', '.svg'} and newrun.name() + '_' in os.path.basename(tmpfile.decode('utf-8')):
-                fl = open(os.path.join(dname, tmpfile).decode('utf-8'))
-                djangofl = File(fl)
-                img = ResImageFile(docfile = djangofl, user = usr, ftype=ftype)
-                img.save()
-                newrun.add_resimage(img)
-                fl.close()
-        if os.path.exists(bname + '_PSMs.csv'):
-            fl = open(bname + '_PSMs.csv'.decode('utf-8'))
+    dname = os.path.dirname(pepxmllist[0])
+    for tmpfile in os.listdir(dname):
+        ftype = os.path.splitext(tmpfile)[-1]
+        if ftype in {'.png', '.svg'} and newrun.name() + '_' in os.path.basename(tmpfile.decode('utf-8')):
+            fl = open(os.path.join(dname, tmpfile).decode('utf-8'))
             djangofl = File(fl)
-            csvf = ResCSV(docfile = djangofl, user = usr, ftype='psm')
-            csvf.save()
-            newrun.add_rescsv(csvf)
-        if os.path.exists(bname + '_PSMs.pep.xml'):
-            fl = open(bname + '_PSMs.pep.xml', 'rb')
-            djangofl = File(fl)
-            pepxmlfile = PepXMLFile(docfile=djangofl, user=usr, filtered=True)
-            pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
-            pepxmlfile.save()
-            newrun.add_pepxml(pepxmlfile)
-        if os.path.exists(bname + '_peptides.csv'):
-            fl = open(bname + '_peptides.csv'.decode('utf-8'))
-            djangofl = File(fl)
-            csvf = ResCSV(docfile = djangofl, user = usr, ftype='peptide')
-            csvf.save()
-            newrun.add_rescsv(csvf)
-        if os.path.exists(bname + '_proteins.csv'):
-            fl = open(bname + '_proteins.csv'.decode('utf-8'))
-            djangofl = File(fl)
-            csvf = ResCSV(docfile = djangofl, user = usr, ftype='protein')
-            csvf.save()
-            newrun.add_rescsv(csvf)
-        for pxml in newrun.get_pepxmlfiles():
-            full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
-            shutil.move(pxml.docfile.name, full)
-            pxml.docfile.name = full
-            pxml.save()
-        newrun.calc_results()
-        return 1
-
-    def runproc(inputfile, idsettings, newrun, usr):
-#       django.db.connection.close()
-        filename = set_pepxml_path(idsettings, inputfile)
-        utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
-        fl = open(filename, 'r')
+            img = ResImageFile(docfile = djangofl, user = request.user, ftype=ftype)
+            img.save()
+            newrun.add_resimage(img)
+            fl.close()
+    if os.path.exists(bname + '_PSMs.csv'):
+        fl = open(bname + '_PSMs.csv'.decode('utf-8'))
         djangofl = File(fl)
-        pepxmlfile = PepXMLFile(docfile = djangofl, user = usr)
-        pepxmlfile.docfile.name = filename
+        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='psm')
+        csvf.save()
+        newrun.add_rescsv(csvf)
+    if os.path.exists(bname + '_PSMs.pep.xml'):
+        fl = open(bname + '_PSMs.pep.xml', 'rb')
+        djangofl = File(fl)
+        pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True)
+        pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
         pepxmlfile.save()
         newrun.add_pepxml(pepxmlfile)
-        return 1
+    if os.path.exists(bname + '_peptides.csv'):
+        fl = open(bname + '_peptides.csv'.decode('utf-8'))
+        djangofl = File(fl)
+        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='peptide')
+        csvf.save()
+        newrun.add_rescsv(csvf)
+    if os.path.exists(bname + '_proteins.csv'):
+        fl = open(bname + '_proteins.csv'.decode('utf-8'))
+        djangofl = File(fl)
+        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='protein')
+        csvf.save()
+        newrun.add_rescsv(csvf)
+    for pxml in newrun.get_pepxmlfiles():
+        full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
+        shutil.move(pxml.docfile.name, full)
+        pxml.docfile.name = full
+        pxml.save()
+    newrun.calc_results()
+    return 1
 
-    def start_union(newgroup, rn, c):
+def _runproc(request, inputfile, idsettings, newrun):
+    filename = _set_pepxml_path(idsettings, inputfile)
+    utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
+    fl = open(filename, 'r')
+    djangofl = File(fl)
+    pepxmlfile = PepXMLFile(docfile = djangofl, user = request.user)
+    pepxmlfile.docfile.name = filename
+    pepxmlfile.save()
+    newrun.add_pepxml(pepxmlfile)
+    django.db.connection.close()
+    return 1
+
+def _start_union(newgroup, rn, c):
 #       django.db.connection.close()
-        try:
-            un_run = newgroup.get_union()[0]
-        except:
-            un_run = False
-        if un_run:
-            for newrun in newgroup.get_searchruns():
-                for pepf in newrun.get_pepxmlfiles():
-                    un_run.add_pepxml(pepf)
-                    un_run.save()
-            run_search(un_run, rn, c)
-
-        if newgroup.get_notification():
-            email_to_user(newgroup.user.username, newgroup.groupname)
-        newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
-
-    def start_all(newgroup, rn, c):
-#       django.db.connection.close()
-        tasker.check_user(newgroup.user)
-
-        tmp_procs = []
+    try:
+        un_run = newgroup.get_union()[0]
+    except:
+        un_run = False
+    if un_run:
         for newrun in newgroup.get_searchruns():
-            tasker.ask_for_run(newrun.user)
+            for pepf in newrun.get_pepxmlfiles():
+                un_run.add_pepxml(pepf)
+                un_run.save()
+        run_search(un_run, rn, c)
 
-            while True:
-                min_time_user = tasker.get_user_with_min_time()
-                if tasker.get_total_cursearches() < search_limit and newrun.user == min_time_user:
-                    break
-                else:
-                    for idx, p in enumerate(tmp_procs):
-                        if not p.is_alive():
-                            tasker.finish_run(newrun.user)
-                            tmp_procs.pop(idx)
-                time.sleep(5)
+    if newgroup.get_notification():
+        email_to_user(newgroup.user.username, newgroup.groupname)
+    newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
 
-            tasker.start_run(newrun.user)
-            p = Process(target=run_search, args=(newrun, rn, c))
-            p.start()
-            tmp_procs.append(p)
-        for p in tmp_procs:
-            p.join()
-        p = Process(target=start_union, args=(newgroup, rn, c))
+def _start_all(request, newgroup, rn, c):
+    django.db.connection.close()
+    django.db.connection.ensure_connection()
+#   tasker.check_user(newgroup.user)
+
+    tmp_procs = []
+    for newrun in newgroup.get_searchruns():
+#       tasker.ask_for_run(newrun.user)
+
+#        while True:
+#           min_time_user = tasker.get_user_with_min_time()
+#           if tasker.get_total_cursearches() < search_limit and newrun.user == min_time_user:
+#               break
+#           else:
+#               for idx, p in enumerate(tmp_procs):
+#                   if not p.is_alive():
+#                       tasker.finish_run(newrun.user)
+#                       tmp_procs.pop(idx)
+#           time.sleep(5)
+
+#       tasker.start_run(newrun.user)
+#       p = Process(target=_run_search, args=(request, newrun, rn, c))
+        p = Thread(target=_run_search, args=(request, newrun, rn, c), name='run-search')
         p.start()
+        tmp_procs.append(p)
+    for p in tmp_procs:
+        p.join()
+    p = Thread(target=_start_union, args=(newgroup, rn, c), name='start-union')
+    p.start()
+    django.db.connection.close()
 
+def runidentipy(request):
+#   django.db.connection.close()
     c = {}
     failure = ''
     if not request.session.get('chosen_fasta'):
@@ -734,9 +740,11 @@ def runidentipy(request):
         rn = newgroup.name()
         os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
         newgroup.change_status('Search is running')
-        p = Process(target=start_all, args=(newgroup, rn, c))
-        p.start()
-        newgroup.processpid = p.pid
+        t = Thread(target=_start_all, args=(request, newgroup, rn, c), name='start_all')
+#       t = Process(target=start_all, args=(newgroup, rn, c))
+        t.start()
+        newgroup.processpid = t.ident
+#       newgroup.processpid = t.pid
         newgroup.save()
         messages.add_message(request, messages.INFO, 'IdentiPy started')
         return redirect('identipy_app:getstatus')
