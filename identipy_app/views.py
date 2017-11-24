@@ -31,6 +31,7 @@ import sys
 from multiprocessing import Process
 from threading import Thread
 import urllib
+import urlparse
 import glob
 import gzip
 import zipfile
@@ -252,9 +253,8 @@ def upload(request):
     c['system_size'] = get_size(os.path.join('results', str(request.user.id)))
     for dirn in ['spectra', 'fasta', 'params']:
         c['system_size'] += get_size(os.path.join('uploads', dirn, str(request.user.id)))
-    li = getattr(settings, 'LOCAL_IMPORT', False)
-    print 'Local import', li
-    c['LOCAL_IMPORT'] = li
+    c['LOCAL_IMPORT'] = getattr(settings, 'LOCAL_IMPORT', False)
+    c['URL_IMPORT'] = getattr(settings, 'URL_IMPORT', False)
 
     # Handle file upload
     if request.method == 'POST':
@@ -375,7 +375,8 @@ def _local_import(fname, user):
     else:
         z, out = _dispatch_file_handling(fname, user)
         fname, path, opener = out
-        shutil.copy(fname, path)
+        with opener(fname) as f:
+            _copy_in_chunks(f, path)
         _save_uploaded_file(path, user)
 
 def local_import(request):
@@ -407,32 +408,22 @@ def local_import(request):
     return redirect('identipy_app:upload')
 
 def url_import(request):
-#   if request.method == 'POST':
-#       fname = request.POST.get('fileUrl').encode('utf-8')
-#       if os.path.isfile(fname):
-#           ret = _local_import(fname, request.user)
-#           if ret is None:
-#               message = 'Import successful.'
-#           else:
-#               message = 'Unsupported file extension: {}'.format(ret)
-#       else:
-#           ret = []
-#           if os.path.isdir(fname):
-#               for root, dirs, files in os.walk(fname):
-#                   for f in files:
-#                       ret.append(_local_import(os.path.join(root, f), request.user))
-#           else:
-#               for f in glob.glob(fname):
-#                   ret.append(_local_import(f, request.user))
-#           n = sum(r is None for r in ret)
-#           message = '{} file(s) imported.'.format(n)
-
-#       messages.add_message(request, messages.INFO, message)
-#       next = request.session.get('next', [])
-#       if next:
-#           return redirect(*next.pop())
-
+    if request.method == 'POST':
+        fname = request.POST.get('fileUrl').encode('utf-8')
+        parsed = urlparse.urlparse(fname)
+        local_name = os.path.split(parsed.path)[1]
+        tmpfile = os.path.join(tempfile.gettempdir(), local_name)
+        print 'Downloading', fname, '...'
+        urllib.urlretrieve(fname, tmpfile)
+        print 'Saved to', tmpfile
+        _local_import(tmpfile, request.user)
+        os.remove(tmpfile)
+        messages.add_message(request, messages.INFO, 'Download successful.')
+        next = request.session.get('next', [])
+        if next:
+            return redirect(*next.pop())
     return redirect('identipy_app:upload')
+
 def searchpage(request):
     c = {}
 
