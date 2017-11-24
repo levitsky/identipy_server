@@ -7,42 +7,49 @@
 <h2>Upload files to server</h2>
 
        
-                <div class="intable_left">
-                 <p> Total space used: {{ system_size|filesizeformat }} </p>
-                 <p> If your datafiles are not on IdentiPy Server yet, you can upload them now.</p>
-                 <p> Feel free to upload the mass spectra either in MGF or mzML formats and protein database files in FASTA format.</p>
-                </div>
-               
-                <div class="intable_right centered">
-                <form id="uploadbuttons"  action="{% url 'identipy_app:upload' %}" method="post" enctype="multipart/form-data">
-                         {% csrf_token %}
-                         {{ commonform.non_field_errors }} 
-                    
-                         {{ commonform.commonfiles }}
-                     
-                         <button for="file" class="uploadform">Choose files</button>
-                      <br><br>
-                     <input type="submit" name="submit" value="Upload" class="uploadform"/><br>
-                    </form>
-               
-                </div>
+<div class="intable_left">
+    <p>Total space used: {{ system_size|filesizeformat }}</p>
+    <p>If your datafiles are not on IdentiPy Server yet, you can upload them now.</p>
+    <p>Feel free to upload the mass spectra either in MGF or mzML formats and protein database files in FASTA format.</p>
+</div>
+
+<div class="intable_right centered">
+    <form id="uploadbuttons"  action="{% url 'identipy_app:upload' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ commonform.non_field_errors }} 
+        {{ commonform.commonfiles }}
+        <button for="file" class="uploadform">Choose files</button>
+        <br><br>
+        <input type="submit" name="submit" value="Upload" class="uploadform"/><br>
+    </form>
+</div>
                
 {% if LOCAL_IMPORT %}
-
 <div id="local_import">
-    <h2> Import local file:</h2>
-        <form id='importbutton' action="{% url 'identipy_app:local_import' %}" method="post">
-             {% csrf_token %}
-            <div class="intable_left"><textarea id="filePath" class="text" name="filePath"></textarea></div>
-            <div class="intable_right centered"><input type="submit" name="fileimport" value="Import" class="uploadform"/></div>
-        </form>
-    </div>
+    <h2> Import local file</h2>
+    <form class='importbutton' action="{% url 'identipy_app:local_import' %}" method="post">
+         {% csrf_token %}
+        <div class="intable_left"><textarea id="filePath" class="text" name="filePath"></textarea></div>
+        <div class="intable_right centered"><input type="submit" name="fileimport" value="Import" class="uploadform"/></div>
+    </form>
+</div>
 {% endif %}
-    <div id="status_back" class="centered">
-        
-            <form action="" method="post">{% csrf_token %}
-                <input type="submit" class="backbtn" value="Start a new search run" name="searchpage">
-            </form>
-       
-    </div>
+
+{% if URL_IMPORT %}
+<div id="url_import">
+    <h2>Import file by direct URL</h2>
+    <form class='importbutton' action="{% url 'identipy_app:url_import' %}" method="post">
+         {% csrf_token %}
+        <div class="intable_left"><textarea id="fileUrl" class="text" name="fileUrl"></textarea></div>
+        <div class="intable_right centered"><input type="submit" name="urlimport" value="Import" class="uploadform"/></div>
+    </form>
+</div>
+{% endif %}
+
+
+<div id="status_back" class="centered">
+    <form action="" method="post">{% csrf_token %}
+        <input type="submit" class="backbtn" value="Start a new search run" name="searchpage">
+    </form>
+</div>
 {% endblock %}
