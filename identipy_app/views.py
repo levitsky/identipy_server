@@ -32,6 +32,8 @@ from multiprocessing import Process
 from threading import Thread
 import urllib
 import glob
+import gzip
+import zipfile
 
 from pyteomics import parser, mass
 os.chdir(settings.BASE_DIR)
@@ -227,7 +229,14 @@ def status(request, name_filter=False):
 #    return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
 
 def _save_uploaded_file(uploadedfile, user):
-    fext = os.path.splitext(uploadedfile.name)[-1].lower()
+    if isinstance(uploadedfile, basestring):
+        fname = uploadedfile
+    else:
+        fname = uploadedfile.name
+    name, fext = os.path.splitext(fname.lower())
+    if fext == '.gz':
+        name, fext = os.path.splitext(name)
+    print 'Determined extension:', fext    
     if fext in {'.mgf', '.mzml'}:
         newdoc = SpectraFile(docfile=uploadedfile, user=user)
         newdoc.save()
@@ -252,7 +261,23 @@ def upload(request):
         commonform = CommonForm(request.POST, request.FILES)
         if 'commonfiles' in request.FILES:
             for uploadedfile in request.FILES.getlist('commonfiles'):
-                _save_uploaded_file(uploadedfile, request.user)
+                z, ret = _dispatch_file_handling(uploadedfile, request.user)
+                if z:
+                    d, outs = ret
+                    for _, files in outs:
+                        fname, path, opener = files
+                        with opener(fname) as f:
+                            _copy_in_chunks(f, path)
+                        _save_uploaded_file(path, request.user)
+                    shutil.rmtree(d)
+                else:
+                    fname, path, opener = ret
+                    if fname[-3:] == '.gz':
+                        with gzip.GzipFile(fileobj=uploadedfile, mode='rb') as f:
+                            _copy_in_chunks(f, path)
+                        _save_uploaded_file(path, request.user)
+                    else:
+                        _save_uploaded_file(uploadedfile, request.user)
             messages.add_message(request, messages.INFO, 'Upload successful.')
             next = request.session.get('next', [])
             if next:
@@ -266,29 +291,74 @@ def upload(request):
 
     return render(request, 'identipy_app/upload.html', c)
 
-def _local_import(fname, user):
-    fext = os.path.splitext(fname)[-1][1:].lower()
+def _dispatch_file_handling(f, user, opener=None, fext=None):
+    if isinstance(f, basestring):
+        fname = f
+    else:
+        fname = f.name
+    fext = fext or os.path.splitext(fname)[-1][1:].lower()
+    if fext == 'gz':
+        fext = os.path.splitext(os.path.splitext(fname)[0])[1][1:].lower()
+        return _dispatch_file_handling(fname, user, lambda x: gzip.open(x, 'rb'), fext)
+    if fext == 'zip':
+        tmpdir = tempfile.mkdtemp()
+        with tempfile.NamedTemporaryFile() as tmpf:
+            _copy_in_chunks(f, tmpf.name)
+            zf = zipfile.ZipFile(tmpf)
+            zf.extractall(tmpdir)
+        rets = [
+                _dispatch_file_handling(os.path.join(dirpath, f), user)
+                for dirpath, dirs, fs in os.walk(tmpdir)
+                for f in fs
+                ]
+        zf.close()
+#       shutil.rmtree(tmpdir)
+        return True, (tmpdir, rets)
     try:
         dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'faa': 'fasta', 'cfg': 'params'}[fext]
     except KeyError as ke:
         return ke.args[0]
     path = upload_to_basic(dirn, os.path.split(fname)[1], user.id)
-    print 'docfile', path
+    name, ext = os.path.splitext(path)
+    if ext == '.gz':
+        path = name
+    print 'Copying to', path
+    if opener is None: opener = lambda f: open(f, 'rb')
+    return False, (fname, path, opener)
+
+def _dispatch_and_copy(fname, user, opener=None):
+    z, ret = _dispatch_file_handling(fname, user)
+    if z:
+        d, rets = ret
+        out = []
+        for r in rets:
+            out.append(_copy_in_chunks(*r))
+        shutil.rmtree(d)
+        return out
+    fname, path, opener = ret
+    with opener(fname) as f:
+        return _copy_in_chunks(f, path)
+
+def _copy_in_chunks(f, path):
     try:
-        with open(fname, 'rb') as fin:
-            with open(path, 'wb') as ff:
-                while True:
-                    chunk = fin.read(5*1024*1024)
-                    if chunk:
-                        ff.write(chunk)
-                    else:
-                        break
+        with open(path, 'wb') as ff:
+            while True:
+                chunk = f.read(5*1024*1024)
+                if chunk:
+                    ff.write(chunk)
+                else:
+                    break
     except IOError as e:
-        print 'Error importing', fname, ':', e.args
-    uploaded = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile}[dirn](
-                docfile=path, user=user)
+        print 'Error importing', f.name, ':', e.args
+    else:
+        return path
+
+
+def _local_import(fname, user):
     print 'IMPORTING FILE', fname
-    uploaded.save()
+    path = _dispatch_and_copy(fname, user)
+    if path:
+        _save_uploaded_file(path, user)
 
 def local_import(request):
     if request.method == 'POST':
