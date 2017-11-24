@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^status/',           views.status,             name='getstatus'),
     url(r'^about/',            views.about,              name='about'),
     url(r'^import/',           views.local_import,       name='local_import'),
+    url(r'^fetch/',            views.url_import,         name='url_import'),
     url(r'^run/',              views.runidentipy,        name='run'),
     url(r'^new_mod/',          views.add_modification,   name='new_mod'),
     url(r'^new_protease/',     views.add_protease,       name='new_protease'),

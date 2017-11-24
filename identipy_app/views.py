@@ -288,7 +288,6 @@ def upload(request):
         commonform = CommonForm()
 
     c['commonform'] = commonform
-
     return render(request, 'identipy_app/upload.html', c)
 
 def _dispatch_file_handling(f, user, opener=None, fext=None):
@@ -356,8 +355,27 @@ def _copy_in_chunks(f, path):
 
 def _local_import(fname, user):
     print 'IMPORTING FILE', fname
-    path = _dispatch_and_copy(fname, user)
-    if path:
+    fext = os.path.splitext(fname)[-1][1:].lower()
+    if fext == 'zip':
+        tmpdir = tempfile.mkdtemp()
+        print 'Extracting to', tmpdir
+        zf = zipfile.ZipFile(fname)
+        zf.extractall(tmpdir)
+        rets = [
+                _dispatch_file_handling(os.path.join(dirpath, f), user)
+                for dirpath, dirs, fs in os.walk(tmpdir)
+                for f in fs
+                ]
+        zf.close()
+        for _, out in rets:
+            f, path, opener = out
+            shutil.copy(f, path)
+            _save_uploaded_file(path, user)
+        shutil.rmtree(tmpdir)
+    else:
+        z, out = _dispatch_file_handling(fname, user)
+        fname, path, opener = out
+        shutil.copy(fname, path)
         _save_uploaded_file(path, user)
 
 def local_import(request):
@@ -388,6 +406,33 @@ def local_import(request):
 
     return redirect('identipy_app:upload')
 
+def url_import(request):
+#   if request.method == 'POST':
+#       fname = request.POST.get('fileUrl').encode('utf-8')
+#       if os.path.isfile(fname):
+#           ret = _local_import(fname, request.user)
+#           if ret is None:
+#               message = 'Import successful.'
+#           else:
+#               message = 'Unsupported file extension: {}'.format(ret)
+#       else:
+#           ret = []
+#           if os.path.isdir(fname):
+#               for root, dirs, files in os.walk(fname):
+#                   for f in files:
+#                       ret.append(_local_import(os.path.join(root, f), request.user))
+#           else:
+#               for f in glob.glob(fname):
+#                   ret.append(_local_import(f, request.user))
+#           n = sum(r is None for r in ret)
+#           message = '{} file(s) imported.'.format(n)
+
+#       messages.add_message(request, messages.INFO, message)
+#       next = request.session.get('next', [])
+#       if next:
+#           return redirect(*next.pop())
+
+    return redirect('identipy_app:upload')
 def searchpage(request):
     c = {}
 
