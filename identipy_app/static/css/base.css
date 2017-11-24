@@ -255,12 +255,18 @@ input[type="file"]{
     border-radius:5px;
 }
 
-#local_import textarea{
+#local_import textarea, #url_import textarea{
     margin:0;
     padding:0;
     font-size:1.5em;
     border-radius:5px;
 }
+
+#local_import, #url_import {
+    float:left;
+    width: 100%;
+}
+
 
 #prev{
     position:absolute;
@@ -384,11 +390,6 @@ div.inthemiddle h2{
   background: white;
   color: #000;
   text-align: center;
-}
-
-#local_import{
-    float:left;
-    width: 100%;
 }
 
 .centered{
