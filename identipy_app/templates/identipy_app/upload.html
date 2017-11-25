@@ -26,10 +26,10 @@
                
 {% if LOCAL_IMPORT %}
 <div id="local_import">
-    <h2> Import local file</h2>
+    <h2>Import local file</h2>
     <form class='importbutton' action="{% url 'identipy_app:local_import' %}" method="post">
          {% csrf_token %}
-        <div class="intable_left"><textarea id="filePath" class="text" name="filePath"></textarea></div>
+        <div class="intable_left"><input id="filePath" type="text" name="filePath"></div>
         <div class="intable_right centered"><input type="submit" name="fileimport" value="Import" class="uploadform"/></div>
     </form>
 </div>
@@ -40,7 +40,7 @@
     <h2>Import file by direct URL</h2>
     <form class='importbutton' action="{% url 'identipy_app:url_import' %}" method="post">
          {% csrf_token %}
-        <div class="intable_left"><textarea id="fileUrl" class="text" name="fileUrl"></textarea></div>
+        <div class="intable_left"><input id="fileUrl" type="text" name="fileUrl"></div>
         <div class="intable_right centered"><input type="submit" name="urlimport" value="Import" class="uploadform"/></div>
     </form>
 </div>

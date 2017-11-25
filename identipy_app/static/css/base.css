@@ -255,14 +255,15 @@ input[type="file"]{
     border-radius:5px;
 }
 
-#local_import textarea, #url_import textarea{
+.importbutton input[type=text] {
     margin:0;
     padding:0;
     font-size:1.5em;
     border-radius:5px;
+    width: 100%;
 }
 
-#local_import, #url_import {
+#local_import,  #url_import {
     float:left;
     width: 100%;
 }
