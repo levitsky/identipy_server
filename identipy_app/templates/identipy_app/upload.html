@@ -48,8 +48,6 @@
 
 
 <div id="status_back" class="centered">
-    <form action="" method="post">{% csrf_token %}
-        <input type="submit" class="backbtn" value="Start a new search run" name="searchpage">
-    </form>
+    <a class="backbtn" href="{% url 'identipy_app:searchpage' %}">Start a new search run</a>
 </div>
 {% endblock %}
