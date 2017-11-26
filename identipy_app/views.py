@@ -450,7 +450,7 @@ def email(request):
         form = ContactForm(request.POST)
         if form.is_valid():
             subject = form.cleaned_data['subject']
-            from_email = request.user.username
+            from_email = request.user.email
             message = form.cleaned_data['message']
             messages.add_message(request, messages.INFO, 'Your message was sent to the developers. We will respond as soon as possible.')
             try:
@@ -460,7 +460,7 @@ def email(request):
             except Exception as e:
                 print 'Could not send email:'
                 print e
-            return contacts(request)
+            return redirect('identipy_app:contacts')
     else:
         form = ContactForm(initial={'from_email': request.user.username})
     return render(request, "identipy_app/email.html", {'form': form})
@@ -784,7 +784,7 @@ def _start_union(newgroup, rn, c):
         run_search(un_run, rn, c)
 
     if newgroup.get_notification():
-        email_to_user(newgroup.user.username, newgroup.groupname)
+        email_to_user(newgroup.user.email, newgroup.groupname)
     newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
 
 def _start_all(request, newgroup, rn, c):
