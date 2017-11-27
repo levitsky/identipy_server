@@ -770,7 +770,7 @@ def _runproc(request, inputfile, idsettings, newrun):
     django.db.connection.close()
     return 1
 
-def _start_union(newgroup, rn, c):
+def _start_union(request, newgroup, rn, c):
 #       django.db.connection.close()
     try:
         un_run = newgroup.get_union()[0]
@@ -781,11 +781,12 @@ def _start_union(newgroup, rn, c):
             for pepf in newrun.get_pepxmlfiles():
                 un_run.add_pepxml(pepf)
                 un_run.save()
-        run_search(un_run, rn, c)
+        _run_search(request, un_run, rn, c)
 
     if newgroup.get_notification():
         email_to_user(newgroup.user.email, newgroup.groupname)
     newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
+    django.db.connection.close()
 
 def _start_all(request, newgroup, rn, c):
     django.db.connection.close()
@@ -814,7 +815,7 @@ def _start_all(request, newgroup, rn, c):
         tmp_procs.append(p)
     for p in tmp_procs:
         p.join()
-    p = Thread(target=_start_union, args=(newgroup, rn, c), name='start-union')
+    p = Thread(target=_start_union, args=(request, newgroup, rn, c), name='start-union')
     p.start()
     django.db.connection.close()
 
