@@ -666,6 +666,7 @@ def files_view(request, what):
 
 def _run_search(request, newrun, rn, c):
 #   django.db.connection.close()
+    django.db.connection.ensure_connection()
     paramfile = newrun.parameters.all()[0].path()
     fastafile = newrun.fasta.all()[0].path()
     idsettings = main.settings(paramfile)
@@ -690,22 +691,33 @@ def _set_pepxml_path(idsettings, inputfile):
         os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
 
 def _totalrun(request, idsettings, newrun, paramfile):
-    django.db.connection.close()
+#   django.db.connection.close()
     procs = []
     spectralist = newrun.get_spectrafiles_paths()
     fastalist = newrun.get_fastafile_path()
     if not newrun.union:
         for obj in newrun.spectra.all():
             inputfile = obj.path()
-#           p = Process(target=_runproc, args=(request, inputfile, idsettings, newrun, request.user))
-            p = Thread(target=_runproc, args=(request, inputfile, idsettings, newrun), name='runproc')
+            p = Process(target=_runproc, args=(inputfile, idsettings))
+#           p = Thread(target=_runproc, args=(request, inputfile, idsettings, newrun), name='runproc')
             p.start()
             procs.append(p)
         for p in procs:
             p.join()
+        
+        for obj in newrun.spectra.all():
+            inputfile = obj.path()
+            filename = _set_pepxml_path(idsettings, inputfile)
+            with open(filename, 'rb') as fl:
+                djangofl = File(fl)
+                pepxmlfile = PepXMLFile(docfile = djangofl, user = request.user)
+                pepxmlfile.docfile.name = filename
+                pepxmlfile.save()
+                newrun.add_pepxml(pepxmlfile)
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
         bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
+
     else:
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
@@ -756,21 +768,14 @@ def _totalrun(request, idsettings, newrun, paramfile):
         pxml.docfile.name = full
         pxml.save()
     newrun.calc_results()
-    return 1
-
-def _runproc(request, inputfile, idsettings, newrun):
-    filename = _set_pepxml_path(idsettings, inputfile)
-    utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
-    fl = open(filename, 'r')
-    djangofl = File(fl)
-    pepxmlfile = PepXMLFile(docfile = djangofl, user = request.user)
-    pepxmlfile.docfile.name = filename
-    pepxmlfile.save()
-    newrun.add_pepxml(pepxmlfile)
     django.db.connection.close()
     return 1
 
+def _runproc(inputfile, idsettings):
+    utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
+
 def _start_union(request, newgroup, rn, c):
+    django.db.connection.ensure_connection()
 #       django.db.connection.close()
     try:
         un_run = newgroup.get_union()[0]
@@ -789,7 +794,7 @@ def _start_union(request, newgroup, rn, c):
     django.db.connection.close()
 
 def _start_all(request, newgroup, rn, c):
-    django.db.connection.close()
+#   django.db.connection.close()
     django.db.connection.ensure_connection()
 #   tasker.check_user(newgroup.user)
 
