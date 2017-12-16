@@ -31,15 +31,17 @@
         <tr id="headers">
             <th><input type="submit" class="btn red" value="Delete" name="submit_action"/></th>
             <th>Search name</th>
-            <th>Start date</th>
+            <th>Added</th>
             <th>Status</th>
+            <th>Updated</th>
         </tr>
 	{% for doc in processes %}
     <tr>
         <td class="td1" style="width:2em"><input type="checkbox" name={{ doc.name|spacify }}></td>
         <td class="td1" style="word-break:break-all"><a class="link" href={% url "identipy_app:details" doc.id %}>{{ doc.name|spacify }}</a></td>
         <td class="td1" style="width:20em">{{ doc.date_added }}</td>
-        <td class="td3" style="width:20em">{{ doc.status }}</td>
+        <td class="td3" style="width:20em">{{ doc.get_status }}</td>
+        <td class="td3" style="width:20em">{{ doc.get_last_update }}</td>
     </tr>
 	{% endfor %}
 	</table>

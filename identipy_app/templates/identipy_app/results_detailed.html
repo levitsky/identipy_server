@@ -1,12 +1,12 @@
 {% extends "identipy_app/base.html" %}
 {% load stringfilter %}
-{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
+{% block title %}Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
 {% block content %}
 
 
 <form action="" method="post">{% csrf_token %}
         
-            <h2 style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup_parent.id %}">{{ searchrun.searchgroup_parent.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a></h2>
+            <h2 style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup.id %}">{{ searchrun.searchgroup.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a></h2>
            
 				{% if searchgroup %}
             <table id="processes_list" type="bordered">
@@ -34,7 +34,7 @@
                 <td class="td2">{{ searchrun.numProteins }}</td>
 		    {% endif %}
             <td class="td2">{{ searchrun.fdr_psms }}</td>
-            <td class="td2">{{ searchrun.fdr_type }}</td>
+            <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
             <td class="td2">{{ searchrun.numMSMS }}</td>
             <td class="td2">{{ searchrun.totalPSMs }}</td>
             </tr>
@@ -46,13 +46,13 @@
           <form action="" method="post">{% csrf_token %}      {% if results_detailed %}
            <table width="100%"><tr><td width="80%" class="floating"> 
             <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup.id }}>
             {{ results_detailed.labelform.as_p }}</td>
             <td align="right"><input type="submit" class="btn wide" value="Show selected columns" name="select_labels"></td></tr></table>
               </form>
             <div class="mega"> <form action="" method="post">{% csrf_token %}
                 <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup.id }}>
             <table class="header" id="processes_list" type="bordered">
                 <tr id="headers">
                    {% for label in results_detailed.get_labels %}
@@ -80,7 +80,7 @@
         
         <h2><a class="btn" href="{% url 'identipy_app:show' %}?download_custom_csv=True">Download as csv</a></h2>
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup_parent.id }}>
+        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup.id }}>
         
             </form>    </div>
            

@@ -1,9 +1,9 @@
 {% extends "identipy_app/base.html" %}
 {% load stringfilter %}
-{% block title %}Search results: {{ searchrun.searchgroup_parent.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
+{% block title %}Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
 {% block content %}
         
-<h2> <p style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup_parent.id %}">{{ searchrun.searchgroup_parent.groupname|spacify }}</a>/{{ searchrun.name|spacify}}</p></h2>
+<h2> <p style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup.id %}">{{ searchrun.searchgroup.groupname|spacify }}</a>/{{ searchrun.name|spacify}}</p></h2>
         
 		{% if searchgroup %}
             <table id="processes_list" type="bordered">
@@ -29,7 +29,7 @@
                 <td class="td2">{{ searchrun.numProteins }}</td>
 		    {% endif %}
             <td class="td2">{{ searchrun.fdr_psms }}</td>
-            <td class="td2">{{ searchrun.fdr_type }}</td>
+            <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
             <td class="td2">{{ searchrun.numMSMS }}</td>
             <td class="td2">{{ searchrun.totalPSMs }}</td>
             </tr>

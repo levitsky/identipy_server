@@ -4,17 +4,20 @@ from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
-os.chdir(settings.BASE_DIR)
 from django.conf import settings
 import sys
-sys.path.insert(0, '../identipy/')
-import csv
-from identipy.utils import CustomRawConfigParser
 import shutil
 import subprocess
 import psutil, os
+import csv
 
 from . import aux
+
+os.chdir(settings.BASE_DIR)
+sys.path.insert(0, '../identipy/')
+from identipy.utils import CustomRawConfigParser
+from identipy import main
+
 
 def kill_proc_tree(pid, including_parent=True):
     parent = psutil.Process(pid)
@@ -110,15 +113,45 @@ class ParamsFile(BaseDocument):
 
 
 class SearchGroup(BaseDocument):
-    groupname = models.CharField(max_length=80, default='test')
+    groupname = models.CharField(max_length=80, default='')
     # searchruns = models.ManyToManyField(SearchRun)
     fasta = models.ManyToManyField(FastaFile)
-    parameters = models.ManyToManyField(ParamsFile)
-    status = models.CharField(max_length=80, default='No info')
-    processpid = models.IntegerField(default=9999)
+    # parameters = models.ManyToManyField(ParamsFile)
+    parameters = models.ForeignKey(ParamsFile, null=True, blank=True)
+    # status = models.CharField(max_length=80, default='No info')
+    # processpid = models.IntegerField(default=9999)
+    notification = models.BooleanField(default=False)
+    PSM = 'S'
+    PEPTIDE = 'P'
+    PROTEIN = 'R'
+    FDR_TYPES = (
+            (PSM, 'PSM'),
+            (PEPTIDE, 'peptide'),
+            (PROTEIN, 'protein')
+            )
+    fdr_type = models.CharField(max_length=1, default=PSM, choices=FDR_TYPES)
+ 
+    def get_status(self):
+        runs = self.searchrun_set.all()
+        if len(runs) == 1:
+            return runs[0].get_status_display()
+        done = sum(r.status == SearchRun.FINISHED for r in runs)
+        if done == len(runs):
+            return 'Finished'
+        if done:
+            return '{} of {} done'.format(done, len(runs))
+        started = sum(r.status == SearchRun.RUNNING for r in runs)
+        if started:
+            return '{} of {} started'.format(started, len(runs))
+        dead = sum(r.status == SearchRun.DEAD for r in runs)
+        if dead:
+            return '{} processes dead'.format(dead)
+        if all(r.status == SearchRun.WAITING for r in runs):
+            return 'Waiting'
+        return 'Could not determine status'
 
-    def get_notification(self):
-        return SearchRun.objects.filter(searchgroup_parent=self)[0].get_notification()
+    def get_last_update(self):
+        return self.searchrun_set.latest('last_update').last_update
 
     def add_files(self, c):
 #       import django.db
@@ -128,78 +161,62 @@ class SearchGroup(BaseDocument):
         self.save()
         for sid in c['chosenspectra']:
             s = SpectraFile.objects.get(pk=sid)
-            newrun = SearchRun(searchgroup_parent=self, runname=os.path.splitext(s.docfile.name)[0], user = self.user)
+            newrun = SearchRun(searchgroup=self, status=SearchRun.WAITING,
+                    runname=os.path.splitext(s.docfile.name)[0], user=self.user, spectra=s)
             newrun.save()
-            newrun.add_fasta(self.fasta.all()[0])
-            newrun.add_params(self.parameters.all()[0])
-            newrun.add_spectra(s)
+#           newrun.add_fasta(self.fasta.all()[0])
+#           newrun.add_params(self.parameters.all()[0])
+#           newrun.add_spectra(s)
             newrun.save()
             # self.add_searchrun(newrun)
             self.save()
         if len(c['chosenspectra']) > 1:
-            newrun = SearchRun(searchgroup_parent=self, runname='union', user = self.user, union=True)
+            newrun = SearchRun(searchgroup=self, runname='union', user=self.user, union=True, status=SearchRun.WAITING)
             newrun.save()
-            newrun.add_fasta(self.fasta.all()[0])
-            newrun.add_params(self.parameters.all()[0])
-            newrun.add_spectra_files(c['chosenspectra'])
-            newrun.save()
+#           newrun.add_fasta(self.fasta.all()[0])
+#           newrun.add_params(self.parameters.all()[0])
+#           newrun.add_spectra_files(c['chosenspectra'])
+#           newrun.save()
             # self.add_searchrun(newrun)
             self.save()
 
-    # def add_searchrun(self, searchrunobject):
-    #     self.searchruns.add(searchrunobject)
-    #     self.save()
-
     def add_fasta(self, fastaobject):
-#       import django.db
-#       django.db.connection.close()
         self.fasta.add(fastaobject[0])
         self.save()
 
     def add_params(self, sfForms, paramtype=3):
-#       import django.db
-#       django.db.connection.close()
         paramobj = aux.save_params_new(sfForms=sfForms, uid=self.user,
                 paramsname=self.groupname, paramtype=paramtype, request=False, visible=False)
-        self.parameters.add(paramobj)
+        self.parameters = paramobj
         self.save()
 
     def get_searchruns(self):
-#       import django.db
-        connection.close()
         return self.searchrun_set.filter(union=False)
-        # return self.searchruns.filter(union=False)
 
     def get_union(self):
-#       import django.db
-#       django.db.connection.close()
         return self.searchrun_set.filter(union=True)
-        # return self.searchruns.filter(union=True)
 
     def get_searchruns_all(self):
-#       import django.db
-#       django.db.connection.close()
         return self.searchrun_set.all().order_by('union')
-        # return self.searchruns.all().order_by('union')
 
     def name(self):
-#       import django.db
-#       django.db.connection.close()
         return os.path.split(self.groupname)[-1]
 
-    def change_status(self, message):
+#   def change_status(self, message):
 #       import django.db
 #       django.db.connection.close()
-        self.status = message
-        self.save()
+#       self.status = message
+#       self.save()
 
     def full_delete(self):
-        if self.status == 'Search is running':
-            try:
-                kill_proc_tree(self.processpid)
-            except:
-                pass
+#       if self.status == 'Search is running':
+#           try:
+#               kill_proc_tree(self.processpid)
+#           except:
+#               pass
         for sr in self.get_searchruns_all():
+            if sr.status == SearchRun.RUNNING:
+                kill_proc_tree(sr.processpid)
             sr.full_delete()
         self.delete()
         tree = 'results/%s/%s' % (str(self.user.id), self.name().encode('utf-8'))
@@ -208,32 +225,42 @@ class SearchGroup(BaseDocument):
         except Exception:
             print 'Could not remove tree:', tree
 
+    def set_notification(self):
+        settings = main.settings(self.parameters.path())
+        self.notification = settings.getboolean('options', 'send email notification')
+        self.save()
+
 class SearchRun(BaseDocument):
-    searchgroup_parent = models.ForeignKey(SearchGroup)
+    searchgroup = models.ForeignKey(SearchGroup)
     runname = models.CharField(max_length=80)
-    spectra = models.ManyToManyField(SpectraFile)
-    fasta = models.ManyToManyField(FastaFile)
-    parameters = models.ManyToManyField(ParamsFile)
+    spectra = models.ForeignKey(SpectraFile, blank=True, null=True)
+#   fasta = models.ManyToManyField(FastaFile)
     pepxmlfiles = models.ManyToManyField(PepXMLFile)
     resimagefiles = models.ManyToManyField(ResImageFile)
     csvfiles = models.ManyToManyField(ResCSV)
-    # proc = None
+
+    processpid = models.IntegerField(blank=True, default=-1)
     numMSMS = models.BigIntegerField(default=0)
     totalPSMs = models.BigIntegerField(default=0)
     fdr_psms = models.FloatField(default=0.0)
-    fdr_type = models.CharField(max_length=80, default='-')
     numPSMs = models.BigIntegerField(default=0)
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)
     union = models.BooleanField(default=False)
-    notification = models.BooleanField(default=False)
+#   notification = models.BooleanField(default=False)
 
-    def set_notification(self, settings):
-        self.notification = settings.getboolean('options', 'send email notification')
-        self.save()
-
-    def get_notification(self):
-        return self.notification
+    WAITING = 'W'
+    RUNNING = 'R'
+    FINISHED = 'F'
+    DEAD = 'D'
+    STATUS_CHOICES = (
+            (WAITING, 'Waiting'),
+            (RUNNING, 'Running'),
+            (FINISHED, 'Finished'),
+            (DEAD, 'Dead'),
+            )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DEAD)
+    last_update = models.DateTimeField(auto_now=True)
 
     def full_delete(self):
         for im in self.get_resimagefiles():
@@ -245,7 +272,7 @@ class SearchRun(BaseDocument):
 
     def set_FDRs(self):
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-        raw_config.read(self.parameters.all()[0].path())
+        raw_config.read(self.searchgroup.parameters.path())
         self.fdr_psms = raw_config.getfloat('options', 'FDR')
         self.fdr_type = raw_config.get('options', 'FDR_type')
         self.save()
@@ -261,15 +288,15 @@ class SearchRun(BaseDocument):
 #       import django.db
 #       django.db.connection.close()
         # for s in spectraobjects:
-        self.spectra.add(spectraobject)
+        self.spectra = spectraobject
         self.save()
 
-    def add_spectra_files(self, spectrafiles):
+#   def add_spectra_files(self, spectrafiles):
 #       import django.db
 #       django.db.connection.close()
-        for s in spectrafiles:
-            self.spectra.add(s)
-            self.save()
+#       for s in spectrafiles:
+#           self.spectra.add(s)
+#           self.save()
 
     def add_fasta(self, fastaobject):
 #       import django.db
@@ -278,12 +305,12 @@ class SearchRun(BaseDocument):
         self.fasta.add(fastaobject)
         self.save()
 
-    def add_params(self, paramsobject):
+#   def add_params(self, paramsobject):
 #       import django.db
 #       django.db.connection.close()
         # for s in paramsobjects:
-        self.parameters.add(paramsobject)
-        self.save()
+#       self.parameters.add(paramsobject)
+#       self.save()
 
     def add_pepxml(self, pepxmlfile):
 #       import django.db
@@ -383,12 +410,16 @@ class SearchRun(BaseDocument):
     def get_spectrafiles_paths(self):
 #       import django.db
 #       django.db.connection.close()
-        return [pep.docfile.name.encode('utf-8') for pep in self.spectra.all()]
+#       return [pep.docfile.name.encode('utf-8') for pep in self.spectra.all()]
+        if self.union:
+            return [run.spectra.docfile.name.encode('utf-8') for run in self.searchgroup.searchrun_set.filter(union=False)]
+        return [self.spectra.docfile.name.encode('utf-8')]
+
 
     def get_fastafile_path(self):
 #       import django.db
 #       django.db.connection.close()
-        return [self.fasta.all()[0].docfile.name.encode('utf-8'), ]
+        return [self.searchgroup.fasta.all()[0].docfile.name.encode('utf-8'), ]
 
     def get_resimage_paths(self, ftype='.png'):
 #       import django.db
@@ -418,9 +449,9 @@ class SearchRun(BaseDocument):
     def name(self):
         return os.path.split(self.runname)[-1]
 
-    def add_proc(self, proc):
-        self.proc = proc
-        self.save()
+#   def add_proc(self, proc):
+#       self.proc = proc
+#       self.save()
 
     def calc_results(self):
         from pyteomics import mgf, pepxml, mzml

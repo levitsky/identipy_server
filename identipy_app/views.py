@@ -51,19 +51,29 @@ from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddM
 from .forms import search_forms_from_request#, search_params_form
 
 
-search_limit = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
+RUN_LIMIT = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 
-tasker = Tasker()
+#tasker = Tasker()
+
+#try:
+#    searchgroups = SearchGroup.objects.all()
+#    for searchgroup in searchgroups:
+#        if not searchgroup.status.startswith('Task finished'):
+#            searchgroup.change_status('Task is dead')
+#    #        searchgroup.delete()
+#    #        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
+#except:
+#    print 'Smth wrong with SearchGroup model'
 
 try:
-    searchgroups = SearchGroup.objects.all()
-    for searchgroup in searchgroups:
-        if not searchgroup.status.startswith('Task finished'):
-            searchgroup.change_status('Task is dead')
-    #        searchgroup.delete()
-    #        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
-except:
-    print 'Smth wrong with SearchGroup model'
+    runs = SearchRun.objects.exclude(status=SearchRun.FINISHED)
+    for r in runs:
+        r.status = SearchRun.DEAD
+        r.save()
+except Exception as e:
+    print 'Startup cleanup failed.'
+    print e
+
 
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
@@ -667,8 +677,9 @@ def files_view(request, what):
 def _run_search(request, newrun, rn, c):
 #   django.db.connection.close()
     django.db.connection.ensure_connection()
-    paramfile = newrun.parameters.all()[0].path()
-    fastafile = newrun.fasta.all()[0].path()
+    sg = newrun.searchgroup
+    paramfile = sg.parameters.path()
+    fastafile = sg.fasta.all()[0].path()
     idsettings = main.settings(paramfile)
     enz = idsettings.get('search', 'enzyme')
     protease = Protease.objects.filter(user=request.user, name=enz).first()
@@ -676,8 +687,10 @@ def _run_search(request, newrun, rn, c):
     idsettings.set('misc', 'iterate', 'peptides')
     idsettings.set('input', 'database', fastafile.encode('utf-8'))
     idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('utf-8')))
-    newrun.set_notification(idsettings)
+#   newrun.set_notification(idsettings)
     _totalrun(request, idsettings, newrun, paramfile)
+    newrun.status = SearchRun.FINISHED
+    newrun.save()
     django.db.connection.close()
     return 1
 
@@ -692,28 +705,33 @@ def _set_pepxml_path(idsettings, inputfile):
 
 def _totalrun(request, idsettings, newrun, paramfile):
 #   django.db.connection.close()
-    procs = []
+#   procs = []
     spectralist = newrun.get_spectrafiles_paths()
     fastalist = newrun.get_fastafile_path()
     if not newrun.union:
-        for obj in newrun.spectra.all():
-            inputfile = obj.path()
-            p = Process(target=_runproc, args=(inputfile, idsettings))
+#       for obj in newrun.spectra.all():
+#           inputfile = obj.path()
+#           p = Process(target=_runproc, args=(inputfile, idsettings))
 #           p = Thread(target=_runproc, args=(request, inputfile, idsettings, newrun), name='runproc')
-            p.start()
-            procs.append(p)
-        for p in procs:
-            p.join()
-        
-        for obj in newrun.spectra.all():
-            inputfile = obj.path()
-            filename = _set_pepxml_path(idsettings, inputfile)
-            with open(filename, 'rb') as fl:
-                djangofl = File(fl)
-                pepxmlfile = PepXMLFile(docfile = djangofl, user = request.user)
-                pepxmlfile.docfile.name = filename
-                pepxmlfile.save()
-                newrun.add_pepxml(pepxmlfile)
+#           p.start()
+#           procs.append(p)
+#       for p in procs:
+#           p.join()
+        inputfile = newrun.spectra.path()
+        p = Process(target=_runproc, args=(inputfile, idsettings))
+        p.start()
+        newrun.status = SearchRun.RUNNING
+        p.join()
+    
+#       for obj in newrun.spectra.all():
+#           inputfile = obj.path()
+        filename = _set_pepxml_path(idsettings, inputfile)
+        with open(filename, 'rb') as fl:
+            djangofl = File(fl)
+            pepxmlfile = PepXMLFile(docfile = djangofl, user = request.user)
+            pepxmlfile.docfile.name = filename
+            pepxmlfile.save()
+            newrun.add_pepxml(pepxmlfile)
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
         bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
@@ -788,9 +806,9 @@ def _start_union(request, newgroup, rn, c):
                 un_run.save()
         _run_search(request, un_run, rn, c)
 
-    if newgroup.get_notification():
+    if newgroup.notification:
         email_to_user(newgroup.user.email, newgroup.groupname)
-    newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
+#   newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
     django.db.connection.close()
 
 def _start_all(request, newgroup, rn, c):
@@ -849,18 +867,19 @@ def runidentipy(request):
     if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
         failure += 'Results with name "%s" already exist, choose another name' % c['runname']
     if not failure:
-        newgroup = SearchGroup(groupname=c['runname'], user = request.user)
+        newgroup = SearchGroup(groupname=c['runname'], user=request.user)
         newgroup.save()
         newgroup.add_files(c)
         rn = newgroup.name()
         os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
-        newgroup.change_status('Search is running')
+#       newgroup.change_status('Search is running')
         t = Thread(target=_start_all, args=(request, newgroup, rn, c), name='start_all')
 #       t = Process(target=start_all, args=(newgroup, rn, c))
         t.start()
-        newgroup.processpid = t.ident
+#       newgroup.processpid = t.ident
 #       newgroup.processpid = t.pid
         newgroup.save()
+        newgroup.set_notification()
         messages.add_message(request, messages.INFO, 'IdentiPy started')
         return redirect('identipy_app:getstatus')
     else:
@@ -875,7 +894,7 @@ def search_details(request, pk, c={}):
     request.session['searchgroupid'] = runobj.id
     c.update({'searchgroup': runobj})
     print runobj.id, runobj.groupname
-    sruns = SearchRun.objects.filter(searchgroup_parent_id=runobj.id)
+    sruns = SearchRun.objects.filter(searchgroup_id=runobj.id)
     if sruns.count() == 1:
 #       return results_figure(request, sruns[0].id)
         request.session['searchrunid'] = sruns[0].id
@@ -885,9 +904,9 @@ def search_details(request, pk, c={}):
 def results_figure(request, pk):
 #   django.db.connection.close()
     c = {}
-#   runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_parent_id=searchgroupid)
+#   runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_id=searchgroupid)
     runobj = get_object_or_404(SearchRun, id=pk)
-    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
+    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup})
     return render(request, 'identipy_app/results_figure.html', c)
 
 
@@ -896,7 +915,7 @@ def showparams(request):
     c = {}
     searchgroupid = request.session.get('searchgroupid')
     runobj = SearchGroup.objects.get(id=searchgroupid, user=request.user)
-    params_file = runobj.parameters.all()[0]
+    params_file = runobj.parameters
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(params_file.path())
     print params_file.path()
@@ -931,7 +950,7 @@ def show(request):
     request.session['order_reverse'] = order_reverse
     request.session['order_by'] = order_by_label
     django.db.connection.close()
-    runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
+    runobj = SearchRun.objects.get(id=runid, searchgroup_id=searchgroupid)
     res_dict = runobj.get_detailed(ftype=ftype)
     if order_by_label:
         dbname = request.session.get('dbname', '')
@@ -954,11 +973,11 @@ def show(request):
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
     c.update({'results_detailed': res_dict})
-    runobj = SearchRun.objects.get(id=runid, searchgroup_parent_id=searchgroupid)
-    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup_parent})
+    runobj = SearchRun.objects.get(id=runid, searchgroup_id=searchgroupid)
+    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup})
 
     if request.GET.get('download_custom_csv', ''):
-        tmpfile_name = runobj.searchgroup_parent.groupname + '_' + runobj.name() + '_' + ftype + 's_selectedfields.csv'
+        tmpfile_name = runobj.searchgroup.groupname + '_' + runobj.name() + '_' + ftype + 's_selectedfields.csv'
         tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
         tmpfile.write('\t'.join(res_dict.get_labels()) + '\n')
         tmpfile.flush()
