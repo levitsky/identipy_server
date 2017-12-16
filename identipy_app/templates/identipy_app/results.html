@@ -23,7 +23,7 @@
                 <td class="td2">{{ searchrun.numMSMS }}</td>
                 <td class="td2">{{ searchrun.totalPSMs }}</td>
                 <td class="td2">{{ searchrun.fdr_psms }}</td>
-                <td class="td2">{{ searchrun.fdr_type }}</td>
+                <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
                 {% if searchrun.numPSMs %}
                     <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=psm&runid={{ searchrun.id }}">{{ searchrun.numPSMs }}</a></td>
                     <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=peptide&runid={{ searchrun.id }}">{{ searchrun.numPeptides }}</a></td>
