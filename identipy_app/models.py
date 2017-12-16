@@ -230,6 +230,19 @@ class SearchGroup(BaseDocument):
         self.notification = settings.getboolean('options', 'send email notification')
         self.save()
 
+    def set_FDRs(self):
+        raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+        raw_config.read(self.parameters.path())
+        self.fdr_psms = raw_config.getfloat('options', 'FDR')
+        types = {v: k for k, v in self.FDR_TYPES}
+        try:
+            self.fdr_type = types[raw_config.get('options', 'FDR_type').lower()]
+        except KeyError as e:
+            print 'Incorrect FDR type:', e.args
+            self.fdr_type = self.PSM
+        self.save()
+
+ 
 class SearchRun(BaseDocument):
     searchgroup = models.ForeignKey(SearchGroup)
     runname = models.CharField(max_length=80)
@@ -269,13 +282,6 @@ class SearchRun(BaseDocument):
             cs.delete()
         for pe in self.pepxmlfiles.all():
             pe.delete()
-
-    def set_FDRs(self):
-        raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-        raw_config.read(self.searchgroup.parameters.path())
-        self.fdr_psms = raw_config.getfloat('options', 'FDR')
-        self.fdr_type = raw_config.get('options', 'FDR_type')
-        self.save()
 
     def add_files(self, c):
 #       import django.db

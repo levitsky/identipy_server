@@ -720,7 +720,8 @@ def _totalrun(request, idsettings, newrun, paramfile):
         inputfile = newrun.spectra.path()
         p = Process(target=_runproc, args=(inputfile, idsettings))
         p.start()
-        newrun.status = SearchRun.RUNNING
+        newrun.processpid = p.pid
+        newrun.save()
         p.join()
     
 #       for obj in newrun.spectra.all():
@@ -740,7 +741,7 @@ def _totalrun(request, idsettings, newrun, paramfile):
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
         bname = os.path.dirname(pepxmllist[0].decode('utf-8')) + '/union'
-    newrun.set_FDRs()
+#   newrun.set_FDRs()
     MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
     if not os.path.isfile(bname + '_PSMs.csv'):
         bname = os.path.dirname(bname) + '/union'
@@ -818,24 +819,36 @@ def _start_all(request, newgroup, rn, c):
 
     tmp_procs = []
     for newrun in newgroup.get_searchruns():
-#       tasker.ask_for_run(newrun.user)
+        while True:
+            running = SearchRun.objects.filter(status=SearchRun.RUNNING)
+            print len(running), 'runs currently running'
+            if len(running) == 0:
+                print 'Server idle, starting right away ...'
+                break
+            elif len(running) >= RUN_LIMIT:
+                print 'Too many active runs, waiting ...'
+                pass
+            else:
+                last_user = running.latest('last_update').user
+                print 'Last user:', last_user.username
+                try:
+                    next_run = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(user=last_user).earliest('last_update')
+                except SearchRun.DoesNotExist:
+                    print 'No competing users, starting ...'
+                    break
+                else:
+                    print 'Next run:', next_run
+                    if next_run == newrun:
+                        print 'My turn has come, starting ...'
+                        break
+            time.sleep(10)
 
-#        while True:
-#           min_time_user = tasker.get_user_with_min_time()
-#           if tasker.get_total_cursearches() < search_limit and newrun.user == min_time_user:
-#               break
-#           else:
-#               for idx, p in enumerate(tmp_procs):
-#                   if not p.is_alive():
-#                       tasker.finish_run(newrun.user)
-#                       tmp_procs.pop(idx)
-#           time.sleep(5)
-
-#       tasker.start_run(newrun.user)
-#       p = Process(target=_run_search, args=(request, newrun, rn, c))
+        newrun.status = SearchRun.RUNNING
+        newrun.save()
         p = Thread(target=_run_search, args=(request, newrun, rn, c), name='run-search')
         p.start()
         tmp_procs.append(p)
+
     for p in tmp_procs:
         p.join()
     p = Thread(target=_start_union, args=(request, newgroup, rn, c), name='start-union')
@@ -873,13 +886,14 @@ def runidentipy(request):
         rn = newgroup.name()
         os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
 #       newgroup.change_status('Search is running')
-        t = Thread(target=_start_all, args=(request, newgroup, rn, c), name='start_all')
 #       t = Process(target=start_all, args=(newgroup, rn, c))
-        t.start()
 #       newgroup.processpid = t.ident
 #       newgroup.processpid = t.pid
         newgroup.save()
         newgroup.set_notification()
+        newgroup.set_FDRs()
+        t = Thread(target=_start_all, args=(request, newgroup, rn, c), name='start_all')
+        t.start()
         messages.add_message(request, messages.INFO, 'IdentiPy started')
         return redirect('identipy_app:getstatus')
     else:
