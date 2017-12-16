@@ -832,13 +832,13 @@ def _start_all(request, newgroup, rn, c):
                 last_user = running.latest('last_update').user
                 print 'Last user:', last_user.username
                 try:
-                    next_run = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(user=last_user).earliest('last_update')
+                    next_user = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(user=last_user).earliest('last_update').user
                 except SearchRun.DoesNotExist:
                     print 'No competing users, starting ...'
                     break
                 else:
-                    print 'Next run:', next_run
-                    if next_run == newrun:
+                    print 'Next user:', next_user
+                    if next_user == newrun.user:
                         print 'My turn has come, starting ...'
                         break
             time.sleep(10)
