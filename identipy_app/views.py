@@ -689,10 +689,12 @@ def _run_search(request, newrun, rn, c):
     idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('utf-8')))
 #   newrun.set_notification(idsettings)
     _totalrun(request, idsettings, newrun, paramfile)
-    newrun.status = SearchRun.FINISHED
-    newrun.save()
+    if _exists(newrun):
+        newrun.status = SearchRun.FINISHED
+        newrun.save()
+    else:
+        print 'Run appears to have been killed. Exiting run-search'
     django.db.connection.close()
-    return 1
 
 def _set_pepxml_path(idsettings, inputfile):
     if idsettings.has_option('output', 'path'):
@@ -702,6 +704,15 @@ def _set_pepxml_path(idsettings, inputfile):
     outpath = outpath.decode('utf-8')
     return os.path.join(outpath, os.path.splitext(
         os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
+
+
+def _exists(run):
+    time.sleep(2)
+    if not SearchRun.objects.filter(pk=run.pk).exists():
+        print 'The SearchRun object {} has been deleted, exiting ...'.format(run.pk)
+        return False
+    return True
+
 
 def _totalrun(request, idsettings, newrun, paramfile):
 #   django.db.connection.close()
@@ -727,6 +738,13 @@ def _totalrun(request, idsettings, newrun, paramfile):
 #       for obj in newrun.spectra.all():
 #           inputfile = obj.path()
         filename = _set_pepxml_path(idsettings, inputfile)
+
+        # check if run has been killed
+        if not _exists(newrun):
+            return
+        else:
+            print 'Resuming run {} ...'.format(newrun.pk)
+
         with open(filename, 'rb') as fl:
             djangofl = File(fl)
             pepxmlfile = PepXMLFile(docfile = djangofl, user = request.user)
@@ -741,11 +759,15 @@ def _totalrun(request, idsettings, newrun, paramfile):
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
         bname = os.path.dirname(pepxmllist[0].decode('utf-8')) + '/union'
-#   newrun.set_FDRs()
+
+    if not _exists(newrun):
+        return
     MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
     if not os.path.isfile(bname + '_PSMs.csv'):
         bname = os.path.dirname(bname) + '/union'
 
+    if not _exists(newrun):
+        return
     dname = os.path.dirname(pepxmllist[0])
     for tmpfile in os.listdir(dname):
         ftype = os.path.splitext(tmpfile)[-1]
@@ -797,7 +819,7 @@ def _start_union(request, newgroup, rn, c):
     django.db.connection.ensure_connection()
 #       django.db.connection.close()
     try:
-        un_run = newgroup.get_union()[0]
+        un_run = newgroup.get_union()
     except:
         un_run = False
     if un_run:
@@ -832,7 +854,8 @@ def _start_all(request, newgroup, rn, c):
                 last_user = running.latest('last_update').user
                 print 'Last user:', last_user.username
                 try:
-                    next_user = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(user=last_user).earliest('last_update').user
+                    next_user = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(
+                            user=last_user).earliest('last_update').user
                 except SearchRun.DoesNotExist:
                     print 'No competing users, starting ...'
                     break
@@ -851,8 +874,15 @@ def _start_all(request, newgroup, rn, c):
 
     for p in tmp_procs:
         p.join()
+
+    # check that search has not been deleted
+    if not SearchGroup.objects.filter(pk=newgroup.pk).exists():
+        print 'The SearchGroup object has been deleted, exiting ...'
+        return
+
     p = Thread(target=_start_union, args=(request, newgroup, rn, c), name='start-union')
     p.start()
+    p.join()
     django.db.connection.close()
 
 def runidentipy(request):
