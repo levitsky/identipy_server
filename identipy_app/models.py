@@ -194,7 +194,7 @@ class SearchGroup(BaseDocument):
         return self.searchrun_set.filter(union=False)
 
     def get_union(self):
-        return self.searchrun_set.filter(union=True)
+        return self.searchrun_set.get(union=True)
 
     def get_searchruns_all(self):
         return self.searchrun_set.all().order_by('union')
@@ -218,12 +218,14 @@ class SearchGroup(BaseDocument):
             if sr.status == SearchRun.RUNNING:
                 kill_proc_tree(sr.processpid)
             sr.full_delete()
-        self.delete()
+            print 'Deleting run', sr.pk
+            sr.delete()
         tree = 'results/%s/%s' % (str(self.user.id), self.name().encode('utf-8'))
         try:
             shutil.rmtree(tree)
         except Exception:
             print 'Could not remove tree:', tree
+        self.delete()
 
     def set_notification(self):
         settings = main.settings(self.parameters.path())
