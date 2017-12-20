@@ -66,7 +66,10 @@ def upload_to_raw(instance, filename):
 def upload_to_pepxml(instance, filename):
     return filename
 
+def upload_to_params(instance, filename):
+    return upload_to_basic('params', filename, instance.user.id)
 
+ 
 class SpectraFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_spectra)
 
@@ -84,26 +87,6 @@ class OverwriteStorage(FileSystemStorage):
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
         return os.path.join(settings.MEDIA_ROOT, name)#name
-
-
-class PepXMLFile(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
-    filtered = models.BooleanField(default=False)
-
-
-class ResImageFile(BaseDocument):
-    docfile = models.ImageField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
-    ftype = models.CharField(max_length=5, default='.png')
-    # docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
-
-
-class ResCSV(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
-    ftype = models.CharField(max_length=10)
-
-
-def upload_to_params(instance, filename):
-    return upload_to_basic('params', filename, instance.user.id)
 
 
 class ParamsFile(BaseDocument):
@@ -217,9 +200,9 @@ class SearchGroup(BaseDocument):
         for sr in self.get_searchruns_all():
             if sr.status == SearchRun.RUNNING:
                 kill_proc_tree(sr.processpid)
-            sr.full_delete()
+#           sr.full_delete()
             print 'Deleting run', sr.pk
-            sr.delete()
+#           sr.delete()
         tree = 'results/%s/%s' % (str(self.user.id), self.name().encode('utf-8'))
         try:
             shutil.rmtree(tree)
@@ -244,15 +227,15 @@ class SearchGroup(BaseDocument):
             self.fdr_type = self.PSM
         self.save()
 
- 
+
 class SearchRun(BaseDocument):
     searchgroup = models.ForeignKey(SearchGroup)
     runname = models.CharField(max_length=80)
     spectra = models.ForeignKey(SpectraFile, blank=True, null=True)
 #   fasta = models.ManyToManyField(FastaFile)
-    pepxmlfiles = models.ManyToManyField(PepXMLFile)
-    resimagefiles = models.ManyToManyField(ResImageFile)
-    csvfiles = models.ManyToManyField(ResCSV)
+#   pepxmlfiles = models.ManyToManyField(PepXMLFile)
+#   resimagefiles = models.ManyToManyField(ResImageFile)
+#   csvfiles = models.ManyToManyField(ResCSV)
 
     processpid = models.IntegerField(blank=True, default=-1)
     numMSMS = models.BigIntegerField(default=0)
@@ -277,20 +260,20 @@ class SearchRun(BaseDocument):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DEAD)
     last_update = models.DateTimeField(auto_now=True)
 
-    def full_delete(self):
-        for im in self.get_resimagefiles():
-            im.delete()
-        for cs in self.csvfiles.all():
-            cs.delete()
-        for pe in self.pepxmlfiles.all():
-            pe.delete()
+#   def full_delete(self):
+#       for im in self.get_resimagefiles():
+#           im.delete()
+#       for cs in self.csvfiles.all():
+#           cs.delete()
+#       for pe in self.pepxmlfiles.all():
+#           pe.delete()
 
-    def add_files(self, c):
+#   def add_files(self, c):
 #       import django.db
 #       django.db.connection.close()
-        self.add_spectra(c['chosenspectra'])
-        self.add_fasta(c['chosenfasta'])
-        self.add_params(sfForms=c['SearchForms'])
+#       self.add_spectra(c['chosenspectra'])
+#       self.add_fasta(c['chosenfasta'])
+#       self.add_params(sfForms=c['SearchForms'])
 
     def add_spectra(self, spectraobject):
 #       import django.db
@@ -306,12 +289,12 @@ class SearchRun(BaseDocument):
 #           self.spectra.add(s)
 #           self.save()
 
-    def add_fasta(self, fastaobject):
+#   def add_fasta(self, fastaobject):
 #       import django.db
 #       django.db.connection.close()
-        # for s in fastaobjects:
-        self.fasta.add(fastaobject)
-        self.save()
+#       # for s in fastaobjects:
+#       self.fasta.add(fastaobject)
+#       self.save()
 
 #   def add_params(self, paramsobject):
 #       import django.db
@@ -320,25 +303,25 @@ class SearchRun(BaseDocument):
 #       self.parameters.add(paramsobject)
 #       self.save()
 
-    def add_pepxml(self, pepxmlfile):
+#   def add_pepxml(self, pepxmlfile):
 #       import django.db
 #       django.db.connection.close()
-        self.pepxmlfiles.add(pepxmlfile)
-        self.save()
+#       self.pepxmlfiles.add(pepxmlfile)
+#       self.save()
 
-    def add_resimage(self, resimage):
-
-#       import django.db
-#       django.db.connection.close()
-        self.resimagefiles.add(resimage)
-        self.save()
-
-    def add_rescsv(self, rescsv):
+#   def add_resimage(self, resimage):
 
 #       import django.db
 #       django.db.connection.close()
-        self.csvfiles.add(rescsv)
-        self.save()
+#       self.resimagefiles.add(resimage)
+#       self.save()
+
+#   def add_rescsv(self, rescsv):
+
+#       import django.db
+#       django.db.connection.close()
+#       self.csvfiles.add(rescsv)
+#       self.save()
 
     def get_resimagefiles(self, ftype='.png'):
 #       import django.db
@@ -367,7 +350,7 @@ class SearchRun(BaseDocument):
                         'psms_per_protein',
                         'charge_states',
                         'scores']
-        all_images = [doc for doc in self.resimagefiles.filter(ftype=ftype)]
+        all_images = [doc for doc in self.resimagefile_set.filter(ftype=ftype)]
         all_images.sort(key=lambda val: get_index(val.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower(), custom_order))
         return all_images
     
@@ -408,7 +391,7 @@ class SearchRun(BaseDocument):
     def get_pepxmlfiles(self, filtered=False):
 #       import django.db
 #       django.db.connection.close()
-        return self.pepxmlfiles.filter(filtered=filtered)
+        return self.pepxmlfile_set.filter(filtered=filtered)
 
     def get_pepxmlfiles_paths(self, filtered=False):
 #       import django.db
@@ -434,19 +417,19 @@ class SearchRun(BaseDocument):
 #       django.db.connection.close()
         return [pep.docfile.name.encode('utf-8') for pep in self.get_resimagefiles(ftype=ftype)]
 
-    def get_paramfile_path(self):
+#   def get_paramfile_path(self):
 #       import django.db
 #       django.db.connection.close()
-        return [self.parameters.all()[0].docfile.name.encode('utf-8'), ]
+#       return [self.parameters.all()[0].docfile.name.encode('utf-8'), ]
 
     def get_csvfiles_paths(self, ftype=None):
 #       import django.db
 #       django.db.connection.close()
         # if not os.path.isfile(os.path.dirname(self.csvfiles.filter(ftype='psm')[0].docfile.name.encode('ASCII')) + '/union_PSMs.csv'):
         if ftype:
-            return [pep.docfile.name.encode('utf-8') for pep in self.csvfiles.filter(ftype=ftype)]
+            return [pep.docfile.name.encode('utf-8') for pep in self.rescsvfile_set.filter(ftype=ftype)]
         else:
-            return [pep.docfile.name.encode('utf-8') for pep in self.csvfiles.all()]
+            return [pep.docfile.name.encode('utf-8') for pep in self.rescsvfile_set.all()]
         # else:
         #     if ftype:
         #         fname = self.csvfiles.filter(ftype=ftype)[0].docfile.name.encode('ASCII')
@@ -499,6 +482,22 @@ class SearchRun(BaseDocument):
         return rd
 
 
+class PepXMLFile(BaseDocument):
+    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    filtered = models.BooleanField(default=False)
+    run = models.ForeignKey(SearchRun)
+
+class ResImageFile(BaseDocument):
+    docfile = models.ImageField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    ftype = models.CharField(max_length=5, default='.png')
+    run = models.ForeignKey(SearchRun)
+
+class ResCSV(BaseDocument):
+    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    ftype = models.CharField(max_length=10)
+    run = models.ForeignKey(SearchRun)
+
+
 class Protease(models.Model):
     name = models.CharField(max_length=80)
     rule = models.CharField(max_length=300, default='RK')
@@ -506,7 +505,7 @@ class Protease(models.Model):
     user = models.ForeignKey(User)
 
     class Meta:
-        unique_together = ('name', 'user',)
+        unique_together = ('name', 'user')
 
 
 class Modification(models.Model):
