@@ -25,7 +25,7 @@ SECRET_KEY = 'pv0^x(*qfo_e$#3@f_v_9%@hr3i#+7-y!pjd)p7byzg6bli4q-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'calc-server', '192.168.0.3', '83.149.244.82']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 DATETIME_FORMAT = 'M j, H:i:s'
 
@@ -80,13 +80,12 @@ WSGI_APPLICATION = 'identipy_server.wsgi.application'
 
 DATABASES = {
     'default': {
-#       'ENGINE': 'django.db.backends.sqlite3',
-        'ENGINE': 'django.db.backends.mysql',
-#       'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': 'identipy_server_testing',
+        'ENGINE': 'django.db.backends.sqlite3',
+#       'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#       'NAME': 'identipy_server',
         'OPTIONS': {
-#           'timeout': 10,
-            'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
+#           'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
         },
     }
 }
@@ -125,11 +124,11 @@ MEDIA_URL = '/'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'identiprot@gmail.com'
-EMAIL_HOST_PASSWORD = 'theorchromotesting'
-EMAIL_SEND_TO = ['lev.levitsky@phystech.edu']
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_SEND_TO = []
 
 NUMBER_OF_PARALLEL_RUNS = 3
 
 LOCAL_IMPORT = True
-URL_IMPORT = True
+
