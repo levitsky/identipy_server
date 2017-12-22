@@ -10,10 +10,18 @@ def assign_params(apps, schema_editor):
     ParamsFile = apps.get_model('identipy_app', 'ParamsFile')
     for sg in SearchGroup.objects.all():
         try:
-            params = ParamsFile.objects.get(user=sg.user,
-                docfile=os.path.join('uploads', 'params', str(sg.user.id), sg.groupname + '.cfg'))
+            df = os.path.join('uploads', 'params', str(sg.user.id), sg.groupname + '.cfg')
+            params = ParamsFile.objects.get(user=sg.user, docfile=df)
+            print 'Matched:', df
         except ParamsFile.DoesNotExist:
-            params = None
+            try:
+                df = os.path.join('uploads', 'params', str(sg.user.id), sg.groupname).replace(
+                    ' ', '_').replace(':', '').split('.')[0]
+                params = ParamsFile.objects.get(user=sg.user, docfile__startswith=df)
+                print 'Matched beginning:', df
+            except ParamsFile.DoesNotExist:
+                params = None
+                print 'NOT MATCHED:', df
         sg.parameters = params
         sg.save()
 
