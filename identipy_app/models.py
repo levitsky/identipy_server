@@ -428,9 +428,9 @@ class SearchRun(BaseDocument):
 #       django.db.connection.close()
         # if not os.path.isfile(os.path.dirname(self.csvfiles.filter(ftype='psm')[0].docfile.name.encode('ASCII')) + '/union_PSMs.csv'):
         if ftype:
-            return [pep.docfile.name.encode('utf-8') for pep in self.rescsvfile_set.filter(ftype=ftype)]
+            return [pep.docfile.name.encode('utf-8') for pep in self.rescsv_set.filter(ftype=ftype)]
         else:
-            return [pep.docfile.name.encode('utf-8') for pep in self.rescsvfile_set.all()]
+            return [pep.docfile.name.encode('utf-8') for pep in self.rescsv_set.all()]
         # else:
         #     if ftype:
         #         fname = self.csvfiles.filter(ftype=ftype)[0].docfile.name.encode('ASCII')
