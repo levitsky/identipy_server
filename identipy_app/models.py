@@ -213,7 +213,7 @@ class SearchGroup(BaseDocument):
         self.delete()
 
     def set_notification(self):
-        settings = main.settings(self.parameters.path())
+        settings = main.settings(self.parameters.path().encode('utf-8'))
         self.notification = settings.getboolean('options', 'send email notification')
         self.save()
 
