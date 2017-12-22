@@ -32,14 +32,14 @@ class Command(BaseCommand):
                 fl = open(os.path.join(df_dir, flname))
                 djangofl = File(fl)
                 djangofl.name = os.path.basename(djangofl.name)
-                fastaobj = FastaFile(docfile = djangofl, user = user)
+                fastaobj = FastaFile(docfile=djangofl, user=user)
                 fastaobj.save()
                 fl.close()
         
         for paramtype in [1, 2, 3]:
             fl = open('latest_params_%d.cfg' % paramtype)
             djangofl = File(fl)
-            paramobj = ParamsFile(docfile = djangofl, user = user, type=paramtype)
+            paramobj = ParamsFile(docfile=djangofl, user=user, type=paramtype)
             paramobj.save()
             fl.close()
 

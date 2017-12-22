@@ -70,6 +70,7 @@ try:
     for r in runs:
         r.status = SearchRun.DEAD
         r.save()
+        print 'Reaping run', r.id, 'from', r.searchgroup.groupname, 'by', r.user.username
 except Exception as e:
     print 'Startup cleanup failed.'
     print e
@@ -747,10 +748,10 @@ def _totalrun(request, idsettings, newrun, paramfile):
 
         with open(filename, 'rb') as fl:
             djangofl = File(fl)
-            pepxmlfile = PepXMLFile(docfile = djangofl, user = request.user)
+            pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, run=newrun)
             pepxmlfile.docfile.name = filename
             pepxmlfile.save()
-            newrun.add_pepxml(pepxmlfile)
+#           newrun.add_pepxml(pepxmlfile)
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
         bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
@@ -774,35 +775,35 @@ def _totalrun(request, idsettings, newrun, paramfile):
         if ftype in {'.png', '.svg'} and newrun.name() + '_' in os.path.basename(tmpfile.decode('utf-8')):
             fl = open(os.path.join(dname, tmpfile).decode('utf-8'))
             djangofl = File(fl)
-            img = ResImageFile(docfile = djangofl, user = request.user, ftype=ftype)
+            img = ResImageFile(docfile=djangofl, user=request.user, ftype=ftype, run=newrun)
             img.save()
-            newrun.add_resimage(img)
+#           newrun.add_resimage(img)
             fl.close()
     if os.path.exists(bname + '_PSMs.csv'):
         fl = open(bname + '_PSMs.csv'.decode('utf-8'))
         djangofl = File(fl)
-        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='psm')
+        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
         csvf.save()
-        newrun.add_rescsv(csvf)
+#       newrun.add_rescsv(csvf)
     if os.path.exists(bname + '_PSMs.pep.xml'):
         fl = open(bname + '_PSMs.pep.xml', 'rb')
         djangofl = File(fl)
-        pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True)
+        pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True, run=newrun)
         pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
         pepxmlfile.save()
-        newrun.add_pepxml(pepxmlfile)
+#       newrun.add_pepxml(pepxmlfile)
     if os.path.exists(bname + '_peptides.csv'):
         fl = open(bname + '_peptides.csv'.decode('utf-8'))
         djangofl = File(fl)
-        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='peptide')
+        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='peptide', run=newrun)
         csvf.save()
-        newrun.add_rescsv(csvf)
+#       newrun.add_rescsv(csvf)
     if os.path.exists(bname + '_proteins.csv'):
         fl = open(bname + '_proteins.csv'.decode('utf-8'))
         djangofl = File(fl)
-        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='protein')
+        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='protein', run=newrun)
         csvf.save()
-        newrun.add_rescsv(csvf)
+#       newrun.add_rescsv(csvf)
     for pxml in newrun.get_pepxmlfiles():
         full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
         shutil.move(pxml.docfile.name, full)
@@ -810,7 +811,7 @@ def _totalrun(request, idsettings, newrun, paramfile):
         pxml.save()
     newrun.calc_results()
     django.db.connection.close()
-    return 1
+#   return 1
 
 def _runproc(inputfile, idsettings):
     utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
@@ -823,10 +824,10 @@ def _start_union(request, newgroup, rn, c):
     except:
         un_run = False
     if un_run:
-        for newrun in newgroup.get_searchruns():
-            for pepf in newrun.get_pepxmlfiles():
-                un_run.add_pepxml(pepf)
-                un_run.save()
+#       for newrun in newgroup.get_searchruns():
+#           for pepf in newrun.get_pepxmlfiles():
+#               un_run.add_pepxml(pepf)
+#               un_run.save()
         _run_search(request, un_run, rn, c)
 
     if newgroup.notification:

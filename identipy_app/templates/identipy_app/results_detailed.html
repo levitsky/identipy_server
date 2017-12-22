@@ -33,7 +33,7 @@
                 <td class="td2">{{ searchrun.numPeptides }}</td>
                 <td class="td2">{{ searchrun.numProteins }}</td>
 		    {% endif %}
-            <td class="td2">{{ searchrun.fdr_level }}</td>
+            <td class="td2">{{ searchrun.searchgroup.fdr_level }}</td>
             <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
             <td class="td2">{{ searchrun.numMSMS }}</td>
             <td class="td2">{{ searchrun.totalPSMs }}</td>

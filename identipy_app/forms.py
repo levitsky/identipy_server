@@ -321,8 +321,9 @@ def search_forms_from_request(request, ignore_post=False):
     return sForms
 
 def _kwargs_for_search_form(request):
-    paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
-            user=request.user.id, type=request.session['paramtype'])
+    paramobj = models.ParamsFile.objects.get(
+            docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
+            user=request.user.id)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('utf-8'))
     print 'Reading', paramobj.docfile.name

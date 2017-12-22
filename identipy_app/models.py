@@ -392,6 +392,8 @@ class SearchRun(BaseDocument):
     def get_pepxmlfiles(self, filtered=False):
 #       import django.db
 #       django.db.connection.close()
+        if self.union:
+            return PepXMLFile.objects.filter(run__searchgroup=self.searchgroup, run__union=False, filtered=filtered)
         return self.pepxmlfile_set.filter(filtered=filtered)
 
     def get_pepxmlfiles_paths(self, filtered=False):
