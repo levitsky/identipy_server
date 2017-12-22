@@ -66,7 +66,7 @@ RUN_LIMIT = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 #    print 'Smth wrong with SearchGroup model'
 
 try:
-    runs = SearchRun.objects.exclude(status=SearchRun.FINISHED)
+    runs = SearchRun.objects.exclude(status=SearchRun.FINISHED).exclude(status=SearchRun.DEAD)
     for r in runs:
         r.status = SearchRun.DEAD
         r.save()
@@ -938,7 +938,7 @@ def search_details(request, pk, c={}):
 #   runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
     request.session['searchgroupid'] = runobj.id
     c.update({'searchgroup': runobj})
-    print runobj.id, runobj.groupname
+#   print runobj.id, runobj.groupname
     sruns = SearchRun.objects.filter(searchgroup_id=runobj.id)
     if sruns.count() == 1:
 #       return results_figure(request, sruns[0].id)
