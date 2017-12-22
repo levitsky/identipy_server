@@ -104,6 +104,8 @@ class SearchGroup(BaseDocument):
     # status = models.CharField(max_length=80, default='No info')
     # processpid = models.IntegerField(default=9999)
     notification = models.BooleanField(default=False)
+    fdr_level = models.FloatField(default=0.0)
+
     PSM = 'S'
     PEPTIDE = 'P'
     PROTEIN = 'R'
@@ -218,7 +220,7 @@ class SearchGroup(BaseDocument):
     def set_FDRs(self):
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(self.parameters.path())
-        self.fdr_psms = raw_config.getfloat('options', 'FDR')
+        self.fdr_level = raw_config.getfloat('options', 'FDR')
         types = {v: k for k, v in self.FDR_TYPES}
         try:
             self.fdr_type = types[raw_config.get('options', 'FDR_type').lower()]
@@ -240,7 +242,6 @@ class SearchRun(BaseDocument):
     processpid = models.IntegerField(blank=True, default=-1)
     numMSMS = models.BigIntegerField(default=0)
     totalPSMs = models.BigIntegerField(default=0)
-    fdr_psms = models.FloatField(default=0.0)
     numPSMs = models.BigIntegerField(default=0)
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)

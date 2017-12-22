@@ -22,7 +22,7 @@
                 <td><a class="td1" style="word-break:break-word" href="{% url 'identipy_app:figure' searchrun.id %}" class="link" name="results_figure">{{ searchrun.name|spacify }}</a></td>
                 <td class="td2">{{ searchrun.numMSMS }}</td>
                 <td class="td2">{{ searchrun.totalPSMs }}</td>
-                <td class="td2">{{ searchrun.fdr_psms }}</td>
+                <td class="td2">{{ searchrun.fdr_level }}</td>
                 <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
                 {% if searchrun.numPSMs %}
                     <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=psm&runid={{ searchrun.id }}">{{ searchrun.numPSMs }}</a></td>
