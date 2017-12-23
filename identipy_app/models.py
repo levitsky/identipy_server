@@ -221,7 +221,7 @@ class SearchGroup(BaseDocument):
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(self.parameters.path())
         self.fdr_level = raw_config.getfloat('options', 'FDR')
-        types = {v: k for k, v in self.FDR_TYPES}
+        types = {v.lower(): k for k, v in self.FDR_TYPES}
         try:
             self.fdr_type = types[raw_config.get('options', 'FDR_type').lower()]
         except KeyError as e:
