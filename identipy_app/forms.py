@@ -326,7 +326,7 @@ def _kwargs_for_search_form(request):
             user=request.user.id)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('utf-8'))
-    print 'Reading', paramobj.docfile.name
+#   print 'Reading', paramobj.docfile.name
     kwargs = dict(raw_config=raw_config, user=request.user, label_suffix='')
     return kwargs
 

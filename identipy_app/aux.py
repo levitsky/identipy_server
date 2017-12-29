@@ -71,7 +71,7 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name.encode('utf-8'))
     labels = ','.join(mod.get_label() for mod in chosenmods)
-    print 'LABELS:', labels
+#   print 'LABELS:', labels
     raw_config.set('modifications', 'fixed' if fixed else 'variable', labels + '|type>string')
     for mod in chosenmods:
         raw_config.set('modifications', mod.label, mod.mass)
@@ -100,7 +100,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
                         tempval = ('1' if SearchParametersForm_values[param[0]] else '0')
                     else:
                         tempval = SearchParametersForm_values[param[0]]
-                    print section, param[0], tempval, orig_choices
+#                   print section, param[0], tempval, orig_choices
                     raw_config.set(section, param[0], tempval + '|' + orig_choices)
     enz = raw_config.get('search', 'enzyme')
     protease = Protease.objects.filter(user=uid, rule=enz).first()
@@ -128,7 +128,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
         paramobj.save()
         fl.close()
         os.remove(paramsname + '.cfg')
-    print paramobj.docfile.name.encode('utf-8')
+#   print paramobj.docfile.name.encode('utf-8')
     raw_config.write(open(paramobj.docfile.name.encode('utf-8'), 'w'))
     return paramobj
 
