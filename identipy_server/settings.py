@@ -138,7 +138,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)8s: %(asctime)s %(module)10s %(process)5d %(threadName)12s %(message)s'
+            'format': '%(levelname)8s: %(asctime)s %(module)16s %(process)5d %(threadName)12s %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -167,5 +167,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'identipy': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+
     },
 }
