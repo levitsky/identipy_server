@@ -72,10 +72,12 @@ try:
     for r in runs:
         r.status = SearchRun.DEAD
         r.save()
-        print 'Reaping run', r.id, 'from', r.searchgroup.groupname, 'by', r.user.username
+#       print 'Reaping run', r.id, 'from', r.searchgroup.groupname, 'by', r.user.username
+        logger.info('Reaping run %s from %s by %s', r.id, r.searchgroup.groupname, r.user.username)
 except Exception as e:
-    print 'Startup cleanup failed.'
-    print e
+#   print 'Startup cleanup failed.'
+#   print e
+    logger.warning('Startup cleanup failed.\n%s', e)
 
 
 def add_forms(request, c):
@@ -250,7 +252,8 @@ def _save_uploaded_file(uploadedfile, user):
     name, fext = os.path.splitext(fname.lower())
     if fext == '.gz':
         name, fext = os.path.splitext(name)
-    print 'Determined extension:', fext    
+#   print 'Determined extension:', fext    
+    logger.debug('Determined extension: %s', fext)
     if fext in {'.mgf', '.mzml'}:
         newdoc = SpectraFile(docfile=uploadedfile, user=user)
         newdoc.save()
@@ -258,7 +261,8 @@ def _save_uploaded_file(uploadedfile, user):
         newdoc = FastaFile(docfile=uploadedfile, user=user)
         newdoc.save()
     else:
-        print 'Unsupported file uploaded:', uploadedfile
+#       print 'Unsupported file uploaded:', uploadedfile
+        logging.error('Unsupported file uploaded: %s', uploadedfile)
 
 def upload(request):
     c = {}
@@ -334,7 +338,8 @@ def _dispatch_file_handling(f, user, opener=None, fext=None):
     name, ext = os.path.splitext(path)
     if ext == '.gz':
         path = name
-    print 'Copying to', path
+#   print 'Copying to', path
+    logger.debug('Copying to %s', path)
     if opener is None: opener = lambda f: open(f, 'rb')
     return False, (fname, path, opener)
 
@@ -361,17 +366,20 @@ def _copy_in_chunks(f, path):
                 else:
                     break
     except IOError as e:
-        print 'Error importing', f.name, ':', e.args
+#       print 'Error importing', f.name, ':', e.args
+        logger.error('Error importing %s: %s', f.name, e.args)
     else:
         return path
 
 
 def _local_import(fname, user):
-    print 'IMPORTING FILE', fname
+#   print 'IMPORTING FILE', fname
+    logger.info('IMPORTING FILE: %s', fname)
     fext = os.path.splitext(fname)[-1][1:].lower()
     if fext == 'zip':
         tmpdir = tempfile.mkdtemp()
-        print 'Extracting to', tmpdir
+#       print 'Extracting to', tmpdir
+        logger.debug('Extracting to %s', tmpdir)
         zf = zipfile.ZipFile(fname)
         zf.extractall(tmpdir)
         rets = [
@@ -426,9 +434,11 @@ def url_import(request):
         parsed = urlparse.urlparse(fname)
         local_name = os.path.split(parsed.path)[1]
         tmpfile = os.path.join(tempfile.gettempdir(), local_name)
-        print 'Downloading', fname, '...'
+#       print 'Downloading', fname, '...'
+        logger.info('Downloading %s ...', fname)
         urllib.urlretrieve(fname, tmpfile)
-        print 'Saved to', tmpfile
+#       print 'Saved to', tmpfile
+        logger.info('Saved to %s', tmpfile)
         _local_import(tmpfile, request.user)
         os.remove(tmpfile)
         messages.add_message(request, messages.INFO, 'Download successful.')
@@ -471,8 +481,9 @@ def email(request):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             except Exception as e:
-                print 'Could not send email:'
-                print e
+#               print 'Could not send email:'
+#               print e
+                logger.error('Could not send email to developers:\n%s', e)
             return redirect('identipy_app:contacts')
     else:
         form = ContactForm(initial={'from_email': request.user.username})
@@ -483,8 +494,9 @@ def email_to_user(username, searchname):
     try:
         send_mail('IdentiPy Server notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
     except Exception as e:
-        print 'Could not send email:'
-        print e
+#       print 'Could not send email:'
+#       print e
+        logger.error('Could not send email to user %s about run %s:\n%s', username, searchname, e)
 
 
 def add_modification(request):
@@ -524,7 +536,8 @@ def add_modification(request):
             else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
                 if 'next' in request.session:
-                    print request.session['next']
+#                   print request.session['next']
+                    logger.debug('Session next: %s', request.session['next'])
                     return redirect(*request.session['next'].pop())
                 else:
                     return redirect('identipy_app:searchpage')
@@ -645,7 +658,7 @@ def files_view(request, what):
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
             sforms = search_forms_from_request(request, ignore_post=True)
-            print sforms
+#           print sforms
             if what == 'mods':
                 save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
 #               sforms = pickle.loads(request.session['bigform'])
@@ -696,7 +709,8 @@ def _run_search(request, newrun, rn, c):
         newrun.status = SearchRun.FINISHED
         newrun.save()
     else:
-        print 'Run appears to have been killed. Exiting run-search'
+#       print 'Run appears to have been killed. Exiting run-search'
+        logger.warning('Run %s appears to have been killed. Exiting run-search', newrun.id)
     django.db.connection.close()
 
 def _set_pepxml_path(idsettings, inputfile):
@@ -712,7 +726,8 @@ def _set_pepxml_path(idsettings, inputfile):
 def _exists(run):
     time.sleep(2)
     if not SearchRun.objects.filter(pk=run.pk).exists():
-        print 'The SearchRun object {} has been deleted, exiting ...'.format(run.pk)
+#       print 'The SearchRun object {} has been deleted, exiting ...'.format(run.pk)
+        logger.info('The SearchRun object %s has been deleted, exiting ...', run.pk)
         return False
     return True
 
@@ -746,7 +761,8 @@ def _totalrun(request, idsettings, newrun, paramfile):
         if not _exists(newrun):
             return
         else:
-            print 'Resuming run {} ...'.format(newrun.pk)
+#           print 'Resuming run {} ...'.format(newrun.pk)
+            logger.debug('Resuming run %s ...', newrun.pk)
 
         with open(filename, 'rb') as fl:
             djangofl = File(fl)
@@ -846,26 +862,33 @@ def _start_all(request, newgroup, rn, c):
     for newrun in newgroup.get_searchruns():
         while True:
             running = SearchRun.objects.filter(status=SearchRun.RUNNING)
-            print len(running), 'runs currently running'
+#           print len(running), 'runs currently running'
+            logger.debug('%s runs currently running', len(running))
             if len(running) == 0:
-                print 'Server idle, starting right away ...'
+#               print 'Server idle, starting right away ...'
+                logger.debug('Server idle, starting right away ...')
                 break
             elif len(running) >= RUN_LIMIT:
-                print 'Too many active runs, waiting ...'
+#               print 'Too many active runs, waiting ...'
+                logger.debug('Too many active runs, waiting ...')
                 pass
             else:
                 last_user = running.latest('last_update').user
-                print 'Last user:', last_user.username
+#               print 'Last user:', last_user.username
+                logger.debug('Last user: %s', last_user.username)
                 try:
                     next_user = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(
                             user=last_user).earliest('last_update').user
                 except SearchRun.DoesNotExist:
-                    print 'No competing users, starting ...'
+#                   print 'No competing users, starting ...'
+                    logger.debug('No competing users, starting ...')
                     break
                 else:
-                    print 'Next user:', next_user
+#                   print 'Next user:', next_user
+                    logger.debug('Next user: %s', next_user)
                     if next_user == newrun.user:
-                        print 'My turn has come, starting ...'
+#                       print 'My turn has come, starting ...'
+                        logger.debug('My turn has come, starting ...')
                         break
             time.sleep(10)
 
@@ -880,7 +903,8 @@ def _start_all(request, newgroup, rn, c):
 
     # check that search has not been deleted
     if not SearchGroup.objects.filter(pk=newgroup.pk).exists():
-        print 'The SearchGroup object has been deleted, exiting ...'
+#       print 'The SearchGroup object has been deleted, exiting ...'
+        logger.warning('SearchGroup %s has been deleted, exiting ...', newgroup.pk)
         return
 
     p = Thread(target=_start_union, args=(request, newgroup, rn, c), name='start-union')
@@ -965,7 +989,8 @@ def showparams(request):
     params_file = runobj.parameters
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(params_file.path())
-    print params_file.path()
+#   print params_file.path()
+    logger.debug('Showing params from file %s', params_file.path())
 
     c['SearchForms'] = {}
     for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
@@ -1056,7 +1081,8 @@ def getfiles(request, usedclass=False):
             for x in form.cleaned_data.get('choices'):
                 obj = usedclass.objects.get(user=request.user, id=x)
                 filenames.append(obj.path())
-                print obj.path()
+#               print obj.path()
+                logger.debug('Appending object: %s', obj.path())
         zip_subdir = 'down_files'
     elif request.method == 'GET':
         down_type = request.GET['down_type']
