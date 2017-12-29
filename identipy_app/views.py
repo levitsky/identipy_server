@@ -35,6 +35,8 @@ import urlparse
 import glob
 import gzip
 import zipfile
+import logging
+logger = logging.getLogger(__name__)
 
 from pyteomics import parser, mass
 os.chdir(settings.BASE_DIR)
@@ -210,7 +212,7 @@ def delete_search(request):
     return redirect('identipy_app:getstatus')
 
 def status(request, name_filter=False):
-#   django.db.connection.close()
+    logger.debug('Status page requested by %s', request.user)
     c = {}
     request.session.setdefault('res_page', 1)
     if request.method == 'GET':
