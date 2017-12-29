@@ -10,6 +10,8 @@ import shutil
 import subprocess
 import psutil, os
 import csv
+import logging
+logger = logging.getLogger(__name__)
 
 from . import aux
 
@@ -203,13 +205,15 @@ class SearchGroup(BaseDocument):
             if sr.status == SearchRun.RUNNING:
                 kill_proc_tree(sr.processpid)
 #           sr.full_delete()
-            print 'Deleting run', sr.pk
+#           print 'Deleting run', sr.pk
+            logger.info('Deleting run %s', sr.pk)
 #           sr.delete()
         tree = 'results/%s/%s' % (str(self.user.id), self.name().encode('utf-8'))
         try:
             shutil.rmtree(tree)
         except Exception:
-            print 'Could not remove tree:', tree
+#           print 'Could not remove tree:', tree
+            logger.warning('Could not remove tree: %s', tree)
         self.delete()
 
     def set_notification(self):
@@ -225,7 +229,8 @@ class SearchGroup(BaseDocument):
         try:
             self.fdr_type = types[raw_config.get('options', 'FDR_type').lower()]
         except KeyError as e:
-            print 'Incorrect FDR type:', e.args
+#           print 'Incorrect FDR type:', e.args
+            logger.error('Incorrect FDR type: %s', e.args)
             self.fdr_type = self.PSM
         self.save()
 
