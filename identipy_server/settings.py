@@ -131,4 +131,41 @@ EMAIL_SEND_TO = []
 NUMBER_OF_PARALLEL_RUNS = 3
 
 LOCAL_IMPORT = True
+URL_IMPORT = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'identipy_server.log'),
+            'formatter': 'verbose',
+        },
+        'stream': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['stream'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'identipy_app': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
