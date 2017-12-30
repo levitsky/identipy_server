@@ -172,6 +172,16 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'MPlib': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'MPscore': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
 
     },
 }

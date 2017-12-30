@@ -126,7 +126,7 @@ class SearchGroup(models.Model):
             return runs[0].get_status_display()
         dead = sum(r.status == SearchRun.DEAD for r in runs)
         if dead:
-            return '{} processes dead'.format(dead)
+            return '{} process(es) dead'.format(dead)
         done = sum(r.status == SearchRun.FINISHED for r in runs)
         if done == len(runs):
             return 'Finished'
