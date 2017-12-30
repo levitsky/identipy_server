@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.contrib.auth.models import User
 import os
 
 def assign_params(apps, schema_editor):
@@ -22,6 +23,9 @@ def assign_params(apps, schema_editor):
             except ParamsFile.DoesNotExist:
                 params = None
                 print 'NOT MATCHED:', df
+        except Exception:
+            print 'User does not exist for SearchGroup:', sg.id, sg.groupname
+            params = None
         sg.parameters = params
         sg.save()
 

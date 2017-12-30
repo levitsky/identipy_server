@@ -4,6 +4,13 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
+def copy_fdr_level(apps, schema_efitor):
+    SearchRun = apps.get_model('identipy_app', 'SearchRun')
+    SearchGroup = apps.get_model('identipy_app', 'SearchGroup')
+    for sg in SearchGroup.objects.all():
+        run = SearchRun.objects.filter(searchgroup=sg).first()
+        sg.fdr_level = run.fdr_psms
+        sg.save()
 
 class Migration(migrations.Migration):
 
@@ -12,13 +19,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='searchrun',
-            name='fdr_psms',
-        ),
         migrations.AddField(
             model_name='searchgroup',
             name='fdr_level',
             field=models.FloatField(default=0.0),
         ),
-    ]
+        migrations.RunPython(copy_fdr_level),
+        migrations.RemoveField(
+            model_name='searchrun',
+            name='fdr_psms',
+        ),
+            ]

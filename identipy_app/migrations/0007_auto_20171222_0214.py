@@ -5,6 +5,17 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 
+def derive_fdrtype(apps, schema_editor):
+    SearchRun = apps.get_model('identipy_app', 'SearchRun')
+    SearchGroup = apps.get_model('identipy_app', 'SearchGroup')
+    for sg in SearchGroup.objects.all():
+        fdr = SearchRun.objects.filter(searchgroup=sg).first().fdr_type
+        try:
+            sg.fdr_type = {'psm': 'S', 'peptide': 'P', 'protein': 'R'}[fdr]
+        except KeyError:
+            sg.fdr_type = 'S'
+            print 'FDR type unspecified, using PSM:', sg.id, sg.groupname
+        sg.save()
 
 class Migration(migrations.Migration):
 
@@ -34,6 +45,12 @@ class Migration(migrations.Migration):
             model_name='searchrun',
             name='fasta',
         ),
+        migrations.AddField(
+            model_name='searchgroup',
+            name='fdr_type',
+            field=models.CharField(choices=[(b'S', b'PSM'), (b'P', b'peptide'), (b'R', b'protein')], default=b'S', max_length=1),
+        ),
+        migrations.RunPython(derive_fdrtype),
         migrations.RemoveField(
             model_name='searchrun',
             name='fdr_type',
@@ -53,11 +70,6 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='searchrun',
             name='resimagefiles',
-        ),
-        migrations.AddField(
-            model_name='searchgroup',
-            name='fdr_type',
-            field=models.CharField(choices=[(b'S', b'PSM'), (b'P', b'peptide'), (b'R', b'protein')], default=b'S', max_length=1),
         ),
         migrations.AddField(
             model_name='searchgroup',
