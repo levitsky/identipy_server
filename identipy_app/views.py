@@ -985,7 +985,8 @@ def showparams(request):
 #   django.db.connection.close()
     c = {}
     searchgroupid = request.session.get('searchgroupid')
-    runobj = SearchGroup.objects.get(id=searchgroupid, user=request.user)
+#   runobj = SearchGroup.objects.get(id=searchgroupid, user=request.user)
+    runobj = get_object_or_404(SearchGroup, id=searchgroupid)
     params_file = runobj.parameters
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(params_file.path())
@@ -995,12 +996,14 @@ def showparams(request):
     c['SearchForms'] = {}
     for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
         c['SearchForms'][sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
-    c['fastaname'] = runobj.fasta.all()[0].name()
+    fastas = runobj.fasta.all()
+    if len(fastas):
+        c['fastaname'] = ' + '.join(f.name() for f in fastas)
+    else:
+        c['fastaname'] = 'unknown'
 
-    runobj = get_object_or_404(SearchGroup, id=searchgroupid)
     c['searchrun'] = runobj
     return render(request, 'identipy_app/params.html', c)
-
 
 
 # def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=False, dbname=False):
