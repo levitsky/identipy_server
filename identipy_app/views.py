@@ -813,13 +813,13 @@ def _totalrun(request, idsettings, newrun, paramfile):
     if os.path.exists(bname + '_peptides.csv'):
         fl = open(bname + '_peptides.csv'.decode('utf-8'))
         djangofl = File(fl)
-        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='peptide', run=newrun)
+        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
         csvf.save()
 #       newrun.add_rescsv(csvf)
     if os.path.exists(bname + '_proteins.csv'):
         fl = open(bname + '_proteins.csv'.decode('utf-8'))
         djangofl = File(fl)
-        csvf = ResCSV(docfile = djangofl, user = request.user, ftype='protein', run=newrun)
+        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
         csvf.save()
 #       newrun.add_rescsv(csvf)
     for pxml in newrun.get_pepxmlfiles():
@@ -1114,6 +1114,10 @@ def getfiles(request, usedclass=False):
                 for down_fn in searchrun.get_resimage_paths(ftype='.svg'):
                     filenames.append(down_fn)
 
+        if not filenames:
+            logger.debug('Empty download of type %s requested for runs %s. Redirecting...', down_type, [r.id for r in runs])
+            messages.add_message(request, messages.INFO, 'No files of this type are available for download.')
+            return redirect(request.META.get('HTTP_REFERER', 'identipy_app:getstatus'))
         zip_subdir = searchgroup.name() + '_' + down_type + '_files'
 
     zip_filename = "%s.zip" % zip_subdir
@@ -1126,8 +1130,9 @@ def getfiles(request, usedclass=False):
         zip_path = os.path.join(zip_subdir, fname)
         zf.write(fpath, zip_path)
     zf.close()
+    logger.info('Downloading ZIP file: %s', zip_filename)
 
     resp = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+    resp['Content-Disposition'] = 'attachment; filename=%s' % smart_str(zip_filename)
 
     return resp
