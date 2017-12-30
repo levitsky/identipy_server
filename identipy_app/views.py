@@ -702,7 +702,7 @@ def _run_search(request, newrun, rn, c):
     idsettings.set('search', 'enzyme', protease.rule + '|' + idsettings.get_choices('search', 'enzyme'))
     idsettings.set('misc', 'iterate', 'peptides')
     idsettings.set('input', 'database', fastafile.encode('utf-8'))
-    idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.user.id), rn.encode('utf-8')))
+    idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.searchgroup.user.id), rn.encode('utf-8')))
 #   newrun.set_notification(idsettings)
     _totalrun(request, idsettings, newrun, paramfile)
     if _exists(newrun):
@@ -886,7 +886,7 @@ def _start_all(request, newgroup, rn, c):
                 else:
 #                   print 'Next user:', next_user
                     logger.debug('Next user: %s', next_user)
-                    if next_user == newrun.user:
+                    if next_user == newrun.searchgroup.user:
 #                       print 'My turn has come, starting ...'
                         logger.debug('My turn has come, starting ...')
                         break

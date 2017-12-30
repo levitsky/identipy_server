@@ -97,8 +97,10 @@ class ParamsFile(BaseDocument):
     visible = models.BooleanField(default=True)
 
 
-class SearchGroup(BaseDocument):
+class SearchGroup(models.Model):
     groupname = models.CharField(max_length=80, default='')
+    user = models.ForeignKey(User)
+    date_added = models.DateTimeField(auto_now_add=True)
     # searchruns = models.ManyToManyField(SearchRun)
     fasta = models.ManyToManyField(FastaFile)
     # parameters = models.ManyToManyField(ParamsFile)
@@ -149,7 +151,7 @@ class SearchGroup(BaseDocument):
         for sid in c['chosenspectra']:
             s = SpectraFile.objects.get(pk=sid)
             newrun = SearchRun(searchgroup=self, status=SearchRun.WAITING,
-                    runname=os.path.splitext(s.docfile.name)[0], user=self.user, spectra=s)
+                    runname=os.path.splitext(s.docfile.name)[0], spectra=s)
             newrun.save()
 #           newrun.add_fasta(self.fasta.all()[0])
 #           newrun.add_params(self.parameters.all()[0])
@@ -158,7 +160,7 @@ class SearchGroup(BaseDocument):
             # self.add_searchrun(newrun)
             self.save()
         if len(c['chosenspectra']) > 1:
-            newrun = SearchRun(searchgroup=self, runname='union', user=self.user, union=True, status=SearchRun.WAITING)
+            newrun = SearchRun(searchgroup=self, runname='union', union=True, status=SearchRun.WAITING)
             newrun.save()
 #           newrun.add_fasta(self.fasta.all()[0])
 #           newrun.add_params(self.parameters.all()[0])
@@ -235,8 +237,9 @@ class SearchGroup(BaseDocument):
         self.save()
 
 
-class SearchRun(BaseDocument):
+class SearchRun(models.Model):
     searchgroup = models.ForeignKey(SearchGroup)
+
     runname = models.CharField(max_length=80)
     spectra = models.ForeignKey(SpectraFile, blank=True, null=True)
 #   fasta = models.ManyToManyField(FastaFile)
