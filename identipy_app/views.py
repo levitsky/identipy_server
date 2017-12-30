@@ -873,12 +873,12 @@ def _start_all(request, newgroup, rn, c):
                 logger.debug('Too many active runs, waiting ...')
                 pass
             else:
-                last_user = running.latest('last_update').user
+                last_user = running.latest('last_update').searchgroup.user
 #               print 'Last user:', last_user.username
                 logger.debug('Last user: %s', last_user.username)
                 try:
                     next_user = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(
-                            user=last_user).earliest('last_update').user
+                            user=last_user).earliest('last_update').searchgroup.user
                 except SearchRun.DoesNotExist:
 #                   print 'No competing users, starting ...'
                     logger.debug('No competing users, starting ...')
