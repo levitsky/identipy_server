@@ -10,53 +10,6 @@ from identipy.utils import CustomRawConfigParser
 from django.utils.safestring import mark_safe
 import numpy as np
 
-class Tasker():
-    def __init__(self):
-        self.data = {}
-
-    def check_user(self, user):
-        if user not in self.data:
-            self.data[user] = {'taskcounter': 0,
-                               'lastsearchtime': 0.0,
-                               'cursearches': 0}
-
-    def ask_for_run(self, user):
-        self.data[user]['taskcounter'] += 1
-
-    def start_run(self, user):
-        self.data[user]['lastsearchtime'] = time()
-        self.data[user]['taskcounter'] -= 1
-        self.data[user]['cursearches'] += 1
-
-    def finish_run(self, user):
-        self.data[user]['cursearches'] -= 1
-
-    def get_user_with_min_time(self):
-        mintime = min(v['lastsearchtime'] for v in self.data.values() if v['taskcounter'] != 0)
-        for k, v in self.data.iteritems():
-            if v['lastsearchtime'] == mintime:
-                return k
-
-    def get_total_cursearches(self):
-        return sum(v['cursearches'] for v in self.data.values())
-
-    # def ask_for_run(self):
-    #     self.taskcounter += 1
-    #     self.save()
-    #
-    # def start_run(self):
-    #     self.lastsearchtime = time()
-    #     self.taskcounter -= 1
-    #     self.cursearches += 1
-    #     self.save()
-    #
-    # def finish_run(self):
-    #     print self.cursearches, 'Cursearch before'
-    #     self.cursearches -= 1
-    #     print self.cursearches, 'Cursearch after'
-    #     self.save()
-
-
 def get_size(start_path = '.'):
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
@@ -91,7 +44,6 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
                     user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     for sf in sfForms.values():
         SearchParametersForm_values = {v.name: v.value() or '' for v in sf}
-#       print SearchParametersForm_values
         for section in raw_config.sections():
             for param in raw_config.items(section):
                 if param[0] in SearchParametersForm_values:
@@ -100,7 +52,6 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
                         tempval = ('1' if SearchParametersForm_values[param[0]] else '0')
                     else:
                         tempval = SearchParametersForm_values[param[0]]
-#                   print section, param[0], tempval, orig_choices
                     raw_config.set(section, param[0], tempval + '|' + orig_choices)
     enz = raw_config.get('search', 'enzyme')
     protease = Protease.objects.filter(user=uid, rule=enz).first()
@@ -128,7 +79,6 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
         paramobj.save()
         fl.close()
         os.remove(paramsname + '.cfg')
-#   print paramobj.docfile.name.encode('utf-8')
     raw_config.write(open(paramobj.docfile.name.encode('utf-8'), 'w'))
     return paramobj
 

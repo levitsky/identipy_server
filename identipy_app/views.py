@@ -45,38 +45,23 @@ sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, ResultsDetailed, get_size, Tasker
+from .aux import save_mods, save_params_new, ResultsDetailed, get_size
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
 from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm, SearchParametersForm
-from .forms import search_forms_from_request#, search_params_form
+from .forms import search_forms_from_request
 
 
 RUN_LIMIT = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
-
-#tasker = Tasker()
-
-#try:
-#    searchgroups = SearchGroup.objects.all()
-#    for searchgroup in searchgroups:
-#        if not searchgroup.status.startswith('Task finished'):
-#            searchgroup.change_status('Task is dead')
-#    #        searchgroup.delete()
-#    #        shutil.rmtree('results/%s/%s/' % (str(searchgroup.user.id), searchgroup.name().encode('ASCII')))
-#except:
-#    print 'Smth wrong with SearchGroup model'
 
 try:
     runs = SearchRun.objects.exclude(status=SearchRun.FINISHED).exclude(status=SearchRun.DEAD)
     for r in runs:
         r.status = SearchRun.DEAD
         r.save()
-#       print 'Reaping run', r.id, 'from', r.searchgroup.groupname, 'by', r.user.username
         logger.info('Reaping run %s from %s by %s', r.id, r.searchgroup.groupname, r.user.username)
 except Exception as e:
-#   print 'Startup cleanup failed.'
-#   print e
     logger.warning('Startup cleanup failed.\n%s', e)
 
 
@@ -85,15 +70,7 @@ def add_forms(request, c):
     if not c['paramtype']:
         c['paramtype'] = request.session.setdefault('paramtype', 3)
     request.session['paramtype'] = c['paramtype']
-#   if 'bigform' in request.session:
-#       print 'Returning forms from session'
-#       c['SearchForms'] = pickle.loads(request.session['bigform'])
-#       print c['SearchForms']['main'].fields
-#       print '(just kidding, reading file anyway)'
-#   else:
     c['SearchForms'] = search_forms_from_request(request)
-#       c['SearchForms'] = search_params_form(request)
-#   print c['SearchForms']
 
 def form_dispatch(request):
     c = {}
@@ -101,11 +78,9 @@ def form_dispatch(request):
         return redirect('identipy_app:index')
     action = request.POST['submit_action']
     if action != 'Search previous runs by name':
-#   forms = search_params_form(request)
         forms = search_forms_from_request(request)
         sessiontype = request.session.get('paramtype')
         save_params_new(forms, request.user, False, sessiontype)
-#   print forms
     redirect_map = {
             'Select spectra': ('identipy_app:choose', 'spectra'),
             'Select protein database': ('identipy_app:choose', 'fasta'),
@@ -121,28 +96,20 @@ def form_dispatch(request):
             'Advanced': ('identipy_app:searchpage',),
             }
 
-#   print request.POST.items()
-#   print request.POST['submit_action'], '!!!'
     request.session['redirect'] = redirect_map[action]
     request.session['runname'] = request.POST.get('runname')
     request.session['paramsname'] = request.POST.get('paramsname')
-#   request.session['next'] = ['searchpage']
     if action in {'Minimal', 'Medium', 'Advanced'}:
         gettype = {'Minimal': 1, 'Medium': 2, 'Advanced': 3}[action]
         if sessiontype != gettype:
-#           forms = request.session.pop('bigform', None)
             if forms is not None:
                 request.session['paramtype'] = gettype
                 newforms = search_forms_from_request(request, ignore_post=True)
-#               request.session['bigform'] = pickle.dumps(newforms)
         request.session['paramtype'] = c['paramtype'] = gettype
-#   else:
-#       request.session['bigform'] = pickle.dumps(forms)
 
     return redirect(*redirect_map[action])
 
 def save_parameters(request):
-#   forms = pickle.loads(request.session['bigform'])
     forms = search_forms_from_request(request, ignore_post=True)
     save_params_new(forms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
     messages.add_message(request, messages.INFO, 'Parameters saved')
@@ -152,7 +119,6 @@ def index(request):
     # TODO: fix the double "if logged in" logic
     if request.user.is_authenticated():
         return redirect('identipy_app:searchpage')
-#       return render(request, 'identipy_app/index.html', {})
     else:
         return redirect('identipy_app:loginform')
 
@@ -162,7 +128,6 @@ def details(request, pK):
 
 def delete(request, usedclass):
     usedname=usedclass.__name__
-#   django.db.connection.close()
     documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
@@ -241,8 +206,6 @@ def status(request, name_filter=False):
     c['current'] = 'get_status'
     return render(request, 'identipy_app/status.html', c)
 
-#def get_user_latest_params_path(paramtype, userid):
-#    return os.path.join('uploads', 'params', str(userid.id), 'latest_params_%d.cfg' % (paramtype, ))
 
 def _save_uploaded_file(uploadedfile, user):
     if isinstance(uploadedfile, basestring):
@@ -252,7 +215,6 @@ def _save_uploaded_file(uploadedfile, user):
     name, fext = os.path.splitext(fname.lower())
     if fext == '.gz':
         name, fext = os.path.splitext(name)
-#   print 'Determined extension:', fext    
     logger.debug('Determined extension: %s', fext)
     if fext in {'.mgf', '.mzml'}:
         newdoc = SpectraFile(docfile=uploadedfile, user=user)
@@ -261,7 +223,6 @@ def _save_uploaded_file(uploadedfile, user):
         newdoc = FastaFile(docfile=uploadedfile, user=user)
         newdoc.save()
     else:
-#       print 'Unsupported file uploaded:', uploadedfile
         logging.error('Unsupported file uploaded: %s', uploadedfile)
 
 def upload(request):
@@ -328,7 +289,6 @@ def _dispatch_file_handling(f, user, opener=None, fext=None):
                 for f in fs
                 ]
         zf.close()
-#       shutil.rmtree(tmpdir)
         return True, (tmpdir, rets)
     try:
         dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'faa': 'fasta', 'cfg': 'params'}[fext]
@@ -338,7 +298,6 @@ def _dispatch_file_handling(f, user, opener=None, fext=None):
     name, ext = os.path.splitext(path)
     if ext == '.gz':
         path = name
-#   print 'Copying to', path
     logger.debug('Copying to %s', path)
     if opener is None: opener = lambda f: open(f, 'rb')
     return False, (fname, path, opener)
@@ -366,19 +325,16 @@ def _copy_in_chunks(f, path):
                 else:
                     break
     except IOError as e:
-#       print 'Error importing', f.name, ':', e.args
         logger.error('Error importing %s: %s', f.name, e.args)
     else:
         return path
 
 
 def _local_import(fname, user):
-#   print 'IMPORTING FILE', fname
     logger.info('IMPORTING FILE: %s', fname)
     fext = os.path.splitext(fname)[-1][1:].lower()
     if fext == 'zip':
         tmpdir = tempfile.mkdtemp()
-#       print 'Extracting to', tmpdir
         logger.debug('Extracting to %s', tmpdir)
         zf = zipfile.ZipFile(fname)
         zf.extractall(tmpdir)
@@ -434,10 +390,8 @@ def url_import(request):
         parsed = urlparse.urlparse(fname)
         local_name = os.path.split(parsed.path)[1]
         tmpfile = os.path.join(tempfile.gettempdir(), local_name)
-#       print 'Downloading', fname, '...'
         logger.info('Downloading %s ...', fname)
         urllib.urlretrieve(fname, tmpfile)
-#       print 'Saved to', tmpfile
         logger.info('Saved to %s', tmpfile)
         _local_import(tmpfile, request.user)
         os.remove(tmpfile)
@@ -481,8 +435,6 @@ def email(request):
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             except Exception as e:
-#               print 'Could not send email:'
-#               print e
                 logger.error('Could not send email to developers:\n%s', e)
             return redirect('identipy_app:contacts')
     else:
@@ -494,13 +446,10 @@ def email_to_user(username, searchname):
     try:
         send_mail('IdentiPy Server notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
     except Exception as e:
-#       print 'Could not send email:'
-#       print e
         logger.error('Could not send email to user %s about run %s:\n%s', username, searchname, e)
 
 
 def add_modification(request):
-#   django.db.connection.close()
     c = {}
     if request.method == 'POST':
         c['modificationform'] = AddModificationForm(request.POST)
@@ -536,15 +485,10 @@ def add_modification(request):
             else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
                 if 'next' in request.session:
-#                   print request.session['next']
                     logger.debug('Session next: %s', request.session['next'])
                     return redirect(*request.session['next'].pop())
                 else:
                     return redirect('identipy_app:searchpage')
-                # return select_modifications(request, c = c, fixed=c['fixed'])
-                # if c['fixed'] == True:
-                #     return
-                # return searchpage(request, c)
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'identipy_app/add_modification.html', c)
@@ -553,29 +497,22 @@ def add_modification(request):
         return render(request, 'identipy_app/add_modification.html', c)
 
 def add_protease(request):
-#   django.db.connection.close()
     c = {}
     cc = []
     for pr in Protease.objects.filter(user=request.user):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
     if request.POST.get('submit_action', '') == 'delete':
-        # request.POST = request.POST.copy()
         if request.POST.get('choices'):
             proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
             if proteases.is_valid():
                 for obj_id in proteases.cleaned_data.get('choices'):
                     obj = Protease.objects.get(user=request.user, id=obj_id)
                     obj.delete()
-        # print type(proteases)
-        # for p in proteases:
-        #     print p
         cc = []
         for pr in Protease.objects.filter(user=request.user):
             cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
         proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
-                # request.POST['choices'] = False
-                # request.POST.pop('submit_action')
         c['proteaseform'] = AddProteaseForm()
         c['proteases'] = proteases
         return render(request, 'identipy_app/add_protease.html', c)
@@ -597,8 +534,6 @@ def add_protease(request):
             protease_object = Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=request.user)
             protease_object.save()
             messages.add_message(request, messages.INFO, 'A new cleavage rule was added')
-#           if 'bigform' in request.session:
-#               sforms = pickle.loads(request.session['bigform'])
             sforms = search_forms_from_request(request, ignore_post=True)
             e = sforms['main'].fields['enzyme']
             proteases = Protease.objects.filter(user=request.user).order_by('order_val')
@@ -625,11 +560,8 @@ def files_view(request, what):
 
     usedclass = {'spectra': SpectraFile, 'fasta': FastaFile, 'params': ParamsFile,
             'mods': Modification}[what]
-#   django.db.connection.close()
     c = {}
-#   usedname = None
     multiform = (usedclass in {SpectraFile, Modification})
-#   c.update({'usedclass': usedclass, 'usedname': usedname})
     documents = usedclass.objects.filter(user=request.user)
     choices = []
     for doc in documents:
@@ -639,7 +571,6 @@ def files_view(request, what):
         elif what in {'spectra', 'fasta'} or (what == 'params' and (not doc.name().startswith('latest_params') and doc.visible)):
             choices.append((doc.id, doc.name()))
     if request.method == 'POST':
-#       request.session.setdefault('next', []).append(('identipy_app:choose', what))
         action = request.POST['submit_action']
         if action == 'upload new files':
             return redirect('identipy_app:upload')
@@ -647,10 +578,8 @@ def files_view(request, what):
             request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
             return redirect('identipy_app:new_mod')
         elif action == 'download':
-            #return redirect('identipy_app:download')
             return getfiles(request, usedclass=usedclass)
         elif action == 'delete':
-            #return redirect('identipy_app:download')
             return delete(request, usedclass=usedclass)
 
         form = MultFilesForm(request.POST, custom_choices=choices)
@@ -658,10 +587,8 @@ def files_view(request, what):
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
             sforms = search_forms_from_request(request, ignore_post=True)
-#           print sforms
             if what == 'mods':
                 save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
-#               sforms = pickle.loads(request.session['bigform'])
                 key = 'fixed' if fixed else 'variable' 
                 sforms['main'][key].initial = ','.join(mod.get_label() for mod in chosenfiles)
                 save_params_new(sforms, request.user, False, request.session['paramtype'])
@@ -671,14 +598,11 @@ def files_view(request, what):
                 dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type, ))
                 shutil.copy(parname, dst)
                 request.session['paramtype'] = paramfile.type
-#               request.session['bigform'] = pickle.dumps(search_forms_from_request(request, ignore_post=True))
                 save_params_new(sforms, request.user, False, request.session['paramtype'])
             else:
                 request.session['chosen_' + what] = chosenfilesids
             return redirect('identipy_app:searchpage')
     else:
-#       if 'bigform' not in request.session:
-#           return redirect('identipy_app:searchpage')
         kwargs = dict(custom_choices=choices, multiform=multiform)
         if what == 'mods':
             kwargs['labelname'] = 'Select {} modifications:'.format('fixed' if fixed else 'variable')
@@ -691,7 +615,6 @@ def files_view(request, what):
     return render(request, 'identipy_app/choose.html', c)
 
 def _run_search(request, newrun, rn, c):
-#   django.db.connection.close()
     django.db.connection.ensure_connection()
     sg = newrun.searchgroup
     paramfile = sg.parameters.path()
@@ -703,13 +626,11 @@ def _run_search(request, newrun, rn, c):
     idsettings.set('misc', 'iterate', 'peptides')
     idsettings.set('input', 'database', fastafile.encode('utf-8'))
     idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.searchgroup.user.id), rn.encode('utf-8')))
-#   newrun.set_notification(idsettings)
     _totalrun(request, idsettings, newrun, paramfile)
     if _exists(newrun):
         newrun.status = SearchRun.FINISHED
         newrun.save()
     else:
-#       print 'Run appears to have been killed. Exiting run-search'
         logger.warning('Run %s appears to have been killed. Exiting run-search', newrun.id)
     django.db.connection.close()
 
@@ -726,26 +647,15 @@ def _set_pepxml_path(idsettings, inputfile):
 def _exists(run):
     time.sleep(2)
     if not SearchRun.objects.filter(pk=run.pk).exists():
-#       print 'The SearchRun object {} has been deleted, exiting ...'.format(run.pk)
         logger.info('The SearchRun object %s has been deleted, exiting ...', run.pk)
         return False
     return True
 
 
 def _totalrun(request, idsettings, newrun, paramfile):
-#   django.db.connection.close()
-#   procs = []
     spectralist = newrun.get_spectrafiles_paths()
     fastalist = newrun.get_fastafile_path()
     if not newrun.union:
-#       for obj in newrun.spectra.all():
-#           inputfile = obj.path()
-#           p = Process(target=_runproc, args=(inputfile, idsettings))
-#           p = Thread(target=_runproc, args=(request, inputfile, idsettings, newrun), name='runproc')
-#           p.start()
-#           procs.append(p)
-#       for p in procs:
-#           p.join()
         inputfile = newrun.spectra.path()
         p = Process(target=_runproc, args=(inputfile, idsettings))
         p.start()
@@ -753,15 +663,12 @@ def _totalrun(request, idsettings, newrun, paramfile):
         newrun.save()
         p.join()
     
-#       for obj in newrun.spectra.all():
-#           inputfile = obj.path()
         filename = _set_pepxml_path(idsettings, inputfile)
 
         # check if run has been killed
         if not _exists(newrun):
             return
         else:
-#           print 'Resuming run {} ...'.format(newrun.pk)
             logger.debug('Resuming run %s ...', newrun.pk)
 
         with open(filename, 'rb') as fl:
@@ -769,7 +676,6 @@ def _totalrun(request, idsettings, newrun, paramfile):
             pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, run=newrun)
             pepxmlfile.docfile.name = filename
             pepxmlfile.save()
-#           newrun.add_pepxml(pepxmlfile)
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
         bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
@@ -795,33 +701,28 @@ def _totalrun(request, idsettings, newrun, paramfile):
             djangofl = File(fl)
             img = ResImageFile(docfile=djangofl, user=request.user, ftype=ftype, run=newrun)
             img.save()
-#           newrun.add_resimage(img)
             fl.close()
     if os.path.exists(bname + '_PSMs.csv'):
         fl = open(bname + '_PSMs.csv'.decode('utf-8'))
         djangofl = File(fl)
         csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
         csvf.save()
-#       newrun.add_rescsv(csvf)
     if os.path.exists(bname + '_PSMs.pep.xml'):
         fl = open(bname + '_PSMs.pep.xml', 'rb')
         djangofl = File(fl)
         pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True, run=newrun)
         pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
         pepxmlfile.save()
-#       newrun.add_pepxml(pepxmlfile)
     if os.path.exists(bname + '_peptides.csv'):
         fl = open(bname + '_peptides.csv'.decode('utf-8'))
         djangofl = File(fl)
         csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
         csvf.save()
-#       newrun.add_rescsv(csvf)
     if os.path.exists(bname + '_proteins.csv'):
         fl = open(bname + '_proteins.csv'.decode('utf-8'))
         djangofl = File(fl)
         csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
         csvf.save()
-#       newrun.add_rescsv(csvf)
     for pxml in newrun.get_pepxmlfiles():
         full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
         shutil.move(pxml.docfile.name, full)
@@ -829,65 +730,49 @@ def _totalrun(request, idsettings, newrun, paramfile):
         pxml.save()
     newrun.calc_results()
     django.db.connection.close()
-#   return 1
 
 def _runproc(inputfile, idsettings):
     utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
 
 def _start_union(request, newgroup, rn, c):
     django.db.connection.ensure_connection()
-#       django.db.connection.close()
     try:
         un_run = newgroup.get_union()
     except:
         un_run = False
     if un_run:
-#       for newrun in newgroup.get_searchruns():
-#           for pepf in newrun.get_pepxmlfiles():
-#               un_run.add_pepxml(pepf)
-#               un_run.save()
         _run_search(request, un_run, rn, c)
 
     if newgroup.notification:
         email_to_user(newgroup.user.email, newgroup.groupname)
-#   newgroup.change_status('Task finished: %s' % (time.strftime("%b %d %H:%M:%S"), ))
     django.db.connection.close()
 
 def _start_all(request, newgroup, rn, c):
-#   django.db.connection.close()
     django.db.connection.ensure_connection()
-#   tasker.check_user(newgroup.user)
 
     tmp_procs = []
     for newrun in newgroup.get_searchruns():
         while True:
             running = SearchRun.objects.filter(status=SearchRun.RUNNING)
-#           print len(running), 'runs currently running'
             logger.debug('%s runs currently running', len(running))
             if len(running) == 0:
-#               print 'Server idle, starting right away ...'
                 logger.debug('Server idle, starting right away ...')
                 break
             elif len(running) >= RUN_LIMIT:
-#               print 'Too many active runs, waiting ...'
                 logger.debug('Too many active runs, waiting ...')
                 pass
             else:
                 last_user = running.latest('last_update').searchgroup.user
-#               print 'Last user:', last_user.username
                 logger.debug('Last user: %s', last_user.username)
                 try:
                     next_user = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(
                             searchgroup__user=last_user).earliest('last_update').searchgroup.user
                 except SearchRun.DoesNotExist:
-#                   print 'No competing users, starting ...'
                     logger.debug('No competing users, starting ...')
                     break
                 else:
-#                   print 'Next user:', next_user
                     logger.debug('Next user: %s', next_user)
                     if next_user == newrun.searchgroup.user:
-#                       print 'My turn has come, starting ...'
                         logger.debug('My turn has come, starting ...')
                         break
             time.sleep(10)
@@ -903,7 +788,6 @@ def _start_all(request, newgroup, rn, c):
 
     # check that search has not been deleted
     if not SearchGroup.objects.filter(pk=newgroup.pk).exists():
-#       print 'The SearchGroup object has been deleted, exiting ...'
         logger.warning('SearchGroup %s has been deleted, exiting ...', newgroup.pk)
         return
 
@@ -913,7 +797,6 @@ def _start_all(request, newgroup, rn, c):
     django.db.connection.close()
 
 def runidentipy(request):
-#   django.db.connection.close()
     c = {}
     failure = ''
     if not request.session.get('chosen_fasta'):
@@ -925,13 +808,8 @@ def runidentipy(request):
         c['runname'] = time.strftime("%Y-%m-%d %H:%M:%S")
     else:
         c['runname'] = request.session['runname']
-#   if not os.path.exists('results'):
-#       os.mkdir('results')
-#   if not os.path.exists(os.path.join('results', str(request.user.id))):
-#       os.mkdir(os.path.join('results', str(request.user.id)))
     c['chosenfasta'] = request.session['chosen_fasta']
     c['chosenspectra'] = request.session['chosen_spectra']
-#   c['SearchForms'] = pickle.loads(request.session['bigform'])
     c['SearchForms'] = search_forms_from_request(request)
     c['paramtype'] = request.session['paramtype']
     if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
@@ -942,10 +820,6 @@ def runidentipy(request):
         newgroup.add_files(c)
         rn = newgroup.name()
         os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
-#       newgroup.change_status('Search is running')
-#       t = Process(target=start_all, args=(newgroup, rn, c))
-#       newgroup.processpid = t.ident
-#       newgroup.processpid = t.pid
         newgroup.save()
         newgroup.set_notification()
         newgroup.set_FDRs()
@@ -958,39 +832,29 @@ def runidentipy(request):
         return redirect('identipy_app:searchpage')
 
 def search_details(request, pk, c={}):
-#   django.db.connection.close()
-    # c = {}
     runobj = get_object_or_404(SearchGroup, id=pk)
-#   runobj = SearchGroup.objects.get(groupname=runname.replace(u'\xa0', ' '))
     request.session['searchgroupid'] = runobj.id
     c.update({'searchgroup': runobj})
-#   print runobj.id, runobj.groupname
     sruns = SearchRun.objects.filter(searchgroup_id=runobj.id)
     if sruns.count() == 1:
-#       return results_figure(request, sruns[0].id)
         request.session['searchrunid'] = sruns[0].id
         return redirect('identipy_app:figure', sruns[0].id)
     return render(request, 'identipy_app/results.html', c)
 
 def results_figure(request, pk):
-#   django.db.connection.close()
     c = {}
-#   runobj = SearchRun.objects.get(runname=runname.replace(u'\xa0', ' '), searchgroup_id=searchgroupid)
     runobj = get_object_or_404(SearchRun, id=pk)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup})
     return render(request, 'identipy_app/results_figure.html', c)
 
 
 def showparams(request):
-#   django.db.connection.close()
     c = {}
     searchgroupid = request.session.get('searchgroupid')
-#   runobj = SearchGroup.objects.get(id=searchgroupid, user=request.user)
     runobj = get_object_or_404(SearchGroup, id=searchgroupid)
     params_file = runobj.parameters
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(params_file.path())
-#   print params_file.path()
     logger.debug('Showing params from file %s', params_file.path())
 
     c['SearchForms'] = {}
@@ -1006,7 +870,6 @@ def showparams(request):
     return render(request, 'identipy_app/params.html', c)
 
 
-# def show(request, runname, searchgroupid, ftype, c, order_by_label=False, upd=False, dbname=False):
 def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
@@ -1044,9 +907,8 @@ def show(request):
     elif request.session.get(sname, ''):
         whitelabels = request.session.get(sname)
         res_dict.custom_labels(whitelabels)        
-            # request.POST['choices'] = False
     res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
-    res_dict.labelform.fields['choices'].initial = res_dict.get_labels()#[res_dict.labels[idx] for idx, tval in enumerate(res_dict.whiteind) if tval]
+    res_dict.labelform.fields['choices'].initial = res_dict.get_labels()
     c.update({'results_detailed': res_dict})
     runobj = SearchRun.objects.get(id=runid, searchgroup_id=searchgroupid)
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup})
@@ -1073,7 +935,6 @@ def show(request):
 
 def getfiles(request, usedclass=False):
     filenames = []
-#   django.db.connection.close()
     if request.method == 'POST' and usedclass:
         cc = []
         documents = usedclass.objects.filter(user=request.user)
@@ -1084,12 +945,11 @@ def getfiles(request, usedclass=False):
             for x in form.cleaned_data.get('choices'):
                 obj = usedclass.objects.get(user=request.user, id=x)
                 filenames.append(obj.path())
-#               print obj.path()
                 logger.debug('Appending object: %s', obj.path())
         zip_subdir = 'down_files'
     elif request.method == 'GET':
         down_type = request.GET['down_type']
-        searchgroupid = request.session.get('searchgroupid')#c['searchgroup']
+        searchgroupid = request.session.get('searchgroupid')
         searchgroup = SearchGroup.objects.get(id=searchgroupid)
         runid = request.GET.get('runid')
         if runid is not None:
@@ -1134,5 +994,4 @@ def getfiles(request, usedclass=False):
 
     resp = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
     resp['Content-Disposition'] = 'attachment; filename=%s' % smart_str(zip_filename)
-
     return resp
