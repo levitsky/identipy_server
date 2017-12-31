@@ -32,7 +32,6 @@ def kill_proc_tree(pid, including_parent=True):
         parent.wait(5)
 
 class BaseDocument(models.Model):
-    # filepath = models.FileField(upload_to=upload_to)
     date_added = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)
 
@@ -101,12 +100,8 @@ class SearchGroup(models.Model):
     groupname = models.CharField(max_length=80, default='')
     user = models.ForeignKey(User)
     date_added = models.DateTimeField(auto_now_add=True)
-    # searchruns = models.ManyToManyField(SearchRun)
     fasta = models.ManyToManyField(FastaFile)
-    # parameters = models.ManyToManyField(ParamsFile)
     parameters = models.ForeignKey(ParamsFile, null=True, blank=True)
-    # status = models.CharField(max_length=80, default='No info')
-    # processpid = models.IntegerField(default=9999)
     notification = models.BooleanField(default=False)
     fdr_level = models.FloatField(default=0.0)
 
@@ -143,8 +138,6 @@ class SearchGroup(models.Model):
         return self.searchrun_set.latest('last_update').last_update
 
     def add_files(self, c):
-#       import django.db
-#       django.db.connection.close()
         self.add_fasta(c['chosenfasta'])
         self.add_params(sfForms=c['SearchForms'], paramtype=c['paramtype'])
         self.save()
@@ -153,20 +146,11 @@ class SearchGroup(models.Model):
             newrun = SearchRun(searchgroup=self, status=SearchRun.WAITING,
                     runname=os.path.splitext(s.docfile.name)[0], spectra=s)
             newrun.save()
-#           newrun.add_fasta(self.fasta.all()[0])
-#           newrun.add_params(self.parameters.all()[0])
-#           newrun.add_spectra(s)
             newrun.save()
-            # self.add_searchrun(newrun)
             self.save()
         if len(c['chosenspectra']) > 1:
             newrun = SearchRun(searchgroup=self, runname='union', union=True, status=SearchRun.WAITING)
             newrun.save()
-#           newrun.add_fasta(self.fasta.all()[0])
-#           newrun.add_params(self.parameters.all()[0])
-#           newrun.add_spectra_files(c['chosenspectra'])
-#           newrun.save()
-            # self.add_searchrun(newrun)
             self.save()
 
     def add_fasta(self, fastaobject):
@@ -191,30 +175,15 @@ class SearchGroup(models.Model):
     def name(self):
         return os.path.split(self.groupname)[-1]
 
-#   def change_status(self, message):
-#       import django.db
-#       django.db.connection.close()
-#       self.status = message
-#       self.save()
-
     def full_delete(self):
-#       if self.status == 'Search is running':
-#           try:
-#               kill_proc_tree(self.processpid)
-#           except:
-#               pass
         for sr in self.get_searchruns_all():
             if sr.status == SearchRun.RUNNING:
                 kill_proc_tree(sr.processpid)
-#           sr.full_delete()
-#           print 'Deleting run', sr.pk
             logger.info('Deleting run %s', sr.pk)
-#           sr.delete()
         tree = 'results/%s/%s' % (str(self.user.id), self.name().encode('utf-8'))
         try:
             shutil.rmtree(tree)
         except Exception:
-#           print 'Could not remove tree:', tree
             logger.warning('Could not remove tree: %s', tree)
         self.delete()
 
@@ -231,7 +200,6 @@ class SearchGroup(models.Model):
         try:
             self.fdr_type = types[raw_config.get('options', 'FDR_type').lower()]
         except KeyError as e:
-#           print 'Incorrect FDR type:', e.args
             logger.error('Incorrect FDR type: %s', e.args)
             self.fdr_type = self.PSM
         self.save()
@@ -242,11 +210,6 @@ class SearchRun(models.Model):
 
     runname = models.CharField(max_length=80)
     spectra = models.ForeignKey(SpectraFile, blank=True, null=True)
-#   fasta = models.ManyToManyField(FastaFile)
-#   pepxmlfiles = models.ManyToManyField(PepXMLFile)
-#   resimagefiles = models.ManyToManyField(ResImageFile)
-#   csvfiles = models.ManyToManyField(ResCSV)
-
     processpid = models.IntegerField(blank=True, default=-1)
     numMSMS = models.BigIntegerField(default=0)
     totalPSMs = models.BigIntegerField(default=0)
@@ -254,7 +217,6 @@ class SearchRun(models.Model):
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)
     union = models.BooleanField(default=False)
-#   notification = models.BooleanField(default=False)
 
     WAITING = 'W'
     RUNNING = 'R'
@@ -269,72 +231,14 @@ class SearchRun(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DEAD)
     last_update = models.DateTimeField(auto_now=True)
 
-#   def full_delete(self):
-#       for im in self.get_resimagefiles():
-#           im.delete()
-#       for cs in self.csvfiles.all():
-#           cs.delete()
-#       for pe in self.pepxmlfiles.all():
-#           pe.delete()
-
-#   def add_files(self, c):
-#       import django.db
-#       django.db.connection.close()
-#       self.add_spectra(c['chosenspectra'])
-#       self.add_fasta(c['chosenfasta'])
-#       self.add_params(sfForms=c['SearchForms'])
 
     def add_spectra(self, spectraobject):
-#       import django.db
-#       django.db.connection.close()
         # for s in spectraobjects:
         self.spectra = spectraobject
         self.save()
 
-#   def add_spectra_files(self, spectrafiles):
-#       import django.db
-#       django.db.connection.close()
-#       for s in spectrafiles:
-#           self.spectra.add(s)
-#           self.save()
-
-#   def add_fasta(self, fastaobject):
-#       import django.db
-#       django.db.connection.close()
-#       # for s in fastaobjects:
-#       self.fasta.add(fastaobject)
-#       self.save()
-
-#   def add_params(self, paramsobject):
-#       import django.db
-#       django.db.connection.close()
-        # for s in paramsobjects:
-#       self.parameters.add(paramsobject)
-#       self.save()
-
-#   def add_pepxml(self, pepxmlfile):
-#       import django.db
-#       django.db.connection.close()
-#       self.pepxmlfiles.add(pepxmlfile)
-#       self.save()
-
-#   def add_resimage(self, resimage):
-
-#       import django.db
-#       django.db.connection.close()
-#       self.resimagefiles.add(resimage)
-#       self.save()
-
-#   def add_rescsv(self, rescsv):
-
-#       import django.db
-#       django.db.connection.close()
-#       self.csvfiles.add(rescsv)
-#       self.save()
 
     def get_resimagefiles(self, ftype='.png'):
-#       import django.db
-#       django.db.connection.close()
         def get_index(val, custom_list):
             for idx, v in enumerate(custom_list):
                 if val == v or (v == 'potential_modifications' and val.startswith(v)):
@@ -398,62 +302,33 @@ class SearchRun(models.Model):
         return mp_images
     
     def get_pepxmlfiles(self, filtered=False):
-#       import django.db
-#       django.db.connection.close()
         if self.union:
             return PepXMLFile.objects.filter(run__searchgroup=self.searchgroup, run__union=False, filtered=filtered)
         return self.pepxmlfile_set.filter(filtered=filtered)
 
     def get_pepxmlfiles_paths(self, filtered=False):
-#       import django.db
-#       django.db.connection.close()
         return [pep.docfile.name.encode('utf-8') for pep in self.get_pepxmlfiles(filtered=filtered)]
 
     def get_spectrafiles_paths(self):
-#       import django.db
-#       django.db.connection.close()
-#       return [pep.docfile.name.encode('utf-8') for pep in self.spectra.all()]
         if self.union:
             return [run.spectra.docfile.name.encode('utf-8') for run in self.searchgroup.searchrun_set.filter(union=False)]
         return [self.spectra.docfile.name.encode('utf-8')]
 
 
     def get_fastafile_path(self):
-#       import django.db
-#       django.db.connection.close()
         return [self.searchgroup.fasta.all()[0].docfile.name.encode('utf-8'), ]
 
     def get_resimage_paths(self, ftype='.png'):
-#       import django.db
-#       django.db.connection.close()
         return [pep.docfile.name.encode('utf-8') for pep in self.get_resimagefiles(ftype=ftype)]
 
-#   def get_paramfile_path(self):
-#       import django.db
-#       django.db.connection.close()
-#       return [self.parameters.all()[0].docfile.name.encode('utf-8'), ]
-
     def get_csvfiles_paths(self, ftype=None):
-#       import django.db
-#       django.db.connection.close()
-        # if not os.path.isfile(os.path.dirname(self.csvfiles.filter(ftype='psm')[0].docfile.name.encode('ASCII')) + '/union_PSMs.csv'):
         if ftype:
             return [pep.docfile.name.encode('utf-8') for pep in self.rescsv_set.filter(ftype=ftype)]
         else:
             return [pep.docfile.name.encode('utf-8') for pep in self.rescsv_set.all()]
-        # else:
-        #     if ftype:
-        #         fname = self.csvfiles.filter(ftype=ftype)[0].docfile.name.encode('ASCII')
-        #     else:
-        #         fname = self.csvfiles.all()[0].docfile.name.encode('ASCII')
-        #     return [os.path.dirname(fname) + '/union_' + os.path.basename(fname).split('/')[-1].replace(self.runname.split('/')[-1] + '_', '')]
-
+  
     def name(self):
         return os.path.split(self.runname)[-1]
-
-#   def add_proc(self, proc):
-#       self.proc = proc
-#       self.save()
 
     def calc_results(self):
         from pyteomics import mgf, pepxml, mzml
