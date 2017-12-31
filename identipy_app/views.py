@@ -358,7 +358,7 @@ def _local_import(fname, user):
 
 def local_import(request):
     if request.method == 'POST':
-        fname = request.POST.get('filePath').encode('utf-8')
+        fname = request.POST.get('filePath')
         if os.path.isfile(fname):
             ret = _local_import(fname, request.user)
             if ret is None:
@@ -386,7 +386,7 @@ def local_import(request):
 
 def url_import(request):
     if request.method == 'POST':
-        fname = request.POST.get('fileUrl').encode('utf-8')
+        fname = request.POST.get('fileUrl')
         parsed = urlparse.urlparse(fname)
         local_name = os.path.split(parsed.path)[1]
         tmpfile = os.path.join(tempfile.gettempdir(), local_name)
@@ -594,7 +594,7 @@ def files_view(request, what):
                 save_params_new(sforms, request.user, False, request.session['paramtype'])
             if what == 'params':
                 paramfile = chosenfiles[0]
-                parname = paramfile.docfile.name.encode('utf-8')
+                parname = paramfile.docfile.name
                 dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type, ))
                 shutil.copy(parname, dst)
                 request.session['paramtype'] = paramfile.type
@@ -624,8 +624,8 @@ def _run_search(request, newrun, rn, c):
     protease = Protease.objects.filter(user=request.user, name=enz).first()
     idsettings.set('search', 'enzyme', protease.rule + '|' + idsettings.get_choices('search', 'enzyme'))
     idsettings.set('misc', 'iterate', 'peptides')
-    idsettings.set('input', 'database', fastafile.encode('utf-8'))
-    idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.searchgroup.user.id), rn.encode('utf-8')))
+    idsettings.set('input', 'database', fastafile)
+    idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.searchgroup.user.id), rn))
     _totalrun(request, idsettings, newrun, paramfile)
     if _exists(newrun):
         newrun.status = SearchRun.FINISHED
@@ -639,7 +639,6 @@ def _set_pepxml_path(idsettings, inputfile):
         outpath = idsettings.get('output', 'path')
     else:
         outpath = os.path.dirname(inputfile)
-    outpath = outpath.decode('utf-8')
     return os.path.join(outpath, os.path.splitext(
         os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
 
@@ -678,12 +677,12 @@ def _totalrun(request, idsettings, newrun, paramfile):
             pepxmlfile.save()
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
-        bname = pepxmllist[0].split('.pep.xml')[0].decode('utf-8')
+        bname = pepxmllist[0].split('.pep.xml')[0]
 
     else:
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
-        bname = os.path.dirname(pepxmllist[0].decode('utf-8')) + '/union'
+        bname = os.path.join(os.path.dirname(pepxmllist[0]), 'union')
 
     if not _exists(newrun):
         return
@@ -696,14 +695,14 @@ def _totalrun(request, idsettings, newrun, paramfile):
     dname = os.path.dirname(pepxmllist[0])
     for tmpfile in os.listdir(dname):
         ftype = os.path.splitext(tmpfile)[-1]
-        if ftype in {'.png', '.svg'} and newrun.name() + '_' in os.path.basename(tmpfile.decode('utf-8')):
-            fl = open(os.path.join(dname, tmpfile).decode('utf-8'))
+        if ftype in {'.png', '.svg'} and newrun.name() + '_' in os.path.basename(tmpfile):
+            fl = open(os.path.join(dname, tmpfile))
             djangofl = File(fl)
             img = ResImageFile(docfile=djangofl, user=request.user, ftype=ftype, run=newrun)
             img.save()
             fl.close()
     if os.path.exists(bname + '_PSMs.csv'):
-        fl = open(bname + '_PSMs.csv'.decode('utf-8'))
+        fl = open(bname + '_PSMs.csv')
         djangofl = File(fl)
         csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
         csvf.save()
@@ -714,12 +713,12 @@ def _totalrun(request, idsettings, newrun, paramfile):
         pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
         pepxmlfile.save()
     if os.path.exists(bname + '_peptides.csv'):
-        fl = open(bname + '_peptides.csv'.decode('utf-8'))
+        fl = open(bname + '_peptides.csv')
         djangofl = File(fl)
         csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
         csvf.save()
     if os.path.exists(bname + '_proteins.csv'):
-        fl = open(bname + '_proteins.csv'.decode('utf-8'))
+        fl = open(bname + '_proteins.csv')
         djangofl = File(fl)
         csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
         csvf.save()
@@ -819,7 +818,7 @@ def runidentipy(request):
         newgroup.save()
         newgroup.add_files(c)
         rn = newgroup.name()
-        os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn.encode('utf-8')))
+        os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn))
         newgroup.save()
         newgroup.set_notification()
         newgroup.set_FDRs()

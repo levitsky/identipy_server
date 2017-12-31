@@ -180,7 +180,7 @@ class SearchGroup(models.Model):
             if sr.status == SearchRun.RUNNING:
                 kill_proc_tree(sr.processpid)
             logger.info('Deleting run %s', sr.pk)
-        tree = 'results/%s/%s' % (str(self.user.id), self.name().encode('utf-8'))
+        tree = 'results/%s/%s' % (str(self.user.id), self.name())
         try:
             shutil.rmtree(tree)
         except Exception:
@@ -188,7 +188,7 @@ class SearchGroup(models.Model):
         self.delete()
 
     def set_notification(self):
-        settings = main.settings(self.parameters.path().encode('utf-8'))
+        settings = main.settings(self.parameters.path())
         self.notification = settings.getboolean('options', 'send email notification')
         self.save()
 
@@ -264,24 +264,24 @@ class SearchRun(models.Model):
                         'charge_states',
                         'scores']
         all_images = [doc for doc in self.resimagefile_set.filter(ftype=ftype)]
-        all_images.sort(key=lambda val: get_index(val.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower(), custom_order))
+        all_images.sort(key=lambda val: get_index(val.docfile.name.split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower(), custom_order))
         return all_images
     
     def get_PSMdistrimagefiles(self, ftype='.png'):
         distr_list = {'rt_experimental', 'precursor_mass', 'peptide_length'}
         distr_images = [doc for doc in self.get_resimagefiles()
-                if doc.docfile.name.encode('utf-8').split('/')[-1].replace(
-                    self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower() in distr_list]
+                if doc.docfile.name.split('/')[-1].replace(
+                    self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
         return distr_images
 
     def get_distrimagefiles(self, ftype='.png'):
         distr_list = {'rt_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides'}
-        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower() in distr_list]
+        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
         return distr_images
     
     def get_quantimagefiles(self, ftype='.png'):
         quant_list = {'sumi', 'nsaf', 'empai'}
-        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split('/')[-1].encode('utf-8') + '_', '').replace(ftype, '').lower() in quant_list]
+        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in quant_list]
         return quant_images
     
     def get_mpimagefiles(self, ftype='.png'):
@@ -295,10 +295,10 @@ class SearchRun(models.Model):
                    'charge_states',
                    'scores']
         mp_images = [doc for doc in self.get_resimagefiles()
-                if doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split(
-                    '/')[-1].encode('utf-8')  + '_', '').replace(ftype, '').lower() in MP_list or
-                doc.docfile.name.encode('utf-8').split('/')[-1].replace(self.runname.split(
-                    '/')[-1].encode('utf-8')  + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
+                if doc.docfile.name.split('/')[-1].replace(self.runname.split(
+                    '/')[-1]  + '_', '').replace(ftype, '').lower() in MP_list or
+                doc.docfile.name.split('/')[-1].replace(self.runname.split(
+                    '/')[-1]  + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
         return mp_images
     
     def get_pepxmlfiles(self, filtered=False):
@@ -307,25 +307,25 @@ class SearchRun(models.Model):
         return self.pepxmlfile_set.filter(filtered=filtered)
 
     def get_pepxmlfiles_paths(self, filtered=False):
-        return [pep.docfile.name.encode('utf-8') for pep in self.get_pepxmlfiles(filtered=filtered)]
+        return [pep.docfile.name for pep in self.get_pepxmlfiles(filtered=filtered)]
 
     def get_spectrafiles_paths(self):
         if self.union:
-            return [run.spectra.docfile.name.encode('utf-8') for run in self.searchgroup.searchrun_set.filter(union=False)]
-        return [self.spectra.docfile.name.encode('utf-8')]
+            return [run.spectra.docfile.name for run in self.searchgroup.searchrun_set.filter(union=False)]
+        return [self.spectra.docfile.name]
 
 
     def get_fastafile_path(self):
-        return [self.searchgroup.fasta.all()[0].docfile.name.encode('utf-8'), ]
+        return [self.searchgroup.fasta.all()[0].docfile.name]
 
     def get_resimage_paths(self, ftype='.png'):
-        return [pep.docfile.name.encode('utf-8') for pep in self.get_resimagefiles(ftype=ftype)]
+        return [pep.docfile.name for pep in self.get_resimagefiles(ftype=ftype)]
 
     def get_csvfiles_paths(self, ftype=None):
         if ftype:
-            return [pep.docfile.name.encode('utf-8') for pep in self.rescsv_set.filter(ftype=ftype)]
+            return [pep.docfile.name for pep in self.rescsv_set.filter(ftype=ftype)]
         else:
-            return [pep.docfile.name.encode('utf-8') for pep in self.rescsv_set.all()]
+            return [pep.docfile.name for pep in self.rescsv_set.all()]
   
     def name(self):
         return os.path.split(self.runname)[-1]

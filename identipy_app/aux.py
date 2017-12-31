@@ -22,13 +22,13 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
     import models
     paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % paramtype, user=uid)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('utf-8'))
+    raw_config.read(paramobj.docfile.name)
     labels = ','.join(mod.get_label() for mod in chosenmods)
 #   print 'LABELS:', labels
     raw_config.set('modifications', 'fixed' if fixed else 'variable', labels + '|type>string')
     for mod in chosenmods:
         raw_config.set('modifications', mod.label, mod.mass)
-    with open(paramobj.docfile.name.encode('utf-8'), 'w') as f:
+    with open(paramobj.docfile.name, 'w') as f:
         raw_config.write(f)
 
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
@@ -36,7 +36,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
             user=uid, type=paramtype)
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
-    raw_config.read(paramobj.docfile.name.encode('utf-8'))
+    raw_config.read(paramobj.docfile.name)
     if request:
         sfForms = {}
         for sftype in ['main', 'postsearch']:
@@ -79,7 +79,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
         paramobj.save()
         fl.close()
         os.remove(paramsname + '.cfg')
-    raw_config.write(open(paramobj.docfile.name.encode('utf-8'), 'w'))
+    raw_config.write(open(paramobj.docfile.name, 'w'))
     return paramobj
 
 class ResultsDetailed():
