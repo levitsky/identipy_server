@@ -29,8 +29,9 @@
     <h2>Import local file</h2>
     <form class='importbutton' action="{% url 'identipy_app:local_import' %}" method="post">
          {% csrf_token %}
-        <div class="intable_left"><input id="filePath" type="text" name="filePath"></div>
-        <div class="intable_right centered"><input type="submit" name="fileimport" value="Import" class="uploadform"/></div>
+         {{ localimportform.non_field_errors }}
+         <div class="intable_left">{{ localimportform.filePath }} {{localimportform.link.label_tag}} {{localimportform.link}}</div>
+         <div class="intable_right centered"><input type="submit" name="fileimport" value="Import" class="uploadform"/></div>
     </form>
 </div>
 {% endif %}

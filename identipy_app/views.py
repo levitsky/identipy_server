@@ -49,9 +49,7 @@ from .aux import save_mods, save_params_new, ResultsDetailed, get_size
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
-from .forms import MultFilesForm, CommonForm, ContactForm, AddProteaseForm, AddModificationForm, SearchParametersForm
-from .forms import search_forms_from_request
-
+from . import forms
 
 RUN_LIMIT = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 
@@ -70,7 +68,7 @@ def add_forms(request, c):
     if not c['paramtype']:
         c['paramtype'] = request.session.setdefault('paramtype', 3)
     request.session['paramtype'] = c['paramtype']
-    c['SearchForms'] = search_forms_from_request(request)
+    c['SearchForms'] = forms.search_forms_from_request(request)
 
 def form_dispatch(request):
     c = {}
@@ -78,9 +76,9 @@ def form_dispatch(request):
         return redirect('identipy_app:index')
     action = request.POST['submit_action']
     if action != 'Search previous runs by name':
-        forms = search_forms_from_request(request)
+        sforms = forms.search_forms_from_request(request)
         sessiontype = request.session.get('paramtype')
-        save_params_new(forms, request.user, False, sessiontype)
+        save_params_new(sforms, request.user, False, sessiontype)
     redirect_map = {
             'Select spectra': ('identipy_app:choose', 'spectra'),
             'Select protein database': ('identipy_app:choose', 'fasta'),
@@ -102,16 +100,16 @@ def form_dispatch(request):
     if action in {'Minimal', 'Medium', 'Advanced'}:
         gettype = {'Minimal': 1, 'Medium': 2, 'Advanced': 3}[action]
         if sessiontype != gettype:
-            if forms is not None:
+            if sforms is not None:
                 request.session['paramtype'] = gettype
-                newforms = search_forms_from_request(request, ignore_post=True)
+                newforms = forms.search_forms_from_request(request, ignore_post=True)
         request.session['paramtype'] = c['paramtype'] = gettype
 
     return redirect(*redirect_map[action])
 
 def save_parameters(request):
-    forms = search_forms_from_request(request, ignore_post=True)
-    save_params_new(forms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
+    sforms = forms.search_forms_from_request(request, ignore_post=True)
+    save_params_new(sforms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
     messages.add_message(request, messages.INFO, 'Parameters saved')
     return redirect('identipy_app:searchpage')
 
@@ -136,7 +134,7 @@ def delete(request, usedclass):
                 cc.append((doc.id, doc.name()))
             except:
                 cc.append((doc.id, doc.name))
-    form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+    form = forms.MultFilesForm(request.POST, custom_choices=cc, labelname=None)
     if form.is_valid():
         for x in form.cleaned_data.get('choices'):
             obj = usedclass.objects.get(user=request.user, id=x)
@@ -236,7 +234,7 @@ def upload(request):
 
     # Handle file upload
     if request.method == 'POST':
-        commonform = CommonForm(request.POST, request.FILES)
+        commonform = forms.CommonForm(request.POST, request.FILES)
         if 'commonfiles' in request.FILES:
             for uploadedfile in request.FILES.getlist('commonfiles'):
                 z, ret = _dispatch_file_handling(uploadedfile, request.user)
@@ -263,7 +261,9 @@ def upload(request):
         else:
             messages.add_message(request, messages.INFO, 'Choose files for upload.')
     else:
-        commonform = CommonForm()
+        commonform = forms.CommonForm()
+        li_form = forms.LocalImportForm()
+        c['localimportform'] = li_form
 
     c['commonform'] = commonform
     return render(request, 'identipy_app/upload.html', c)
@@ -330,7 +330,7 @@ def _copy_in_chunks(f, path):
         return path
 
 
-def _local_import(fname, user):
+def _local_import(fname, user, link=False):
     logger.info('IMPORTING FILE: %s', fname)
     fext = os.path.splitext(fname)[-1][1:].lower()
     if fext == 'zip':
@@ -352,50 +352,70 @@ def _local_import(fname, user):
     else:
         z, out = _dispatch_file_handling(fname, user)
         fname, path, opener = out
-        with opener(fname) as f:
-            _copy_in_chunks(f, path)
+        if not link:
+            with opener(fname) as f:
+                _copy_in_chunks(f, path)
+        else:
+            logger.debug('Creating symlink: %s -> %s', path, fname)
+            os.symlink(fname, path)
         _save_uploaded_file(path, user)
+
+def _local_import_worker(request):
+    fname = request.POST.get('filePath')
+    link = request.POST.get('link')
+    ret = []
+    if os.path.isdir(fname):
+        for root, dirs, files in os.walk(fname):
+            for f in files:
+                ret.append(_local_import(os.path.join(root, f), request.user, link))
+    else:
+        for f in glob.glob(fname):
+            ret.append(_local_import(f, request.user, link))
+    n = sum(r is None for r in ret)
+    message = '{} file(s) imported.'.format(n)
+    messages.add_message(request, messages.INFO, message)
+    django.db.connection.close()
 
 def local_import(request):
     if request.method == 'POST':
         fname = request.POST.get('filePath')
+        link = request.POST.get('link')
         if os.path.isfile(fname):
-            ret = _local_import(fname, request.user)
+            ret = _local_import(fname, request.user, link)
             if ret is None:
                 message = 'Import successful.'
             else:
                 message = 'Unsupported file extension: {}'.format(ret)
+            messages.add_message(request, messages.INFO, message)
         else:
-            ret = []
-            if os.path.isdir(fname):
-                for root, dirs, files in os.walk(fname):
-                    for f in files:
-                        ret.append(_local_import(os.path.join(root, f), request.user))
-            else:
-                for f in glob.glob(fname):
-                    ret.append(_local_import(f, request.user))
-            n = sum(r is None for r in ret)
-            message = '{} file(s) imported.'.format(n)
-
-        messages.add_message(request, messages.INFO, message)
+            t = Thread(target=_local_import_worker, args=(request,), name='local-import')
+            t.start()
+            messages.info(request, 'Local import started.')
         next = request.session.get('next', [])
         if next:
             return redirect(*next.pop())
 
     return redirect('identipy_app:upload')
 
+def _url_import_worker(request):
+    fname = request.POST.get('fileUrl')
+    parsed = urlparse.urlparse(fname)
+    local_name = os.path.split(parsed.path)[1]
+    tmpfile = os.path.join(tempfile.gettempdir(), local_name)
+    logger.info('Downloading %s ...', fname)
+    urllib.urlretrieve(fname, tmpfile)
+    logger.info('Saved to %s', tmpfile)
+    _local_import(tmpfile, request.user)
+    os.remove(tmpfile)
+    messages.add_message(request, messages.INFO, 'Download successful.')
+    django.db.connection.close()
+
+
 def url_import(request):
     if request.method == 'POST':
-        fname = request.POST.get('fileUrl')
-        parsed = urlparse.urlparse(fname)
-        local_name = os.path.split(parsed.path)[1]
-        tmpfile = os.path.join(tempfile.gettempdir(), local_name)
-        logger.info('Downloading %s ...', fname)
-        urllib.urlretrieve(fname, tmpfile)
-        logger.info('Saved to %s', tmpfile)
-        _local_import(tmpfile, request.user)
-        os.remove(tmpfile)
-        messages.add_message(request, messages.INFO, 'Download successful.')
+        t = Thread(target=_url_import_worker, args=(request,), name='url-import')
+        t.start()
+        messages.info(request, 'Download started.')
         next = request.session.get('next', [])
         if next:
             return redirect(*next.pop())
@@ -424,7 +444,7 @@ def about(request):
 def email(request):
     c = {}
     if all(z in request.POST.keys() for z in ['subject', 'message']):
-        form = ContactForm(request.POST)
+        form = forms.ContactForm(request.POST)
         if form.is_valid():
             subject = form.cleaned_data['subject']
             from_email = request.user.email
@@ -438,7 +458,7 @@ def email(request):
                 logger.error('Could not send email to developers:\n%s', e)
             return redirect('identipy_app:contacts')
     else:
-        form = ContactForm(initial={'from_email': request.user.username})
+        form = forms.ContactForm(initial={'from_email': request.user.username})
     return render(request, "identipy_app/email.html", {'form': form})
 
 
@@ -452,7 +472,7 @@ def email_to_user(username, searchname):
 def add_modification(request):
     c = {}
     if request.method == 'POST':
-        c['modificationform'] = AddModificationForm(request.POST)
+        c['modificationform'] = forms.AddModificationForm(request.POST)
         if c['modificationform'].is_valid():
             mod_name = c['modificationform'].cleaned_data['name']
             mod_label = c['modificationform'].cleaned_data['label'].lower()
@@ -493,7 +513,7 @@ def add_modification(request):
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'identipy_app/add_modification.html', c)
     else:
-        c['modificationform'] = AddModificationForm()
+        c['modificationform'] = forms.AddModificationForm()
         return render(request, 'identipy_app/add_modification.html', c)
 
 def add_protease(request):
@@ -504,7 +524,7 @@ def add_protease(request):
 
     if request.POST.get('submit_action', '') == 'delete':
         if request.POST.get('choices'):
-            proteases = MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
+            proteases = forms.MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
             if proteases.is_valid():
                 for obj_id in proteases.cleaned_data.get('choices'):
                     obj = Protease.objects.get(user=request.user, id=obj_id)
@@ -512,14 +532,14 @@ def add_protease(request):
         cc = []
         for pr in Protease.objects.filter(user=request.user):
             cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
-        proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
-        c['proteaseform'] = AddProteaseForm()
+        proteases = forms.MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
+        c['proteaseform'] = forms.AddProteaseForm()
         c['proteases'] = proteases
         return render(request, 'identipy_app/add_protease.html', c)
 
-    proteases = MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
+    proteases = forms.MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
     if request.method == 'POST':
-        c['proteaseform'] = AddProteaseForm(request.POST)
+        c['proteaseform'] = forms.AddProteaseForm(request.POST)
         if c['proteaseform'].is_valid():
             protease_name = c['proteaseform'].cleaned_data['name']
             if Protease.objects.filter(user=request.user, name=protease_name).count():
@@ -534,7 +554,7 @@ def add_protease(request):
             protease_object = Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=request.user)
             protease_object.save()
             messages.add_message(request, messages.INFO, 'A new cleavage rule was added')
-            sforms = search_forms_from_request(request, ignore_post=True)
+            sforms = forms.search_forms_from_request(request, ignore_post=True)
             e = sforms['main'].fields['enzyme']
             proteases = Protease.objects.filter(user=request.user).order_by('order_val')
             choices = [(p.rule, p.name) for p in proteases]
@@ -545,7 +565,7 @@ def add_protease(request):
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'identipy_app/add_protease.html', c)
     else:
-        c['proteaseform'] = AddProteaseForm()
+        c['proteaseform'] = forms.AddProteaseForm()
         c['proteases'] = proteases
         return render(request, 'identipy_app/add_protease.html', c)
 
@@ -573,6 +593,7 @@ def files_view(request, what):
     if request.method == 'POST':
         action = request.POST['submit_action']
         if action == 'upload new files':
+            request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
             return redirect('identipy_app:upload')
         elif action == 'add custom modification':
             request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
@@ -582,11 +603,11 @@ def files_view(request, what):
         elif action == 'delete':
             return delete(request, usedclass=usedclass)
 
-        form = MultFilesForm(request.POST, custom_choices=choices)
+        form = forms.MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
             chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
-            sforms = search_forms_from_request(request, ignore_post=True)
+            sforms = forms.search_forms_from_request(request, ignore_post=True)
             if what == 'mods':
                 save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
                 key = 'fixed' if fixed else 'variable' 
@@ -606,7 +627,7 @@ def files_view(request, what):
         kwargs = dict(custom_choices=choices, multiform=multiform)
         if what == 'mods':
             kwargs['labelname'] = 'Select {} modifications:'.format('fixed' if fixed else 'variable')
-        form = MultFilesForm(**kwargs)
+        form = forms.MultFilesForm(**kwargs)
         if what == 'mods' and not fixed:
             initvals = [mod.id for mod in Modification.objects.filter(name__in=['ammoniumlossC', 'ammoniumlossQ', 'waterlossE'])]
             form.fields['choices'].initial = initvals
@@ -809,7 +830,7 @@ def runidentipy(request):
         c['runname'] = request.session['runname']
     c['chosenfasta'] = request.session['chosen_fasta']
     c['chosenspectra'] = request.session['chosen_spectra']
-    c['SearchForms'] = search_forms_from_request(request)
+    c['SearchForms'] = forms.search_forms_from_request(request)
     c['paramtype'] = request.session['paramtype']
 #   if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
 #       failure += 'Results with name "%s" already exist, choose another name' % c['runname']
@@ -858,7 +879,7 @@ def showparams(request):
 
     c['SearchForms'] = {}
     for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
-        c['SearchForms'][sftype] = SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+        c['SearchForms'][sftype] = forms.SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
     fastas = runobj.fasta.all()
     if len(fastas):
         c['fastaname'] = ' + '.join(f.name() for f in fastas)
@@ -898,7 +919,7 @@ def show(request):
     labelname = 'Select columns for %ss' % (ftype, )
     sname = 'whitelabels' + ' ' + ftype
     if request.POST.get('choices'):
-        res_dict.labelform = MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
+        res_dict.labelform = forms.MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
         if res_dict.labelform.is_valid():
             whitelabels = [x for x in res_dict.labelform.cleaned_data.get('choices')]
             request.session[sname] = whitelabels
@@ -906,7 +927,7 @@ def show(request):
     elif request.session.get(sname, ''):
         whitelabels = request.session.get(sname)
         res_dict.custom_labels(whitelabels)        
-    res_dict.labelform = MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
+    res_dict.labelform = forms.MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()
     c.update({'results_detailed': res_dict})
     runobj = SearchRun.objects.get(id=runid, searchgroup_id=searchgroupid)
@@ -939,7 +960,7 @@ def getfiles(request, usedclass=False):
         documents = usedclass.objects.filter(user=request.user)
         for doc in documents:
             cc.append((doc.id, doc.name()))
-        form = MultFilesForm(request.POST, custom_choices=cc, labelname=None)
+        form = forms.MultFilesForm(request.POST, custom_choices=cc, labelname=None)
         if form.is_valid():
             for x in form.cleaned_data.get('choices'):
                 obj = usedclass.objects.get(user=request.user, id=x)
