@@ -109,6 +109,10 @@ class CommonForm(forms.Form):
     commonfiles = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
         label='Upload')
 
+class LocalImportForm(forms.Form):
+    filePath = forms.CharField(max_length=120)
+    link = forms.BooleanField(required=False)
+
 
 class MultFilesForm(forms.Form):
     def __init__(self, *args, **kwargs):
