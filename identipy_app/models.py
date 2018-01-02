@@ -180,7 +180,7 @@ class SearchGroup(models.Model):
             if sr.status == SearchRun.RUNNING:
                 kill_proc_tree(sr.processpid)
             logger.info('Deleting run %s', sr.pk)
-        tree = 'results/%s/%s' % (str(self.user.id), self.name())
+        tree = 'results/%s/%s' % (str(self.user.id), self.id)
         try:
             shutil.rmtree(tree)
         except Exception:

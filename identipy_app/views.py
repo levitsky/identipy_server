@@ -625,7 +625,7 @@ def _run_search(request, newrun, rn, c):
     idsettings.set('search', 'enzyme', protease.rule + '|' + idsettings.get_choices('search', 'enzyme'))
     idsettings.set('misc', 'iterate', 'peptides')
     idsettings.set('input', 'database', fastafile)
-    idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.searchgroup.user.id), rn))
+    idsettings.set('output', 'path', 'results/%s/%s' % (str(newrun.searchgroup.user.id), newrun.searchgroup.id))
     _totalrun(request, idsettings, newrun, paramfile)
     if _exists(newrun):
         newrun.status = SearchRun.FINISHED
@@ -811,14 +811,14 @@ def runidentipy(request):
     c['chosenspectra'] = request.session['chosen_spectra']
     c['SearchForms'] = search_forms_from_request(request)
     c['paramtype'] = request.session['paramtype']
-    if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
-        failure += 'Results with name "%s" already exist, choose another name' % c['runname']
+#   if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
+#       failure += 'Results with name "%s" already exist, choose another name' % c['runname']
     if not failure:
         newgroup = SearchGroup(groupname=c['runname'], user=request.user)
         newgroup.save()
         newgroup.add_files(c)
         rn = newgroup.name()
-        os.makedirs('results/%s/%s' % (str(newgroup.user.id), rn))
+        os.makedirs('results/%s/%s' % (str(newgroup.user.id), newgroup.id))
         newgroup.save()
         newgroup.set_notification()
         newgroup.set_FDRs()
