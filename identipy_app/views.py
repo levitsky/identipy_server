@@ -110,7 +110,7 @@ def form_dispatch(request):
 def save_parameters(request):
     sforms = forms.search_forms_from_request(request, ignore_post=True)
     save_params_new(sforms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
-    messages.add_message(request, messages.INFO, 'Parameters saved')
+    messages.add_message(request, messages.INFO, 'Parameters saved.')
     return redirect('identipy_app:searchpage')
 
 def index(request):
@@ -588,8 +588,10 @@ def files_view(request, what):
         if what == 'mods':
             if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
                 choices.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
-        elif what in {'spectra', 'fasta'} or (what == 'params' and (not doc.name().startswith('latest_params') and doc.visible)):
+        elif what in {'spectra', 'fasta'}:
             choices.append((doc.id, doc.name()))
+        elif what == 'params' and (not doc.name().startswith('latest_params') and doc.visible):
+            choices.append((doc.id, doc.title or doc.name()))
     if request.method == 'POST':
         action = request.POST['submit_action']
         if action == 'upload new files':
@@ -616,10 +618,11 @@ def files_view(request, what):
             if what == 'params':
                 paramfile = chosenfiles[0]
                 parname = paramfile.docfile.name
-                dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type, ))
+                dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type))
+                logger.debug('Copy: %s -> %s', parname, dst)
                 shutil.copy(parname, dst)
                 request.session['paramtype'] = paramfile.type
-                save_params_new(sforms, request.user, False, request.session['paramtype'])
+#               save_params_new(sforms, request.user, False, request.session['paramtype'])
             else:
                 request.session['chosen_' + what] = chosenfilesids
             return redirect('identipy_app:searchpage')
@@ -687,9 +690,8 @@ def _totalrun(request, idsettings, newrun, paramfile):
 
         # check if run has been killed
         if not _exists(newrun):
+            logger.debug('Abandoning killed run %s ...', newrun.pk)
             return
-        else:
-            logger.debug('Resuming run %s ...', newrun.pk)
 
         with open(filename, 'rb') as fl:
             djangofl = File(fl)
