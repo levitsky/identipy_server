@@ -94,6 +94,7 @@ class ParamsFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_params)
     type = models.IntegerField(default=3)
     visible = models.BooleanField(default=True)
+    title = models.CharField(max_length=80, default='')
 
 
 class SearchGroup(models.Model):

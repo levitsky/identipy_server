@@ -71,14 +71,16 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
     raw_config.set('charges', 'max charge', raw_config.get('search', 'maximum charge'))
 
     if paramsname:
-        fl = open(paramsname + '.cfg', 'w')
+        paramobj = ParamsFile(user=uid, type=paramtype, visible=visible, title=paramsname)
+        paramobj.save()
+        fl = open('{}.cfg'.format(paramobj.id), 'w')
         fl.close()
-        fl = open(paramsname + '.cfg')
+        fl = open('{}.cfg'.format(paramobj.id))
         djangofl = File(fl)
-        paramobj = ParamsFile(docfile=djangofl, user=uid, type=paramtype, visible=visible)
+        paramobj.docfile = djangofl
         paramobj.save()
         fl.close()
-        os.remove(paramsname + '.cfg')
+        os.remove(fl.name)
     raw_config.write(open(paramobj.docfile.name, 'w'))
     return paramobj
 
