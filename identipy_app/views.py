@@ -220,6 +220,9 @@ def _save_uploaded_file(uploadedfile, user):
     elif fext in {'.fasta', '.faa'}:
         newdoc = FastaFile(docfile=uploadedfile, user=user)
         newdoc.save()
+    elif fext == '.cfg':
+        newdoc = ParamsFile(docfile=uploadedfile, user=user, visible=True, title=os.path.split(name)[-1])
+        newdoc.save()
     else:
         logging.error('Unsupported file uploaded: %s', uploadedfile)
 
