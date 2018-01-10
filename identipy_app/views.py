@@ -641,8 +641,9 @@ def files_view(request, what):
     c.update({'form': form, 'used_class': what})
     return render(request, 'identipy_app/choose.html', c)
 
-def _run_search(request, newrun, rn, c):
+def _run_search(request, newrun, c):
     django.db.connection.ensure_connection()
+    logger.debug('run-search (%s): connection ensured', newrun.id)
     sg = newrun.searchgroup
     paramfile = sg.parameters.path()
     fastafile = sg.fasta.all()[0].path()
@@ -679,6 +680,8 @@ def _exists(run):
 
 
 def _totalrun(request, idsettings, newrun, paramfile):
+    django.db.connection.ensure_connection()
+    logger.debug('total-run (%s): connection ensured.', newrun.id)
     spectralist = newrun.get_spectrafiles_paths()
     fastalist = newrun.get_fastafile_path()
     if not newrun.union:
@@ -759,20 +762,21 @@ def _totalrun(request, idsettings, newrun, paramfile):
 def _runproc(inputfile, idsettings):
     utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
 
-def _start_union(request, newgroup, rn, c):
-    django.db.connection.ensure_connection()
+def _start_union(request, newgroup, c):
+#   django.db.connection.ensure_connection()
+#   logger.debug('start-union (group %s): connection ensured.', newgroup.id)
     try:
         un_run = newgroup.get_union()
     except:
         un_run = False
     if un_run:
-        _run_search(request, un_run, rn, c)
+        _run_search(request, un_run, c)
 
     if newgroup.notification:
         email_to_user(newgroup.user.email, newgroup.groupname)
-    django.db.connection.close()
+#   django.db.connection.close()
 
-def _start_all(request, newgroup, rn, c):
+def _start_all(request, newgroup, c):
     django.db.connection.ensure_connection()
 
     tmp_procs = []
@@ -804,7 +808,7 @@ def _start_all(request, newgroup, rn, c):
 
         newrun.status = SearchRun.RUNNING
         newrun.save()
-        p = Thread(target=_run_search, args=(request, newrun, rn, c), name='run-search')
+        p = Thread(target=_run_search, args=(request, newrun, c), name='run-search')
         p.start()
         tmp_procs.append(p)
 
@@ -816,9 +820,10 @@ def _start_all(request, newgroup, rn, c):
         logger.warning('SearchGroup %s has been deleted, exiting ...', newgroup.pk)
         return
 
-    p = Thread(target=_start_union, args=(request, newgroup, rn, c), name='start-union')
-    p.start()
-    p.join()
+#   p = Thread(target=_start_union, args=(request, newgroup, c), name='start-union')
+#   p.start()
+#   p.join()
+    _start_union(request, newgroup, c)
     django.db.connection.close()
 
 def runidentipy(request):
@@ -843,12 +848,11 @@ def runidentipy(request):
         newgroup = SearchGroup(groupname=c['runname'], user=request.user)
         newgroup.save()
         newgroup.add_files(c)
-        rn = newgroup.name()
         os.makedirs('results/%s/%s' % (str(newgroup.user.id), newgroup.id))
         newgroup.save()
         newgroup.set_notification()
         newgroup.set_FDRs()
-        t = Thread(target=_start_all, args=(request, newgroup, rn, c), name='start_all')
+        t = Thread(target=_start_all, args=(request, newgroup, c), name='start_all')
         t.start()
         messages.add_message(request, messages.INFO, 'IdentiPy started')
         return redirect('identipy_app:getstatus')
