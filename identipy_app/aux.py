@@ -5,6 +5,7 @@ import os
 os.chdir(settings.BASE_DIR)
 import sys
 import csv
+csv.field_size_limit(10000000)
 sys.path.insert(0, '../identipy/')
 from identipy.utils import CustomRawConfigParser
 from django.utils.safestring import mark_safe

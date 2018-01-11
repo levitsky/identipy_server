@@ -690,7 +690,9 @@ def _totalrun(request, idsettings, newrun, paramfile):
         p.start()
         newrun.processpid = p.pid
         newrun.save()
+        logger.debug('Process %s started by run %s.', p.pid, newrun.id)
         p.join()
+        logger.debug('Process %s joined by run %s.', p.pid, newrun.id)
     
         filename = _set_pepxml_path(idsettings, inputfile)
 
@@ -760,6 +762,7 @@ def _totalrun(request, idsettings, newrun, paramfile):
     django.db.connection.close()
 
 def _runproc(inputfile, idsettings):
+    logger.debug('runproc called for file %s', inputfile)
     utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
 
 def _start_union(request, newgroup, c):
@@ -785,10 +788,10 @@ def _start_all(request, newgroup, c):
             running = SearchRun.objects.filter(status=SearchRun.RUNNING)
             logger.debug('%s runs currently running', len(running))
             if len(running) == 0:
-                logger.debug('Server idle, starting right away ...')
+                logger.debug('Server idle, starting %s right away ...', newrun.id)
                 break
             elif len(running) >= RUN_LIMIT:
-                logger.debug('Too many active runs, waiting ...')
+                logger.debug('Too many active runs, %s waiting ...', newrun.id)
                 pass
             else:
                 last_user = running.latest('last_update').searchgroup.user
@@ -797,12 +800,12 @@ def _start_all(request, newgroup, c):
                     next_user = SearchRun.objects.filter(status=SearchRun.WAITING).exclude(
                             searchgroup__user=last_user).earliest('last_update').searchgroup.user
                 except SearchRun.DoesNotExist:
-                    logger.debug('No competing users, starting ...')
+                    logger.debug('No competing users, starting %s ...', newrun.id)
                     break
                 else:
                     logger.debug('Next user: %s', next_user)
                     if next_user == newrun.searchgroup.user:
-                        logger.debug('My turn has come, starting ...')
+                        logger.debug('My turn has come, starting %s ...', newrun.id)
                         break
             time.sleep(10)
 

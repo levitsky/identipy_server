@@ -9,7 +9,6 @@ import sys
 import shutil
 import subprocess
 import psutil, os
-import csv
 import logging
 logger = logging.getLogger(__name__)
 
@@ -349,14 +348,14 @@ class SearchRun(models.Model):
                 psmsnum = sum(1 for _ in pepxml.read(fn))
             self.totalPSMs += psmsnum
         for fn in self.get_csvfiles_paths(ftype='psm'):
-            with open(fn, "r") as cf:
-                self.numPSMs += sum(1 for _ in csv.reader(cf)) - 1
+            with open(fn) as cf:
+                self.numPSMs += sum(1 for _ in cf) - 1
         for fn in self.get_csvfiles_paths(ftype='peptide'):
-            with open(fn, "r") as cf:
-                self.numPeptides += sum(1 for _ in csv.reader(cf)) - 1
+            with open(fn) as cf:
+                self.numPeptides += sum(1 for _ in cf) - 1
         for fn in self.get_csvfiles_paths(ftype='protein'):
-            with open(fn, "r") as cf:
-                self.numProteins += sum(1 for _ in csv.reader(cf)) - 1
+            with open(fn) as cf:
+                self.numProteins += sum(1 for _ in cf) - 1
         self.save()
 
     def get_detailed(self, ftype):
