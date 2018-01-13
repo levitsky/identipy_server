@@ -10,6 +10,10 @@ sys.path.insert(0, '../identipy/')
 from identipy.utils import CustomRawConfigParser
 from django.utils.safestring import mark_safe
 import numpy as np
+import threading
+import logging
+logger = logging.getLogger()
+import logutils
 
 def get_size(start_path = '.'):
     total_size = 0
@@ -160,3 +164,16 @@ class ResultsDetailed():
                 yield out
 
 
+def init_mp_logging():
+    handler_dict = settings.LOGGING['handlers']['identipy_file']
+    if handler_dict['class'] != 'logging.FileHandler':
+        raise NotImplementedError('Non-file logging not yet supported for IdentiPy')
+    log_format = settings.LOGGING['formatters'][handler_dict['formatter']]['format']
+    formatter = logging.Formatter(log_format)
+    supported_kw = {'filename', 'mode', 'encoding', 'delay'}
+    kw = {k: v for k, v in handler_dict.items() if k in supported_kw}
+    handler = logging.FileHandler(**kw)
+    handler.setFormatter(formatter)
+    listener = logutils.queue.QueueListener(settings.MP_QUEUE, handler, respect_handler_level=True)
+    listener.start()
+    logger.debug('QueueListener started with handler %s', handler)

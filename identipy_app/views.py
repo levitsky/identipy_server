@@ -28,7 +28,7 @@ import time
 import random
 import pickle
 import sys
-from multiprocessing import Process
+import multiprocessing as mp
 from threading import Thread
 import urllib
 import urlparse
@@ -45,7 +45,7 @@ sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, ResultsDetailed, get_size
+from .aux import save_mods, save_params_new, ResultsDetailed, get_size, init_mp_logging
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
@@ -61,7 +61,7 @@ try:
         logger.info('Reaping run %s from %s by %s', r.id, r.searchgroup.groupname, r.searchgroup.user.username)
 except Exception as e:
     logger.warning('Startup cleanup failed.\n%s', e)
-
+init_mp_logging()
 
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
@@ -658,6 +658,7 @@ def _run_search(request, newrun, c):
     if _exists(newrun):
         newrun.status = SearchRun.FINISHED
         newrun.save()
+        logger.debug('Run %s finished.', newrun.id)
     else:
         logger.warning('Run %s appears to have been killed. Exiting run-search', newrun.id)
     django.db.connection.close()
@@ -686,14 +687,14 @@ def _totalrun(request, idsettings, newrun, paramfile):
     fastalist = newrun.get_fastafile_path()
     if not newrun.union:
         inputfile = newrun.spectra.path()
-        p = Process(target=_runproc, args=(inputfile, idsettings))
+        p = mp.Process(target=_runproc, args=(inputfile, idsettings))
         p.start()
         newrun.processpid = p.pid
         newrun.save()
         logger.debug('Process %s started by run %s.', p.pid, newrun.id)
         p.join()
         logger.debug('Process %s joined by run %s.', p.pid, newrun.id)
-    
+
         filename = _set_pepxml_path(idsettings, inputfile)
 
         # check if run has been killed
@@ -762,7 +763,7 @@ def _totalrun(request, idsettings, newrun, paramfile):
     django.db.connection.close()
 
 def _runproc(inputfile, idsettings):
-    logger.debug('runproc called for file %s', inputfile)
+#   logger.debug('runproc called for file %s', inputfile)
     utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
 
 def _start_union(request, newgroup, c):
@@ -807,7 +808,7 @@ def _start_all(request, newgroup, c):
                     if next_user == newrun.searchgroup.user:
                         logger.debug('My turn has come, starting %s ...', newrun.id)
                         break
-            time.sleep(10)
+            time.sleep(30)
 
         newrun.status = SearchRun.RUNNING
         newrun.save()
