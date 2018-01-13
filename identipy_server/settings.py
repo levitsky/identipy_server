@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import multiprocessing as mp
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -83,7 +84,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
 #       'ENGINE': 'django.db.backends.mysql',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#       'NAME': 'identipy_server',
+#       'NAME': 'identipy_server_testing',
         'OPTIONS': {
 #           'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
         },
@@ -133,29 +134,49 @@ NUMBER_OF_PARALLEL_RUNS = 3
 LOCAL_IMPORT = True
 URL_IMPORT = True
 
+MP_QUEUE = mp.Queue()
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '%(levelname)8s: %(asctime)s %(module)16s %(process)5d %(threadName)12s %(message)s'
-        },
+            },
         'simple': {
             'format': '%(levelname)s %(message)s'
+            },
         },
-    },
     'handlers': {
-        'file': {
+        'server_file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'identipy_server.log'),
             'formatter': 'verbose',
-        },
+            },
+        'identipy_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'identipy.log'),
+            'formatter': 'verbose',
+            },
+        'mpscore_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'mp-score.log'),
+            'formatter': 'verbose',
+            },
         'stream': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            },
+        'null': {
+            'class': 'logging.NullHandler',
+            },
+        'queue': {
+            'class': 'logutils.queue.QueueHandler',
+            'queue': MP_QUEUE,
+            },
         },
-    },
     'loggers': {
         'django': {
             'handlers': ['stream'],
@@ -163,22 +184,22 @@ LOGGING = {
             'propagate': True,
         },
         'identipy_app': {
-            'handlers': ['file'],
+            'handlers': ['server_file'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'identipy': {
-            'handlers': ['file'],
+            'handlers': ['queue'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
         },
         'MPlib': {
-            'handlers': ['file'],
+            'handlers': ['mpscore_file'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'MPscore': {
-            'handlers': ['file'],
+            'handlers': ['mpscore_file'],
             'level': 'DEBUG',
             'propagate': True,
         },
