@@ -14,6 +14,53 @@ import threading
 import logging
 logger = logging.getLogger()
 import logutils
+import pandas as pd
+from pyteomics import auxiliary as aux
+
+def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
+    # lfq_type from ['NSAF', 'SIn', 'emPAI']:
+    dframe = pd.read_table(inputfile)
+    dframe.index = dframe['dbname']
+    label = '_' + os.path.basename(inputfile).replace('_proteins.csv', '')
+    dframe[lfq_type + label] = dframe['LFQ(%s)' % (lfq_type, )]
+    dframe = dframe[[lfq_type + label]]
+    return dframe
+
+def concat_LFQ_tables(filenames):
+    df_final = get_LFQ_dataframe(filenames[0])
+    for fn in filenames[1:]:
+        df_temp = get_LFQ_dataframe(fn)
+        df_final = pd.concat([df_final, df_temp], axis=1)
+    return df_final
+
+def convert_linear(dfout):
+    ref_col = None
+    ref_min_val = None
+    for col in dfout.columns:
+        calc_na = sum(dfout[col].isna())
+        if not ref_col or calc_na < ref_min_val:
+            ref_col = col
+            ref_min_val = calc_na
+
+    for col in dfout.columns:
+        if col != ref_col:
+            dftmp = dfout[[col, ref_col]].dropna()
+            a, b, R, sigma = aux.linear_regression(dftmp[col], dftmp[ref_col])
+            dfout[col] = dfout[col].apply(lambda x: x * a + b)
+    return dfout
+
+def fill_missing_values(dfout):
+    min_lfq_dict = dict()
+    for col in dfout.columns:
+        min_lfq_dict[col] = dfout[col].min()
+    dfout = dfout.fillna(value=min_lfq_dict)[:15]
+    return dfout
+
+def process_LFQ(filenames, outpath):
+    dframe = concat_LFQ_tables(filenames)
+    dframe = convert_linear(dframe)
+    dframe = fill_missing_values(dframe)
+    dframe.to_csv(path_or_buf=outpath, sep='\t')
 
 def get_size(start_path = '.'):
     total_size = 0

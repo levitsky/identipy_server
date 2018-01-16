@@ -45,7 +45,7 @@ sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, ResultsDetailed, get_size, init_mp_logging
+from .aux import save_mods, save_params_new, ResultsDetailed, get_size, init_mp_logging, process_LFQ
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
@@ -733,6 +733,21 @@ def _totalrun(request, idsettings, newrun, paramfile):
             img = ResImageFile(docfile=djangofl, user=request.user, ftype=ftype, run=newrun)
             img.save()
             fl.close()
+    if newrun.union:
+        #searchgroupid = request.session.get('searchgroupid')
+        #searchgroup = SearchGroup.objects.get(id=searchgroupid)
+        runs = newrun.searchgroup.get_searchruns_all()
+        filenames_tmp = []
+        for searchrun in runs:
+            for down_fn in searchrun.get_csvfiles_paths(ftype='protein'):
+                filenames_tmp.append(down_fn)
+        #filenames_tmp = newrun.get_csvfiles_paths()
+        outpath_tmp = bname + '_LFQ.csv'
+        process_LFQ(filenames_tmp, outpath_tmp)
+        fl = open(outpath_tmp)
+        djangofl = File(fl)
+        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
+        csvf.save()
     if os.path.exists(bname + '_PSMs.csv'):
         fl = open(bname + '_PSMs.csv')
         djangofl = File(fl)
