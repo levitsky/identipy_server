@@ -61,7 +61,9 @@ try:
         logger.info('Reaping run %s from %s by %s', r.id, r.searchgroup.groupname, r.searchgroup.user.username)
 except Exception as e:
     logger.warning('Startup cleanup failed.\n%s', e)
+
 init_mp_logging()
+logger.debug('Queue logging initiated.')
 
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
@@ -734,14 +736,11 @@ def _totalrun(request, idsettings, newrun, paramfile):
             img.save()
             fl.close()
     if newrun.union:
-        #searchgroupid = request.session.get('searchgroupid')
-        #searchgroup = SearchGroup.objects.get(id=searchgroupid)
         runs = newrun.searchgroup.get_searchruns_all()
         filenames_tmp = []
         for searchrun in runs:
             for down_fn in searchrun.get_csvfiles_paths(ftype='protein'):
                 filenames_tmp.append(down_fn)
-        #filenames_tmp = newrun.get_csvfiles_paths()
         outpath_tmp = bname + '_LFQ.csv'
         process_LFQ(filenames_tmp, outpath_tmp)
         fl = open(outpath_tmp)

@@ -88,6 +88,7 @@ DATABASES = {
         'OPTIONS': {
 #           'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
         },
+        'TIME_ZONE': 'Europe/Moscow',
     }
 }
 
