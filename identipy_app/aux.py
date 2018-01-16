@@ -12,7 +12,6 @@ from django.utils.safestring import mark_safe
 import numpy as np
 import threading
 import logging
-logger = logging.getLogger()
 import logutils
 import pandas as pd
 from pyteomics import auxiliary as aux
@@ -27,17 +26,13 @@ def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     return dframe
 
 def concat_LFQ_tables(filenames):
-    df_final = get_LFQ_dataframe(filenames[0])
-    for fn in filenames[1:]:
-        df_temp = get_LFQ_dataframe(fn)
-        df_final = pd.concat([df_final, df_temp], axis=1)
-    return df_final
+    return pd.concat([get_LFQ_dataframe(f) for f in filenames], axis=1)
 
 def convert_linear(dfout):
     ref_col = None
     ref_min_val = None
     for col in dfout.columns:
-        calc_na = sum(dfout[col].isna())
+        calc_na = dfout[col].isna().sum()
         if not ref_col or calc_na < ref_min_val:
             ref_col = col
             ref_min_val = calc_na
@@ -53,7 +48,7 @@ def fill_missing_values(dfout):
     min_lfq_dict = dict()
     for col in dfout.columns:
         min_lfq_dict[col] = dfout[col].min()
-    dfout = dfout.fillna(value=min_lfq_dict)[:15]
+    dfout = dfout.fillna(value=min_lfq_dict)
     return dfout
 
 def process_LFQ(filenames, outpath):
@@ -223,4 +218,3 @@ def init_mp_logging():
     handler.setFormatter(formatter)
     listener = logutils.queue.QueueListener(settings.MP_QUEUE, handler, respect_handler_level=True)
     listener.start()
-    logger.debug('QueueListener started with handler %s', handler)
