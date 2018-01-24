@@ -707,8 +707,12 @@ def _totalrun(request, idsettings, newrun, paramfile):
         with open(filename, 'rb') as fl:
             djangofl = File(fl)
             pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, run=newrun)
-            pepxmlfile.docfile.name = filename
+#           pepxmlfile.docfile.name = filename
             pepxmlfile.save()
+        if pepxmlfile.docfile.name != filename:
+            logger.debug('Removing original pepXML file: %s', filename)
+            os.remove(filename)
+#       logger.debug('Imported %s with docfile.name %s', filename, pepxmlfile.docfile.name)
         pepxmllist = newrun.get_pepxmlfiles_paths()
         paramlist = [paramfile]
         bname = pepxmllist[0].split('.pep.xml')[0]
@@ -727,14 +731,14 @@ def _totalrun(request, idsettings, newrun, paramfile):
     if not _exists(newrun):
         return
     dname = os.path.dirname(pepxmllist[0])
+    logger.debug('bname: %s', bname)
     for tmpfile in os.listdir(dname):
         ftype = os.path.splitext(tmpfile)[-1]
-        if ftype in {'.png', '.svg'} and newrun.name() + '_' in os.path.basename(tmpfile):
-            fl = open(os.path.join(dname, tmpfile))
-            djangofl = File(fl)
-            img = ResImageFile(docfile=djangofl, user=request.user, ftype=ftype, run=newrun)
-            img.save()
-            fl.close()
+        if ftype in {'.png', '.svg'} and tmpfile.startswith(os.path.basename(bname)+'_'):
+            with open(os.path.join(dname, tmpfile)) as fl:
+                djangofl = File(fl)
+                img = ResImageFile(docfile=djangofl, user=request.user, ftype=ftype, run=newrun)
+                img.save()
     if newrun.union:
         runs = newrun.searchgroup.get_searchruns_all()
         filenames_tmp = []
@@ -743,36 +747,37 @@ def _totalrun(request, idsettings, newrun, paramfile):
                 filenames_tmp.append(down_fn)
         outpath_tmp = bname + '_LFQ.csv'
         process_LFQ(filenames_tmp, outpath_tmp)
-        fl = open(outpath_tmp)
-        djangofl = File(fl)
-        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
-        csvf.save()
+        with open(outpath_tmp) as fl:
+            djangofl = File(fl)
+            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
+            csvf.save()
     if os.path.exists(bname + '_PSMs.csv'):
-        fl = open(bname + '_PSMs.csv')
-        djangofl = File(fl)
-        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
-        csvf.save()
+        with open(bname + '_PSMs.csv') as fl:
+            djangofl = File(fl)
+            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
+            csvf.save()
     if os.path.exists(bname + '_PSMs.pep.xml'):
-        fl = open(bname + '_PSMs.pep.xml', 'rb')
-        djangofl = File(fl)
-        pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True, run=newrun)
-        pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
-        pepxmlfile.save()
+        with open(bname + '_PSMs.pep.xml', 'rb') as fl:
+            djangofl = File(fl)
+            pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True, run=newrun)
+            pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
+            pepxmlfile.save()
     if os.path.exists(bname + '_peptides.csv'):
-        fl = open(bname + '_peptides.csv')
-        djangofl = File(fl)
-        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
-        csvf.save()
+        with open(bname + '_peptides.csv') as fl:
+            djangofl = File(fl)
+            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
+            csvf.save()
     if os.path.exists(bname + '_proteins.csv'):
-        fl = open(bname + '_proteins.csv')
-        djangofl = File(fl)
-        csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
-        csvf.save()
-    for pxml in newrun.get_pepxmlfiles():
-        full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
-        shutil.move(pxml.docfile.name, full)
-        pxml.docfile.name = full
-        pxml.save()
+        with open(bname + '_proteins.csv') as fl:
+            djangofl = File(fl)
+            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
+            csvf.save()
+    if not newrun.union:
+        for pxml in newrun.get_pepxmlfiles():
+            full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
+            shutil.move(pxml.docfile.name, full)
+            pxml.docfile.name = full
+            pxml.save()
     newrun.calc_results()
     django.db.connection.close()
 
