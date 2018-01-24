@@ -567,3 +567,15 @@ div.select{
     float:left;
     padding-left:0;
 }
+
+#process_list td {
+    width: 20em;
+}
+
+#process_list td.search_tick {
+    width: 2em;
+}
+
+#process_list td.search_name {
+    word-break: break-all;
+}
