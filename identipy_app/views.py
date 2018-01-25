@@ -385,6 +385,7 @@ def local_import(request):
     if request.method == 'POST':
         fname = request.POST.get('filePath')
         link = request.POST.get('link')
+        logger.debug('Local import called with: %s (link=%s)', fname, link)
         if os.path.isfile(fname):
             ret = _local_import(fname, request.user, link)
             if ret is None:
