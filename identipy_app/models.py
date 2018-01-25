@@ -21,14 +21,29 @@ from identipy import main
 
 
 def kill_proc_tree(pid, including_parent=True):
-    parent = psutil.Process(pid)
-    children = parent.children(recursive=True)
+    logger.debug('Trying to kill tree %s, including parent: %s', pid, including_parent)
+    try:
+        parent = psutil.Process(pid)
+        children = parent.children(recursive=True)
+    except psutil.NoSuchProcess as e:
+        logger.warn('No such process: %s', e.args[0])
+        return
     for child in children:
-        child.kill()
+        try:
+            child.kill()
+        except psutil.NoSuchProcess:
+            logger.warning('No such process (child): %s', child.pid)
+        else:
+            logger.debug('Successfully killed child: %s', child.pid)
     psutil.wait_procs(children, timeout=5)
     if including_parent:
-        parent.kill()
-        parent.wait(5)
+        try:
+            parent.kill()
+            parent.wait(5)
+        except psutil.NoSuchProcess:
+            logger.warning('No such process (parent): %s', parent.pid)
+        else:
+            logger.debug('Successfully killed parent: %s', parent.pid)
 
 class BaseDocument(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
