@@ -34,7 +34,6 @@ import urllib
 import urlparse
 import glob
 import gzip
-import zipfile
 import logging
 logger = logging.getLogger(__name__)
 
@@ -106,7 +105,6 @@ def form_dispatch(request):
                 request.session['paramtype'] = gettype
                 newforms = forms.search_forms_from_request(request, ignore_post=True)
         request.session['paramtype'] = c['paramtype'] = gettype
-
     return redirect(*redirect_map[action])
 
 def save_parameters(request):
@@ -219,12 +217,15 @@ def _save_uploaded_file(uploadedfile, user):
     if fext in {'.mgf', '.mzml'}:
         newdoc = SpectraFile(docfile=uploadedfile, user=user)
         newdoc.save()
+        return newdoc
     elif fext in {'.fasta', '.faa'}:
         newdoc = FastaFile(docfile=uploadedfile, user=user)
         newdoc.save()
+        return newdoc
     elif fext == '.cfg':
         newdoc = ParamsFile(docfile=uploadedfile, user=user, visible=True, title=os.path.split(name)[-1])
         newdoc.save()
+        return newdoc
     else:
         logging.error('Unsupported file uploaded: %s', uploadedfile)
 
@@ -243,6 +244,9 @@ def upload(request):
         if 'commonfiles' in request.FILES:
             for uploadedfile in request.FILES.getlist('commonfiles'):
                 z, ret = _dispatch_file_handling(uploadedfile, request.user)
+                if z is None: # KeyError occurred in dispatcher
+                    logger.error('Unrecognized extension in dispatcher: %s', ret)
+                    return
                 if z:
                     d, outs = ret
                     for _, files in outs:
@@ -281,6 +285,7 @@ def _dispatch_file_handling(f, user, opener=None, fext=None):
     fext = fext or os.path.splitext(fname)[-1][1:].lower()
     if fext == 'gz':
         fext = os.path.splitext(os.path.splitext(fname)[0])[1][1:].lower()
+        logger.debug('Derived fext %s from fname %s', fext, fname)
         return _dispatch_file_handling(fname, user, lambda x: gzip.open(x, 'rb'), fext)
     if fext == 'zip':
         tmpdir = tempfile.mkdtemp()
@@ -298,7 +303,7 @@ def _dispatch_file_handling(f, user, opener=None, fext=None):
     try:
         dirn = {'mgf': 'spectra', 'mzml': 'spectra', 'fasta': 'fasta', 'faa': 'fasta', 'cfg': 'params'}[fext]
     except KeyError as ke:
-        return ke.args[0]
+        return None, (ke.args[0], None, None)
     path = upload_to_basic(dirn, os.path.split(fname)[1], user.id)
     name, ext = os.path.splitext(path)
     if ext == '.gz':
@@ -306,19 +311,6 @@ def _dispatch_file_handling(f, user, opener=None, fext=None):
     logger.debug('Copying to %s', path)
     if opener is None: opener = lambda f: open(f, 'rb')
     return False, (fname, path, opener)
-
-def _dispatch_and_copy(fname, user, opener=None):
-    z, ret = _dispatch_file_handling(fname, user)
-    if z:
-        d, rets = ret
-        out = []
-        for r in rets:
-            out.append(_copy_in_chunks(*r))
-        shutil.rmtree(d)
-        return out
-    fname, path, opener = ret
-    with opener(fname) as f:
-        return _copy_in_chunks(f, path)
 
 def _copy_in_chunks(f, path):
     try:
@@ -347,23 +339,27 @@ def _local_import(fname, user, link=False):
                 _dispatch_file_handling(os.path.join(dirpath, f), user)
                 for dirpath, dirs, fs in os.walk(tmpdir)
                 for f in fs
-                ]
+            ]
         zf.close()
+        outs = []
         for _, out in rets:
             f, path, opener = out
             shutil.copy(f, path)
-            _save_uploaded_file(path, user)
+            outs.append(_save_uploaded_file(path, user))
         shutil.rmtree(tmpdir)
+        return outs
     else:
         z, out = _dispatch_file_handling(fname, user)
         fname, path, opener = out
+        if z is None:
+            return fname
         if not link:
             with opener(fname) as f:
                 _copy_in_chunks(f, path)
         else:
             logger.debug('Creating symlink: %s -> %s', path, fname)
             os.symlink(fname, path)
-        _save_uploaded_file(path, user)
+        return _save_uploaded_file(path, user)
 
 def _local_import_worker(request):
     fname = request.POST.get('filePath')
@@ -388,10 +384,12 @@ def local_import(request):
         logger.debug('Local import called with: %s (link=%s)', fname, link)
         if os.path.isfile(fname):
             ret = _local_import(fname, request.user, link)
-            if ret is None:
+            if isinstance(ret, (list, SpectraFile)):
                 message = 'Import successful.'
-            else:
+            elif isinstance(ret, basestring):
                 message = 'Unsupported file extension: {}'.format(ret)
+            else:
+                raise ValueError(ret)
             messages.add_message(request, messages.INFO, message)
         else:
             t = Thread(target=_local_import_worker, args=(request,), name='local-import')
@@ -400,22 +398,38 @@ def local_import(request):
         next = request.session.get('next', [])
         if next:
             return redirect(*next.pop())
-
     return redirect('identipy_app:upload')
 
 def _url_import_worker(request):
     fname = request.POST.get('fileUrl')
+    logger.debug('URL import worker started with URL: %s', fname)
     parsed = urlparse.urlparse(fname)
     local_name = os.path.split(parsed.path)[1]
-    tmpfile = os.path.join(tempfile.gettempdir(), local_name)
+    prefix, suffix = os.path.splitext(local_name)
+    if suffix == '.gz':
+        p2, s2 = os.path.splitext(prefix)
+        prefix, suffix = p2, s2 + suffix
     logger.info('Downloading %s ...', fname)
-    urllib.urlretrieve(fname, tmpfile)
-    logger.info('Saved to %s', tmpfile)
-    _local_import(tmpfile, request.user)
-    os.remove(tmpfile)
-    messages.add_message(request, messages.INFO, 'Download successful.')
+    with tempfile.NamedTemporaryFile(suffix=suffix, mode='rb+') as tmpfile:
+        try:
+            urllib.urlretrieve(fname, tmpfile.name)
+        except IOError as e:
+            logger.error('Error while trying to download %s: %s', fname, e)
+            return
+        logger.info('Saved %s to %s', fname, tmpfile.name)
+        doc = _local_import(tmpfile.name, request.user)
+    # now we need to restore the local name
+    if suffix == '.zip':
+        pass
+    else:
+        final_dir, tmpname = os.path.split(doc.docfile.name)
+        lfname = prefix if suffix == 'gz' else local_name
+        newname = os.path.join(final_dir, lfname)
+        os.rename(doc.docfile.name, newname)
+        logger.debug('Renaming: %s -> %s', doc.docfile.name, newname)
+        doc.docfile.name = newname
+        doc.save()
     django.db.connection.close()
-
 
 def url_import(request):
     if request.method == 'POST':
@@ -429,7 +443,6 @@ def url_import(request):
 
 def searchpage(request):
     c = {}
-
     c['paramtype'] = request.session.setdefault('paramtype', 3)
     add_forms(request, c)
     c['current'] = 'searchpage'
