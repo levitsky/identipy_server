@@ -384,7 +384,7 @@ def local_import(request):
         logger.debug('Local import called with: %s (link=%s)', fname, link)
         if os.path.isfile(fname):
             ret = _local_import(fname, request.user, link)
-            if isinstance(ret, (list, SpectraFile)):
+            if isinstance(ret, (list, SpectraFile, FastaFile)):
                 message = 'Import successful.'
             elif isinstance(ret, basestring):
                 message = 'Unsupported file extension: {}'.format(ret)
