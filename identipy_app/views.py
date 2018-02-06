@@ -264,11 +264,11 @@ def upload(request):
                     else:
                         _save_uploaded_file(uploadedfile, request.user)
             messages.add_message(request, messages.INFO, 'Upload successful.')
-            next = request.session.get('next', [])
-            if next:
-                return redirect(*next.pop())
+            next = request.session.get('next', [('identipy_app:upload',)])
+            return redirect(*next.pop())
         else:
             messages.add_message(request, messages.INFO, 'Choose files for upload.')
+            return redirect('identipy_app:upload')
     else:
         commonform = forms.CommonForm()
         li_form = forms.LocalImportForm()
