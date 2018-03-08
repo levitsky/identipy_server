@@ -486,6 +486,8 @@ def email_to_user(username, searchname):
         send_mail('IdentiPy Server notification', 'Search %s was finished' % (searchname, ), 'identipymail@gmail.com', [username, ])
     except Exception as e:
         logger.error('Could not send email to user %s about run %s:\n%s', username, searchname, e)
+    else:
+        logger.info('Email notification on search %s sent to %s', searchname, username)
 
 
 def add_modification(request):
@@ -659,7 +661,7 @@ def files_view(request, what):
 
 def _run_search(request, newrun, c):
     django.db.connection.ensure_connection()
-    logger.debug('run-search (%s): connection ensured', newrun.id)
+#   logger.debug('run-search (%s): connection ensured.', newrun.id)
     sg = newrun.searchgroup
     paramfile = sg.parameters.path()
     fastafile = sg.fasta.all()[0].path()
@@ -737,15 +739,19 @@ def _totalrun(request, idsettings, newrun, paramfile):
         bname = os.path.join(os.path.dirname(pepxmllist[0]), 'union')
 
     if not _exists(newrun):
+        logger.warning('Run %s killed after completing the search.', newrun.id)
         return
+    logger.debug('Run %s starting MP score ...', newrun.id)
     MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
+    logger.debug('Run %s MP score finished.', newrun.id)
     if not os.path.isfile(bname + '_PSMs.csv'):
         bname = os.path.dirname(bname) + '/union'
 
     if not _exists(newrun):
+        logger.warning('Run %s killed after completing MP score.', newrun.id)
         return
     dname = os.path.dirname(pepxmllist[0])
-    logger.debug('bname: %s', bname)
+    logger.debug('Collecting results for %s ...', bname)
     for tmpfile in os.listdir(dname):
         ftype = os.path.splitext(tmpfile)[-1]
         if ftype in {'.png', '.svg'} and tmpfile.startswith(os.path.basename(bname)+'_'):
@@ -818,15 +824,17 @@ def _start_all(request, newgroup, c):
 
     tmp_procs = []
     for newrun in newgroup.get_searchruns():
+        have_waited = False
         while True:
             running = SearchRun.objects.filter(status=SearchRun.RUNNING)
-            logger.debug('%s runs currently running', len(running))
+            logger.debug('%s runs currently running.', len(running))
             if len(running) == 0:
                 logger.debug('Server idle, starting %s right away ...', newrun.id)
                 break
             elif len(running) >= RUN_LIMIT:
-                logger.debug('Too many active runs, %s waiting ...', newrun.id)
-                pass
+                if not have_waited:
+                    logger.debug('Too many active runs, %s waiting ...', newrun.id)
+                    have_waited = True
             else:
                 last_user = running.latest('last_update').searchgroup.user
                 logger.debug('Last user: %s', last_user.username)
