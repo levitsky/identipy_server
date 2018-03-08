@@ -55,7 +55,7 @@ def process_LFQ(filenames, outpath):
     dframe = concat_LFQ_tables(filenames)
     dframe = convert_linear(dframe)
     dframe = fill_missing_values(dframe)
-    dframe.to_csv(path_or_buf=outpath, sep='\t')
+    dframe.to_csv(path_or_buf=outpath, sep='\t', encoding='utf-8')
 
 def get_size(start_path = '.'):
     total_size = 0
