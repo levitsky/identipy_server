@@ -1069,7 +1069,7 @@ def getfiles(request, usedclass=False):
     logger.debug('Creating archive %s ...', zip_filename)
     s = StringIO()
 
-    with zipfile.ZipFile(s, "w", zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(s, 'w', settings.ZIP_COMPRESSION) as zf:
         for fpath in filenames:
             fdir, fname = os.path.split(fpath)
             zip_path = os.path.join(zip_subdir, fname)
