@@ -137,6 +137,7 @@ NUMBER_OF_PARALLEL_RUNS = 3
 # Compression for downloaded ZIP archives.
 # ZIP_STORED (no compression) is faster, ZIP_DEFLATED produces smaller files
 ZIP_COMPRESSION = zipfile.ZIP_STORED
+ALLOW_ZIP64 = True
 
 LOCAL_IMPORT = True
 URL_IMPORT = True
