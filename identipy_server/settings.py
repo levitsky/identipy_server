@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import multiprocessing as mp
 import logging.handlers
+import zipfile
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -132,6 +133,10 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_SEND_TO = []
 
 NUMBER_OF_PARALLEL_RUNS = 3
+
+# Compression for downloaded ZIP archives.
+# ZIP_STORED (no compression) is faster, ZIP_DEFLATED produces smaller files
+ZIP_COMPRESSION = zipfile.ZIP_STORED
 
 LOCAL_IMPORT = True
 URL_IMPORT = True
