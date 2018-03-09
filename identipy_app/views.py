@@ -818,6 +818,8 @@ def _start_union(request, newgroup, c):
     except:
         un_run = False
     if un_run:
+        un_run.status = SearchRun.RUNNING
+        un_run.save()
         _run_search(request, un_run, c)
 
     if newgroup.notification:
