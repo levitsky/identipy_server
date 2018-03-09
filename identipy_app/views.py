@@ -19,13 +19,13 @@ from django.conf import settings
 import os
 import subprocess
 import zipfile
-import StringIO
 import shutil
 import math
 from copy import copy
 import tempfile
 import time
 import random
+import StringIO
 import pickle
 import sys
 import multiprocessing as mp
@@ -1059,20 +1059,25 @@ def getfiles(request, usedclass=False):
             logger.debug('Empty download of type %s requested for runs %s. Redirecting...', down_type, [r.id for r in runs])
             messages.add_message(request, messages.INFO, 'No files of this type are available for download.')
             return redirect(request.META.get('HTTP_REFERER', 'identipy_app:getstatus'))
-        zip_subdir = searchgroup.name() + '_' + down_type + '_files'
+        zip_subdir = searchgroup.name() + '_' + down_type + '_files_'
+        if len(runs) == 1:
+            zip_subdir += runs[0].name()
+        else:
+            zip_subdir += 'all'
 
-    zip_filename = "%s.zip" % zip_subdir
-
+    zip_filename = zip_subdir + '.zip'
+    logger.debug('Creating archive %s ...', zip_filename)
     s = StringIO.StringIO()
-    zf = zipfile.ZipFile(s, "w")
 
-    for fpath in filenames:
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join(zip_subdir, fname)
-        zf.write(fpath, zip_path)
-    zf.close()
+    with zipfile.ZipFile(s, "w") as zf:
+        for fpath in filenames:
+            fdir, fname = os.path.split(fpath)
+            zip_path = os.path.join(zip_subdir, fname)
+            zf.write(fpath, zip_path)
+
     logger.info('Downloading ZIP file: %s', zip_filename)
-
     resp = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
+    s.close()
     resp['Content-Disposition'] = 'attachment; filename=%s' % smart_str(zip_filename)
+    logger.debug('Returning response with %s.', zip_filename)
     return resp
