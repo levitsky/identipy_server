@@ -15,6 +15,11 @@ import logging
 import logutils
 import pandas as pd
 from pyteomics import auxiliary as aux
+import pickle
+import logging.handlers
+import SocketServer as socketserver
+import threading
+import struct
 
 def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     # lfq_type from ['NSAF', 'SIn', 'emPAI']:
@@ -206,8 +211,10 @@ class ResultsDetailed():
                 yield out
 
 
-def init_mp_logging():
+def get_identipy_handler():
     handler_dict = settings.LOGGING['handlers']['identipy_file']
+    if handler_dict['class'] == 'logging.NullHandler':
+        return
     if handler_dict['class'] != 'logging.FileHandler':
         raise NotImplementedError('Non-file logging not yet supported for IdentiPy')
     log_format = settings.LOGGING['formatters'][handler_dict['formatter']]['format']
@@ -216,5 +223,77 @@ def init_mp_logging():
     kw = {k: v for k, v in handler_dict.items() if k in supported_kw}
     handler = logging.FileHandler(**kw)
     handler.setFormatter(formatter)
-    listener = logutils.queue.QueueListener(settings.MP_QUEUE, handler, respect_handler_level=True)
+    return handler
+
+_identipy_handler = get_identipy_handler()
+
+def init_mp_logging():
+    listener = logutils.queue.QueueListener(settings.MP_QUEUE, _identipy_handler, respect_handler_level=True)
     listener.start()
+    return listener
+
+
+class LogRecordStreamHandler(socketserver.StreamRequestHandler):
+    """Handler for a streaming logging request."""
+
+    def __init__(self, *args, **kwargs):
+        socketserver.StreamRequestHandler.__init__(self, *args, **kwargs)
+        self._identipy_handler = get_identipy_handler()
+
+    def handle(self):
+        """
+        Handle multiple requests - each expected to be a 4-byte length,
+        followed by the LogRecord in pickle format. Logs the record
+        according to whatever policy is configured locally.
+        """
+        while True:
+            chunk = self.connection.recv(4)
+            if len(chunk) < 4:
+                break
+            slen = struct.unpack('>L', chunk)[0]
+            chunk = self.connection.recv(slen)
+            while len(chunk) < slen:
+                chunk = chunk + self.connection.recv(slen - len(chunk))
+            obj = self.unPickle(chunk)
+            record = logging.makeLogRecord(obj)
+            self.handleLogRecord(record)
+
+    def unPickle(self, data):
+        return pickle.loads(data)
+
+    def handleLogRecord(self, record):
+        _identipy_handler.handle(record)
+
+class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
+    """
+    Simple TCP socket-based logging receiver suitable for testing.
+    """
+
+    allow_reuse_address = True
+
+    def __init__(self, host='localhost',
+                 port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+                 handler=LogRecordStreamHandler):
+        socketserver.ThreadingTCPServer.__init__(self, (host, port), handler)
+        self.abort = 0
+        self.timeout = 1
+        self.logname = None
+
+    def serve_until_stopped(self):
+        import select
+        abort = 0
+        while not abort:
+            rd, wr, ex = select.select([self.socket.fileno()], [], [], self.timeout)
+            if rd:
+                self.handle_request()
+            abort = self.abort
+
+def _socket_listener_thread():
+    tcpserver = LogRecordSocketReceiver()
+    tcpserver.serve_until_stopped()
+    return tcpserver
+
+def init_socket_logging():
+    t = threading.Thread(target=_socket_listener_thread, name='socket-listener')
+    t.start()
+    return t

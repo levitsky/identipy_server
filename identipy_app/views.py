@@ -44,7 +44,8 @@ sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, ResultsDetailed, get_size, init_mp_logging, process_LFQ
+from .aux import save_mods, save_params_new, ResultsDetailed, get_size, process_LFQ
+from .aux import init_mp_logging, init_socket_logging
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
@@ -61,8 +62,12 @@ try:
 except Exception as e:
     logger.warning('Startup cleanup failed.\n%s', e)
 
-init_mp_logging()
-logger.debug('Queue logging initiated.')
+if 'queue' in settings.LOGGING['loggers']['identipy']['handlers']:
+    listener = init_mp_logging()
+    logger.debug('Queue logging initiated.')
+if 'socket' in settings.LOGGING['loggers']['identipy']['handlers']:
+    listener = init_socket_logging()
+    logger.debug('Socket logging initiated.')
 
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
