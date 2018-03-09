@@ -25,7 +25,7 @@ from copy import copy
 import tempfile
 import time
 import random
-import StringIO
+from cStringIO import StringIO
 import pickle
 import sys
 import multiprocessing as mp
@@ -1067,7 +1067,7 @@ def getfiles(request, usedclass=False):
 
     zip_filename = zip_subdir + '.zip'
     logger.debug('Creating archive %s ...', zip_filename)
-    s = StringIO.StringIO()
+    s = StringIO()
 
     with zipfile.ZipFile(s, "w") as zf:
         for fpath in filenames:
