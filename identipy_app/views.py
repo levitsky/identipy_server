@@ -60,14 +60,12 @@ try:
         r.save()
         logger.info('Reaping run %s from %s by %s', r.id, r.searchgroup.groupname, r.searchgroup.user.username)
 except Exception as e:
-    logger.warning('Startup cleanup failed.\n%s', e)
+    logger.error('Startup cleanup failed.\n%s', e)
 
-if 'queue' in settings.LOGGING['loggers']['identipy']['handlers']:
-    listener = init_mp_logging()
-    logger.debug('Queue logging initiated.')
-if 'socket' in settings.LOGGING['loggers']['identipy']['handlers']:
-    listener = init_socket_logging()
-    logger.debug('Socket logging initiated.')
+ipy_listener = init_mp_logging()
+logger.debug('Queue logging initiated.')
+mp_listener = init_socket_logging()
+logger.debug('Socket logging initiated.')
 
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')

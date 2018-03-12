@@ -207,12 +207,12 @@ LOGGING = {
             'propagate': False,
         },
         'MPlib': {
-            'handlers': ['mpscore_file'],
+            'handlers': ['socket'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'MPscore': {
-            'handlers': ['mpscore_file'],
+            'handlers': ['socket'],
             'level': 'DEBUG',
             'propagate': True,
         },
