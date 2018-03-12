@@ -211,8 +211,8 @@ class ResultsDetailed():
                 yield out
 
 
-def get_identipy_handler():
-    handler_dict = settings.LOGGING['handlers']['identipy_file']
+def get_handler(handler_name):
+    handler_dict = settings.LOGGING['handlers'][handler_name]
     if handler_dict['class'] == 'logging.NullHandler':
         return
     if handler_dict['class'] != 'logging.FileHandler':
@@ -225,20 +225,19 @@ def get_identipy_handler():
     handler.setFormatter(formatter)
     return handler
 
-_identipy_handler = get_identipy_handler()
 
 def init_mp_logging():
-    listener = logutils.queue.QueueListener(settings.MP_QUEUE, _identipy_handler, respect_handler_level=True)
+    handler = get_handler('identipy_file')
+    listener = logutils.queue.QueueListener(settings.MP_QUEUE, handler, respect_handler_level=True)
     listener.start()
     return listener
 
-
+_mp_handler = get_handler('mpscore_file')
 class LogRecordStreamHandler(socketserver.StreamRequestHandler):
     """Handler for a streaming logging request."""
 
     def __init__(self, *args, **kwargs):
         socketserver.StreamRequestHandler.__init__(self, *args, **kwargs)
-        self._identipy_handler = get_identipy_handler()
 
     def handle(self):
         """
@@ -262,7 +261,7 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
         return pickle.loads(data)
 
     def handleLogRecord(self, record):
-        _identipy_handler.handle(record)
+        _mp_handler.handle(record)
 
 class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
     """
