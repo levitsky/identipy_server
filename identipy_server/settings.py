@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import multiprocessing as mp
-import logging.handlers
 import zipfile
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -187,7 +186,7 @@ LOGGING = {
         'socket': {
             'class': 'logging.handlers.SocketHandler',
             'host': 'localhost',
-            'port': logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+            'port': 0,
             },
         },
     'loggers': {
