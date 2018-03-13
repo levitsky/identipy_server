@@ -747,7 +747,7 @@ def _totalrun(request, idsettings, newrun, paramfile):
     logger.debug('Run %s starting MP score ...', newrun.id)
     MPscore.main(['_'] + pepxmllist + spectralist + fastalist + paramlist, union_custom=newrun.union)
     logger.debug('Run %s MP score finished.', newrun.id)
-    if not os.path.isfile(bname + '_PSMs.csv'):
+    if not os.path.isfile(bname + '_PSMs.tsv'):
         bname = os.path.dirname(bname) + '/union'
 
     if not _exists(newrun):
@@ -768,14 +768,14 @@ def _totalrun(request, idsettings, newrun, paramfile):
         for searchrun in runs:
             for down_fn in searchrun.get_csvfiles_paths(ftype='protein'):
                 filenames_tmp.append(down_fn)
-        outpath_tmp = bname + '_LFQ.csv'
+        outpath_tmp = bname + '_LFQ.tsv'
         process_LFQ(filenames_tmp, outpath_tmp)
         with open(outpath_tmp) as fl:
             djangofl = File(fl)
             csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
             csvf.save()
-    if os.path.exists(bname + '_PSMs.csv'):
-        with open(bname + '_PSMs.csv') as fl:
+    if os.path.exists(bname + '_PSMs.tsv'):
+        with open(bname + '_PSMs.tsv') as fl:
             djangofl = File(fl)
             csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
             csvf.save()
@@ -785,13 +785,13 @@ def _totalrun(request, idsettings, newrun, paramfile):
             pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True, run=newrun)
             pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
             pepxmlfile.save()
-    if os.path.exists(bname + '_peptides.csv'):
-        with open(bname + '_peptides.csv') as fl:
+    if os.path.exists(bname + '_peptides.tsv'):
+        with open(bname + '_peptides.tsv') as fl:
             djangofl = File(fl)
             csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
             csvf.save()
-    if os.path.exists(bname + '_proteins.csv'):
-        with open(bname + '_proteins.csv') as fl:
+    if os.path.exists(bname + '_proteins.tsv'):
+        with open(bname + '_proteins.tsv') as fl:
             djangofl = File(fl)
             csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
             csvf.save()
@@ -993,7 +993,7 @@ def show(request):
     c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup})
 
     if request.GET.get('download_custom_csv', ''):
-        tmpfile_name = runobj.searchgroup.groupname + '_' + runobj.name() + '_' + ftype + 's_selectedfields.csv'
+        tmpfile_name = runobj.searchgroup.groupname + '_' + runobj.name() + '_' + ftype + 's_selectedfields.tsv'
         tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
         tmpfile.write('\t'.join(res_dict.get_labels()) + '\n')
         tmpfile.flush()
