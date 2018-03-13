@@ -288,7 +288,12 @@ class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
             abort = self.abort
 
 def _socket_listener_thread():
-    tcpserver = LogRecordSocketReceiver()
+    port = settings.LOGGING['handlers']['socket']['port']
+    tcpserver = LogRecordSocketReceiver(port=port)
+    if port == 0:
+        port = tcpserver.socket.getsockname()[1]
+        settings.LOGGING['handlers']['socket']['port'] = port
+    print 'Logging port:', port
     tcpserver.serve_until_stopped()
     return tcpserver
 
