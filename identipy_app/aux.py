@@ -25,7 +25,7 @@ def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     # lfq_type from ['NSAF', 'SIn', 'emPAI']:
     dframe = pd.read_table(inputfile)
     dframe.index = dframe['dbname']
-    label = '_' + os.path.basename(inputfile).replace('_proteins.csv', '')
+    label = '_' + os.path.basename(inputfile).replace('_proteins.tsv', '')
     dframe[lfq_type + label] = dframe['LFQ(%s)' % (lfq_type, )]
     dframe = dframe[[lfq_type + label]]
     return dframe
