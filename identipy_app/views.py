@@ -756,10 +756,10 @@ def _totalrun(request, idsettings, newrun, paramfile):
         outpath_tmp = bname + '_LFQ.tsv'
         if filenames_tmp:
             process_LFQ(filenames_tmp, outpath_tmp)
-        with open(outpath_tmp) as fl:
-            djangofl = File(fl)
-            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
-            csvf.save()
+            with open(outpath_tmp) as fl:
+                djangofl = File(fl)
+                csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
+                csvf.save()
     if os.path.exists(bname + '_PSMs.tsv'):
         with open(bname + '_PSMs.tsv') as fl:
             djangofl = File(fl)
