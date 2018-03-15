@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import multiprocessing as mp
 import zipfile
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,7 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'identipy_app',
+    'identipy_app.apps.IdentipyAppConfig',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -141,7 +140,6 @@ ALLOW_ZIP64 = True
 LOCAL_IMPORT = True
 URL_IMPORT = True
 
-MP_QUEUE = mp.Queue()
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -179,14 +177,15 @@ LOGGING = {
         'null': {
             'class': 'logging.NullHandler',
             },
-        'queue': {
-            'class': 'logutils.queue.QueueHandler',
-            'queue': MP_QUEUE,
-            },
-        'socket': {
+        'ipy_socket': {
             'class': 'logging.handlers.SocketHandler',
             'host': 'localhost',
-            'port': 0,
+            'port': 13014,
+            },
+        'mp_socket': {
+            'class': 'logging.handlers.SocketHandler',
+            'host': 'localhost',
+            'port': 13013,
             },
         },
     'loggers': {
@@ -201,20 +200,21 @@ LOGGING = {
             'propagate': True,
         },
         'identipy': {
-            'handlers': ['queue'],
+            'handlers': ['ipy_socket'],
             'level': 'DEBUG',
             'propagate': False,
         },
         'MPlib': {
-            'handlers': ['socket'],
+            'handlers': ['mp_socket'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'MPscore': {
-            'handlers': ['socket'],
+            'handlers': ['mp_socket'],
             'level': 'DEBUG',
             'propagate': True,
         },
 
     },
 }
+
