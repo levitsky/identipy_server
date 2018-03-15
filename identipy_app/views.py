@@ -754,7 +754,8 @@ def _totalrun(request, idsettings, newrun, paramfile):
             for down_fn in searchrun.get_csvfiles_paths(ftype='protein'):
                 filenames_tmp.append(down_fn)
         outpath_tmp = bname + '_LFQ.tsv'
-        process_LFQ(filenames_tmp, outpath_tmp)
+        if filenames_tmp:
+            process_LFQ(filenames_tmp, outpath_tmp)
         with open(outpath_tmp) as fl:
             djangofl = File(fl)
             csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
