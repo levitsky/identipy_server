@@ -18,6 +18,7 @@ import socket
 import pickle
 import struct
 logger = logging.getLogger(__name__)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "identipy_server.settings")
 
 def _socket_listener_worker(port, handler):
     try:
@@ -119,7 +120,4 @@ logger.info('MP-score logging initiated.')
 
 
 from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "identipy_server.settings")
-
 application = get_wsgi_application()
