@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 
 import os
 import logging, sys
-logging.basicConfig(stream=sys.stderr)
+#logging.basicConfig(stream=sys.stderr)
 
 from django.core.wsgi import get_wsgi_application
 

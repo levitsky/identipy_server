@@ -685,7 +685,6 @@ def _exists(run):
         return False
     return True
 
-
 def _totalrun(request, idsettings, newrun, paramfile):
     django.db.connection.ensure_connection()
     logger.debug('total-run (%s): connection ensured.', newrun.id)
@@ -740,6 +739,13 @@ def _totalrun(request, idsettings, newrun, paramfile):
         return
     dname = os.path.dirname(pepxmllist[0])
     logger.debug('Collecting results for %s ...', bname)
+    def _save_csv(suffix, ftype):
+        if os.path.exists(bname + suffix):
+            with open(bname + suffix) as fl:
+                djangofl = File(fl)
+                csvf = ResCSV(docfile=djangofl, user=request.user, ftype=ftype, run=newrun)
+                csvf.save()
+
     for tmpfile in os.listdir(dname):
         ftype = os.path.splitext(tmpfile)[-1]
         if ftype in {'.png', '.svg'} and tmpfile.startswith(os.path.basename(bname)+'_'):
@@ -760,27 +766,29 @@ def _totalrun(request, idsettings, newrun, paramfile):
                 djangofl = File(fl)
                 csvf = ResCSV(docfile=djangofl, user=request.user, ftype='lfq', run=newrun)
                 csvf.save()
-    if os.path.exists(bname + '_PSMs.tsv'):
-        with open(bname + '_PSMs.tsv') as fl:
-            djangofl = File(fl)
-            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
-            csvf.save()
+    for suffix, ftype in [('_PSMs.tsv', 'psm'), ('_peptides.tsv', 'peptide'), ('_proteins.tsv', 'protein')]:
+        _save_csv(suffix, ftype)
+#   if os.path.exists(bname + '_PSMs.tsv'):
+#       with open(bname + '_PSMs.tsv') as fl:
+#           djangofl = File(fl)
+#           csvf = ResCSV(docfile=djangofl, user=request.user, ftype='psm', run=newrun)
+#           csvf.save()
     if os.path.exists(bname + '_PSMs.pep.xml'):
         with open(bname + '_PSMs.pep.xml', 'rb') as fl:
             djangofl = File(fl)
             pepxmlfile = PepXMLFile(docfile=djangofl, user=request.user, filtered=True, run=newrun)
             pepxmlfile.docfile.name = bname + '_PSMs.pep.xml'
             pepxmlfile.save()
-    if os.path.exists(bname + '_peptides.tsv'):
-        with open(bname + '_peptides.tsv') as fl:
-            djangofl = File(fl)
-            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
-            csvf.save()
-    if os.path.exists(bname + '_proteins.tsv'):
-        with open(bname + '_proteins.tsv') as fl:
-            djangofl = File(fl)
-            csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
-            csvf.save()
+#   if os.path.exists(bname + '_peptides.tsv'):
+#       with open(bname + '_peptides.tsv') as fl:
+#           djangofl = File(fl)
+#           csvf = ResCSV(docfile=djangofl, user=request.user, ftype='peptide', run=newrun)
+#           csvf.save()
+#   if os.path.exists(bname + '_proteins.tsv'):
+#       with open(bname + '_proteins.tsv') as fl:
+#           djangofl = File(fl)
+#           csvf = ResCSV(docfile=djangofl, user=request.user, ftype='protein', run=newrun)
+#           csvf.save()
     if not newrun.union:
         for pxml in newrun.get_pepxmlfiles():
             full = pxml.docfile.name.rsplit('.pep.xml', 1)[0] + '_full.pep.xml'
