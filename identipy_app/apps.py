@@ -6,16 +6,19 @@ import logging
 import logging.handlers
 import SocketServer as socketserver
 import threading
-#import logutils
+import socket
 import pickle
 import struct
 logger = logging.getLogger(__name__)
 
 def _socket_listener_worker(port, handler):
-    tcpserver = LogRecordSocketReceiver(port=port, handler=handler)
+    try:
+        tcpserver = LogRecordSocketReceiver(port=port, handler=handler)
+    except socket.error as e:
+        logger.error('Couldn\'t start TCP server: %s', e)
+        return
     if port == 0:
         port = tcpserver.socket.getsockname()[1]
-#   print 'Logging port:', port
     tcpserver.serve_until_stopped()
 
 def get_handler(handler_name):
@@ -95,8 +98,12 @@ class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
 
 class IdentipyAppConfig(AppConfig):
     name = 'identipy_app'
+    flag = False
 
     def ready(self):
+        if self.flag:
+            return
+        self.flag = True
         # init IdentiPy logging
         t = threading.Thread(target=_socket_listener_worker,
                 args=(settings.LOGGING['handlers']['ipy_socket']['port'], IdentiPyHandler),
