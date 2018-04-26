@@ -1,6 +1,19 @@
 IdentiPy Server - a Django-based web interface for IdentiPy
 ============================================================
 
+Citation
+--------
+
+IdentiPy and IdentiPy Server are described in this JPR paper: http://dx.doi.org/10.1021/acs.jproteome.7b00640
+
+Please cite it when using IdentiPy and/or IdentiPy Server or their parts.
+
+License
+-------
+
+IdentiPy Server is published under the Apache 2.0 license.
+
+
 Requirements
 ------------
 
