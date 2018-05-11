@@ -369,8 +369,9 @@ class SearchRun(models.Model):
             with open(fn) as cf:
                 self.numPeptides += sum(1 for _ in cf) - 1
         for fn in self.get_csvfiles_paths(ftype='protein'):
-            with open(fn) as cf:
-                self.numProteins += sum(1 for _ in cf) - 1
+            if not fn.endswith('full.tsv'):
+                with open(fn) as cf:
+                    self.numProteins += sum(1 for _ in cf) - 1
         self.save()
 
     def get_detailed(self, ftype):
