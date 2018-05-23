@@ -8,7 +8,9 @@ from django.conf import settings
 import sys
 import shutil
 import subprocess
-import psutil, os
+import psutil
+import re
+from pyteomics import parser
 import logging
 logger = logging.getLogger(__name__)
 
@@ -285,21 +287,29 @@ class SearchRun(models.Model):
     def get_PSMdistrimagefiles(self, ftype='.png'):
         distr_list = {'rt_experimental', 'precursor_mass', 'peptide_length'}
         distr_images = [doc for doc in self.get_resimagefiles()
-                if doc.docfile.name.split('/')[-1].replace(
-                    self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
+                if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
         return distr_images
 
     def get_distrimagefiles(self, ftype='.png'):
         distr_list = {'rt_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides'}
-        distr_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in distr_list]
+        distr_images = [doc for doc in self.get_resimagefiles()
+                if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
         return distr_images
     
     def get_quantimagefiles(self, ftype='.png'):
-        quant_list = {'sumi', 'nsaf', 'empai'}
-        quant_images=[doc for doc in self.get_resimagefiles() if doc.docfile.name.split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower() in quant_list]
-        return quant_images
+        distr_list = {'sumi', 'nsaf', 'empai'}
+        distr_images = [doc for doc in self.get_resimagefiles()
+                if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
+        return distr_images
     
     def get_mpimagefiles(self, ftype='.png'):
+        def is_pm(name):
+            m = re.search(r'potential_modifications_(.*)\{}$'.format(ftype), name)
+            if m:
+#               logger.debug('Found match: %s', m.group(1))
+                return parser.is_modX(m.group(1))
+#           logger.debug('No match for name: %s', name)
+            return False
         MP_list = ['rt_difference_min',
                    'precursor_mass_difference_ppm',
                    'fragment_mass_tolerance_da',
@@ -310,10 +320,8 @@ class SearchRun(models.Model):
                    'charge_states',
                    'scores']
         mp_images = [doc for doc in self.get_resimagefiles()
-                if doc.docfile.name.split('/')[-1].replace(self.runname.split(
-                    '/')[-1]  + '_', '').replace(ftype, '').lower() in MP_list or
-                doc.docfile.name.split('/')[-1].replace(self.runname.split(
-                    '/')[-1]  + '_', '').replace(ftype, '').lower().startswith('potential_modifications')]
+                if any(doc.docfile.name.endswith(d+ftype) for d in MP_list) or
+                is_pm(doc.docfile.name)]
         return mp_images
     
     def get_pepxmlfiles(self, filtered=False):
