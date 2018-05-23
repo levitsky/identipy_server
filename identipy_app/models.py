@@ -285,19 +285,19 @@ class SearchRun(models.Model):
         return all_images
     
     def get_PSMdistrimagefiles(self, ftype='.png'):
-        distr_list = {'rt_experimental', 'precursor_mass', 'peptide_length'}
+        distr_list = {'RT_experimental', 'precursor_mass', 'peptide_length'}
         distr_images = [doc for doc in self.get_resimagefiles()
                 if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
         return distr_images
 
     def get_distrimagefiles(self, ftype='.png'):
-        distr_list = {'rt_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides'}
+        distr_list = {'RT_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides'}
         distr_images = [doc for doc in self.get_resimagefiles()
                 if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
         return distr_images
     
     def get_quantimagefiles(self, ftype='.png'):
-        distr_list = {'sumi', 'nsaf', 'empai'}
+        distr_list = {'sumI', 'NSAF', 'emPAI'}
         distr_images = [doc for doc in self.get_resimagefiles()
                 if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
         return distr_images
@@ -310,13 +310,13 @@ class SearchRun(models.Model):
                 return parser.is_modX(m.group(1))
 #           logger.debug('No match for name: %s', name)
             return False
-        MP_list = ['rt_difference_min',
+        MP_list = ['RT_difference_min',
                    'precursor_mass_difference_ppm',
                    'fragment_mass_tolerance_da',
                    'isotopes_mass_difference_da',
                    'missed_cleavages_protease_1',
-                   'psm_count',
-                   'psms_per_protein',
+                   'PSM_count',
+                   'PSMs_per_protein',
                    'charge_states',
                    'scores']
         mp_images = [doc for doc in self.get_resimagefiles()
