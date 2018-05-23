@@ -595,7 +595,7 @@ def files_view(request, what):
     choices = []
     for doc in documents:
         if what == 'mods':
-            if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
+#           if not fixed or (not doc.aminoacid.count('[') and not doc.aminoacid.count(']')):
                 choices.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
         elif what in {'spectra', 'fasta'}:
             choices.append((doc.id, doc.name()))
