@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import django
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -1059,3 +1059,7 @@ def getfiles(request, usedclass=False):
     resp['Content-Disposition'] = 'attachment; filename=%s' % smart_str(zip_filename)
     logger.debug('Returning response with %s.', zip_filename)
     return resp
+
+def group_status(requesti, sgid):
+    sg = get_object_or_404(SearchGroup, id=sgid)
+    return JsonResponse({'status': sg.get_status()})
