@@ -28,7 +28,9 @@ function statusUpdate () {
         if (!stillRunning) {
             active.splice(i, 1);
         }
-        i += 1;
+        else {
+            i += 1;
+        }
         if ( i >= active.length ) {
             i = 0;
         }
