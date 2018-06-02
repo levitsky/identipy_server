@@ -2,7 +2,7 @@
 {% block title %}Search History{% endblock%}
 {% block content %}
 {% load stringfilter %}
-
+{% load staticfiles %}
 
 {% if processes %}
 <div class="vert_block">
@@ -17,14 +17,13 @@
     </form>
 </div>
 <div class="vert_block">
+   {% if res_page != max_res_page %}
+   <a id="prev" class="btn" href="{% url 'identipy_app:getstatus' %}?res_page=+1" name="prev_runs">older runs >></a>
+   {% endif %}
 
-        {% if res_page != max_res_page %}
-        <a id="prev" class="btn" href="{% url 'identipy_app:getstatus' %}?res_page=+1" name="prev_runs">older runs >></a>
-        {% endif %}
-
-        {% if res_page != 1 %}
-        <a id="newer" class="btn" href="{% url 'identipy_app:getstatus' %}?res_page=-1" name="next_runs"><< newer runs</a>
-		{% endif %}
+   {% if res_page != 1 %}
+   <a id="newer" class="btn" href="{% url 'identipy_app:getstatus' %}?res_page=-1" name="next_runs"><< newer runs</a>
+   {% endif %}
 </div>
 <form action="{% url 'identipy_app:delete_search' %}" method="post">{% csrf_token %}
 	<table type="bordered" id="process_list">
@@ -35,15 +34,15 @@
             <th>Status</th>
             <th>Updated</th>
         </tr>
-	{% for doc in processes %}
-    <tr>
-        <td class="search_tick"><input type="checkbox" name={{ doc.name|spacify }}></td>
-        <td class="search_name"><a class="link" href={% url "identipy_app:details" doc.id %}>{{ doc.name|spacify }}</a></td>
-        <td>{{ doc.date_added }}</td>
-        <td>{{ doc.get_status }}</td>
-        <td>{{ doc.get_last_update }}</td>
-    </tr>
-	{% endfor %}
+        {% for doc in processes %}
+        <tr data-sgid="{{ doc.id }}">
+            <td class="search_tick"><input type="checkbox" name={{ doc.name|spacify }}></td>
+            <td class="search_name"><a class="link" href={% url "identipy_app:details" doc.id %}>{{ doc.name|spacify }}</a></td>
+            <td>{{ doc.date_added }}</td>
+            <td>{{ doc.get_status }}</td>
+            <td>{{ doc.get_last_update }}</td>
+        </tr>
+        {% endfor %}
 	</table>
 </form>
 {% else %}
@@ -51,5 +50,12 @@
 {% endif %}
 <div id="status_back" class="centered"><a class="backbtn" href="{% url 'identipy_app:searchpage' %}">Start a new search run</a></div>
 
+{% endblock %}
 
+{% block scripts %}
+<script>
+    var statusRequestUrl = "{% url 'identipy_app:groupstatus' 0 %}".split('/').slice(0, -2).join('/') + '/';
+    console.log(statusRequestUrl);
+</script>
+<script src="{% static 'script/status.js' %}"></script>
 {% endblock %}
