@@ -1,0 +1,5 @@
+table tr[data-sgid] td.group_status {
+    background-image: linear-gradient(to right, rgba(0, 150, 0, 1) 0%, rgba(0, 175, 0, 1) 17%, rgba(0, 190, 0, 1) 33%, rgba(82, 210, 82, 1) 67%, rgba(131, 230, 131, 1) 83%, rgba(180, 221, 180, 1) 100%);
+    background-repeat: no-repeat;
+    background-size: 0% 100%;
+}

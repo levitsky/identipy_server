@@ -1,8 +1,11 @@
 {% extends "identipy_app/base.html" %}
-{% block title %}Search History{% endblock%}
-{% block content %}
 {% load stringfilter %}
 {% load staticfiles %}
+{% block title %}Search History{% endblock%}
+{% block bodytop %}
+<link rel="stylesheet" media="screen" type="text/css" href="{% static 'css/status.css' %}" />
+{% endblock %}
+{% block content %}
 
 {% if processes %}
 <div class="vert_block">
@@ -39,8 +42,8 @@
             <td class="search_tick"><input type="checkbox" name={{ doc.name|spacify }}></td>
             <td class="search_name"><a class="link" href={% url "identipy_app:details" doc.id %}>{{ doc.name|spacify }}</a></td>
             <td>{{ doc.date_added }}</td>
-            <td>{{ doc.get_status }}</td>
-            <td>{{ doc.get_last_update }}</td>
+            <td class="group_status">{{ doc.get_status }}</td>
+            <td class="last_update">{{ doc.get_last_update }}</td>
         </tr>
         {% endfor %}
 	</table>
