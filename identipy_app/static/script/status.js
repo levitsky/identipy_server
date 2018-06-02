@@ -40,11 +40,13 @@ function statusUpdate () {
 }
 
 function updateOneRow (tr) {
-    var stext = getText(tr);
     $.getJSON(statusRequestUrl + tr.getAttribute('data-sgid') + '/', function (data) {
         tr.children[3].textContent = data.status;
         tr.children[4].textContent = data.updated;
+        var progress = data.done / data.total * 100;
+        tr.children[3].style.backgroundSize = progress + '% 100%';
     });
+
     return isRunning(getText(tr));
 }
 

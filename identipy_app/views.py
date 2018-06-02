@@ -1065,5 +1065,7 @@ def group_status(requesti, sgid):
     sg = get_object_or_404(SearchGroup, id=sgid)
     return JsonResponse({
         'status': sg.get_status(),
-        'updated': Template('{{ date }}').render(Context({'date': sg.get_last_update()}))
-        })
+        'updated': Template('{{ date }}').render(Context({'date': sg.get_last_update()})),
+        'done': sum(r.status == SearchRun.FINISHED for r in sg.searchrun_set.all()),
+        'total': len(sg.searchrun_set.all())
+            })
