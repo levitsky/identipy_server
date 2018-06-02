@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.db.models import Max, Min, Sum
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
+from django.template import Template, Context
 import django.db
 
 from django.conf import settings
@@ -1062,4 +1063,7 @@ def getfiles(request, usedclass=False):
 
 def group_status(requesti, sgid):
     sg = get_object_or_404(SearchGroup, id=sgid)
-    return JsonResponse({'status': sg.get_status()})
+    return JsonResponse({
+        'status': sg.get_status(),
+        'updated': Template('{{ date }}').render(Context({'date': sg.get_last_update()}))
+        })
