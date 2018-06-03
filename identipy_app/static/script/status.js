@@ -5,7 +5,7 @@ function getText(el) {
 }
 
 function isRunning(text) {
-    return (text != 'Finished' && text != 'Dead');
+    return (text != 'Finished' && text != 'Dead' && text.slice(-4) != 'dead');
 }
 
 function statusUpdate () {
