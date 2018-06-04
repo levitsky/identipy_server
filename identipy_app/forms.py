@@ -34,8 +34,8 @@ class SubmitButtonWidget(forms.Widget):
     def render5(self, name):
         return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (html.escape(name.split('OS=')[0]), html.escape(name))
 
-    def render6(self, dbname, show_type, value):
-        return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s">%s</a>' % (reverse("identipy_app:show"), dbname, show_type, value)
+    def render6(self, dbname, show_type, runid, value):
+        return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (reverse("identipy_app:show"), dbname, show_type, runid, value)
 
 
 class SubmitButtonField(forms.Field):

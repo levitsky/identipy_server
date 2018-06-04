@@ -45,7 +45,7 @@ sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, ResultsDetailed, get_size, process_LFQ
+from .aux import save_mods, save_params_new, get_size, process_LFQ
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
@@ -114,7 +114,7 @@ def details(request, pK):
     return render(request, 'identipy_app/details.html', {'document': doc})
 
 def delete(request, usedclass):
-    usedname=usedclass.__name__
+    usedname = usedclass.__name__
     documents = usedclass.objects.filter(user=request.user)
     cc = []
     for doc in documents:
@@ -139,10 +139,7 @@ def logout_view(request):
     return redirect('identipy_app:index')
 
 def loginview(request):
-    c = {}
-    c['message'] = request.session.get('message')
-
-    c['current'] = 'loginform'
+    c = {'current': 'loginform'}
     return render(request, 'identipy_app/login.html', c)
 
 def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app:loginform'):
@@ -153,7 +150,7 @@ def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app
         messages.add_message(request, messages.INFO, 'Login successful.')
         return redirect(onsuccess)
     else:
-        request.session['message'] = 'Wrong username or password'
+        messages.add_message(request, messages.INFO, 'Wrong username or password.')
         return redirect(onfail)
 
 
@@ -891,26 +888,24 @@ def runidentipy(request):
         messages.add_message(request, messages.INFO, failure)
         return redirect('identipy_app:searchpage')
 
-def search_details(request, pk, c={}):
-    runobj = get_object_or_404(SearchGroup, id=pk)
-    request.session['searchgroupid'] = runobj.id
-    c.update({'searchgroup': runobj})
-    sruns = SearchRun.objects.filter(searchgroup_id=runobj.id)
-    if sruns.count() == 1:
-        request.session['searchrunid'] = sruns[0].id
+def search_details(request, pk):
+    group = get_object_or_404(SearchGroup, id=pk)
+    c = {'searchgroup': group}
+    sruns = group.searchrun_set.all()
+    if len(sruns) == 1:
+#       request.session['searchrunid'] = sruns[0].id
         return redirect('identipy_app:figure', sruns[0].id)
     return render(request, 'identipy_app/results.html', c)
 
 def results_figure(request, pk):
-    c = {}
     runobj = get_object_or_404(SearchRun, id=pk)
-    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup})
+    c = {'searchrun': runobj, 'searchgroup': runobj.searchgroup}
     return render(request, 'identipy_app/results_figure.html', c)
 
 
 def showparams(request):
     c = {}
-    searchgroupid = request.session.get('searchgroupid')
+    searchgroupid = request.GET.get('group')
     runobj = get_object_or_404(SearchGroup, id=searchgroupid)
     params_file = runobj.parameters
     raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -939,16 +934,16 @@ def show(request):
     elif not dbname:
         dbname = request.session.get('dbname', '')
     request.session['show_type'] = ftype
-    runid = request.GET.get('runid', request.session.get('searchrunid'))
-    request.session['searchrunid'] = runid
-    searchgroupid = request.session.get('searchgroupid')
+    runid = request.GET.get('runid')
+#   request.session['searchrunid'] = runid
+#   searchgroupid = request.session.get('searchgroupid')
     order_by_label = request.GET.get('order_by', '')
     order_reverse = request.session.get('order_reverse', False)
     order_reverse = not order_reverse if order_by_label == request.session.get('order_by') else order_reverse
     request.session['order_reverse'] = order_reverse
     request.session['order_by'] = order_by_label
-    django.db.connection.close()
-    runobj = SearchRun.objects.get(id=runid, searchgroup_id=searchgroupid)
+#   django.db.connection.close()
+    runobj = get_object_or_404(SearchRun, id=runid)
     res_dict = runobj.get_detailed(ftype=ftype)
     if order_by_label:
         dbname = request.session.get('dbname', '')
@@ -957,7 +952,7 @@ def show(request):
         request.session['dbname'] = dbname
         res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
-    sname = 'whitelabels' + ' ' + ftype
+    sname = 'whitelabels ' + ftype
     if request.POST.get('choices'):
         res_dict.labelform = forms.MultFilesForm(request.POST, custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
         if res_dict.labelform.is_valid():
@@ -970,10 +965,10 @@ def show(request):
     res_dict.labelform = forms.MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()
     c.update({'results_detailed': res_dict})
-    runobj = SearchRun.objects.get(id=runid, searchgroup_id=searchgroupid)
-    c.update({'searchrun': runobj, 'searchgroup': runobj.searchgroup})
+#   runobj = SearchRun.objects.get(id=runid)
+    c.update({'searchrun': runobj})
 
-    if request.GET.get('download_custom_csv', ''):
+    if request.GET.get('download_custom_csv'):
         tmpfile_name = runobj.searchgroup.groupname + '_' + runobj.name() + '_' + ftype + 's_selectedfields.tsv'
         tmpfile = tempfile.NamedTemporaryFile(mode='w', prefix='tmp', delete=False)
         tmpfile.write('\t'.join(res_dict.get_labels()) + '\n')
@@ -1009,12 +1004,13 @@ def getfiles(request, usedclass=False):
         zip_subdir = 'down_files'
     elif request.method == 'GET':
         down_type = request.GET['down_type']
-        searchgroupid = request.session.get('searchgroupid')
-        searchgroup = SearchGroup.objects.get(id=searchgroupid)
-        runid = request.GET.get('runid')
+        runid = request.GET.get('run')
         if runid is not None:
-            runs = [SearchRun.objects.get(id=runid)]
+            run = get_object_or_404(SearchRun, id=runid)
+            runs = [run]
+            searchgroup = run.searchgroup
         else:
+            searchgroup = get_object_or_404(SearchGroup, request.GET.get('group'))
             runs = searchgroup.get_searchruns_all()
         for searchrun in runs:
             if down_type == 'csv':

@@ -129,9 +129,10 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
     return paramobj
 
 class ResultsDetailed():
-    def __init__(self, ftype, path_to_csv):
+    def __init__(self, ftype, path_to_csv, runid):
         self.ftype = ftype
         self.order_by_revers = False
+        self.runid = runid
         with open(path_to_csv, "r") as cf:
             reader = csv.reader(cf, delimiter='\t')
             self.labels = reader.next()
@@ -155,11 +156,11 @@ class ResultsDetailed():
         elif self.ftype == 'protein' and name == 'description':
             return forms.SubmitButtonField(label="", initial="").widget.render5(value)
         elif self.ftype == 'protein' and name == 'PSMs':
-            return forms.SubmitButtonField(label="", initial="").widget.render6(dbname, 'psm', value)
+            return forms.SubmitButtonField(label="", initial="").widget.render6(dbname, 'psm', self.runid, value)
         elif self.ftype == 'protein' and name == 'peptides':
-            return forms.SubmitButtonField(label="", initial="").widget.render6(dbname, 'peptide', value)
+            return forms.SubmitButtonField(label="", initial="").widget.render6(dbname, 'peptide', self.runid, value)
         elif self.ftype == 'peptide' and name == 'sequence':
-            return forms.SubmitButtonField(label="", initial="").widget.render6(value, 'psm', value)
+            return forms.SubmitButtonField(label="", initial="").widget.render6(value, 'psm', self.runid, value)
         else:
             return value
 

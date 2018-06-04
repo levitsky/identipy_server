@@ -20,9 +20,9 @@
             <tr>
             <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
             {% if searchrun.numPSMs %}
-            <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{searchrun.id}}&show_type=psm">{{ searchrun.numPSMs }}</a></td>
-                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{searchrun.id}}&show_type=peptide">{{ searchrun.numPeptides }}</a></td>
-                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{searchrun.id}}&show_type=protein">{{ searchrun.numProteins }}</a></td>
+            <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=psm">{{ searchrun.numPSMs }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=peptide">{{ searchrun.numPeptides }}</a></td>
+                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=protein">{{ searchrun.numProteins }}</a></td>
 		    {% else %}
                 <td class="td2">{{ searchrun.numPSMs }}</td>
                 <td class="td2">{{ searchrun.numPeptides }}</td>
@@ -41,13 +41,13 @@
     	{% if searchrun.totalPSMs %}
         <div id="colored" class="centered">
             Download:
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&runid={{searchrun.id}}">CSV files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&runid={{searchrun.id}}">pepXML files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&runid={{searchrun.id}}&filtered=true">filtered pepXML files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&runid={{searchrun.id}}">MGF files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&runid={{searchrun.id}}">PNG figures</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&runid={{searchrun.id}}">SVG figures</a>
-        <a class="btn" href="{% url 'identipy_app:showparams' %}">show parameters</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&run={{ searchrun.id }}">CSV files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&run={{ searchrun.id }}">pepXML files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&run={{ searchrun.id }}&filtered=true">filtered pepXML files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&run={{ searchrun.id }}">MGF files</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&run={{ searchrun.id }}">PNG figures</a>
+        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&run={{ searchrun.id }}">SVG figures</a>
+        <a class="btn" href="{% url 'identipy_app:showparams' %}?group={{ searchgroup.id }}">show parameters</a>
         </div>
         <div class = "vert_block" >
 			<div id="img_list">
