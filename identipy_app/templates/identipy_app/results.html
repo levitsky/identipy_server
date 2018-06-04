@@ -4,55 +4,55 @@
 {% load stringfilter %}
         
         
-		{% if searchgroup %}
-            <p>Searches: {{searchgroup.groupname}}</p>
-            <table type="bordered">
-                <tr id="headings">
-                    <th>Search name</th>
-                    <th>MS/MS</th>
-                    <th>Unfiltered PSMs</th>
-                    <th>FDR, %</th>
-                    <th>FDR type</th>
-                    <th>PSMs</th>
-                    <th>Peptides</th>
-                    <th>Proteins</th>
-                </tr>
-            {% for searchrun in searchgroup.get_searchruns_all %}
-                <tr>
-                <td><a class="td1" style="word-break:break-word" href="{% url 'identipy_app:figure' searchrun.id %}" class="link" name="results_figure">{{ searchrun.name|spacify }}</a></td>
-                <td class="td2">{{ searchrun.numMSMS }}</td>
-                <td class="td2">{{ searchrun.totalPSMs }}</td>
-                <td class="td2">{{ searchrun.searchgroup.fdr_level }}</td>
-                <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
-                {% if searchrun.numPSMs %}
-                    <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=psm&runid={{ searchrun.id }}">{{ searchrun.numPSMs }}</a></td>
-                    <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=peptide&runid={{ searchrun.id }}">{{ searchrun.numPeptides }}</a></td>
-                    <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=protein&runid={{ searchrun.id }}">{{ searchrun.numProteins }}</a></td>
-                {% else %}
-                    <td class="td2">{{ searchrun.numPSMs }}</td>
-                    <td class="td2">{{ searchrun.numPeptides }}</td>
-                    <td class="td2">{{ searchrun.numProteins }}</td>
-                {% endif %}
-                </tr>
-            {% endfor %}
-            </table>
-		{% else %}
-			<p>There are no searches.</p>
-		{% endif %}
+{% if searchgroup %}
+    <p>Searches: {{searchgroup.groupname}}</p>
+    <table type="bordered">
+        <tr id="headings">
+            <th>Search name</th>
+            <th>MS/MS</th>
+            <th>Unfiltered PSMs</th>
+            <th>FDR, %</th>
+            <th>FDR type</th>
+            <th>PSMs</th>
+            <th>Peptides</th>
+            <th>Proteins</th>
+        </tr>
+        {% for searchrun in searchgroup.get_searchruns_all %}
+        <tr>
+        <td><a class="td1" style="word-break:break-word" href="{% url 'identipy_app:figure' searchrun.id %}" class="link" name="results_figure">{{ searchrun.name|spacify }}</a></td>
+        <td class="td2">{{ searchrun.numMSMS }}</td>
+        <td class="td2">{{ searchrun.totalPSMs }}</td>
+        <td class="td2">{{ searchrun.searchgroup.fdr_level }}</td>
+        <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
+        {% if searchrun.numPSMs %}
+            <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=psm&runid={{ searchrun.id }}">{{ searchrun.numPSMs }}</a></td>
+            <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=peptide&runid={{ searchrun.id }}">{{ searchrun.numPeptides }}</a></td>
+            <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?show_type=protein&runid={{ searchrun.id }}">{{ searchrun.numProteins }}</a></td>
+        {% else %}
+            <td class="td2">{{ searchrun.numPSMs }}</td>
+            <td class="td2">{{ searchrun.numPeptides }}</td>
+            <td class="td2">{{ searchrun.numProteins }}</td>
+        {% endif %}
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+	<p>There are no searches.</p>
+{% endif %}
 
-        <div id="colored" class="centered">
-            Download:
-            <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv">CSV files</a>
-            <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml">pepXML files</a>
-            <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&filtered=true">filtered pepXML files</a>
-            <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf">MGF files</a>
-            <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs">PNG figures</a>
-            <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg">SVG figures</a>
-            <a class="btn" href="{% url 'identipy_app:showparams' %}">show parameters</a>
-        </div> 
-        
-        <div id="get_status" class="centered">
-          <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
-        </div>
-        
+<div id="colored" class="centered">
+    Download:
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&group={{ searchgroup.id }}">CSV files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&group={{ searchgroup.id }}">pepXML files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&filtered=true&group={{ searchgroup.id }}">filtered pepXML files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&group={{ searchgroup.id }}">MGF files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&group={{ searchgroup.id }}">PNG figures</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&group={{ searchgroup.id }}">SVG figures</a>
+    <a class="btn" href="{% url 'identipy_app:showparams' %}?group={{ searchgroup.id }}">show parameters</a>
+</div> 
+
+<div id="get_status" class="centered">
+  <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
+</div>
+
 {% endblock %}

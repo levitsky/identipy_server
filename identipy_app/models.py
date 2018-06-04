@@ -384,7 +384,7 @@ class SearchRun(models.Model):
 
     def get_detailed(self, ftype):
         from aux import ResultsDetailed
-        rd = ResultsDetailed(ftype=ftype, path_to_csv=self.get_csvfiles_paths(ftype=ftype)[0])
+        rd = ResultsDetailed(ftype=ftype, path_to_csv=self.get_csvfiles_paths(ftype=ftype)[0], runid=self.id)
         if ftype == 'protein':
             rd.custom_labels(['dbname', 'PSMs', 'peptides', 'LFQ(SIn)'])
         elif ftype in ['peptide', 'psm']:
