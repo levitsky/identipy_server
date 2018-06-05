@@ -64,14 +64,14 @@ Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|
    <table class="header" id="processes_list" type="bordered">
         <tr class="headers">
         {% for label in results_detailed.get_labels %}
-        <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}">{{ label|spacify }}</a></th>
+        <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}&show_type={{ ftype }}">{{ label|spacify }}</a></th>
         {% endfor %}
         </tr>
     </table>
     <table class="dt" id="processes_list" type="bordered">
         <tr class="headers">
             {% for label in results_detailed.get_labels %}
-            <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}">{{ label|spacify }}</a></th>
+            <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}&show_type={{ ftype }}">{{ label|spacify }}</a></th>
             {% endfor %}
         </tr>
     {% for prot in results_detailed.get_values %}
@@ -88,11 +88,7 @@ Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|
 {% endif %}
 
 <div id="get_status" class="centered">
-    <form action="" method="post">{% csrf_token %}
-        <h2><a class="btn" href="{% url 'identipy_app:show' %}?download_custom_csv=true&runid={{ searchrun.id }}">Download table</a></h2>
-        <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup.id }}>
-    </form>
+    <h2><a class="btn" href="{% url 'identipy_app:show' %}?download_custom_csv=true&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}&show_type={{ ftype }}">Download table</a></h2>
 </div>
 {% endblock %}
    
