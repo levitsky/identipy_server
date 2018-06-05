@@ -441,7 +441,7 @@ table[type="bordered"]{
     border-radius:5px; 
 }
 
-#headers{
+.headers{
     font-size:1.3em;
     text-align:center;
     text-decoration:bold; 

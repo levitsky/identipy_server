@@ -928,16 +928,17 @@ def showparams(request):
 def show(request):
     c = {}
     ftype = request.GET.get('show_type', request.session.get('show_type'))
-    dbname = request.GET.get('dbname', '')
-    if (not dbname and ftype != request.session.get('show_type', '')) and not request.GET.get('download_custom_csv', ''):
-        request.session['dbname'] = ''
-    elif not dbname:
-        dbname = request.session.get('dbname', '')
+    c['ftype'] = ftype
+    dbname = request.GET.get('dbname')
+#   if (not dbname and ftype != request.session.get('show_type', '')) and not request.GET.get('download_custom_csv'):
+#       request.session['dbname'] = ''
+#   elif not dbname:
+#       dbname = request.session.get('dbname', '')
     request.session['show_type'] = ftype
     runid = request.GET.get('runid')
 #   request.session['searchrunid'] = runid
 #   searchgroupid = request.session.get('searchgroupid')
-    order_by_label = request.GET.get('order_by', '')
+    order_by_label = request.GET.get('order_by')
     order_reverse = request.session.get('order_reverse', False)
     order_reverse = not order_reverse if order_by_label == request.session.get('order_by') else order_reverse
     request.session['order_reverse'] = order_reverse
@@ -946,10 +947,11 @@ def show(request):
     runobj = get_object_or_404(SearchRun, id=runid)
     res_dict = runobj.get_detailed(ftype=ftype)
     if order_by_label:
-        dbname = request.session.get('dbname', '')
+#       dbname = request.session.get('dbname', '')
         res_dict.custom_order(order_by_label, order_reverse)
     if dbname:
-        request.session['dbname'] = dbname
+        c['dbname'] = dbname
+#       request.session['dbname'] = dbname
         res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
     sname = 'whitelabels ' + ftype
