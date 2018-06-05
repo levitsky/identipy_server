@@ -61,31 +61,27 @@ Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|
 </form>
 
 <div class="mega">
-    <form action="" method="post">{% csrf_token %}
-        <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
-        <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup.id }}>
-        <table class="header" id="processes_list" type="bordered">
-            <tr class="headers">
+   <table class="header" id="processes_list" type="bordered">
+        <tr class="headers">
+        {% for label in results_detailed.get_labels %}
+        <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}">{{ label|spacify }}</a></th>
+        {% endfor %}
+        </tr>
+    </table>
+    <table class="dt" id="processes_list" type="bordered">
+        <tr class="headers">
             {% for label in results_detailed.get_labels %}
             <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}">{{ label|spacify }}</a></th>
             {% endfor %}
-            </tr>
-        </table>
-        <table class="dt" id="processes_list" type="bordered">
-            <tr class="headers">
-                {% for label in results_detailed.get_labels %}
-                <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}">{{ label|spacify }}</a></th>
-                {% endfor %}
-            </tr>
-        {% for prot in results_detailed.get_values %}
-        <tr>
-            {% for val in prot %}
-            <td class="td2">{{ val }}</td>
-            {% endfor %}
         </tr>
+    {% for prot in results_detailed.get_values %}
+    <tr>
+        {% for val in prot %}
+        <td class="td2">{{ val }}</td>
         {% endfor %}
-        </table>
-    </form>
+    </tr>
+    {% endfor %}
+    </table>
 </div>
 {% else %}
 	<p>There are no searches</p>
@@ -96,7 +92,6 @@ Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|
         <h2><a class="btn" href="{% url 'identipy_app:show' %}?download_custom_csv=true&runid={{ searchrun.id }}">Download table</a></h2>
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup.id }}>
-
     </form>
 </div>
 {% endblock %}
