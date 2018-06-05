@@ -927,31 +927,22 @@ def showparams(request):
 
 def show(request):
     c = {}
-    ftype = request.GET.get('show_type', request.session.get('show_type'))
+    ftype = request.GET.get('show_type')
     c['ftype'] = ftype
     dbname = request.GET.get('dbname')
-#   if (not dbname and ftype != request.session.get('show_type', '')) and not request.GET.get('download_custom_csv'):
-#       request.session['dbname'] = ''
-#   elif not dbname:
-#       dbname = request.session.get('dbname', '')
     request.session['show_type'] = ftype
     runid = request.GET.get('runid')
-#   request.session['searchrunid'] = runid
-#   searchgroupid = request.session.get('searchgroupid')
     order_by_label = request.GET.get('order_by')
     order_reverse = request.session.get('order_reverse', False)
     order_reverse = not order_reverse if order_by_label == request.session.get('order_by') else order_reverse
     request.session['order_reverse'] = order_reverse
     request.session['order_by'] = order_by_label
-#   django.db.connection.close()
     runobj = get_object_or_404(SearchRun, id=runid)
     res_dict = runobj.get_detailed(ftype=ftype)
     if order_by_label:
-#       dbname = request.session.get('dbname', '')
         res_dict.custom_order(order_by_label, order_reverse)
     if dbname:
         c['dbname'] = dbname
-#       request.session['dbname'] = dbname
         res_dict.filter_dbname(dbname)
     labelname = 'Select columns for %ss' % (ftype, )
     sname = 'whitelabels ' + ftype
@@ -967,7 +958,6 @@ def show(request):
     res_dict.labelform = forms.MultFilesForm(custom_choices=zip(res_dict.labels, res_dict.labels), labelname=labelname, multiform=True)
     res_dict.labelform.fields['choices'].initial = res_dict.get_labels()
     c.update({'results_detailed': res_dict})
-#   runobj = SearchRun.objects.get(id=runid)
     c.update({'searchrun': runobj})
 
     if request.GET.get('download_custom_csv'):
