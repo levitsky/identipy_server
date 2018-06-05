@@ -1,7 +1,13 @@
 {% extends "identipy_app/base.html" %}
 {% load stringfilter %}
 {% load staticfiles %}
-{% block title %}Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
+{% block title %}
+{% if dbname %}
+{{ ftype }}s for {{ dbname }}
+{% else %}
+Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|spacify}}
+{% endif %}
+{% endblock%}
 {% block content %}
 
 <form action="" method="post">{% csrf_token %}
@@ -9,7 +15,7 @@
 <h2 style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup.id %}">{{ searchrun.searchgroup.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a></h2>
    
 <table id="processes_list" type="bordered">
-<tr id="headers">
+<tr class="headers">
     <th>Search name</th>
     <th>PSMs</th>
     <th>Peptides</th>
@@ -59,16 +65,16 @@
         <input type="hidden" name="results_figure_actualname" value={{ searchrun.runname|spacify }}>
         <input type="hidden" name="results_figure_searchgroupid" value={{ searchrun.searchgroup.id }}>
         <table class="header" id="processes_list" type="bordered">
-            <tr id="headers">
+            <tr class="headers">
             {% for label in results_detailed.get_labels %}
-            <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}">{{ label|spacify }}</a></th>
+            <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}">{{ label|spacify }}</a></th>
             {% endfor %}
             </tr>
         </table>
         <table class="dt" id="processes_list" type="bordered">
-            <tr id="headers">
+            <tr class="headers">
                 {% for label in results_detailed.get_labels %}
-                <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}">{{ label|spacify }}</a></th>
+                <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}">{{ label|spacify }}</a></th>
                 {% endfor %}
             </tr>
         {% for prot in results_detailed.get_values %}
