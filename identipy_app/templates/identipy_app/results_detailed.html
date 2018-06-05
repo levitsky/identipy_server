@@ -1,5 +1,6 @@
 {% extends "identipy_app/base.html" %}
 {% load stringfilter %}
+{% load staticfiles %}
 {% block title %}Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
 {% block content %}
 
@@ -92,16 +93,8 @@
 
     </form>
 </div>
+{% endblock %}
    
-<script>
-
-$(".header").width($(".dt").width());
-$header = $('.header');
-var x = $header.find('td');
-
-$('.mega').on('scroll',function(){$header.css('top',$(this).scrollTop());});
-$(".header tr th").each(function (i){
-       $(this).width($($(".dt tr:first th")[i]).width());
-})
-</script>
+{% block scripts %}
+<script src="{% static 'script/results_table.js' %}"></script>
 {% endblock %}
