@@ -312,8 +312,8 @@ class SearchRun(models.Model):
             return False
         MP_list = ['RT_difference_min',
                    'precursor_mass_difference_ppm',
-                   'fragment_mass_tolerance_da',
-                   'isotopes_mass_difference_da',
+                   'fragment_mass_tolerance_Da',
+                   'isotopes_mass_difference_Da',
                    'missed_cleavages_protease_1',
                    'PSM_count',
                    'PSMs_per_protein',
