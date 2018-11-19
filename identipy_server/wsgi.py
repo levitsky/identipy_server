@@ -118,6 +118,7 @@ t = threading.Thread(target=_socket_listener_worker,
 t.start()
 logger.info('MP-score logging initiated.')
 
-
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
+from identipy_app.management.commands import collectdead
+collectdead.Command().handle()
