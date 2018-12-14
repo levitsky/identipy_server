@@ -291,7 +291,7 @@ class SearchRun(models.Model):
         return distr_images
 
     def get_distrimagefiles(self, ftype='.png'):
-        distr_list = {'RT_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides'}
+        distr_list = {'RT_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides', 'aa_stats'}
         distr_images = [doc for doc in self.get_resimagefiles()
                 if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
         return distr_images
