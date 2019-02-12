@@ -1002,7 +1002,7 @@ def getfiles(request, usedclass=False):
             runs = [run]
             searchgroup = run.searchgroup
         else:
-            searchgroup = get_object_or_404(SearchGroup, request.GET.get('group'))
+            searchgroup = get_object_or_404(SearchGroup, pk=request.GET.get('group'))
             runs = searchgroup.get_searchruns_all()
         for searchrun in runs:
             if down_type == 'csv':
