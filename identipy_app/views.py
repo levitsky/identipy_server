@@ -995,6 +995,7 @@ def getfiles(request, usedclass=False):
                 logger.debug('Appending object: %s', obj.path())
         zip_subdir = 'down_files'
     elif request.method == 'GET':
+        by_group = False
         down_type = request.GET['down_type']
         runid = request.GET.get('run')
         if runid is not None:
@@ -1002,6 +1003,7 @@ def getfiles(request, usedclass=False):
             runs = [run]
             searchgroup = run.searchgroup
         else:
+            by_group = True
             searchgroup = get_object_or_404(SearchGroup, pk=request.GET.get('group'))
             runs = searchgroup.get_searchruns_all()
         for searchrun in runs:
@@ -1009,7 +1011,9 @@ def getfiles(request, usedclass=False):
                 for down_fn in searchrun.get_csvfiles_paths():
                     filenames.append(down_fn)
             elif down_type == 'pepxml':
-                filtered = bool(request.GET.get('filtered'))
+                filtered = request.GET.get('filtered') == 'true'
+                if by_group and searchrun.union and not filtered:
+                    continue
                 for down_fn in searchrun.get_pepxmlfiles_paths(filtered=filtered):
                     filenames.append(down_fn)
             elif down_type == 'mgf':
