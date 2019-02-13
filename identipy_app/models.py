@@ -325,8 +325,8 @@ class SearchRun(models.Model):
         return mp_images
     
     def get_pepxmlfiles(self, filtered=False):
-        if self.union:
-            return PepXMLFile.objects.filter(run__searchgroup=self.searchgroup, run__union=False, filtered=filtered)
+        if self.union and not filtered:
+            return PepXMLFile.objects.filter(run__searchgroup=self.searchgroup, run__union=False, filtered=False)
         return self.pepxmlfile_set.filter(filtered=filtered)
 
     def get_pepxmlfiles_paths(self, filtered=False):
