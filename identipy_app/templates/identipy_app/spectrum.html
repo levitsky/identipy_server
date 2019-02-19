@@ -1,0 +1,9 @@
+{% extends "identipy_app/base.html" %}
+{% block title %}{{ hit.spectrum }}{% endblock %}
+{% block content %}
+
+{{ result }}
+
+<img src="data:image/svg+xml;base64,{{ figure }}">
+
+{% endblock %}

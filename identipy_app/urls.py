@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^save/',             views.save_parameters,    name='save'),
     url(r'^email/',            views.email,              name='email'),
     url(r'^showparams/',       views.showparams,         name='showparams'),
+    url(r'^spectrum/',         views.spectrum,           name='spectrum'),
     url(r'^groupstatus/([0-9]+)/',
                                views.group_status,       name='groupstatus'),
 ]
