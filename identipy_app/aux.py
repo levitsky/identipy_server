@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 from django.core.files import File
 from time import time
 from django.conf import settings
@@ -9,9 +11,14 @@ csv.field_size_limit(10000000)
 sys.path.insert(0, '../identipy/')
 from identipy.utils import CustomRawConfigParser
 from django.utils.safestring import mark_safe
+from django.urls import reverse
 import numpy as np
 import pandas as pd
-from pyteomics import auxiliary as aux
+import pylab
+from io import BytesIO
+import base64
+from urllib import quote_plus
+from pyteomics import auxiliary as aux, pylab_aux
 
 def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     # lfq_type from ['NSAF', 'SIn', 'emPAI']:
@@ -133,7 +140,7 @@ class ResultsDetailed():
         self.ftype = ftype
         self.order_by_revers = False
         self.runid = runid
-        with open(path_to_csv, "r") as cf:
+        with open(path_to_csv) as cf:
             reader = csv.reader(cf, delimiter='\t')
             self.labels = reader.next()
             if self.labels[-1] == 'is decoy':
@@ -150,7 +157,7 @@ class ResultsDetailed():
             self.dbname = False
 
     def special_links(self, value, name, dbname):
-        import forms
+        from . import forms
         if self.ftype == 'protein' and name == 'dbname':
             return forms.SubmitButtonField(label="", initial="").widget.render3(value)
         elif self.ftype == 'protein' and name == 'description':
@@ -161,6 +168,9 @@ class ResultsDetailed():
             return forms.SubmitButtonField(label="", initial="").widget.render6(dbname, 'peptide', self.runid, value)
         elif self.ftype == 'peptide' and name == 'sequence':
             return forms.SubmitButtonField(label="", initial="").widget.render6(value, 'psm', self.runid, value)
+        elif name == 'spectrum':
+            return r'<a class="td2 link" href="{}?runid={}&spectrum={}">{}</a>'.format(reverse('identipy_app:spectrum'),
+                    self.runid, quote_plus(value), value)
         else:
             return value
 
@@ -203,3 +213,10 @@ class ResultsDetailed():
                             out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
                 yield out
 
+def spectrum_figure(*args, **kwargs):
+    pylab_aux.annotate_spectrum(*args, **kwargs)
+    figfile = BytesIO()
+    pylab.tight_layout()
+    pylab.savefig(figfile, format='svg')
+    data = base64.b64encode(figfile.getvalue())
+    return data

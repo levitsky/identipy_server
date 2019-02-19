@@ -61,14 +61,14 @@ Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|
 </form>
 
 <div class="mega">
-   <table class="header" id="processes_list" type="bordered">
+   <table class="header processes_list" type="bordered">
         <tr class="headers">
         {% for label in results_detailed.get_labels %}
         <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}&show_type={{ ftype }}">{{ label|spacify }}</a></th>
         {% endfor %}
         </tr>
     </table>
-    <table class="dt" id="processes_list" type="bordered">
+    <table class="dt processes_list" type="bordered">
         <tr class="headers">
             {% for label in results_detailed.get_labels %}
             <th><a class="link" href="{% url 'identipy_app:show' %}?order_by={{ label|spacify }}&runid={{ searchrun.id }}{% if dbname %}&dbname={{ dbname }}{% endif %}&show_type={{ ftype }}">{{ label|spacify }}</a></th>

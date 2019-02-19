@@ -35,17 +35,18 @@ import urllib
 import urlparse
 import glob
 import gzip
+from urllib import unquote_plus
 import logging
 logger = logging.getLogger(__name__)
 
-from pyteomics import parser, mass
+from pyteomics import parser, mass, pepxml, mgf, mzml, pylab_aux
 os.chdir(settings.BASE_DIR)
 sys.path.insert(0, '../identipy/')
 sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, get_size, process_LFQ
+from .aux import save_mods, save_params_new, get_size, process_LFQ, spectrum_figure
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
@@ -1053,11 +1054,26 @@ def getfiles(request, usedclass=False):
     logger.debug('Returning response with %s.', zip_filename)
     return resp
 
-def group_status(requesti, sgid):
+def group_status(request, sgid):
     sg = get_object_or_404(SearchGroup, id=sgid)
     return JsonResponse({
         'status': sg.get_status(),
         'updated': Template('{{ date }}').render(Context({'date': sg.get_last_update()})),
         'done': sum(r.status == SearchRun.FINISHED for r in sg.searchrun_set.all()),
         'total': len(sg.searchrun_set.all())
-            })
+        })
+
+def spectrum(request):
+    title = unquote_plus(request.GET['spectrum'])
+    run = get_object_or_404(SearchRun, pk=request.GET['runid'])
+    assert not run.union
+    pepname = run.get_pepxmlfiles_paths()[0]
+    with pepxml.PepXML(pepname) as reader:
+        result = reader[title]
+    specfile = run.spectra.docfile.path
+    klass = {'.mgf': mgf.IndexedMGF, '.mzml': mzml.MzML}[os.path.splitext(specfile)[1].lower()]
+    with klass(specfile, read_charges=False) as reader:
+        spectrum = reader[title]
+    context = {'result': result, 'figure': spectrum_figure(spectrum, result['search_hit'][0]['peptide']).decode('utf-8')}
+    return render(request, 'identipy_app/spectrum.html', context)
+
