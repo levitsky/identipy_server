@@ -2,9 +2,9 @@
 from django import forms
 from collections import OrderedDict
 from django.urls import reverse
-from django.utils import html
 from django.utils.safestring import mark_safe
 from django.conf import settings
+from django.utils import html
 import os
 os.chdir(settings.BASE_DIR)
 

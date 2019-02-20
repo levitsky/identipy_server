@@ -1,24 +1,29 @@
 import matplotlib
 matplotlib.use('Agg')
-from django.core.files import File
-from time import time
-from django.conf import settings
 import os
-os.chdir(settings.BASE_DIR)
 import sys
 import csv
-csv.field_size_limit(10000000)
-sys.path.insert(0, '../identipy/')
-from identipy.utils import CustomRawConfigParser
-from django.utils.safestring import mark_safe
-from django.urls import reverse
 import numpy as np
 import pandas as pd
 import pylab
 from io import BytesIO
 import base64
 from urllib import quote_plus
+from time import time
+
+from django.core.files import File
+from django.conf import settings
+from django.utils.safestring import mark_safe
+from django.urls import reverse
+from django.shortcuts import get_object_or_404
+from django.utils import html
+
 from pyteomics import auxiliary as aux, pylab_aux
+sys.path.insert(0, '../identipy/')
+from identipy.utils import CustomRawConfigParser
+os.chdir(settings.BASE_DIR)
+csv.field_size_limit(10000000)
+
 
 def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     # lfq_type from ['NSAF', 'SIn', 'emPAI']:
@@ -137,9 +142,11 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
 
 class ResultsDetailed():
     def __init__(self, ftype, path_to_csv, runid):
+        from .models import SearchRun
         self.ftype = ftype
         self.order_by_revers = False
         self.runid = runid
+        self.union = get_object_or_404(SearchRun, pk=runid).union
         with open(path_to_csv) as cf:
             reader = csv.reader(cf, delimiter='\t')
             self.labels = reader.next()
@@ -158,17 +165,22 @@ class ResultsDetailed():
 
     def special_links(self, value, name, dbname):
         from . import forms
+        types = {'PSMs': 'psm', 'peptides': 'peptide'}
         if self.ftype == 'protein' and name == 'dbname':
-            return forms.SubmitButtonField(label="", initial="").widget.render3(value)
+            try:
+                return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (
+                        html.escape(name).split('|')[1], html.escape(value))
+            except IndexError:
+                return html.escape(value)
         elif self.ftype == 'protein' and name == 'description':
-            return forms.SubmitButtonField(label="", initial="").widget.render5(value)
-        elif self.ftype == 'protein' and name == 'PSMs':
-            return forms.SubmitButtonField(label="", initial="").widget.render6(dbname, 'psm', self.runid, value)
-        elif self.ftype == 'protein' and name == 'peptides':
-            return forms.SubmitButtonField(label="", initial="").widget.render6(dbname, 'peptide', self.runid, value)
+            return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (
+                    html.escape(name.split('OS=')[0]), html.escape(name))
+        elif self.ftype == 'protein' and name in types:
+            return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (
+                    reverse("identipy_app:show"), dbname, types[name], self.runid, value)
         elif self.ftype == 'peptide' and name == 'sequence':
-            return forms.SubmitButtonField(label="", initial="").widget.render6(value, 'psm', self.runid, value)
-        elif name == 'spectrum':
+            return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (reverse("identipy_app:show"), dbname, 'psm', self.runid, value)
+        elif name == 'spectrum' and not self.union:
             return r'<a class="td2 link" href="{}?runid={}&spectrum={}">{}</a>'.format(reverse('identipy_app:spectrum'),
                     self.runid, quote_plus(value), value)
         else:
