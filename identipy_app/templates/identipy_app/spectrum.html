@@ -1,9 +1,27 @@
 {% extends "identipy_app/base.html" %}
-{% block title %}{{ hit.spectrum }}{% endblock %}
+{% block title %}{{ result.spectrum }}{% endblock %}
 {% block content %}
 
-{{ result }}
+{% with hit=result.search_hit.0 %}
+{% with scores=hit.search_score %}
+<table id='psm'>
+    <tr><td>spectrum</td><td>{{ result.spectrum }}</td></tr>
+    <tr><td>peptide</td><td><span class='prev_aa'>{{ hit.proteins.0.peptide_prev_aa }}.</span><span class='peptide'>{{ hit.modified_peptide }}</span><span class='next_aa'>.{{ hit.proteins.0.peptide_next_aa }}</span></td></tr>
+    <tr><td>precursor measured mass</td><td>{{ result.precursor_neutral_mass | floatformat:3 }}</td></tr>
+    <tr><td>precursor mass error</td><td>{{ hit.massdiff | floatformat:3 }}</td></tr>
+    <tr><td>assigned charge state</td><td>{{ result.assumed_charge }}</td></tr>
+    <tr><td>retention time</td><td>{{ result.retention_time_sec | floatformat }} sec</td></tr>
+    <tr><td>missed cleavage sites</td><td>{{ hit.num_missed_cleavages }}</td></tr>
+    {% for name, value in scores.items %}
+    {% if "matched" in name %}
+    <tr><td>{{ name }}</td><td>{{ value | floatformat:0 }}</td></tr>
+    {% endif %}
+    {% endfor %}
+</table>
 
-<img src="data:image/svg+xml;base64,{{ figure }}">
+<!-- {{ result }} -->
 
+<img class='spectrum' src="data:image/svg+xml;base64,{{ figure }}">
+{% endwith %}
+{% endwith %}
 {% endblock %}

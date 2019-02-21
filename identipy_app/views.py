@@ -1064,16 +1064,29 @@ def group_status(request, sgid):
         })
 
 def spectrum(request):
+    def save_offsets(reader):
+        if isinstance(reader, mgf.IndexedMGF):
+            return
+        try:
+            if not reader._check_has_byte_offset_file():
+                reader.write_byte_offsets()
+        except AttributeError as e:
+            logger.warning('Could not save %s index. Is Pyteomics 4.1+ installed?', reader.__class__.__name__)
+            logger.debug('%s', e)
+
     title = unquote_plus(request.GET['spectrum'])
     run = get_object_or_404(SearchRun, pk=request.GET['runid'])
     assert not run.union
     pepname = run.get_pepxmlfiles_paths()[0]
     with pepxml.PepXML(pepname) as reader:
         result = reader[title]
+        save_offsets(reader)
     specfile = run.spectra.docfile.path
+
     klass = {'.mgf': mgf.IndexedMGF, '.mzml': mzml.MzML}[os.path.splitext(specfile)[1].lower()]
     with klass(specfile, read_charges=False) as reader:
         spectrum = reader[title]
+        save_offsets(reader)
     context = {'result': result, 'figure': spectrum_figure(spectrum, result['search_hit'][0]['peptide']).decode('utf-8')}
     return render(request, 'identipy_app/spectrum.html', context)
 
