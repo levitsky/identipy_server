@@ -579,3 +579,35 @@ div.select{
 #process_list td.search_name {
     word-break: break-all;
 }
+
+/* spectrum view */
+img.spectrum {
+    max-width: 50%;
+}
+
+.psmtable {
+    margin: auto;
+
+}
+
+.psmtable td {
+    padding: 3px;
+}
+
+.psmtable tr:not(:last-child) td {
+    border-bottom: 1px solid #999999;
+}
+
+.psmtable td:first-child {
+    text-align: right;
+    border-right: 1px solid #999999;
+    padding-right: 5px;
+}
+
+.psmtable span.prev_aa {
+    color: blue;
+}
+
+.psmtable span.next_aa {
+    color: red;
+}
