@@ -4,7 +4,7 @@
 
 {% with hit=result.search_hit.0 %}
 {% with scores=hit.search_score %}
-<table id='psm'>
+<table class='psmtable'>
     <tr><td>spectrum</td><td>{{ result.spectrum }}</td></tr>
     <tr><td>peptide</td><td><span class='prev_aa'>{{ hit.proteins.0.peptide_prev_aa }}.</span><span class='peptide'>{{ hit.modified_peptide }}</span><span class='next_aa'>.{{ hit.proteins.0.peptide_next_aa }}</span></td></tr>
     <tr><td>precursor measured mass</td><td>{{ result.precursor_neutral_mass | floatformat:3 }}</td></tr>

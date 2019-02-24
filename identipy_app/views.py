@@ -1087,6 +1087,11 @@ def spectrum(request):
     with klass(specfile, read_charges=False) as reader:
         spectrum = reader[title]
         save_offsets(reader)
-    context = {'result': result, 'figure': spectrum_figure(spectrum, result['search_hit'][0]['peptide']).decode('utf-8')}
+    
+    figure = spectrum_figure(spectrum,
+            result['search_hit'][0]['modified_peptide'],
+            title=result['search_hit'][0]['modified_peptide'],
+            )
+    context = {'result': result, 'figure': figure.decode('utf-8')}
     return render(request, 'identipy_app/spectrum.html', context)
 
