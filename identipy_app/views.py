@@ -1095,6 +1095,7 @@ def spectrum(request):
             aa_mass[key] = value + aa_mass['protein cterm cleavage']
         elif key[-1] == '-':
             aa_mass[key] = value + aa_mass['protein nterm cleavage']
+    ftol = idsettings.getfloat('search', 'product accuracy')
     modseq = parser.parse(result['search_hit'][0]['peptide'])
     seqshift = -1
     for mod in result['search_hit'][0]['modifications']:
@@ -1115,9 +1116,7 @@ def spectrum(request):
                     key=lambda i: abs(i[1]-mod['mass']))[0]
                 modseq[mod['position']+seqshift] = label
     modseq = parser.tostring(modseq, True)
-    figure = spectrum_figure(spectrum, modseq,
-            title=modseq,
-            aa_mass=aa_mass)
+    figure = spectrum_figure(spectrum, modseq, title=modseq, aa_mass=aa_mass, ftol=ftol)
     context = {'result': result, 'figure': figure.decode('utf-8')}
     return render(request, 'identipy_app/spectrum.html', context)
 
