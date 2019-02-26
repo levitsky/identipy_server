@@ -1082,16 +1082,42 @@ def spectrum(request):
         result = reader[title]
         save_offsets(reader)
     specfile = run.spectra.docfile.path
-
+    idsettings = main.settings(run.searchgroup.parameters.path())
+    utils.set_mod_dict(idsettings)
     klass = {'.mgf': mgf.IndexedMGF, '.mzml': mzml.MzML}[os.path.splitext(specfile)[1].lower()]
     with klass(specfile, read_charges=False) as reader:
         spectrum = reader[title]
         save_offsets(reader)
-    
-    figure = spectrum_figure(spectrum,
-            result['search_hit'][0]['modified_peptide'],
-            title=result['search_hit'][0]['modified_peptide'],
-            )
+    aa_mass = utils.get_aa_mass(idsettings)
+    # fix masses of terminal mods
+    for key, value in aa_mass.items():
+        if key[0] == '-':
+            aa_mass[key] = value + aa_mass['protein cterm cleavage']
+        elif key[-1] == '-':
+            aa_mass[key] = value + aa_mass['protein nterm cleavage']
+    modseq = parser.parse(result['search_hit'][0]['peptide'])
+    seqshift = -1
+    for mod in result['search_hit'][0]['modifications']:
+        pos = mod['position']
+        if pos == 0:
+            label = min([i for i in aa_mass.items() if i[0][-1] == '-'],
+                    key=lambda i: abs(i[1]+aa_mass['protein nterm cleavage']-mod['mass']))[0]
+            modseq.insert(0, label)
+            seqshift = 0
+        elif pos == len(result['search_hit'][0]['peptide']):
+            label = min([i for i in aa_mass.items() if i[0][0] == '-'],
+                    key=lambda i: abs(i[1]+aa_mass['protein cterm cleavage']-mod['mass']))[0]
+            modseq.append(label)
+        else:
+            aa = modseq[mod['position']+seqshift]
+            if abs(aa_mass[aa] - mod['mass']) > 0.001:
+                label = min([i for i in aa_mass.items() if i[0][-1] == aa],
+                    key=lambda i: abs(i[1]-mod['mass']))[0]
+                modseq[mod['position']+seqshift] = label
+    modseq = parser.tostring(modseq, True)
+    figure = spectrum_figure(spectrum, modseq,
+            title=modseq,
+            aa_mass=aa_mass)
     context = {'result': result, 'figure': figure.decode('utf-8')}
     return render(request, 'identipy_app/spectrum.html', context)
 
