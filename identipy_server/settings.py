@@ -92,6 +92,13 @@ DATABASES = {
     }
 }
 
+CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#           'LOCATION': 'identipy_server_cache',
+            }
+        }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
