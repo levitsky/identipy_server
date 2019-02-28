@@ -15,6 +15,7 @@ from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.template import Template, Context
 import django.db
+from django.views.decorators.cache import cache_page
 
 from django.conf import settings
 import os
@@ -1063,6 +1064,7 @@ def group_status(request, sgid):
         'total': len(sg.searchrun_set.all())
         })
 
+@cache_page(30*60)
 def spectrum(request):
     def save_offsets(reader):
         if isinstance(reader, mgf.IndexedMGF):
