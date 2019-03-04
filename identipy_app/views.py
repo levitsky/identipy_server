@@ -1067,8 +1067,6 @@ def group_status(request, sgid):
 @cache_page(30*60)
 def spectrum(request):
     def save_offsets(reader):
-        if isinstance(reader, mgf.IndexedMGF):
-            return
         try:
             if not reader._check_has_byte_offset_file():
                 reader.write_byte_offsets()
