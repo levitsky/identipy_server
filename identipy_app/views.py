@@ -229,12 +229,13 @@ def upload(request):
     # Handle file upload
     if request.method == 'POST':
         commonform = forms.CommonForm(request.POST, request.FILES)
+        error_ret = set()
         if 'commonfiles' in request.FILES:
             for uploadedfile in request.FILES.getlist('commonfiles'):
                 z, ret = _dispatch_file_handling(uploadedfile, request.user)
                 if z is None: # KeyError occurred in dispatcher
                     logger.error('Unrecognized extension in dispatcher: %s', ret)
-                    return
+                    error_ret.add(ret[0])
                 if z:
                     d, outs = ret
                     for _, files in outs:
@@ -251,7 +252,10 @@ def upload(request):
                         _save_uploaded_file(path, request.user)
                     else:
                         _save_uploaded_file(uploadedfile, request.user)
-            messages.add_message(request, messages.INFO, 'Upload successful.')
+            if error_ret:
+                messages.add_message(request, messages.INFO, 'Extention not supported: ' + ', '.join(error_ret))
+            else:
+                messages.add_message(request, messages.INFO, 'Upload successful.')
             next = request.session.get('next', [('identipy_app:upload',)])
             return redirect(*next.pop())
         else:
