@@ -277,3 +277,6 @@ class AddModificationForm(forms.Form):
     mass = forms.CharField(max_length=80, required=True)
     aminoacids = forms.CharField(max_length=25, required=True)
 
+class RenameForm(forms.Form):
+    newname = forms.CharField(max_length=80, required=True, label='Rename')
+

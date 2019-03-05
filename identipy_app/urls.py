@@ -34,4 +34,5 @@ urlpatterns = [
     url(r'^spectrum/',         views.spectrum,           name='spectrum'),
     url(r'^groupstatus/([0-9]+)/',
                                views.group_status,       name='groupstatus'),
+    url(r'^rename/([0-9]+)/',  views.rename,             name='rename'),
 ]
