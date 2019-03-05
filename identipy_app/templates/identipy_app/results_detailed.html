@@ -10,8 +10,6 @@ Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|
 {% endblock%}
 {% block content %}
 
-<form action="" method="post">{% csrf_token %}
-        
 <h2 style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup.id %}">{{ searchrun.searchgroup.groupname|spacify }}</a> / <a class="link" href="{% url 'identipy_app:figure' searchrun.id %}">{{ searchrun.name|spacify }}</a></h2>
    
 <table id="processes_list" type="bordered">

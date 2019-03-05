@@ -6,6 +6,14 @@
 <h2> <p style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup.id %}">{{ searchrun.searchgroup.groupname|spacify }}</a>/{{ searchrun.name|spacify}}</p></h2>
         
 		{% if searchgroup %}
+        {% if rename_form %}
+        <form action="{% url 'identipy_app:rename' searchgroup.id %}" method="post">
+            {% csrf_token %}
+            {{ rename_form }}
+            <input type="submit" value="OK">
+        </form>
+        {% endif %}
+
             <table id="processes_list" type="bordered">
                 <tr class="headers">
                     <th>Search name</th>

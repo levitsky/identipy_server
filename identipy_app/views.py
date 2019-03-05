@@ -901,11 +901,16 @@ def search_details(request, pk):
     if len(sruns) == 1:
 #       request.session['searchrunid'] = sruns[0].id
         return redirect('identipy_app:figure', sruns[0].id)
+    rename_form = forms.RenameForm()
+    c['rename_form'] = rename_form
     return render(request, 'identipy_app/results.html', c)
 
 def results_figure(request, pk):
     runobj = get_object_or_404(SearchRun, id=pk)
     c = {'searchrun': runobj, 'searchgroup': runobj.searchgroup}
+    if len(runobj.searchgroup.searchrun_set.all()) == 1:
+        rename_form = forms.RenameForm()
+        c['rename_form'] = rename_form
     return render(request, 'identipy_app/results_figure.html', c)
 
 
@@ -1123,4 +1128,17 @@ def spectrum(request):
     figure = spectrum_figure(spectrum, modseq, title=modseq, aa_mass=aa_mass, ftol=ftol)
     context = {'result': result, 'figure': figure.decode('utf-8')}
     return render(request, 'identipy_app/spectrum.html', context)
+
+def rename(request, pk):
+    if request.method != 'POST':
+        return redirect('identipy_app:getstatus')
+    form = forms.RenameForm(request.POST)
+    if form.is_valid():
+        group = get_object_or_404(SearchGroup, pk=pk)
+        group.groupname = form.cleaned_data['newname']
+        group.save()
+        messages.add_message(request, messages.INFO, 'Search renamed.')
+        return redirect('identipy_app:details', pk)
+    messages.add_message(request, messages.ERROR, 'Invalid input.')
+    return redirect('identipy_app:details', pk)
 

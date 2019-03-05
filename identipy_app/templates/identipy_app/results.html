@@ -6,6 +6,11 @@
         
 {% if searchgroup %}
     <p>Searches: {{searchgroup.groupname}}</p>
+    <form action="{% url 'identipy_app:rename' searchgroup.id %}" method="post">
+        {% csrf_token %}
+        {{ rename_form }}
+        <input type="submit" value="OK">
+    </form>
     <table type="bordered">
         <tr id="headings">
             <th>Search name</th>
