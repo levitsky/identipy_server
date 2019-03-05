@@ -872,13 +872,13 @@ def runidentipy(request):
         c['runname'] = time.strftime("%Y-%m-%d %H:%M:%S")
     else:
         c['runname'] = request.session['runname']
-    c['chosenfasta'] = request.session['chosen_fasta']
-    c['chosenspectra'] = request.session['chosen_spectra']
-    c['SearchForms'] = forms.search_forms_from_request(request)
-    c['paramtype'] = request.session['paramtype']
+    if not failure:
+        c['chosenfasta'] = request.session['chosen_fasta']
+        c['chosenspectra'] = request.session['chosen_spectra']
+        c['SearchForms'] = forms.search_forms_from_request(request)
+        c['paramtype'] = request.session['paramtype']
 #   if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
 #       failure += 'Results with name "%s" already exist, choose another name' % c['runname']
-    if not failure:
         newgroup = SearchGroup(groupname=c['runname'], user=request.user)
         newgroup.save()
         newgroup.add_files(c)
