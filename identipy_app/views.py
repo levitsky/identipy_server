@@ -1114,7 +1114,7 @@ def spectrum(request):
                     key=lambda i: abs(i[1]+aa_mass['protein nterm cleavage']-mod['mass']))[0]
             modseq.insert(0, label)
             seqshift = 0
-        elif pos == len(result['search_hit'][0]['peptide']):
+        elif pos == len(result['search_hit'][0]['peptide']) + 1:
             label = min([i for i in aa_mass.items() if i[0][0] == '-'],
                     key=lambda i: abs(i[1]+aa_mass['protein cterm cleavage']-mod['mass']))[0]
             modseq.append(label)
