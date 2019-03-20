@@ -10,7 +10,7 @@
         <form action="{% url 'identipy_app:rename' searchgroup.id %}" method="post">
             {% csrf_token %}
             {{ rename_form }}
-            <input type="submit" value="OK">
+            <input type="submit" value="OK" class="btn">
         </form>
         {% endif %}
 
