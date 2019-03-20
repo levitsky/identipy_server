@@ -1125,8 +1125,8 @@ def spectrum(request):
                     key=lambda i: abs(i[1]-mod['mass']))[0]
                 modseq[mod['position']+seqshift] = label
     modseq = parser.tostring(modseq, True)
-    logger.debug('Visualizing spectrum %s from run %s by user %s. Using peptide %s (%s).',
-            title, run.id, request.user.username, result['search_hit'][0]['peptide'], modseq)
+    logger.debug('Visualizing spectrum %s from file %s, peptide %s (%s).',
+            title, pepname, result['search_hit'][0]['peptide'], modseq)
     figure = spectrum_figure(spectrum, modseq, title=modseq, aa_mass=aa_mass, ftol=ftol)
     context = {'result': result, 'figure': figure.decode('utf-8')}
     return render(request, 'identipy_app/spectrum.html', context)
