@@ -13,6 +13,7 @@
             <input type="submit" value="OK" class="btn">
         </form>
         {% endif %}
+        <a href="{% url 'identipy_app:repeat' searchgroup.id %}" class="btn">Repeat search</a>
 
             <table id="processes_list" type="bordered">
                 <tr class="headers">
