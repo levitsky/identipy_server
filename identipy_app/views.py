@@ -157,11 +157,16 @@ def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app
 
 
 def delete_search(request):
+    action = request.POST['submit_action']
     for name, val in request.POST.iteritems():
         if val == u'on':
-            processes = SearchGroup.objects.filter(user=request.user.id, groupname=name.replace(u'\xa0', ' '))
-            for obj in processes:
+            obj = get_object_or_404(SearchGroup, pk=name)
+            if action == 'Delete':
                 obj.full_delete()
+            elif action == 'Repeat':
+                _repeat(request, name)
+    if action == 'Repeat':
+        messages.add_message(request, messages.INFO, 'Starting bulk repeat.')
     return redirect('identipy_app:getstatus')
 
 def status(request, name_filter=False):
@@ -898,12 +903,16 @@ def _sg_context_from_sg(sg):
     c['paramtype'] = 3
     return c
 
-def repeat_search(request, sgid):
+
+def _repeat(request, sgid):
     sg = get_object_or_404(SearchGroup, pk=sgid)
     c = _sg_context_from_sg(sg)
     newgroup = _sg_from_context(c, request.user)
     t = Thread(target=_start_all, args=(request, newgroup, c), name='start_all')
     t.start()
+
+def repeat_search(request, sgid):
+    _repeat(request, sgid)
     messages.add_message(request, messages.INFO, 'IdentiPy started')
     return redirect('identipy_app:getstatus')
 
