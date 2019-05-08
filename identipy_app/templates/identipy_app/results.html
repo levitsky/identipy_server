@@ -11,6 +11,7 @@
         {{ rename_form }}
         <input type="submit" value="OK" class="btn">
     </form>
+    <a href="{% url 'identipy_app:repeat' searchgroup.id %}" class="btn">Repeat search</a>
     <table type="bordered">
         <tr id="headings">
             <th>Search name</th>

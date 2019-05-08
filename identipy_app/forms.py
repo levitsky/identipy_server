@@ -240,27 +240,41 @@ class SearchParametersForm(forms.Form):
 
 
 def search_forms_from_request(request, ignore_post=False):
+    paramobj = _get_latest_params(request)
+    post = request.POST if request.method == 'POST' and not ignore_post else None
+    paramtype = request.session.get('paramtype', 3)
+    return search_form_for_params(paramobj, post, paramtype)
+
+
+def search_form_for_params(paramobj, post=None, paramtype=3):
     sForms = {}
-    kwargs = _kwargs_for_search_form(request)
+    kwargs = _sform_kwargs_from_obj(paramobj)
     for sftype in ['main', 'postsearch']:
-        if sftype == 'postsearch' and request.session.get('paramtype', 3) != 3:
+        if sftype == 'postsearch' and paramtype != 3:
             continue
         kwargs.update(sftype=sftype, prefix=sftype)
-        if request.method == 'POST' and not ignore_post:
-            sForms[sftype] = SearchParametersForm(request.POST, **kwargs)
+        if post:
+            sForms[sftype] = SearchParametersForm(post, **kwargs)
         else:
             sForms[sftype] = SearchParametersForm(**kwargs)
     return sForms
 
-def _kwargs_for_search_form(request):
-    paramobj = models.ParamsFile.objects.get(
+
+def _get_latest_params(request):
+    return models.ParamsFile.objects.get(
             docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
             user=request.user.id)
+
+def _sform_kwargs_from_obj(paramobj):
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name)
-    kwargs = dict(raw_config=raw_config, user=request.user, label_suffix='')
+    kwargs = dict(raw_config=raw_config, user=paramobj.user, label_suffix='')
     return kwargs
 
+def _kwargs_for_search_form(request):
+    paramobj = _get_latest_params(request)
+    return _sform_kwargs_from_obj(paramobj)
+    
 class ContactForm(forms.Form):
     subject = forms.CharField(required=True)
     message = forms.CharField(widget=forms.Textarea)

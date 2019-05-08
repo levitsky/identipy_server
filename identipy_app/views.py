@@ -854,13 +854,22 @@ def _start_all(request, newgroup, c):
         logger.warning('SearchGroup %s has been deleted, exiting ...', newgroup.pk)
         return
 
-#   p = Thread(target=_start_union, args=(request, newgroup, c), name='start-union')
-#   p.start()
-#   p.join()
     _start_union(request, newgroup, c)
     django.db.connection.close()
 
-def runidentipy(request):
+
+def _sg_from_context(c, user):
+    newgroup = SearchGroup(groupname=c['runname'], user=user)
+    newgroup.save()
+    newgroup.add_files(c)
+    os.makedirs('results/%s/%s' % (str(newgroup.user.id), newgroup.id))
+    newgroup.save()
+    newgroup.set_notification()
+    newgroup.set_FDRs()
+    return newgroup
+
+
+def _sg_context_from_request(request):
     c = {}
     failure = ''
     if not request.session.get('chosen_fasta'):
@@ -877,15 +886,31 @@ def runidentipy(request):
         c['chosenspectra'] = request.session['chosen_spectra']
         c['SearchForms'] = forms.search_forms_from_request(request)
         c['paramtype'] = request.session['paramtype']
-#   if os.path.exists('results/%s/%s' % (str(request.user.id), c['runname'])):
-#       failure += 'Results with name "%s" already exist, choose another name' % c['runname']
-        newgroup = SearchGroup(groupname=c['runname'], user=request.user)
-        newgroup.save()
-        newgroup.add_files(c)
-        os.makedirs('results/%s/%s' % (str(newgroup.user.id), newgroup.id))
-        newgroup.save()
-        newgroup.set_notification()
-        newgroup.set_FDRs()
+    return failure, c
+
+def _sg_context_from_sg(sg):
+    c = {}
+    c['runname'] = sg.groupname
+    c['chosenfasta'] = sg.fasta.all()
+    c['chosenspectra'] = [r.spectra.id for r in sg.searchrun_set.filter(union=False)]
+    paramobj = sg.parameters
+    c['SearchForms'] = forms.search_form_for_params(paramobj)
+    c['paramtype'] = 3
+    return c
+
+def repeat_search(request, sgid):
+    sg = get_object_or_404(SearchGroup, pk=sgid)
+    c = _sg_context_from_sg(sg)
+    newgroup = _sg_from_context(c, request.user)
+    t = Thread(target=_start_all, args=(request, newgroup, c), name='start_all')
+    t.start()
+    messages.add_message(request, messages.INFO, 'IdentiPy started')
+    return redirect('identipy_app:getstatus')
+
+def runidentipy(request):
+    failure, c = _sg_context_from_request(request)
+    if not failure:
+        newgroup = _sg_from_context(c, request.user)
         t = Thread(target=_start_all, args=(request, newgroup, c), name='start_all')
         t.start()
         messages.add_message(request, messages.INFO, 'IdentiPy started')
@@ -893,6 +918,7 @@ def runidentipy(request):
     else:
         messages.add_message(request, messages.INFO, failure)
         return redirect('identipy_app:searchpage')
+
 
 def search_details(request, pk):
     group = get_object_or_404(SearchGroup, id=pk)
@@ -904,6 +930,7 @@ def search_details(request, pk):
     rename_form = forms.RenameForm()
     c['rename_form'] = rename_form
     return render(request, 'identipy_app/results.html', c)
+
 
 def results_figure(request, pk):
     runobj = get_object_or_404(SearchRun, id=pk)
