@@ -169,12 +169,12 @@ class ResultsDetailed():
         if self.ftype == 'protein' and name == 'dbname':
             try:
                 return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (
-                        html.escape(name).split('|')[1], html.escape(value))
+                        html.escape(value).split('|')[1], html.escape(value))
             except IndexError:
                 return html.escape(value)
         elif self.ftype == 'protein' and name == 'description':
             return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (
-                    html.escape(name.split('OS=')[0]), html.escape(name))
+                    html.escape(value.split('OS=')[0]), html.escape(value))
         elif self.ftype == 'protein' and name in types:
             return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (
                     reverse("identipy_app:show"), dbname, types[name], self.runid, value)
