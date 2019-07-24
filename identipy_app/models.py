@@ -14,7 +14,7 @@ from pyteomics import parser
 import logging
 logger = logging.getLogger(__name__)
 
-from . import aux
+from . import auxiliary as aux
 
 os.chdir(settings.BASE_DIR)
 sys.path.insert(0, '../identipy/')

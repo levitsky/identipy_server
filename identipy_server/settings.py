@@ -26,7 +26,7 @@ SECRET_KEY = 'pv0^x(*qfo_e$#3@f_v_9%@hr3i#+7-y!pjd)p7byzg6bli4q-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.0.3', '83.149.244.82']
 
 DATETIME_FORMAT = 'M j, H:i:s'
 
@@ -81,12 +81,12 @@ WSGI_APPLICATION = 'identipy_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-#       'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#       'NAME': 'identipy_server_testing',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+      'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+      'NAME': 'identipy_server_mark',
         'OPTIONS': {
-#           'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
+          'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
         },
         'TIME_ZONE': 'Europe/Moscow',
     }

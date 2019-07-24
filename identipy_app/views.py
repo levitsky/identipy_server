@@ -47,7 +47,7 @@ sys.path.insert(0, '../mp-score/')
 from identipy import main, utils
 import MPscore
 
-from .aux import save_mods, save_params_new, get_size, process_LFQ, spectrum_figure
+from .auxiliary import save_mods, save_params_new, get_size, process_LFQ, spectrum_figure
 from .models import SpectraFile, RawFile, FastaFile, ParamsFile, PepXMLFile, ResImageFile, ResCSV
 from .models import SearchGroup, SearchRun, Protease, Modification 
 from .models import upload_to_basic
