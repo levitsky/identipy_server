@@ -5,7 +5,7 @@ function getText(el) {
 }
 
 function isRunning(text) {
-    return (text != 'Finished' && text != 'Dead' && text.slice(-4) != 'dead');
+    return (text.slice(8) != 'Finished' && text != 'Dead' && text.slice(-4) != 'dead');
 }
 
 function statusUpdate () {
@@ -43,8 +43,17 @@ function updateOneRow (tr) {
     $.getJSON(statusRequestUrl + tr.getAttribute('data-sgid') + '/', function (data) {
         tr.children[3].textContent = data.status;
         tr.children[4].textContent = data.updated;
-        var progress = data.done / data.total * 100;
-        tr.children[3].style.backgroundSize = progress + '% 100%';
+        if ( data.status == 'Postsearch processing' ) {
+            tr.children[3].classList.add('postsearch');
+        } else if ( data.status == 'Finished' ) {
+            tr.children[3].classList.add('finished');
+        } else if ( data.status == 'Error' ) {
+            tr.children[3].classList.add('error');
+        } else {
+            var progress = data.done / data.total * 100;
+            tr.children[3].style.backgroundSize = progress + '% 100%';
+        }
+
     });
 
     return isRunning(getText(tr));

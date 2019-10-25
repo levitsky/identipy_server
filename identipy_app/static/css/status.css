@@ -3,3 +3,16 @@ table tr[data-sgid] td.group_status {
     background-repeat: no-repeat;
     background-size: 0% 100%;
 }
+
+table tr[data-sgid] td.group_status.postsearch {
+    background: var(--yellow);
+}
+
+table tr[data-sgid] td.group_status.error {
+    background: var(--redlight);
+}
+
+
+table tr[data-sgid] td.group_status.finished {
+    background: greenyellow;
+}

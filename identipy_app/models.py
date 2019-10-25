@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
-from django.db import models, connection
+from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
-from django.conf import settings
-import sys
 import shutil
 import subprocess
 import psutil
-import re
-from pyteomics import parser
 import logging
 logger = logging.getLogger(__name__)
 
 from . import aux
 
 os.chdir(settings.BASE_DIR)
-sys.path.insert(0, '../identipy/')
+
 from identipy.utils import CustomRawConfigParser
 from identipy import main
 
@@ -86,7 +82,7 @@ def upload_to_pepxml(instance, filename):
 def upload_to_params(instance, filename):
     return upload_to_basic('params', filename, instance.user.id)
 
- 
+
 class SpectraFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_spectra)
 
@@ -122,26 +118,26 @@ class SearchGroup(models.Model):
     notification = models.BooleanField(default=False)
     fdr_level = models.FloatField(default=0.0)
 
-    PSM = 'S'
-    PEPTIDE = 'P'
-    PROTEIN = 'R'
-    FDR_TYPES = (
-            (PSM, 'PSM'),
-            (PEPTIDE, 'peptide'),
-            (PROTEIN, 'protein')
-            )
-    fdr_type = models.CharField(max_length=1, default=PSM, choices=FDR_TYPES)
- 
     def get_status(self):
         runs = self.searchrun_set.all()
         if len(runs) == 1:
             return runs[0].get_status_display()
+        union = self.searchrun_set.get(union=True)
         dead = sum(r.status == SearchRun.DEAD for r in runs)
         if dead:
             return '{} process(es) dead'.format(dead)
+        error = union.status == SearchRun.ERROR
+        if error:
+            return 'Finished with errors'
+        validation = union.status == SearchRun.RUNNING
+        if validation:
+            return 'Postsearch processing'
         done = sum(r.status == SearchRun.FINISHED for r in runs)
         if done == len(runs):
             return 'Finished'
+        if done:
+            return '{} of {} done'.format(done, len(runs))
+        done = sum(r.status == SearchRun.VALIDATION and not r.union for r in runs)
         if done:
             return '{} of {} done'.format(done, len(runs))
         started = sum(r.status == SearchRun.RUNNING for r in runs)
@@ -157,12 +153,10 @@ class SearchGroup(models.Model):
     def add_files(self, c):
         self.add_fasta(c['chosenfasta'])
         self.add_params(sfForms=c['SearchForms'], paramtype=c['paramtype'])
-        self.save()
         for sid in c['chosenspectra']:
             s = SpectraFile.objects.get(pk=sid)
             newrun = SearchRun(searchgroup=self, status=SearchRun.WAITING,
                     runname=os.path.splitext(s.docfile.name)[0], spectra=s)
-            newrun.save()
             newrun.save()
             self.save()
         if len(c['chosenspectra']) > 1:
@@ -183,9 +177,6 @@ class SearchGroup(models.Model):
     def get_searchruns(self):
         return self.searchrun_set.filter(union=False)
 
-    def get_union(self):
-        return self.searchrun_set.get(union=True)
-
     def get_searchruns_all(self):
         return self.searchrun_set.all().order_by('union')
 
@@ -197,7 +188,7 @@ class SearchGroup(models.Model):
             if sr.status == SearchRun.RUNNING:
                 kill_proc_tree(sr.processpid)
             logger.info('Deleting run %s', sr.pk)
-        tree = 'results/%s/%s' % (str(self.user.id), self.id)
+        tree = self.dirname()
         try:
             shutil.rmtree(tree)
         except Exception:
@@ -209,22 +200,18 @@ class SearchGroup(models.Model):
         self.notification = settings.getboolean('options', 'send email notification')
         self.save()
 
-    def set_FDRs(self):
+    def set_FDR(self):
         raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
         raw_config.read(self.parameters.path())
         self.fdr_level = raw_config.getfloat('options', 'FDR')
-        types = {v.lower(): k for k, v in self.FDR_TYPES}
-        try:
-            self.fdr_type = types[raw_config.get('options', 'FDR_type').lower()]
-        except KeyError as e:
-            logger.error('Incorrect FDR type: %s', e.args)
-            self.fdr_type = self.PSM
         self.save()
+
+    def dirname(self):
+        return 'results/{}/{}'.format(self.user.id, self.id)
 
 
 class SearchRun(models.Model):
     searchgroup = models.ForeignKey(SearchGroup)
-
     runname = models.CharField(max_length=80)
     spectra = models.ForeignKey(SpectraFile, blank=True, null=True)
     processpid = models.IntegerField(blank=True, default=-1)
@@ -233,97 +220,31 @@ class SearchRun(models.Model):
     numPSMs = models.BigIntegerField(default=0)
     numPeptides = models.BigIntegerField(default=0)
     numProteins = models.BigIntegerField(default=0)
+    numProteinGroups = models.BigIntegerField(default=0)
     union = models.BooleanField(default=False)
 
     WAITING = 'W'
     RUNNING = 'R'
+    VALIDATION = 'V'
     FINISHED = 'F'
     DEAD = 'D'
+    ERROR = 'E'
     STATUS_CHOICES = (
             (WAITING, 'Waiting'),
             (RUNNING, 'Running'),
+            (VALIDATION, 'Postsearch processing'),
             (FINISHED, 'Finished'),
             (DEAD, 'Dead'),
+            (ERROR, 'Error'),
             )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DEAD)
     last_update = models.DateTimeField(auto_now=True)
 
 
     def add_spectra(self, spectraobject):
-        # for s in spectraobjects:
         self.spectra = spectraobject
         self.save()
 
-
-    def get_resimagefiles(self, ftype='.png'):
-        def get_index(val, custom_list):
-            for idx, v in enumerate(custom_list):
-                if val == v or (v == 'potential_modifications' and val.startswith(v)):
-                    return idx
-
-        custom_order = ['RT_experimental',
-                        'precursor_mass',
-                        'peptide_length',
-                        'RT_experimental_peptides',
-                        'precursor_mass_peptides',
-                        'peptide_length_peptides',
-                        'sumi',
-                        'nsaf',
-                        'empai',
-                        'rt_difference_min',
-                        'precursor_mass difference_ppm',
-                        'fragment_mass_tolerance_da',
-                        'potential_modifications',
-                        'isotopes_mass_difference_da',
-                        'missed_cleavages_protease_1',
-                        'psm_count',
-                        'psms_per_protein',
-                        'charge_states',
-                        'scores']
-        all_images = [doc for doc in self.resimagefile_set.filter(ftype=ftype)]
-        all_images.sort(key=lambda val: get_index(val.docfile.name.split('/')[-1].replace(self.runname.split('/')[-1] + '_', '').replace(ftype, '').lower(), custom_order))
-        return all_images
-    
-    def get_PSMdistrimagefiles(self, ftype='.png'):
-        distr_list = {'RT_experimental', 'precursor_mass', 'peptide_length'}
-        distr_images = [doc for doc in self.get_resimagefiles()
-                if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
-        return distr_images
-
-    def get_distrimagefiles(self, ftype='.png'):
-        distr_list = {'RT_experimental_peptides', 'precursor_mass_peptides', 'peptide_length_peptides', 'aa_stats'}
-        distr_images = [doc for doc in self.get_resimagefiles()
-                if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
-        return distr_images
-    
-    def get_quantimagefiles(self, ftype='.png'):
-        distr_list = {'sumI', 'NSAF', 'emPAI'}
-        distr_images = [doc for doc in self.get_resimagefiles()
-                if any(doc.docfile.name.endswith(d+ftype) for d in distr_list)]
-        return distr_images
-    
-    def get_mpimagefiles(self, ftype='.png'):
-        def is_pm(name):
-            m = re.search(r'potential_modifications_(.*)\{}$'.format(ftype), name)
-            if m:
-#               logger.debug('Found match: %s', m.group(1))
-                return parser.is_modX(m.group(1))
-#           logger.debug('No match for name: %s', name)
-            return False
-        MP_list = ['RT_difference_min',
-                   'precursor_mass_difference_ppm',
-                   'fragment_mass_tolerance_Da',
-                   'isotopes_mass_difference_Da',
-                   'missed_cleavages_protease_1',
-                   'PSM_count',
-                   'PSMs_per_protein',
-                   'charge_states',
-                   'scores']
-        mp_images = [doc for doc in self.get_resimagefiles()
-                if any(doc.docfile.name.endswith(d+ftype) for d in MP_list) or
-                is_pm(doc.docfile.name)]
-        return mp_images
-    
     def get_pepxmlfiles(self, filtered=False):
         if self.union and not filtered:
             return PepXMLFile.objects.filter(run__searchgroup=self.searchgroup, run__union=False, filtered=False)
@@ -337,24 +258,17 @@ class SearchRun(models.Model):
             return [run.spectra.docfile.name for run in self.searchgroup.searchrun_set.filter(union=False)]
         return [self.spectra.docfile.name]
 
-
     def get_fastafile_path(self):
         return [self.searchgroup.fasta.all()[0].docfile.name]
 
     def get_resimage_paths(self, ftype='.png'):
         return [pep.docfile.name for pep in self.get_resimagefiles(ftype=ftype)]
 
-    def get_csvfiles_paths(self, ftype=None):
-        if ftype:
-            return [pep.docfile.name for pep in self.rescsv_set.filter(ftype=ftype)]
-        else:
-            return [pep.docfile.name for pep in self.rescsv_set.all()]
-  
     def name(self):
         return os.path.split(self.runname)[-1]
 
     def calc_results(self):
-        from pyteomics import mgf, pepxml, mzml
+        from pyteomics import mgf, mzml
         for fn in self.get_spectrafiles_paths():
             if fn.lower().endswith('.mgf'):
                 try:
@@ -364,33 +278,23 @@ class SearchRun(models.Model):
             elif fn.lower().endswith('.mzml'):
                 msmsnum = sum(1 for _ in mzml.read(fn))
             self.numMSMS += msmsnum
-        for fn in self.get_pepxmlfiles_paths():
-            try:
-                psmsnum = int(subprocess.check_output(['grep', '-c', '<spectrum_query', '%s' % (fn, )]))
-            except:
-                psmsnum = sum(1 for _ in pepxml.read(fn))
-            self.totalPSMs += psmsnum
-        for fn in self.get_csvfiles_paths(ftype='psm'):
-            with open(fn) as cf:
+
+        for fn in self.rescsv_set.filter(ftype='psm', filtered=False):
+            with open(fn.docfile.name) as cf:
+                self.totalPSMs += sum(1 for _ in cf) - 1
+        for fn in self.rescsv_set.filter(ftype='psm', filtered=True):
+            with open(fn.docfile.name) as cf:
                 self.numPSMs += sum(1 for _ in cf) - 1
-        for fn in self.get_csvfiles_paths(ftype='peptide'):
-            with open(fn) as cf:
+        for fn in self.rescsv_set.filter(ftype='peptide', filtered=True):
+            with open(fn.docfile.name) as cf:
                 self.numPeptides += sum(1 for _ in cf) - 1
-        for fn in self.get_csvfiles_paths(ftype='protein'):
-            if not fn.endswith('full.tsv'):
-                with open(fn) as cf:
-                    self.numProteins += sum(1 for _ in cf) - 1
+        for fn in self.rescsv_set.filter(ftype='protein', filtered=True):
+            with open(fn.docfile.name) as cf:
+                self.numProteins += sum(1 for _ in cf) - 1
+        for fn in self.rescsv_set.filter(ftype='prot_group', filtered=True):
+            with open(fn.docfile.name) as cf:
+                self.numProteinGroups += sum(1 for _ in cf) - 1
         self.save()
-
-    def get_detailed(self, ftype):
-        from aux import ResultsDetailed
-        rd = ResultsDetailed(ftype=ftype, path_to_csv=self.get_csvfiles_paths(ftype=ftype)[0], runid=self.id)
-        if ftype == 'protein':
-            rd.custom_labels(['dbname', 'PSMs', 'peptides', 'LFQ(SIn)'])
-        elif ftype in ['peptide', 'psm']:
-            rd.custom_labels(['sequence', 'm/z exp', 'RT exp', 'missed cleavages'])
-        return rd
-
 
 class PepXMLFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
@@ -400,11 +304,23 @@ class PepXMLFile(BaseDocument):
 class ResImageFile(BaseDocument):
     docfile = models.ImageField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
     ftype = models.CharField(max_length=5, default='.png')
+    PSM = 'S'
+    PEPTIDE = 'P'
+    PROTEIN = 'R'
+    OTHER = 'O'
+    IMAGE_TYPES = (
+            (PSM, 'PSM'),
+            (PEPTIDE, 'Peptide'),
+            (PROTEIN, 'Protein'),
+            (OTHER, 'Feature'),
+            )
+    imgtype = models.CharField(max_length=1, default=OTHER, choices=IMAGE_TYPES)
     run = models.ForeignKey(SearchRun)
 
 class ResCSV(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
     ftype = models.CharField(max_length=10)
+    filtered = models.BooleanField(default=True)
     run = models.ForeignKey(SearchRun)
 
 

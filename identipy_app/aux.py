@@ -1,41 +1,40 @@
 import matplotlib
 matplotlib.use('Agg')
 import os
-import sys
 import csv
-import numpy as np
 import pandas as pd
 import pylab
 from io import BytesIO
 import base64
-from urllib import quote_plus
-from time import time
+from urllib import quote_plus, urlencode
+import ast
 
 from django.core.files import File
 from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
-from django.utils import html
+from django.core.mail import send_mail
 
 from pyteomics import auxiliary as aux, pylab_aux
-sys.path.insert(0, '../identipy/')
-from identipy.utils import CustomRawConfigParser
+
+from identipy import main, utils
+
 os.chdir(settings.BASE_DIR)
 csv.field_size_limit(10000000)
 
+import logging
+logger = logging.getLogger(__name__)
 
 def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     # lfq_type from ['NSAF', 'SIn', 'emPAI']:
-    dframe = pd.read_table(inputfile)
+    dframe = pd.read_csv(inputfile, sep='\t')
     dframe.index = dframe['dbname']
     label = '_' + os.path.basename(inputfile).replace('_proteins.tsv', '')
-    dframe[lfq_type + label] = dframe['LFQ(%s)' % (lfq_type, )]
+    dframe[lfq_type + label] = dframe[lfq_type]
     dframe = dframe[[lfq_type + label]]
     return dframe
 
 def concat_LFQ_tables(filenames):
-    return pd.concat([get_LFQ_dataframe(f) for f in filenames], axis=1)
+    return pd.concat([get_LFQ_dataframe(f) for f in filenames], axis=1, sort=True)
 
 def convert_linear(dfout):
     ref_col = None
@@ -77,7 +76,7 @@ def get_size(start_path = '.'):
 def save_mods(uid, chosenmods, fixed, paramtype=3):
     import models
     paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % paramtype, user=uid)
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name)
     labels = ','.join(mod.get_label() for mod in chosenmods)
 #   print 'LABELS:', labels
@@ -91,7 +90,7 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
     from models import ParamsFile, Protease
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
             user=uid, type=paramtype)
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
     raw_config.read(paramobj.docfile.name)
     if request:
         sfForms = {}
@@ -140,90 +139,134 @@ def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, 
     raw_config.write(open(paramobj.docfile.name, 'w'))
     return paramobj
 
+
 class ResultsDetailed():
-    def __init__(self, ftype, path_to_csv, runid):
-        from .models import SearchRun
+
+    _df_cache = {}
+
+    def __init__(self, run, ftype, orderby=None, ascending=True, protein=None, peptide=None):
         self.ftype = ftype
-        self.order_by_revers = False
-        self.runid = runid
-        self.union = get_object_or_404(SearchRun, pk=runid).union
-        with open(path_to_csv) as cf:
-            reader = csv.reader(cf, delimiter='\t')
-            self.labels = reader.next()
-            if self.labels[-1] == 'is decoy':
-                self.labels = self.labels[:-1]
-                rmvlast = True
-            else:
-                rmvlast = False
-            self.whiteind = [True for _ in range(len(self.labels))]
-            self.order_by_label = self.labels[0]
-            if rmvlast:
-                self.values = [val[:-1] for val in reader]
-            else:
-                self.values = [val for val in reader]
-            self.dbname = False
-
-    def special_links(self, value, name, dbname):
-        from . import forms
-        types = {'PSMs': 'psm', 'peptides': 'peptide'}
-        if self.ftype == 'protein' and name == 'dbname':
-            try:
-                return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (
-                        html.escape(value).split('|')[1], html.escape(value))
-            except IndexError:
-                return html.escape(value)
-        elif self.ftype == 'protein' and name == 'description':
-            return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (
-                    html.escape(value.split('OS=')[0]), html.escape(value))
-        elif self.ftype == 'protein' and name in types:
-            return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (
-                    reverse("identipy_app:show"), dbname, types[name], self.runid, value)
-        elif self.ftype == 'peptide' and name == 'sequence':
-            return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (reverse("identipy_app:show"), dbname, 'psm', self.runid, value)
-        elif name == 'spectrum' and not self.union:
-            return r'<a class="td2 link" href="{}?runid={}&spectrum={}">{}</a>'.format(reverse('identipy_app:spectrum'),
-                    self.runid, quote_plus(value), value)
+        self.ascending = ascending
+        self.run = run
+        self.protein = protein
+        self.peptide = peptide
+        self._columns_mapping = {}
+        if (run.id, ftype) in self._df_cache:
+            self.df = self._df_cache[(run.id, ftype)]
+            logger.debug('Reusing cached %s dataframe for run %s', ftype, run.id)
         else:
-            return value
+            path_to_csv = self.run.rescsv_set.get(ftype=ftype, filtered=True).docfile.name
+            self.df = pd.read_csv(path_to_csv, sep='\t')
+            logger.debug('Reading a new %s dataframe for run %s', ftype, run.id)
+            self._format_columns()
+            self._df_cache[(run.id, ftype)] = self.df
+        if ftype in ['peptide', 'psm']:
+            self.orderby = orderby or 'peptide'
+            self.custom_labels(['peptide', 'calc_neutral_pep_mass', 'assumed_charge'])
+        elif ftype in ['prot_group', 'protein']:
+            self.orderby = orderby or 'dbname'
+            self.custom_labels(['dbname', 'PSMs', 'peptides', 'sq', 'NSAF'])
+        self._columns_mapping = dict((name.lstrip('_'), name) for name in self.df)
 
-    def filter_dbname(self, dbname):
-        self.dbname = dbname
+    @property
+    def visible_columns(self):
+        return self._columns_mapping.keys()
 
-    def custom_labels(self, whitelist):
-        for idx, label in enumerate(self.labels):
-            self.whiteind[idx] = label in whitelist
+    def backup(self, colname):
+        self.df['__' + colname] = self.df[colname]
+        self._columns_mapping[colname] = '__' + colname
 
-    def change_order(self, order_reverse):
-        self.order_by_revers = order_reverse
-        # self.order_by_revers = not self.order_by_revers
+    def _format_columns(self):
+        types = {'PSMs': 'psm', 'peptides': 'peptide'}
+        show_url = reverse("identipy_app:show")
+        # this uses the raw dbname and must be run first
+        for col, t in types.items():
+            if col in self.df:
+                self.backup(col)
+                self.df[col] = self.df.apply(
+                    lambda row: '<a class="td2 link" href="{}?dbname={}&show_type={}&runid={}">{}</a>'.format(
+                        show_url, row['dbname'], t, self.run.id, row[col]),
+                    axis=1,
+                )
+        if 'dbname' in self.df:
+            self.backup('dbname')
+            self.df['dbname'] = self.df.dbname.apply(
+                lambda value: '<a target="_blank" href="http://www.uniprot.org/uniprot/{}">{}</a>'.format(
+                        value.split('|')[1], value))
+        if 'protein_descr' in self.df:
+            self.df['protein_descr'] = self.df['protein_descr'].apply(
+                lambda value: ', '.join('<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term={}">{}</a>'.format(
+                    v.split('OS=')[0], v) for v in ast.literal_eval(value)))
+        if 'description' in self.df:
+            self.df['description'] = self.df['description'].apply(
+                lambda v: '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term={}">{}</a>'.format(
+                    v.split('OS=')[0], v))
+        if 'peptide' in self.df:
+            self.backup('peptide')
+            self.df.peptide = self.df.peptide.apply(
+                lambda value: '<a class="td2 link" href="{}?&show_type=psm&runid={}&peptide={}">{}</a>'.format(
+                    show_url, self.run.id, value, value))
+        if 'spectrum' in self.df and not self.run.union:
+            self.backup('spectrum')
+            self.df.spectrum = self.df.spectrum.apply(
+                lambda value: '<a class="td2 link" href="{}?runid={}&spectrum={}">{}</a>'.format(
+                    reverse('identipy_app:spectrum'), self.run.id, quote_plus(value), value))
+        if 'protein' in self.df:
+            self.backup('protein')
+            self.df.protein = self.df.protein.apply(
+                lambda value: ', '.join(
+                    '<a class="td2 link" href="{}?dbname={}&show_type={}&runid={}">{}</a>'.format(
+                        show_url, v, self.ftype, self.run.id, v) for v in ast.literal_eval(value)))
 
-    def custom_order(self, order_by_label=False, order_reverse=False):
-        self.change_order(order_reverse)
-        sort_ind = self.labels.index(order_by_label.replace(u'\xa0', ' '))
-        try:
-            self.values.sort(key=lambda x: float(x[sort_ind]))
-        except:
-            self.values.sort(key=lambda x: x[sort_ind])
-        if self.order_by_revers:
-            self.values = self.values[::-1]
+    def _update_headers(self, df):
+        headers_mapping = {}
+        show_url = reverse("identipy_app:show")
+        params = {'show_type': self.ftype, 'runid': self.run.id}
+        if self.protein:
+            params['dbname'] = self.protein
+        if self.peptide:
+            params['peptide'] = self.peptide
+        for visible, internal in list(self._columns_mapping.items()):
+            if visible in df:
+                params['reverse'] = int(visible == self.orderby and self.ascending)
+                newheader = '<a class="th link" href="{}?{}&order_by={}">{}</a>'.format(show_url, urlencode(params), visible, visible)
+                df[newheader] = df[visible]
+                del df[visible]
+                headers_mapping[visible] = newheader
+        return headers_mapping
+
+    def custom_labels(self, labels):
+        self.labels = labels
 
     def get_labels(self):
-        return [label for idx, label in enumerate(self.labels) if self.whiteind[idx]]
+        return self.labels
 
-    def get_values(self, rawformat=False):
-        if self.dbname:
-            dbname_ind = self.labels.index('proteins')
-            sequence_ind = self.labels.index('sequence')
-        for val in self.values:
-            if not self.dbname or self.dbname in [xz.strip() for xz in val[dbname_ind].split(';')] or self.dbname == val[sequence_ind]:
-                out = []
-                for idx, v in enumerate(val):
-                    if self.whiteind[idx]:
-                        if rawformat:
-                            out.append(v)
-                        else:
-                            out.append(mark_safe(self.special_links(v, self.labels[idx], val[0])))
-                yield out
+    def output_table(self, csv=False):
+        condition = pd.Series(index=self.df.index, data=True)
+        if self.protein:
+            if 'protein' in self.df:
+                prot = self.df['__protein']
+            elif 'dbname' in self.df:
+                prot = self.df['__dbname']
+            condition = condition & prot.str.contains(self.protein, regex=False)
+        if self.peptide:
+            condition = condition & (self.df[self._columns_mapping['peptide']] == self.peptide)
+        out = self.df.loc[condition, :].sort_values(by=self._columns_mapping[self.orderby], ascending=self.ascending)
+        if csv:
+            for c in out:
+                if c in self.get_labels():
+                    out[c] = out[self._columns_mapping[c]]
+            return out[self.labels]
+
+        return out
+
+    def get_display(self):
+        out = self.output_table()
+        mapping = self._update_headers(out)
+        with pd.option_context('display.max_colwidth', -1):
+            return out.to_html(
+                columns=[mapping[c] for c in self.labels], index=False, classes=('results_table',), escape=False)
+
 
 def spectrum_figure(*args, **kwargs):
     pylab_aux.annotate_spectrum(*args, **kwargs)
@@ -232,3 +275,37 @@ def spectrum_figure(*args, **kwargs):
     pylab.savefig(figfile, format='svg')
     data = base64.b64encode(figfile.getvalue())
     return data
+
+def _copy_in_chunks(f, path):
+    try:
+        with open(path, 'wb') as ff:
+            while True:
+                chunk = f.read(5*1024*1024)
+                if chunk:
+                    ff.write(chunk)
+                else:
+                    break
+    except IOError as e:
+        logger.error('Error importing %s: %s', f.name, e.args)
+    else:
+        return path
+
+def generated_db_path(sg):
+    return os.path.join(sg.dirname(), 'generated.fasta')
+
+def generate_database(sg):
+    idsettings = main.settings(sg.parameters.path())
+    fastafile = sg.fasta.all()[0].path()
+    idsettings.set('input', 'database', fastafile)
+    return utils.generate_database(idsettings, generated_db_path(sg))
+
+def email_to_user(group):
+    searchname = group.groupname
+    username = group.user.email
+    try:
+        send_mail('IdentiPy Server notification', 'Search %s was finished' % searchname,
+            'identipymail@gmail.com', [username, ])
+    except Exception as e:
+        logger.error('Could not send email to user %s about run %s:\n%s', username, searchname, e)
+    else:
+        logger.info('Email notification on search %s sent to %s', searchname, username)

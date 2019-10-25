@@ -81,12 +81,12 @@ WSGI_APPLICATION = 'identipy_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-#       'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#       'NAME': 'identipy_server_testing',
+      'ENGINE': 'django.db.backends.sqlite3',
+    # 'ENGINE': 'django.db.backends.mysql',
+      'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # 'NAME': 'identipy_server_production',
         'OPTIONS': {
-#           'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
+            # 'read_default_file': os.path.join(BASE_DIR, 'identipy_server', 'my.cnf'),
         },
         'TIME_ZONE': 'Europe/Moscow',
     }
@@ -171,10 +171,10 @@ LOGGING = {
             'filename': os.path.join(BASE_DIR, 'identipy.log'),
             'formatter': 'verbose',
             },
-        'mpscore_file': {
+        'scavager_file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'mp-score.log'),
+            'filename': os.path.join(BASE_DIR, 'scavager.log'),
             'formatter': 'verbose',
             },
         'stream': {
@@ -189,11 +189,6 @@ LOGGING = {
             'host': 'localhost',
             'port': 13014,
             },
-        'mp_socket': {
-            'class': 'logging.handlers.SocketHandler',
-            'host': 'localhost',
-            'port': 13013,
-            },
         },
     'loggers': {
         'django': {
@@ -202,26 +197,20 @@ LOGGING = {
             'propagate': True,
         },
         'identipy_app': {
-            'handlers': ['server_file'],
+            'handlers': ['server_file', 'stream'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'identipy': {
-            'handlers': ['ipy_socket'],
+            'handlers': ['ipy_socket', 'stream'],
             'level': 'DEBUG',
             'propagate': False,
         },
-        'MPlib': {
-            'handlers': ['mp_socket'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'MPscore': {
-            'handlers': ['mp_socket'],
+        'scavager': {
+            'handlers': ['scavager_file', 'stream'],
             'level': 'DEBUG',
             'propagate': True,
         },
 
     },
 }
-

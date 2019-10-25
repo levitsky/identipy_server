@@ -15,7 +15,7 @@ body {
     --buttonlight:#70AED1;/*#4f4fdf*/
     --red:#FC6264;/*#AE0066*/
     --redlight:#FF7274;/*#D4007C*/
-    --basiclight:#B9B753;/*#4f4fdf*/    
+    --basiclight:#B9B753;/*#4f4fdf*/
 }
 
 /*********************************************************************************/
@@ -154,12 +154,12 @@ body {
 
 .btn:hover{
     background:var(--buttonlight);
-    color: #ffffff; 
+    color: #ffffff;
 }
 
 .red{
-    background:var(--red);  
-    color:#fff;   
+    background:var(--red);
+    color:#fff;
 }
 
 .red:hover{
@@ -177,7 +177,7 @@ input[id="username"],input[type="password"], input[id="email"], textarea{
     width:80%;
     margin:6%;
     background:#FFFFFF;
-    margin-top: 4%; 
+    margin-top: 4%;
     border:1px solid #ccc;
     padding:4%;
     color:#555;
@@ -223,7 +223,7 @@ input[id="username"],input[type="password"], input[id="email"], textarea{
     font-family:sans-serif;
     color:var(--basic);
     font-weight: inherit;
-    padding:0;    
+    padding:0;
 }
 
 .link:hover, a:hover{
@@ -245,7 +245,7 @@ input[type="file"]{
     background:var(--button);
     color:#FFF;
     border:0;
-    border-radius:5px;  
+    border-radius:5px;
     font-size:1.5em;
 }
 
@@ -343,7 +343,7 @@ div.inthemiddle h2{
     color:#555555;
     font-weight:bold;
     text-indent:0;
-    display:block;        
+    display:block;
 }
 
 .inthemiddle img{
@@ -384,7 +384,7 @@ div.inthemiddle h2{
     margin-bottom:1em;
 }
 
-#img_list > div {
+div.floated_img {
   display:inline-block;
   padding: 0 1%;
   width: 29%;
@@ -410,7 +410,7 @@ div#colored{
 .scroll{
     width:100%;
     overflow:auto;
-}   
+}
 
 .vert_block{
     display:list-item;
@@ -438,13 +438,13 @@ table[type="bordered"]{
     margin-top:0;
     margin-bottom:1em;
     box-sizing: border-box;
-    border-radius:5px; 
+    border-radius:5px;
 }
 
 .headers{
     font-size:1.3em;
     text-align:center;
-    text-decoration:bold; 
+    text-decoration:bold;
 }
 
 table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
@@ -472,7 +472,7 @@ table[type="bordered"] tr,table[type="bordered"] th,table[type="bordered"] td{
 }
 
 select{
-    width:102px; 
+    width:102px;
     font-size:0.9em;
     border:1px solid #BBB;
     text-align: center;
@@ -480,15 +480,15 @@ select{
 }
 
 input[type="number"]{
-    width:100px; 
+    width:100px;
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2em;
-    border-radius:5px;   
+    border-radius:5px;
 }
 
 input[id="id_fixed"], input[id="id_variable"],input[id^="id_main"]{
-    width:100px; 
+    width:100px;
     font-size:0.9em;
     border:1px solid #BBB;
     text-indent:0.2 em;
@@ -497,14 +497,30 @@ input[id="id_fixed"], input[id="id_variable"],input[id^="id_main"]{
 
 .mega {
     overflow: auto;
-    background: #fff;
-    position:relative;
+    max-width: fit-content;
 }
-.header{
-    position:absolute; 
+.dataframe.results_table th {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    background: #fff;
+}
+
+table.results_table {
+    display: block;
+
+    white-space: nowrap;
+}
+
+/*.header{
+    position:absolute;
     background-color:#fff;
-    }
-.header+* {margin-top:-1em;}
+}
+
+.header+* {
+    margin-top:-1em;
+}
+*/
 .leftcolumn{
     width:50%;
     text-align:right;
@@ -515,6 +531,7 @@ input[id="id_fixed"], input[id="id_variable"],input[id^="id_main"]{
     text-align:left;
     padding: 0.1em 1em;
 }
+
 #SaveSearchParametersTable{
     margin-bottom:1em;
 }

@@ -2,101 +2,50 @@
 {% load stringfilter %}
 {% block title %}Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|spacify}}{% endblock%}
 {% block content %}
-        
+
 <h2> <p style="word-break:break-word">Search results: <a class="link" href="{% url 'identipy_app:details' searchrun.searchgroup.id %}">{{ searchrun.searchgroup.groupname|spacify }}</a>/{{ searchrun.name|spacify}}</p></h2>
-        
-		{% if searchgroup %}
-        {% if rename_form %}
-        <form action="{% url 'identipy_app:rename' searchgroup.id %}" method="post">
-            {% csrf_token %}
-            {{ rename_form }}
-            <input type="submit" value="OK" class="btn">
-        </form>
+
+{% if rename_form %}
+<form action="{% url 'identipy_app:rename' searchgroup.id %}" method="post">
+    {% csrf_token %}
+    {{ rename_form }}
+    <input type="submit" value="OK" class="btn">
+</form>
+<a href="{% url 'identipy_app:repeat' searchgroup.id %}" class="btn">Repeat search</a>
+{% endif %}
+
+<table id="processes_list" type="bordered">
+{% include 'identipy_app/results_header.html' %}
+{% include 'identipy_app/results_row.html' %}
+</table>
+
+{% if searchrun.totalPSMs %}
+{% include 'identipy_app/download_buttons.html' with type='run' pk=searchrun.id gid=searchrun.searchgroup.id %}
+<div class="vert_block">
+	<div id="img_list">
+        {% for name, figset in figures %}
+            {% if figset %}
+                <h2>{{ name }} distributions</h2>
+                {% for doc in figset %}
+                    <div class="floated_img">
+                        <img src="{{ doc.docfile.url }}" />
+                    </div>
+        	    {% endfor %}
+            {% endif %}
+    	{% endfor %}
+        {% load staticfiles %}
+        {% if dfigs %}
+        <div class="centered">
+            <h2>Scavager descriptors</h2>
+            <img id="legend" src="{% static 'image/legend-new.png' %}"/>
+        </div>
         {% endif %}
-        <a href="{% url 'identipy_app:repeat' searchgroup.id %}" class="btn">Repeat search</a>
+	</div>
+</div>
+{% endif %}
 
-            <table id="processes_list" type="bordered">
-                <tr class="headers">
-                    <th>Search name</th>
-                    <th>PSMs</th>
-                    <th>Peptides</th>
-                    <th>Proteins</th>
-                    <th>FDR, %</th>
-                    <th>FDR type</th>
-                    <th>MS/MS</th>
-                    <th>Unfiltered PSMs</th>
-                </tr>
-            <tr>
-            <td class="td1" style="word-break:break-word">{{ searchrun.name|spacify }}</td>
-            {% if searchrun.numPSMs %}
-            <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=psm">{{ searchrun.numPSMs }}</a></td>
-                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=peptide">{{ searchrun.numPeptides }}</a></td>
-                <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=protein">{{ searchrun.numProteins }}</a></td>
-		    {% else %}
-                <td class="td2">{{ searchrun.numPSMs }}</td>
-                <td class="td2">{{ searchrun.numPeptides }}</td>
-                <td class="td2">{{ searchrun.numProteins }}</td>
-		    {% endif %}
-            <td class="td2">{{ searchrun.searchgroup.fdr_level }}</td>
-            <td class="td2">{{ searchrun.searchgroup.get_fdr_type_display }}</td>
-            <td class="td2">{{ searchrun.numMSMS }}</td>
-            <td class="td2">{{ searchrun.totalPSMs }}</td>
-            </tr>
-            </table>
-		{% else %}
-			<p>There are no searches</p>
-		{% endif %}
-
-    	{% if searchrun.totalPSMs %}
-        <div id="colored" class="centered">
-            Download:
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&run={{ searchrun.id }}">CSV files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&run={{ searchrun.id }}">pepXML files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&run={{ searchrun.id }}&filtered=true">filtered pepXML files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&run={{ searchrun.id }}">MGF files</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&run={{ searchrun.id }}">PNG figures</a>
-        <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&run={{ searchrun.id }}">SVG figures</a>
-        <a class="btn" href="{% url 'identipy_app:showparams' %}?group={{ searchgroup.id }}">show parameters</a>
-        </div>
-        <div class = "vert_block" >
-			<div id="img_list">
-            <h2>PSM distributions</h2>
-            {% for doc in searchrun.get_PSMdistrimagefiles %}
-
-            <div class="floated_img">
-                <img src="{{ doc.docfile.url }}" />
-            </div>
-			{% endfor %}
-                <h2>Peptide distributions</h2>
-			{% for doc in searchrun.get_distrimagefiles %}
-
-            <div class="floated_img">
-                <img src="{{ doc.docfile.url }}" />
-            </div>
-			{% endfor %}
-            <h2>Label-free quantitation</h2>
-			{% for doc in searchrun.get_quantimagefiles %}
-
-            <div class="floated_img">
-                <img src="{{ doc.docfile.url }}" />
-            </div>
-			{% endfor %}
-                {% load staticfiles %}
-                <h2>MP-score descriptors
-                <img id="legend" src="{% static 'image/legend-new.png' %}" /></h2>
-			{% for doc in searchrun.get_mpimagefiles %}
-
-            <div class="floated_img">
-                <img src="{{ doc.docfile.url }}" />
-            </div>
-			{% endfor %}
-			</div>
-            
-		{% endif %}
-        </div>
-        <div id="get_status" class="centered">
-            <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
-        </div>
-           
+<div id="get_status" class="centered">
+    <a class="backbtn" href="{% url 'identipy_app:getstatus' %}">Back to search history</a>
+</div>
 
 {% endblock %}

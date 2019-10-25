@@ -26,16 +26,17 @@ Requirements
     * scipy
     * lxml
       + (if installed with pip, lxml will need development packages of libxml2 and libxslt to compile)
- - MP score and its dependencies
+ - Scavager and its dependencies
     * matplotlib
        + cycler, pyparsing, python-dateutil, functools32
-    * mechanize
+    * CatBoost
+    * Pandas
  - psutil
  - Pillow
 
 IdentiPy: https://bitbucket.org/levitsky/identipy
 
-MP score: https://bitbucket.org/markmipt/mp-score
+Scavager: https://bitbucket.org/markmipt/scavager
 
 The other dependencies can be installed using `pip` or the package manager of your operating system.
 
@@ -43,8 +44,7 @@ How to run IdentiPy Server
 --------------------------
 
 IdentiPy Server currently works on Unix-like operating systems only.
-IdentiPy and MP score are imported from directories adjacent to IdentiPy
-Server.
+IdentiPy and Scavager need to be properly installed to be imported by IdentiPy Server.
 
 Setup
 -----
@@ -54,7 +54,17 @@ Switch to a directory that will hold the installation, then download the three c
 ```
 $ hg clone https://bitbucket.org/levitsky/identipy_server
 $ hg clone https://bitbucket.org/levitsky/identipy
-$ hg clone https://bitbucket.org/markmipt/mp-score
+$ hg clone https://bitbucket.org/markmipt/scavager
+```
+Install Scavager and IdentiPy:
+
+```
+$ cd scavager
+$ pip install -U .
+$ cd ../identipy
+$ python2 setup.py build_ext --inplace
+$ python2 setup.py install
+$ cd ..
 ```
 
 Run these commands to initialize the database:
@@ -98,20 +108,22 @@ Production use
 For more reliable use (especially for multiple-user installations), we recommend running IndetiPy Server with a WSGI-compatible
 web server application like Apache or Nginx+uWSGI, instead of the Django development server:
 
-https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
+https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/
 
 Example configuration files are included:
 
  - `uwsgi_parameters` and `identipy.example.ini` - for _uWSGI_;
  - `identipy.example.conf` - for _nginx_;
  - `example-httpd-vhosts.conf` - for _Apache_ with _mod_wsgi_ and virtual hosts.
- 
+
  You may need to edit the following settings in `identipy_server/settings.py`:
- 
+
   - `SECRET_KEY`
   - `DEBUG`
   - `ALLOWED_HOSTS`
   - `STATIC_ROOT`
+  - `DATABASES` (repeat migration after changing this)
+  - `CACHES`
   - `EMAIL_*` (these are specific to the project)
-  
- For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/1.11/ref/settings/
+
+ For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/2.2/ref/settings/

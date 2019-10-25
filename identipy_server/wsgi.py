@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 """
 
 import os
-import logging, sys
+import logging
 #logging.basicConfig(stream=sys.stderr)
 from django.conf import settings
 import logging.handlers
@@ -77,9 +77,6 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
 class IdentiPyHandler(LogRecordStreamHandler):
     _record_handler = get_handler('identipy_file')
 
-class MPScoreHandler(LogRecordStreamHandler):
-    _record_handler = get_handler('mpscore_file')
-
 class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
     """
     Simple TCP socket-based logging receiver suitable for testing.
@@ -110,13 +107,6 @@ t = threading.Thread(target=_socket_listener_worker,
         name='identipy-listener')
 t.start()
 logger.info('IdentiPy logging initiated.')
-
-# init MP score logging
-t = threading.Thread(target=_socket_listener_worker,
-        args=(settings.LOGGING['handlers']['mp_socket']['port'], MPScoreHandler),
-        name='mpscore-listener')
-t.start()
-logger.info('MP-score logging initiated.')
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
