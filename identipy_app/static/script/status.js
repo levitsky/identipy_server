@@ -5,11 +5,14 @@ function getText(el) {
 }
 
 function isRunning(text) {
-    return (text.slice(8) != 'Finished' && text != 'Dead' && text.slice(-4) != 'dead');
+    var result = (text.slice(8) != 'Finished' && text != 'Dead' && text.slice(-4) != 'dead');
+    console.log('Result: ' + text + ' means ' + result);
+    return result;
 }
 
 function statusUpdate () {
     var elements = $( "#process_list tr[data-sgid]" );
+    console.log(elements);
     var active = [];
     for (i = 0; i < elements.length; i++) {
         stext = getText(elements[i]);

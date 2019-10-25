@@ -1,0 +1,19 @@
+{% load stringfilter %}
+<tr>
+<td><a class="td1" style="word-break:break-word" href="{% url 'identipy_app:figure' searchrun.id %}" class="link" name="results_figure">{{ searchrun.name|spacify }}</a></td>
+<td class="td2">{{ searchrun.numMSMS }}</td>
+<td class="td2">{{ searchrun.totalPSMs }}</td>
+<td class="td2">{{ searchrun.searchgroup.fdr_level }}</td>
+{% if searchrun.numPSMs %}
+    <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=psm">{{ searchrun.numPSMs }}</a></td>
+    <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=peptide">{{ searchrun.numPeptides }}</a></td>
+    <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=protein">{{ searchrun.numProteins }}</a></td>
+    <td><a class="td2" class="link" href="{% url 'identipy_app:show' %}?runid={{ searchrun.id }}&show_type=prot_group">{{ searchrun.numProteinGroups }}</a></td>
+{% else %}
+    <td class="td2">{{ searchrun.numPSMs }}</td>
+    <td class="td2">{{ searchrun.numPeptides }}</td>
+    <td class="td2">{{ searchrun.numProteins }}</td>
+    <td class="td2">{{ searchrun.numProteinGroups }}</td>
+{% endif %}
+
+</tr>

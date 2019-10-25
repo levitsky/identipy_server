@@ -1,0 +1,10 @@
+<div id="colored" class="centered">
+    Download:
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=csv&{{ type }}={{ pk }}">CSV files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&{{ type }}={{ pk }}">pepXML files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=pepxml&filtered=true&{{ type }}={{ pk }}">filtered pepXML files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=mgf&{{ type }}={{ pk }}">MGF files</a>
+    <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs&{{ type }}={{ pk }}">PNG figures</a>
+    <!-- <a class="btn" href="{% url 'identipy_app:download' %}?down_type=figs_svg&{{ type }}={{ pk }}">SVG figures</a> -->
+    <a class="btn" href="{% url 'identipy_app:showparams' gid %}">show parameters</a>
+</div>
