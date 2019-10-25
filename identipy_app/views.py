@@ -1066,7 +1066,7 @@ def getfiles(request, usedclass=False):
             runs = searchgroup.get_searchruns_all()
         for searchrun in runs:
             if down_type == 'csv':
-                filenames = searchrun.rescsv_set.all()
+                filenames = [doc.docfile.path for doc in searchrun.rescsv_set.all()]
             elif down_type == 'pepxml':
                 filtered = request.GET.get('filtered') == 'true'
                 if by_group and searchrun.union and not filtered:
@@ -1077,11 +1077,7 @@ def getfiles(request, usedclass=False):
                 for down_fn in searchrun.get_spectrafiles_paths():
                     filenames.append(down_fn)
             elif down_type == 'figs':
-                for down_fn in searchrun.get_resimage_paths():
-                    filenames.append(down_fn)
-            elif down_type == 'figs_svg':
-                for down_fn in searchrun.get_resimage_paths(ftype='.svg'):
-                    filenames.append(down_fn)
+                filenames = [doc.docfile.path for doc in searchrun.resimagefile_set.all()]
 
         if not filenames:
             logger.debug('Empty download of type %s requested for runs %s. Redirecting...', down_type, [r.id for r in runs])
