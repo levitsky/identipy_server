@@ -9,11 +9,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            runs = SearchRun.objects.exclude(status=SearchRun.FINISHED).exclude(status=SearchRun.DEAD)
+            runs = SearchRun.objects.exclude(status=SearchRun.FINISHED).exclude(status=SearchRun.DEAD).exclude(status=SearchRun.ERROR)
             for r in runs:
                 r.status = SearchRun.DEAD
                 r.save()
                 logger.info('Reaping run %s from %s by %s', r.id, r.searchgroup.groupname, r.searchgroup.user.username)
         except Exception as e:
             logger.error('Startup cleanup failed.\n%s', e)
-     
+

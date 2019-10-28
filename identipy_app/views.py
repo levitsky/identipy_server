@@ -27,6 +27,7 @@ import urllib
 import urlparse
 import glob
 import gzip
+from itertools import izip_longest
 import logging
 logger = logging.getLogger(__name__)
 
@@ -617,7 +618,7 @@ def _enzyme_rule(request, idsettings):
     protease = models.Protease.objects.filter(user=request.user, name=enz).first()
     return protease.rule + '|' + idsettings.get_choices('search', 'enzyme')
 
-def _run_search(request, newrun, c):
+def _run_search(request, newrun, generated_db_path):
     django.db.connection.ensure_connection()
     # logger.debug('run-search (%s): connection ensured.', newrun.id)
     sg = newrun.searchgroup
@@ -626,12 +627,13 @@ def _run_search(request, newrun, c):
     idsettings = main.settings(paramfile)
     idsettings.set('search', 'enzyme', _enzyme_rule(request, idsettings))
     idsettings.set('misc', 'iterate', 'peptides')
-    if idsettings.getboolean('input', 'add decoy'):
-        gpath = aux.generated_db_path(sg)
-        logger.debug('Substituting database path to %s for run %s in group %s', gpath, newrun.id, sg.id)
-        idsettings.set('input', 'database', gpath)
+    if generated_db_path:
+        # gpath = aux.generated_db_path(sg)
+        logger.debug('Substituting database path to %s for run %s in group %s', generated_db_path, newrun.id, sg.id)
+        idsettings.set('input', 'database', generated_db_path)
         idsettings.set('search', 'add decoy', 'no')
     else:
+        logger.debug('Not substituting FASTA path (condition is %s)', generated_db_path)
         idsettings.set('input', 'database', fastafile)
     idsettings.set('output', 'path', sg.dirname())
     _totalrun(request, idsettings, newrun, paramfile)
@@ -659,16 +661,19 @@ def _exists(run):
     return True
 
 def _save_pepxml(filename, run, filtered=False):
-    with open(filename, 'rb') as fl:
-        djangofl = File(fl)
-        pepxmlfile = models.PepXMLFile(docfile=djangofl, user=run.searchgroup.user,
-            run=run, filtered=filtered)
-        pepxmlfile.save()
-    if pepxmlfile.docfile.name != filename:
-        logger.debug('Removing original pepXML file: %s', filename)
-        os.remove(filename)
-    logger.info('pepXML file %s saved for run %s.', filename, run.id)
-    return pepxmlfile
+    try:
+        with open(filename, 'rb') as fl:
+            djangofl = File(fl)
+            pepxmlfile = models.PepXMLFile(docfile=djangofl, user=run.searchgroup.user,
+                run=run, filtered=filtered)
+            pepxmlfile.save()
+        if pepxmlfile.docfile.name != filename:
+            logger.debug('Removing original pepXML file: %s', filename)
+            os.remove(filename)
+        logger.info('pepXML file %s saved for run %s.', filename, run.id)
+        return pepxmlfile
+    except (OSError, IOError) as e:
+        logger.error('Could not import file %s for run %s: %s', filename, run.id, e.args)
 
 def _totalrun(request, idsettings, newrun, paramfile):
     django.db.connection.ensure_connection()
@@ -732,18 +737,18 @@ def _save_img(filename, run):
     logger.debug('Imported: %s', img.docfile.path)
     return img
 
-def _post_process(request, searchgroup, c):
+def _post_process(request, searchgroup, generated_db_path):
     logger.info('Starting Scavager for group %s ...', searchgroup.id)
-    if len(searchgroup.searchrun_set.all()) > 1:
+    if searchgroup.searchrun_set.count() > 1:
         union = searchgroup.searchrun_set.get(union=True)
         union.status = models.SearchRun.RUNNING
         union.save()
     pfiles = []
-    for run in searchgroup.searchrun_set.filter(union=False):
+    for run in searchgroup.searchrun_set.filter(union=False).order_by('id'):
         files = run.get_pepxmlfiles_paths()
         pfiles.extend(files)
     idsettings = main.settings(searchgroup.parameters.path())
-    if idsettings.getboolean('input', 'add decoy'):
+    if generated_db_path:
         dbpath = aux.generated_db_path(searchgroup)
     else:
         dbpath = searchgroup.fasta.all()[0].docfile.path
@@ -769,19 +774,23 @@ def _post_process(request, searchgroup, c):
         }
     logger.debug('Scavager args: %s', scavager_args)
     retv = scavager.main.process_files(scavager_args)
-    if retv <= -100 or retv == -10 * len(searchgroup.searchrun_set.filter(union=False)):
-        run.status = models.SearchRun.ERROR
-        run.save()
+    if isinstance(retv, int) and retv < 0:
+        for run in searchgroup.searchrun_set.all():
+            run.status = models.SearchRun.ERROR
+            run.save()
         logger.error('Scavager for group %s finished with an error (%s).', searchgroup.id, retv)
         return
 
     logger.info('Finished Scavager for group %s.', searchgroup.id)
 
-    for run in searchgroup.searchrun_set.all():
+    for v, run in izip_longest(retv, searchgroup.searchrun_set.order_by('id')):
+        if v is None or v < 0:
+            run.status = models.SearchRun.ERROR
+            run.save()
+            logger.info('Marking run %s as ERROR based on scavager return value %s, skipping file import.', run.id, v)
+            continue
         if run.union:
             bname = os.path.join(searchgroup.dirname(), 'union')
-            # fname = bname + '.scavager.pep.xml'
-            # _save_pepxml(fname, run)
         else:
             pepxmllist = run.get_pepxmlfiles_paths()
             bname = pepxmllist[0].split('.pep.xml')[0]
@@ -819,25 +828,24 @@ def _post_process(request, searchgroup, c):
 
     if searchgroup.notification:
         aux.email_to_user(searchgroup)
-    if retv < 0:
-        run.status = models.SearchRun.ERROR
-        run.save()
+
     logger.info('Group %s finished.', searchgroup.id)
 
 
-def _start_all(request, newgroup, c):
+def _start_all(request, newgroup):
     django.db.connection.ensure_connection()
-    aux.generate_database(newgroup)
+    generated = aux.generate_database(newgroup)
     tmp_procs = []
     for newrun in newgroup.get_searchruns():
         have_waited = False
         while True:
             running = models.SearchRun.objects.filter(status=models.SearchRun.RUNNING)
-            logger.debug('%s runs currently running.', len(running))
-            if len(running) == 0:
+            nr = running.count()
+            logger.debug('%s runs currently running.', nr)
+            if nr == 0:
                 logger.debug('Server idle, starting %s right away ...', newrun.id)
                 break
-            elif len(running) >= RUN_LIMIT:
+            elif nr >= RUN_LIMIT:
                 if not have_waited:
                     logger.debug('Too many active runs, %s waiting ...', newrun.id)
                     have_waited = True
@@ -859,7 +867,7 @@ def _start_all(request, newgroup, c):
 
         newrun.status = models.SearchRun.RUNNING
         newrun.save()
-        p = Thread(target=_run_search, args=(request, newrun, c), name='run-search')
+        p = Thread(target=_run_search, args=(request, newrun, generated), name='run-search')
         p.start()
         tmp_procs.append(p)
 
@@ -871,7 +879,7 @@ def _start_all(request, newgroup, c):
         logger.warning('SearchGroup %s has been deleted, exiting ...', newgroup.pk)
         return
 
-    _post_process(request, newgroup, c)
+    _post_process(request, newgroup, generated)
     django.db.connection.close()
 
 def _sg_from_context(c, user):
@@ -917,7 +925,7 @@ def _repeat(request, sgid):
     sg = get_object_or_404(models.SearchGroup, pk=sgid)
     c = _sg_context_from_sg(sg)
     newgroup = _sg_from_context(c, request.user)
-    t = Thread(target=_start_all, args=(request, newgroup, c), name='start_all')
+    t = Thread(target=_start_all, args=(request, newgroup), name='start_all')
     t.start()
 
 def repeat_search(request, sgid):
@@ -929,14 +937,13 @@ def runidentipy(request):
     failure, c = _sg_context_from_request(request)
     if not failure:
         newgroup = _sg_from_context(c, request.user)
-        t = Thread(target=_start_all, args=(request, newgroup, c), name='start_all')
+        t = Thread(target=_start_all, args=(request, newgroup), name='start_all')
         t.start()
         messages.add_message(request, messages.INFO, 'IdentiPy started')
         return redirect('identipy_app:getstatus')
     else:
         messages.add_message(request, messages.INFO, failure)
         return redirect('identipy_app:searchpage')
-
 
 def search_details(request, pk):
     group = get_object_or_404(models.SearchGroup, id=pk)
