@@ -783,6 +783,8 @@ def _post_process(request, searchgroup, generated_db_path):
         return
 
     logger.info('Finished Scavager for group %s.', searchgroup.id)
+    if isinstance(retv, int):
+        retv = (retv, )
 
     for v, run in izip_longest(retv, searchgroup.searchrun_set.order_by('id')):
         if v is None or v < 0:
