@@ -118,12 +118,25 @@ Example configuration files are included:
 
  You may need to edit the following settings in `identipy_server/settings.py`:
 
-  - `SECRET_KEY`
-  - `DEBUG`
-  - `ALLOWED_HOSTS`
-  - `STATIC_ROOT`
-  - `DATABASES` (repeat migration after changing this)
-  - `CACHES`
-  - `EMAIL_*` (these are specific to the project)
+   - Django settings:
 
- For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/2.2/ref/settings/
+    - `SECRET_KEY`
+    - `DEBUG`
+    - `ALLOWED_HOSTS`
+    - `STATIC_ROOT`
+    - `DATABASES` (repeat migration after changing this)
+    - `CACHES`
+    - `LOGGING`
+
+  - Project-specific settings:
+
+    - `EMAIL_*`
+    - `NUMBER_OF_PARALLEL_RUNS = 3
+    - `STATUS_UPDATE_INTERVAL`
+    - `ZIP_COMPRESSION`
+    - `ALLOW_ZIP64`
+    - `LOCAL_IMPORT`
+    - `URL_IMPORT`
+
+
+For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/2.2/ref/settings/

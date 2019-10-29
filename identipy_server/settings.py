@@ -138,6 +138,7 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_SEND_TO = []
 
 NUMBER_OF_PARALLEL_RUNS = 3
+STATUS_UPDATE_INTERVAL = 5000 # update interval for status page, in milliseconds
 
 # Compression for downloaded ZIP archives.
 # ZIP_STORED (no compression) is faster, ZIP_DEFLATED produces smaller files

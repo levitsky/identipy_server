@@ -177,6 +177,7 @@ def status(request, name_filter=False):
     request.session['res_page'] = res_page
     c.setdefault('res_page', res_page)
     c.update({'processes': processes})
+    c['timeStep'] = settings.STATUS_UPDATE_INTERVAL
     c['current'] = 'get_status'
     return render(request, 'identipy_app/status.html', c)
 

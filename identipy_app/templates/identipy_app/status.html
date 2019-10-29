@@ -61,7 +61,8 @@
 {% block scripts %}
 <script>
     var statusRequestUrl = "{% url 'identipy_app:groupstatus' 0 %}".split('/').slice(0, -2).join('/') + '/';
-    console.log(statusRequestUrl);
+    var timeStep = {{ timeStep}};
+    // console.log(statusRequestUrl);
 </script>
 <script src="{% static 'script/status.js' %}"></script>
 {% endblock %}
