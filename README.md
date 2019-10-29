@@ -131,7 +131,7 @@ Example configuration files are included:
   - Project-specific settings:
 
     - `EMAIL_*`
-    - `NUMBER_OF_PARALLEL_RUNS = 3
+    - `NUMBER_OF_PARALLEL_RUNS`
     - `STATUS_UPDATE_INTERVAL`
     - `ZIP_COMPRESSION`
     - `ALLOW_ZIP64`
