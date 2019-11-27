@@ -772,6 +772,7 @@ def _post_process(request, searchgroup, generated_db_path):
             'quick_union': None,
             'no_correction': True,
             'force_correction': False,
+            'name_suffix': '',
         }
     logger.debug('Scavager args: %s', scavager_args)
     retv = scavager.main.process_files(scavager_args)
