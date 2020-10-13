@@ -43,6 +43,7 @@ def kill_proc_tree(pid, including_parent=True):
         else:
             logger.debug('Successfully killed parent: %s', parent.pid)
 
+
 class BaseDocument(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)
@@ -76,23 +77,25 @@ def upload_to_fasta(instance, filename):
 def upload_to_raw(instance, filename):
     return upload_to_basic('raw', filename, instance.user.id)
 
+
 def upload_to_pepxml(instance, filename):
     return filename
+
 
 def upload_to_params(instance, filename):
     return upload_to_basic('params', filename, instance.user.id)
 
 
 class SpectraFile(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_spectra)
+    docfile = models.FileField(upload_to=upload_to_spectra, max_length=200)
 
 
 class FastaFile(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_fasta)
+    docfile = models.FileField(upload_to=upload_to_fasta, max_length=200)
 
 
 class RawFile(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_raw)
+    docfile = models.FileField(upload_to=upload_to_raw, max_length=200)
 
 
 class OverwriteStorage(FileSystemStorage):
@@ -103,7 +106,7 @@ class OverwriteStorage(FileSystemStorage):
 
 
 class ParamsFile(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_params)
+    docfile = models.FileField(upload_to=upload_to_params, max_length=200)
     type = models.IntegerField(default=3)
     visible = models.BooleanField(default=True)
     title = models.CharField(max_length=80, default='')
@@ -296,13 +299,15 @@ class SearchRun(models.Model):
                 self.numProteinGroups += sum(1 for _ in cf) - 1
         self.save()
 
+
 class PepXMLFile(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage(), max_length=200)
     filtered = models.BooleanField(default=False)
     run = models.ForeignKey(SearchRun)
 
+
 class ResImageFile(BaseDocument):
-    docfile = models.ImageField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    docfile = models.ImageField(upload_to=upload_to_pepxml, storage=OverwriteStorage(), max_length=200)
     ftype = models.CharField(max_length=5, default='.png')
     PSM = 'S'
     PEPTIDE = 'P'
@@ -318,7 +323,7 @@ class ResImageFile(BaseDocument):
     run = models.ForeignKey(SearchRun)
 
 class ResCSV(BaseDocument):
-    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage())
+    docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage(), max_length=200)
     ftype = models.CharField(max_length=10)
     filtered = models.BooleanField(default=True)
     run = models.ForeignKey(SearchRun)
