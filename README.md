@@ -18,7 +18,7 @@ Requirements
 ------------
 
  - Python 2.7
- - Django
+ - Django <= 1.11
  - identipy and its dependencies
     * pyteomics
     * pyteomics.cythonize
@@ -34,9 +34,9 @@ Requirements
  - psutil
  - Pillow
 
-IdentiPy: https://bitbucket.org/levitsky/identipy
+IdentiPy: https://github.com/levitsky/identipy
 
-Scavager: https://bitbucket.org/markmipt/scavager
+Scavager: https://github.com/markmipt/scavager
 
 The other dependencies can be installed using `pip` or the package manager of your operating system.
 
@@ -49,22 +49,21 @@ IdentiPy and Scavager need to be properly installed to be imported by IdentiPy S
 Setup
 -----
 
-Switch to a directory that will hold the installation, then download the three components of IdentiPy Server, like this:
+Download and install IdentiPy and Scavager, either globally or in a virtual environment:
 
 ```
-$ hg clone https://bitbucket.org/levitsky/identipy_server
-$ hg clone https://bitbucket.org/levitsky/identipy
-$ hg clone https://bitbucket.org/markmipt/scavager
-```
-Install Scavager and IdentiPy:
-
-```
-$ cd scavager
-$ pip install -U .
-$ cd ../identipy
+$ git clone https://github.com/levitsky/identipy.git
+$ cd identipy
+$ git checkout exp5  # currently compatible branch
 $ python2 setup.py build_ext --inplace
-$ python2 setup.py install
-$ cd ..
+$ pip2 install .
+
+$ pip2 install git+https://github.com/markmipt/scavager.git
+```
+
+Clone this reposoitory into the location where you want to keep the uploads and results:
+```
+$ git clone https://github.com/levitsky/identipy_server.git
 ```
 
 Run these commands to initialize the database:
@@ -108,7 +107,7 @@ Production use
 For more reliable use (especially for multiple-user installations), we recommend running IndetiPy Server with a WSGI-compatible
 web server application like Apache or Nginx+uWSGI, instead of the Django development server:
 
-https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/
+https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
 
 Example configuration files are included:
 
@@ -116,9 +115,9 @@ Example configuration files are included:
  - `identipy.example.conf` - for _nginx_;
  - `example-httpd-vhosts.conf` - for _Apache_ with _mod_wsgi_ and virtual hosts.
 
- You may need to edit the following settings in `identipy_server/settings.py`:
+You may need to edit the following settings in `identipy_server/settings.py`:
 
-   - Django settings:
+  - Django settings:
 
     - `SECRET_KEY`
     - `DEBUG`
@@ -139,4 +138,4 @@ Example configuration files are included:
     - `URL_IMPORT`
 
 
-For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/2.2/ref/settings/
+For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/1.11/ref/settings/
