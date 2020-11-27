@@ -244,6 +244,7 @@ class ResultsDetailed():
         return headers_mapping
 
     def custom_labels(self, labels):
+        logger.debug('Settings labels to: %s', labels)
         self.labels = labels
 
     def get_labels(self):
@@ -271,6 +272,7 @@ class ResultsDetailed():
     def get_display(self):
         out = self.output_table()
         mapping = self._update_headers(out)
+        logger.debug('Displaying a table with columns: %s', self.get_labels())
         with pd.option_context('display.max_colwidth', -1):
             return out.to_html(
                 columns=[mapping[c] for c in self.labels], index=False, classes=('results_table',), escape=False)
@@ -283,6 +285,7 @@ def spectrum_figure(*args, **kwargs):
     pylab.savefig(figfile, format='svg')
     data = base64.b64encode(figfile.getvalue())
     return data
+
 
 def _copy_in_chunks(f, path):
     try:
@@ -298,14 +301,17 @@ def _copy_in_chunks(f, path):
     else:
         return path
 
+
 def generated_db_path(sg):
     return os.path.join(sg.dirname(), 'generated.fasta')
+
 
 def generate_database(sg):
     idsettings = main.settings(sg.parameters.path())
     fastafile = sg.fasta.all()[0].path()
     idsettings.set('input', 'database', fastafile)
     return utils.generate_database(idsettings, generated_db_path(sg))
+
 
 def email_to_user(group):
     searchname = group.groupname
