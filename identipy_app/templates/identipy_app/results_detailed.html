@@ -45,7 +45,3 @@ Search results: {{ searchrun.searchgroup.groupname|spacify }}/{{ searchrun.name|
     <h2><a class="btn" href="{% url 'identipy_app:show' %}?download_custom_csv=true&runid={{ searchrun.id }}{% if results_detailed.protein %}&dbname={{ results_detailed.protein }}{% endif %}{% if results_detailed.peptide %}&peptide={{ results_detailed.peptide }}{% endif %}&show_type={{ ftype }}">Download table</a></h2>
 </div>
 {% endblock %}
-
-{% block scripts %}
-<script src="{% static 'script/results_table.js' %}"></script>
-{% endblock %}

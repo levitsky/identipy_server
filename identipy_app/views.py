@@ -40,12 +40,14 @@ from . import forms, models, aux
 
 RUN_LIMIT = getattr(settings, 'NUMBER_OF_PARALLEL_RUNS', 1)
 
+
 def add_forms(request, c):
     c['paramtype'] = c.get('paramtype')
     if not c['paramtype']:
         c['paramtype'] = request.session.setdefault('paramtype', 3)
     request.session['paramtype'] = c['paramtype']
     c['SearchForms'] = forms.search_forms_from_request(request)
+
 
 def form_dispatch(request):
     c = {}
@@ -83,11 +85,13 @@ def form_dispatch(request):
         request.session['paramtype'] = c['paramtype'] = gettype
     return redirect(*redirect_map[action])
 
+
 def save_parameters(request):
     sforms = forms.search_forms_from_request(request, ignore_post=True)
     aux.save_params_new(sforms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
     messages.add_message(request, messages.INFO, 'Parameters saved.')
     return redirect('identipy_app:searchpage')
+
 
 def index(request):
     # TODO: fix the double "if logged in" logic
@@ -95,9 +99,11 @@ def index(request):
         return redirect('identipy_app:searchpage')
     return redirect('identipy_app:loginform')
 
+
 def details(request, pK):
     doc = get_object_or_404(models.SpectraFile, id=pK)
     return render(request, 'identipy_app/details.html', {'document': doc})
+
 
 def delete(request, usedclass):
     usedname = usedclass.__name__
@@ -120,13 +126,16 @@ def delete(request, usedclass):
 
     return redirect(*request.session['redirect'])
 
+
 def logout_view(request):
     logout(request)
     return redirect('identipy_app:index')
 
+
 def loginview(request):
     c = {'current': 'loginform'}
     return render(request, 'identipy_app/login.html', c)
+
 
 def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app:loginform'):
     user = authenticate(username=request.POST['login'], password=request.POST['password'])
@@ -138,6 +147,7 @@ def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app
     else:
         messages.add_message(request, messages.INFO, 'Wrong username or password.')
         return redirect(onfail)
+
 
 def delete_search(request):
     action = request.POST['submit_action']
@@ -151,6 +161,7 @@ def delete_search(request):
     if action == 'Repeat':
         messages.add_message(request, messages.INFO, 'Starting bulk repeat.')
     return redirect('identipy_app:getstatus')
+
 
 def status(request, name_filter=False):
     logger.debug('Status page requested by %s', request.user)
@@ -181,6 +192,7 @@ def status(request, name_filter=False):
     c['current'] = 'get_status'
     return render(request, 'identipy_app/status.html', c)
 
+
 def _save_uploaded_file(uploadedfile, user):
     if isinstance(uploadedfile, basestring):
         fname = uploadedfile
@@ -204,6 +216,7 @@ def _save_uploaded_file(uploadedfile, user):
         return newdoc
     else:
         logging.error('Unsupported file uploaded: %s', uploadedfile)
+
 
 def upload(request):
     c = {}
@@ -257,6 +270,7 @@ def upload(request):
     c['commonform'] = commonform
     return render(request, 'identipy_app/upload.html', c)
 
+
 def _dispatch_file_handling(f, user, opener=None, fext=None):
     if isinstance(f, basestring):
         fname = f
@@ -292,6 +306,7 @@ def _dispatch_file_handling(f, user, opener=None, fext=None):
     if opener is None: opener = lambda f: open(f, 'rb')
     return False, (fname, path, opener)
 
+
 def _local_import(fname, user, link=False):
     logger.info('IMPORTING FILE: %s', fname)
     fext = os.path.splitext(fname)[-1][1:].lower()
@@ -326,6 +341,7 @@ def _local_import(fname, user, link=False):
             os.symlink(fname, path)
         return _save_uploaded_file(path, user)
 
+
 def _local_import_worker(request):
     fname = request.POST.get('filePath')
     link = request.POST.get('link')
@@ -341,6 +357,7 @@ def _local_import_worker(request):
     message = '{} file(s) imported.'.format(n)
     messages.add_message(request, messages.INFO, message)
     django.db.connection.close()
+
 
 def local_import(request):
     if request.method == 'POST':
@@ -364,6 +381,7 @@ def local_import(request):
         if next:
             return redirect(*next.pop())
     return redirect('identipy_app:upload')
+
 
 def _url_import_worker(request):
     fname = request.POST.get('fileUrl')
@@ -396,6 +414,7 @@ def _url_import_worker(request):
         doc.save()
     django.db.connection.close()
 
+
 def url_import(request):
     if request.method == 'POST':
         t = Thread(target=_url_import_worker, args=(request,), name='url-import')
@@ -406,6 +425,7 @@ def url_import(request):
             return redirect(*next.pop())
     return redirect('identipy_app:upload')
 
+
 def searchpage(request):
     c = {}
     c['paramtype'] = request.session.setdefault('paramtype', 3)
@@ -415,15 +435,18 @@ def searchpage(request):
         c['chosen' + key] = klass.objects.filter(id__in=request.session.get('chosen_' + key, []))
     return render(request, 'identipy_app/startsearch.html', c)
 
+
 def contacts(request):
     c = {}
     c['current'] = 'contacts'
     return render(request, 'identipy_app/contacts.html', c)
 
+
 def about(request):
     c = {}
     c['current'] = 'about'
     return render(request, 'identipy_app/about.html', c)
+
 
 def email(request):
     if all(z in request.POST for z in ['subject', 'message']):
@@ -444,6 +467,7 @@ def email(request):
     else:
         form = forms.ContactForm(initial={'from_email': request.user.username})
     return render(request, "identipy_app/email.html", {'form': form})
+
 
 def add_modification(request):
     c = {}
@@ -491,6 +515,7 @@ def add_modification(request):
     else:
         c['modificationform'] = forms.AddModificationForm()
         return render(request, 'identipy_app/add_modification.html', c)
+
 
 def add_protease(request):
     c = {}
@@ -544,6 +569,7 @@ def add_protease(request):
         c['proteaseform'] = forms.AddProteaseForm()
         c['proteases'] = proteases
         return render(request, 'identipy_app/add_protease.html', c)
+
 
 def files_view(request, what):
     what_orig = what
@@ -614,10 +640,12 @@ def files_view(request, what):
     c.update({'form': form, 'used_class': what})
     return render(request, 'identipy_app/choose.html', c)
 
+
 def _enzyme_rule(request, idsettings):
     enz = idsettings.get('search', 'enzyme')
     protease = models.Protease.objects.filter(user=request.user, name=enz).first()
     return protease.rule + '|' + idsettings.get_choices('search', 'enzyme')
+
 
 def _run_search(request, newrun, generated_db_path):
     django.db.connection.ensure_connection()
@@ -646,6 +674,7 @@ def _run_search(request, newrun, generated_db_path):
         logger.warning('Run %s appears to have been killed. Exiting run-search', newrun.id)
     django.db.connection.close()
 
+
 def _set_pepxml_path(idsettings, inputfile):
     if idsettings.has_option('output', 'path'):
         outpath = idsettings.get('output', 'path')
@@ -654,12 +683,14 @@ def _set_pepxml_path(idsettings, inputfile):
     return os.path.join(outpath, os.path.splitext(
         os.path.basename(inputfile))[0] + os.path.extsep + 'pep' + os.path.extsep + 'xml')
 
+
 def _exists(run):
     time.sleep(2)
     if not models.SearchRun.objects.filter(pk=run.pk).exists():
         logger.info('The SearchRun object %s has been deleted, exiting ...', run.pk)
         return False
     return True
+
 
 def _save_pepxml(filename, run, filtered=False):
     try:
@@ -675,6 +706,7 @@ def _save_pepxml(filename, run, filtered=False):
         return pepxmlfile
     except (OSError, IOError) as e:
         logger.error('Could not import file %s for run %s: %s', filename, run.id, e.args)
+
 
 def _totalrun(request, idsettings, newrun, paramfile):
     django.db.connection.ensure_connection()
@@ -695,8 +727,10 @@ def _totalrun(request, idsettings, newrun, paramfile):
         return
     django.db.connection.close()
 
+
 def _runproc(inputfile, idsettings):
     utils.write_pepxml(inputfile, idsettings, main.process_file(inputfile, idsettings))
+
 
 def _save_csv(suffix, ftype, run, bname):
     logger.debug('Importing: %s', bname + suffix)
@@ -714,6 +748,7 @@ def _save_csv(suffix, ftype, run, bname):
     else:
         logger.debug('File not found.')
 
+
 def _get_img_type(fname):
     if fname[:4] == 'PSMs':
         return models.ResImageFile.PSM
@@ -722,6 +757,7 @@ def _get_img_type(fname):
     if 'NSAF' in fname or 'sequence coverage' in fname:
         return models.ResImageFile.PROTEIN
     return models.ResImageFile.OTHER
+
 
 def _save_img(filename, run):
     ftype = os.path.splitext(filename)[-1]
@@ -737,6 +773,7 @@ def _save_img(filename, run):
         os.remove(filename)
     logger.debug('Imported: %s', img.docfile.path)
     return img
+
 
 def _post_process(request, searchgroup, generated_db_path):
     logger.info('Starting Scavager for group %s ...', searchgroup.id)
@@ -886,6 +923,7 @@ def _start_all(request, newgroup):
     _post_process(request, newgroup, generated)
     django.db.connection.close()
 
+
 def _sg_from_context(c, user):
     newgroup = models.SearchGroup(groupname=c['runname'], user=user)
     newgroup.save()
@@ -895,6 +933,7 @@ def _sg_from_context(c, user):
     newgroup.set_notification()
     newgroup.set_FDR()
     return newgroup
+
 
 def _sg_context_from_request(request):
     c = {}
@@ -915,6 +954,7 @@ def _sg_context_from_request(request):
         c['paramtype'] = request.session['paramtype']
     return failure, c
 
+
 def _sg_context_from_sg(sg):
     c = {}
     c['runname'] = sg.groupname
@@ -925,6 +965,7 @@ def _sg_context_from_sg(sg):
     c['paramtype'] = 3
     return c
 
+
 def _repeat(request, sgid):
     sg = get_object_or_404(models.SearchGroup, pk=sgid)
     c = _sg_context_from_sg(sg)
@@ -932,10 +973,12 @@ def _repeat(request, sgid):
     t = Thread(target=_start_all, args=(request, newgroup), name='start_all')
     t.start()
 
+
 def repeat_search(request, sgid):
     _repeat(request, sgid)
     messages.add_message(request, messages.INFO, 'IdentiPy started')
     return redirect('identipy_app:getstatus')
+
 
 def runidentipy(request):
     failure, c = _sg_context_from_request(request)
@@ -948,6 +991,7 @@ def runidentipy(request):
     else:
         messages.add_message(request, messages.INFO, failure)
         return redirect('identipy_app:searchpage')
+
 
 def search_details(request, pk):
     group = get_object_or_404(models.SearchGroup, id=pk)
@@ -1117,6 +1161,7 @@ def getfiles(request, usedclass=False):
     logger.debug('Returning response with %s.', zip_filename)
     return resp
 
+
 def group_status(request, sgid):
     sg = get_object_or_404(models.SearchGroup, id=sgid)
     return JsonResponse({
@@ -1126,6 +1171,7 @@ def group_status(request, sgid):
             for r in sg.searchrun_set.all()),
         'total': len(sg.searchrun_set.all())
         })
+
 
 @cache_page(30*60)
 def spectrum(request):
@@ -1184,6 +1230,7 @@ def spectrum(request):
     figure = aux.spectrum_figure(spectrum, modseq, title=modseq, aa_mass=aa_mass, ftol=ftol)
     context = {'result': result, 'figure': figure.decode('utf-8')}
     return render(request, 'identipy_app/spectrum.html', context)
+
 
 def rename(request, pk):
     if request.method != 'POST':

@@ -24,6 +24,7 @@ csv.field_size_limit(10000000)
 import logging
 logger = logging.getLogger(__name__)
 
+
 def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     # lfq_type from ['NSAF', 'SIn', 'emPAI']:
     dframe = pd.read_csv(inputfile, sep='\t')
@@ -33,8 +34,10 @@ def get_LFQ_dataframe(inputfile, lfq_type='NSAF'):
     dframe = dframe[[lfq_type + label]]
     return dframe
 
+
 def concat_LFQ_tables(filenames):
     return pd.concat([get_LFQ_dataframe(f) for f in filenames], axis=1, sort=True)
+
 
 def convert_linear(dfout):
     ref_col = None
@@ -52,6 +55,7 @@ def convert_linear(dfout):
             dfout[col] = dfout[col].apply(lambda x: x * a + b)
     return dfout
 
+
 def fill_missing_values(dfout):
     min_lfq_dict = dict()
     for col in dfout.columns:
@@ -59,11 +63,13 @@ def fill_missing_values(dfout):
     dfout = dfout.fillna(value=min_lfq_dict)
     return dfout
 
+
 def process_LFQ(filenames, outpath):
     dframe = concat_LFQ_tables(filenames)
     dframe = convert_linear(dframe)
     dframe = fill_missing_values(dframe)
     dframe.to_csv(path_or_buf=outpath, sep='\t', encoding='utf-8')
+
 
 def get_size(start_path = '.'):
     total_size = 0
@@ -72,6 +78,7 @@ def get_size(start_path = '.'):
             fp = os.path.join(dirpath, f)
             total_size += os.path.getsize(fp)
     return float(total_size)
+
 
 def save_mods(uid, chosenmods, fixed, paramtype=3):
     import models
@@ -85,6 +92,7 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
         raw_config.set('modifications', mod.label, mod.mass)
     with open(paramobj.docfile.name, 'w') as f:
         raw_config.write(f)
+
 
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
     from models import ParamsFile, Protease
