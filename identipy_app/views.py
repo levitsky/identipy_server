@@ -1040,7 +1040,6 @@ def showparams(request, searchgroupid):
     return render(request, 'identipy_app/params.html', c)
 
 
-@cache_page(30*60)
 def show(request):
     c = {}
     ftype = request.GET.get('show_type')
