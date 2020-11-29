@@ -1,14 +1,27 @@
 {% extends "identipy_app/base.html" %}
 {% block content %}
 
-<p>IdentiPy Server, version 1.0, release date 01.01.2017</p>
+<p>Version information:</p>
+<p>
+<ul>
+    <li>
+        IdentiPy Server {{ identipy_server_version }} [1]
+    </li>
+    <li>
+        IdentiPy {{ identipy_version }} [1]
+    </li>
+    <li>
+        Scavager {{ scavager_version }} [2]
+    </li>
+</ul>
+</p>
 
 <p>Software performs:</p>
 <ul>
-    <li>database search for peptide and protein matching with calculation of HyperScore [1] or MorpheusScore [2] for ranking peptide-spectrum matches;</li>
-    <li>filtering to a given percentage of global false discovery rate (FDR) using target-decoy approach [3];</li>
-    <li>validation of the protein identification results using MPscore algorithm [4];</li>
-    <li>label-free quantitation using spectral count based methods (Normalized Spectral Index [5], Exponentially Modified Protein Abundance Index [6], Normalized Spectral Abundance Factor [7]).</li>
+    <li>database search for peptide and protein matching [1];</li>
+    <li>validation of the protein identification results using Scavager algorithm [2];</li>
+    <li>filtering to a given percentage of global false discovery rate (FDR) using target-decoy approach;</li>
+    <li>label-free quantitation using spectral counting (Normalized Spectral Abundance Factor [3]).</li>
 </ul>
 
 <p>This software provides a Web interface for specification of search parameters and inspection of results.
@@ -18,17 +31,23 @@ IdentiPy search engine supports the following formats:</p>
     <li>MGF or mzML for MS/MS data</li>
 </ul>
 
-<p>To start your search, please, <a class="link" href="{% url 'identipy_app:loginform' %} ">log in</a> or <a class="link" href="{% url 'identipy_app:contacts' %}">contact</a> the administrators to create an account.</p>
+{% if not user.is_authenticated %}
+<p>To start your search, please, <a class="link" href="{% url 'identipy_app:loginform' %}">log in</a> or <a class="link" href="{% url 'identipy_app:contacts' %}">contact</a> the administrators to create an account.</p>
+{% endif %}
 
-<p> Cited literature: </p>
+<p> Cited literature:</p>
 <ol>
-    <li>Craig R., Beavis R.C. TANDEM: matching proteins with tandem mass spectra // Bioinformatics. 2004. Vol. 20, № 9. P. 1466–1467.</li>
-    <li>Wenger C.D., Coon J.J. A Proteomics Search Algorithm Specifically Designed for High-Resolution Tandem Mass Spectra // J. Proteome Res. 2013. Vol. 12, № 3. P. 1377–1386.</li>
-    <li>Elias J.E., Gygi S.P. Target-decoy search strategy for increased confidence in large-scale protein identifications by mass spectrometry // Nat. Methods. 2007. Vol. 4, № 3. P. 207–214.</li>
-    <li>Ivanov M.V. et al. Empirical Multidimensional Space for Scoring Peptide Spectrum Matches in Shotgun Proteomics // J. Proteome Res. 2014. Vol. 13, № 4. P. 1911–1920.</li>
-    <li>Griffin N.M. et al. Label-free, normalized quantification of complex mass spectrometry data for proteomic analysis // Nat. Biotechnol. 2010. Vol. 28, № 1. P. 83–89.</li>
-    <li>Ishihama Y. et al. Exponentially modified protein abundance index (emPAI) for estimation of absolute protein amount in proteomics by the number of sequenced peptides per protein // Mol. Cell. Proteomics MCP. 2005. Vol. 4, № 9. P. 1265–1272.</li>
-    <li>Zybailov B.L., Florens L., Washburn M.P. Quantitative shotgun proteomics using a protease with broad specificity and normalized spectral abundance factors // Mol. Biosyst. 2007. Vol. 3, № 5. P. 354–360.</li>
+    <li>
+        <a href="https://doi.org/10.1021/acs.jproteome.7b00640">Levitsky, Lev I., Mark V. Ivanov, Anna A. Lobas, Julia A. Bubis, Irina A. Tarasova, Elizaveta M. Solovyeva, Marina L. Pridatchenko, and Mikhail V. Gorshkov.
+        “IdentiPy: An Extensible Search Engine for Protein Identification in Shotgun Proteomics.” Journal of Proteome Research 17, no. 7 (July 6, 2018): 2249–55.</a>
+    </li>
+    <li><a href="https://doi.org/10.1002/pmic.201800280">Ivanov, Mark V., Lev I. Levitsky, Julia A. Bubis, and Mikhail V. Gorshkov.
+        “Scavager: A Versatile Postsearch Validation Algorithm for Shotgun Proteomics Based on Gradient Boosting.” PROTEOMICS 19, no. 3 (2019): 1800280.</a>
+    </li>
+    <li>
+        <a href="http://doi.org/10.1039/b701483j">Zybailov B.L., Florens L., Washburn M.P. “Quantitative shotgun proteomics using a protease with broad specificity and normalized spectral abundance factors”
+        Mol. Biosyst. 2007. Vol. 3, № 5. P. 354–360.</a>
+    </li>
 </ol>
 
 {% endblock %}

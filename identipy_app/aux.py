@@ -8,7 +8,7 @@ from io import BytesIO
 import base64
 from urllib import quote_plus, urlencode
 import ast
-
+import subprocess
 from django.core.files import File
 from django.conf import settings
 from django.urls import reverse
@@ -323,3 +323,11 @@ def email_to_user(group):
         logger.error('Could not send email to user %s about run %s:\n%s', username, searchname, e)
     else:
         logger.info('Email notification on search %s sent to %s', searchname, username)
+
+
+def get_version():
+    try:
+        return 'revision ' + subprocess.check_output(['git', 'describe', '--always'])
+    except subprocess.CalledProcessError as e:
+        logger.debug('Failed to run "git describe": %s', e.args)
+        return settings.VERSION

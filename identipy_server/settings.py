@@ -117,8 +117,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-MEDIA_ROOT=''
-MEDIA_URL='/media/'
+MEDIA_ROOT = ''
+MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = ''
@@ -138,7 +138,7 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_SEND_TO = []
 
 NUMBER_OF_PARALLEL_RUNS = 3
-STATUS_UPDATE_INTERVAL = 5000 # update interval for status page, in milliseconds
+STATUS_UPDATE_INTERVAL = 5000  # update interval for status page, in milliseconds
 
 # Compression for downloaded ZIP archives.
 # ZIP_STORED (no compression) is faster, ZIP_DEFLATED produces smaller files
@@ -148,49 +148,51 @@ ALLOW_ZIP64 = True
 LOCAL_IMPORT = True
 URL_IMPORT = True
 
+VERSION = '1.0'  # displayed on /about page if git describe is not available
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '%(levelname)8s: %(asctime)s %(module)16s %(process)5d %(threadName)12s %(message)s'
-            },
+        },
         'simple': {
             'format': '%(levelname)s %(message)s'
-            },
         },
+    },
     'handlers': {
         'server_file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'identipy_server.log'),
             'formatter': 'verbose',
-            },
+        },
         'identipy_file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'identipy.log'),
             'formatter': 'verbose',
-            },
+        },
         'scavager_file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'scavager.log'),
             'formatter': 'verbose',
-            },
+        },
         'stream': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            },
+        },
         'null': {
             'class': 'logging.NullHandler',
-            },
+        },
         'ipy_socket': {
             'class': 'logging.handlers.SocketHandler',
             'host': 'localhost',
             'port': 13014,
-            },
         },
+    },
     'loggers': {
         'django': {
             'handlers': ['stream'],

@@ -28,6 +28,7 @@ import urlparse
 import glob
 import gzip
 from itertools import izip_longest
+import pkg_resources
 import logging
 logger = logging.getLogger(__name__)
 
@@ -445,6 +446,9 @@ def contacts(request):
 def about(request):
     c = {}
     c['current'] = 'about'
+    c['scavager_version'] = pkg_resources.get_distribution('scavager').version
+    c['identipy_version'] = pkg_resources.get_distribution('identipy').version
+    c['identipy_server_version'] = aux.get_version()
     return render(request, 'identipy_app/about.html', c)
 
 

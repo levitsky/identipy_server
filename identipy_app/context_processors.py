@@ -7,8 +7,7 @@ _menubar = [
             {'id': 'contacts', 'value': 'contacts', 'name': 'contacts'}
           ]
 
-_menufields = [{'about', 'loginform', 'contacts'}, {'searchpage', 'upload', 'get_status', 'contacts'}]
-
+_menufields = [{'about', 'loginform', 'contacts'}, {'searchpage', 'upload', 'get_status', 'contacts', 'about'}]
 
 
 def menubar(request):
