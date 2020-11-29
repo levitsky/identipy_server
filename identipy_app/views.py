@@ -1033,8 +1033,7 @@ def showparams(request, searchgroupid):
     logger.debug('Showing params from file %s', params_file.path())
 
     c['SearchForms'] = {}
-    for sftype in ['main'] + (['postsearch'] if c.get('paramtype', 3) == 3 else []):
-        c['SearchForms'][sftype] = forms.SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype=sftype, prefix=sftype)
+    c['SearchForms']['main'] = forms.SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype='main', prefix='main')
     fastas = runobj.fasta.all()
     if len(fastas):
         c['fastaname'] = ' + '.join(f.name() for f in fastas)
@@ -1177,7 +1176,7 @@ def group_status(request, sgid):
         })
 
 
-@cache_page(30*60)
+@cache_page(30 * 60)
 def spectrum(request):
     def save_offsets(reader):
         try:

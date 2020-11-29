@@ -12,6 +12,7 @@ from pyteomics import parser
 from . import models
 from identipy.utils import CustomRawConfigParser
 
+
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
         return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
@@ -50,18 +51,6 @@ class SubmitButtonField(forms.Field):
         return value
 
 
-sftype_map = {
-    'psm count': 'postsearch',
-    'psms per protein': 'postsearch',
-    'charge states': 'postsearch',
-    'potential modifications': 'postsearch',
-    'fragment mass tolerance, da': 'postsearch',
-    'precursor mass difference, ppm': 'postsearch',
-    'isotopes mass difference, da': 'postsearch',
-    'missed cleavages': 'postsearch',
-    'rt difference, min': 'postsearch'
-}
-
 params_map = {
     'enzyme': SubmitButtonField(label="", initial="").widget.render(
         'enzymelink', 'enzyme', 'submit_action'),
@@ -78,16 +67,6 @@ params_map = {
     'add decoy': ('generate decoy db', 'generate decoy database on the fly'),
     'minimum charge': ('minimum charge', 'minimum  precursor charge state'),
     'maximum charge': ('maximum charge', 'maximum  precursor charge state'),
-    'product accuracy': ('product accuracy, Da', ''),
-    'psm count': ('PSM count', ''),
-    'psms per protein': ('PSMs per protein', ''),
-    'charge states': ('charge states', ''),
-    'potential modifications': ('potential modifications', ''),
-    'fragment mass tolerance, da': ('fragment mass tolerance', ''),
-    'precursor mass difference, ppm': ('precursor mass difference', ''),
-    'isotopes mass difference, da': ('isotopes mass error', ''),
-    'missed cleavages': ('missed cleavages', ''),
-    'rt difference, min': ('RT difference', ''),
     'precursor isotope mass error': ('precursor isotope mass error', "When the value for this parameter is not 0, "
                                      "the parent ion mass tolerance is expanded by opening up multiple tolerance windows "
                                      "centered on the first N 13C isotope peaks for a peptide. "
@@ -108,6 +87,7 @@ def get_label(name):
 class CommonForm(forms.Form):
     commonfiles = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
         label='Upload')
+
 
 class LocalImportForm(forms.Form):
     filePath = forms.CharField(max_length=120)
@@ -137,12 +117,11 @@ class SearchParametersForm(forms.Form):
         self.sftype = kwargs.pop('sftype', 'main')
         super(SearchParametersForm, self).__init__(*args, **kwargs)
 
-        def get_allowed_values(settings, sftype):
+        def get_values(settings):
             for section in settings.sections():
                 for param in settings.items(section):
                     if '|' in param[1]:
-                        if sftype_map.get(param[0], 'main') == sftype:
-                            yield [param[1][::-1].split('|', 1)[0][::-1], ] + [param[0], param[1][::-1].split('|', 1)[-1][::-1]]
+                        yield [param[1][::-1].split('|', 1)[0][::-1], ] + [param[0], param[1][::-1].split('|', 1)[-1][::-1]]
 
         def get_field(fieldtype, label, initial):
             if fieldtype == 'type>float':
@@ -158,7 +137,7 @@ class SearchParametersForm(forms.Form):
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
 
         if raw_config:
-            for param in get_allowed_values(raw_config, self.sftype):
+            for param in get_values(raw_config):
                 label = mark_safe(get_label(param[1]))
                 if 'class>protease' in param[0]:
                     proteases = models.Protease.objects.filter(user=userid)
@@ -199,7 +178,6 @@ class SearchParametersForm(forms.Form):
                      "precursor isotope mass error",
                      "product accuracy",
                      "fdr",
-                     "fdr_type",
                      "minimum charge",
                      "maximum charge",
                      "add decoy",
@@ -220,15 +198,6 @@ class SearchParametersForm(forms.Form):
                      "show empty",
                      "candidates",
                      "model",
-                     "psm count",
-                     "psms per protein",
-                     "charge states",
-                     "potential modifications",
-                     "fragment mass tolerance, da",
-                     "precursor mass difference, ppm",
-                     "isotopes mass difference, da",
-                     "missed cleavages",
-                     "rt difference, min",
                      "fixed",
                      "variable"]
 
@@ -236,7 +205,6 @@ class SearchParametersForm(forms.Form):
                          for k in key_order if k in self.fields)
         od.update(self.fields)
         self.fields = od
-
 
 
 def search_forms_from_request(request, ignore_post=False):
@@ -249,21 +217,20 @@ def search_forms_from_request(request, ignore_post=False):
 def search_form_for_params(paramobj, post=None, paramtype=3):
     sForms = {}
     kwargs = _sform_kwargs_from_obj(paramobj)
-    for sftype in ['main', 'postsearch']:
-        if sftype == 'postsearch' and paramtype != 3:
-            continue
-        kwargs.update(sftype=sftype, prefix=sftype)
-        if post:
-            sForms[sftype] = SearchParametersForm(post, **kwargs)
-        else:
-            sForms[sftype] = SearchParametersForm(**kwargs)
+    sftype = 'main'
+    kwargs.update(sftype=sftype, prefix=sftype)
+    if post:
+        sForms[sftype] = SearchParametersForm(post, **kwargs)
+    else:
+        sForms[sftype] = SearchParametersForm(**kwargs)
     return sForms
 
 
 def _get_latest_params(request):
     return models.ParamsFile.objects.get(
-            docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
-            user=request.user.id)
+        docfile__endswith='latest_params_{}.cfg'.format(request.session.setdefault('paramtype', 3)),
+        user=request.user.id)
+
 
 def _sform_kwargs_from_obj(paramobj):
     raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
@@ -271,10 +238,12 @@ def _sform_kwargs_from_obj(paramobj):
     kwargs = dict(raw_config=raw_config, user=paramobj.user, label_suffix='')
     return kwargs
 
+
 def _kwargs_for_search_form(request):
     paramobj = _get_latest_params(request)
     return _sform_kwargs_from_obj(paramobj)
-    
+
+
 class ContactForm(forms.Form):
     subject = forms.CharField(required=True)
     message = forms.CharField(widget=forms.Textarea)
@@ -291,6 +260,6 @@ class AddModificationForm(forms.Form):
     mass = forms.CharField(max_length=80, required=True)
     aminoacids = forms.CharField(max_length=25, required=True)
 
+
 class RenameForm(forms.Form):
     newname = forms.CharField(max_length=80, required=True, label='Rename')
-
