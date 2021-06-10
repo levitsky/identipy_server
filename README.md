@@ -79,7 +79,6 @@ Then create a superuser account to manage the database...
 
 ```
 $ python manage.py createsuperuser
-
 ```
 And finally, create a regular user account:
 
