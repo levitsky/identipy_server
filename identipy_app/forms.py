@@ -12,6 +12,9 @@ from pyteomics import parser
 from . import models
 from identipy.utils import CustomRawConfigParser
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class SubmitButtonWidget(forms.Widget):
     def render(self, id, name, value, attrs=None):
@@ -124,6 +127,7 @@ class SearchParametersForm(forms.Form):
                         yield [param[1][::-1].split('|', 1)[0][::-1], ] + [param[0], param[1][::-1].split('|', 1)[-1][::-1]]
 
         def get_field(fieldtype, label, initial):
+            logger.debug('Got fieldtype: %s, label: %s, initial: %s', fieldtype, label, initial)
             if fieldtype == 'type>float':
                 return forms.FloatField(label=label, initial=initial, required=False,
                     widget=forms.NumberInput(attrs={'step': 0.01 if 'product accuracy, Da' in label else 1}))
@@ -135,6 +139,7 @@ class SearchParametersForm(forms.Form):
                                            {'readonly': 'readonly'} if label in [get_label('fixed'), get_label('variable')] else {})))
             elif fieldtype == 'type>boolean':
                 return forms.BooleanField(label=label, initial=True if int(initial) else False, required=False)
+            logger.debug('RETURNING NONE from get_field')
 
         if raw_config:
             for param in get_values(raw_config):
@@ -233,7 +238,7 @@ def _get_latest_params(request):
 
 
 def _sform_kwargs_from_obj(paramobj):
-    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True, inline_comment_prefixes=(';', '#'))
     raw_config.read(paramobj.docfile.name)
     kwargs = dict(raw_config=raw_config, user=paramobj.user, label_suffix='')
     return kwargs

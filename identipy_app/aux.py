@@ -6,7 +6,8 @@ import pandas as pd
 import pylab
 from io import BytesIO
 import base64
-from urllib import quote_plus, urlencode
+
+from urllib.parse import quote_plus, urlencode
 import ast
 import subprocess
 from django.core.files import File
@@ -81,9 +82,9 @@ def get_size(start_path = '.'):
 
 
 def save_mods(uid, chosenmods, fixed, paramtype=3):
-    import models
+    from . import models
     paramobj = models.ParamsFile.objects.get(docfile__endswith='latest_params_%d.cfg' % paramtype, user=uid)
-    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True, inline_comment_prefixes=(';', '#'))
     raw_config.read(paramobj.docfile.name)
     labels = ','.join(mod.get_label() for mod in chosenmods)
 #   print 'LABELS:', labels
@@ -95,10 +96,10 @@ def save_mods(uid, chosenmods, fixed, paramtype=3):
 
 
 def save_params_new(sfForms, uid, paramsname=False, paramtype=3, request=False, visible=True):
-    from models import ParamsFile, Protease
+    from .models import ParamsFile, Protease
     paramobj = ParamsFile.objects.get(docfile__endswith='latest_params_{}.cfg'.format(paramtype),
             user=uid, type=paramtype)
-    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True, inline_comment_prefixes=(';', '#'))
     raw_config.read(paramobj.docfile.name)
     if request:
         sfForms = {}
@@ -327,7 +328,7 @@ def email_to_user(group):
 
 def get_version():
     try:
-        return 'revision ' + subprocess.check_output(['git', 'describe', '--always'])
+        return 'revision ' + subprocess.check_output(['git', 'describe', '--always']).decode('ascii')
     except subprocess.CalledProcessError as e:
         logger.debug('Failed to run "git describe": %s', e.args)
         return settings.VERSION

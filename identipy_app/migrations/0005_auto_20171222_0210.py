@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-            migrations.AddField('ResCSV', 'run', models.ForeignKey('SearchRun', null=True), False),
+            migrations.AddField('ResCSV', 'run', models.ForeignKey('SearchRun', null=True, on_delete=models.CASCADE), False),
             migrations.RunPython(define_runs),
-            migrations.AlterField('ResCSV', 'run', models.ForeignKey('SearchRun'), True),
+            migrations.AlterField('ResCSV', 'run', models.ForeignKey('SearchRun', on_delete=models.CASCADE), True),
     ]

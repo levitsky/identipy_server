@@ -20,7 +20,7 @@ def rename_dirs(apps, schema_editor):
         try:
             os.rename(source, target)
         except OSError as e:
-            print 'Could not rename {} to {}: {}'.format(source, target, e)
+            print('Could not rename {} to {}: {}'.format(source, target, e))
 
     ResImageFile = apps.get_model('identipy_app', 'ResImageFile')
     ResCSV = apps.get_model('identipy_app', 'ResCSV')

@@ -42,12 +42,11 @@ INSTALLED_APPS = (
     'identipy_app.apps.IdentipyAppConfig',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -113,6 +112,7 @@ USE_L10N = False
 
 USE_TZ = True
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -148,7 +148,7 @@ ALLOW_ZIP64 = True
 LOCAL_IMPORT = True
 URL_IMPORT = True
 
-VERSION = '1.0'  # displayed on /about page if git describe is not available
+VERSION = '1.1'  # displayed on /about page if git describe is not available
 
 LOGGING = {
     'version': 1,

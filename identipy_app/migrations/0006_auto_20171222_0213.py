@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-            migrations.AddField('ResImageFile', 'run', models.ForeignKey('SearchRun', null=True), False),
+            migrations.AddField('ResImageFile', 'run', models.ForeignKey('SearchRun', null=True, on_delete=models.CASCADE), False),
             migrations.RunPython(define_runs_img),
-            migrations.AlterField('ResImageFile', 'run', models.ForeignKey('SearchRun'), True),
+            migrations.AlterField('ResImageFile', 'run', models.ForeignKey('SearchRun', on_delete=models.CASCADE), True),
     ]

@@ -11,5 +11,5 @@ _menufields = [{'about', 'loginform', 'contacts'}, {'searchpage', 'upload', 'get
 
 
 def menubar(request):
-    fields = _menufields[request.user.is_authenticated()]
+    fields = _menufields[request.user.is_authenticated]
     return {'menubar': [item for item in _menubar if item['id'] in fields]}

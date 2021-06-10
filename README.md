@@ -17,8 +17,8 @@ IdentiPy Server is published under the Apache 2.0 license.
 Requirements
 ------------
 
- - Python 2.7
- - Django <= 1.11
+ - Python 3
+ - Django 2+
  - identipy and its dependencies
     * pyteomics
     * pyteomics.cythonize
@@ -31,6 +31,7 @@ Requirements
        + cycler, pyparsing, python-dateutil, functools32
     * CatBoost
     * Pandas
+    * pyteomics.pepxmltk
  - psutil
  - Pillow
 
@@ -55,10 +56,10 @@ Download and install IdentiPy and Scavager, either globally or in a virtual envi
 $ git clone https://github.com/levitsky/identipy.git
 $ cd identipy
 $ git checkout exp5  # currently compatible branch
-$ python2 setup.py build_ext --inplace
-$ pip2 install .
 
-$ pip2 install git+https://github.com/markmipt/scavager.git
+$ pip install . # see identipy exp5 README for extra steps you might need
+
+$ pip install git+https://github.com/markmipt/scavager.git
 ```
 
 Clone this reposoitory into the location where you want to keep the uploads and results:
@@ -70,33 +71,33 @@ Run these commands to initialize the database:
 
 ```
 $ cd identipy_server
-$ python2 manage.py makemigrations
-$ python2 manage.py migrate
+$ python manage.py makemigrations
+$ python manage.py migrate
 ```
 
 Then create a superuser account to manage the database...
 
 ```
-$ python2 manage.py createsuperuser
+$ python manage.py createsuperuser
 
 ```
 And finally, create a regular user account:
 
 ```
-$ python2 manage.py createuser <username>
+$ python manage.py createuser <username>
 ```
 
 You can then run Django development server to test your setup:
 
 ```
-$ python2 manage.py runserver
+$ python manage.py runserver
 ```
 
 This will start a development server on 127.0.0.1:8000, so it will only be available locally.
 If you need to access the server from a local network, specify the IP address and port you need, e.g.:
 
 ```
-$ python2 manage.py runserver 192.168.1.2:9000
+$ python manage.py runserver 192.168.1.2:9000
 ```
 
 While the development server is running, you can log into IdentiPy Server and use it in your browser.
@@ -138,4 +139,4 @@ You may need to edit the following settings in `identipy_server/settings.py`:
     - `URL_IMPORT`
 
 
-For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/1.11/ref/settings/
+For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/3.2/ref/settings/

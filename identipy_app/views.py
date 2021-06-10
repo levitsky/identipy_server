@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import django
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -13,21 +12,22 @@ import django.db
 from django.views.decorators.cache import cache_page
 from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
-from urllib import urlencode
+from urllib.parse import urlencode, unquote_plus, urlparse
+from urllib.request import urlretrieve
 import os
 import zipfile
 import shutil
 import math
 import tempfile
 import time
-from cStringIO import StringIO
+from io import StringIO
 import multiprocessing as mp
 from threading import Thread
-import urllib
-import urlparse
+
 import glob
 import gzip
-from itertools import izip_longest
+
+from itertools import zip_longest
 import pkg_resources
 import logging
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ def add_forms(request, c):
 
 def form_dispatch(request):
     c = {}
-    if request.GET or not request.user.is_authenticated():
+    if request.GET or not request.user.is_authenticated:
         return redirect('identipy_app:index')
     action = request.POST['submit_action']
     if action != 'Search previous runs by name':
@@ -96,7 +96,7 @@ def save_parameters(request):
 
 def index(request):
     # TODO: fix the double "if logged in" logic
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return redirect('identipy_app:searchpage')
     return redirect('identipy_app:loginform')
 
@@ -152,7 +152,7 @@ def auth_and_login(request, onsuccess='identipy_app:index', onfail='identipy_app
 
 def delete_search(request):
     action = request.POST['submit_action']
-    for name, val in request.POST.iteritems():
+    for name, val in request.POST.items():
         if val == u'on':
             obj = get_object_or_404(models.SearchGroup, pk=name)
             if action == 'Delete':
@@ -173,7 +173,7 @@ def status(request, name_filter=False):
         request.session['res_page'] = max(1, request.session['res_page'])
     res_page = request.session.get('res_page', 1)
     if name_filter:
-        nf = urllib.unquote_plus(name_filter)
+        nf = unquote_plus(name_filter)
         request.session['name filter'] = nf
     else:
         nf = request.session.get('name_filter', False)
@@ -195,7 +195,7 @@ def status(request, name_filter=False):
 
 
 def _save_uploaded_file(uploadedfile, user):
-    if isinstance(uploadedfile, basestring):
+    if isinstance(uploadedfile, (str, bytes)):
         fname = uploadedfile
     else:
         fname = uploadedfile.name
@@ -273,7 +273,7 @@ def upload(request):
 
 
 def _dispatch_file_handling(f, user, opener=None, fext=None):
-    if isinstance(f, basestring):
+    if isinstance(f, (str, bytes)):
         fname = f
     else:
         fname = f.name
@@ -369,7 +369,7 @@ def local_import(request):
             ret = _local_import(fname, request.user, link)
             if isinstance(ret, (list, models.SpectraFile, models.FastaFile)):
                 message = 'Import successful.'
-            elif isinstance(ret, basestring):
+            elif isinstance(ret, (str, bytes)):
                 message = 'Unsupported file extension: {}'.format(ret)
             else:
                 raise ValueError(ret)
@@ -387,7 +387,7 @@ def local_import(request):
 def _url_import_worker(request):
     fname = request.POST.get('fileUrl')
     logger.debug('URL import worker started with URL: %s', fname)
-    parsed = urlparse.urlparse(fname)
+    parsed = urlparse(fname)
     local_name = os.path.split(parsed.path)[1]
     prefix, suffix = os.path.splitext(local_name)
     if suffix == '.gz':
@@ -396,7 +396,7 @@ def _url_import_worker(request):
     logger.info('Downloading %s ...', fname)
     with tempfile.NamedTemporaryFile(suffix=suffix, mode='rb+') as tmpfile:
         try:
-            urllib.urlretrieve(fname, tmpfile.name)
+            urlretrieve(fname, tmpfile.name)
         except IOError as e:
             logger.error('Error while trying to download %s: %s', fname, e)
             return
@@ -767,7 +767,7 @@ def _save_img(filename, run):
     ftype = os.path.splitext(filename)[-1]
     base = os.path.basename(filename)
     imgtype = _get_img_type(base)
-    with open(filename) as fl:
+    with open(filename, 'rb') as fl:
         djangofl = File(fl)
         img = models.ResImageFile(docfile=djangofl, user=run.searchgroup.user,
             ftype=ftype, run=run, imgtype=imgtype)
@@ -797,6 +797,8 @@ def _post_process(request, searchgroup, generated_db_path):
     scavager_args = {
             'file': pfiles,
             'database': dbpath,
+            'ms1': None,
+            'sort_random': False,
             'prefix': idsettings.get('input', 'decoy prefix').strip(),
             'infix': idsettings.get('input', 'decoy infix').strip(),
             'union': True,
@@ -814,7 +816,7 @@ def _post_process(request, searchgroup, generated_db_path):
             'no_correction': True,
             'force_correction': False,
             'name_suffix': '',
-            'pif_threshold': None,
+            'pif_threshold': 0,
             'union_name_suffix': '',
         }
     logger.debug('Scavager args: %s', scavager_args)
@@ -830,7 +832,7 @@ def _post_process(request, searchgroup, generated_db_path):
     if isinstance(retv, int):
         retv = (retv, )
 
-    for v, run in izip_longest(retv, searchgroup.searchrun_set.order_by('id')):
+    for v, run in zip_longest(retv, searchgroup.searchrun_set.order_by('id')):
         if v is None or v < 0:
             run.status = models.SearchRun.ERROR
             run.save()
@@ -1029,7 +1031,7 @@ def showparams(request, searchgroupid):
     c = {}
     runobj = get_object_or_404(models.SearchGroup, id=searchgroupid)
     params_file = runobj.parameters
-    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True, inline_comment_prefixes=(';', '#'))
     raw_config.read(params_file.path())
     logger.debug('Showing params from file %s', params_file.path())
 
@@ -1187,7 +1189,7 @@ def spectrum(request):
             logger.warning('Could not save %s index. Is Pyteomics 4.1+ installed?', reader.__class__.__name__)
             logger.debug('%s', e)
 
-    title = urllib.unquote_plus(request.GET['spectrum'])
+    title = unquote_plus(request.GET['spectrum'])
     run = get_object_or_404(models.SearchRun, pk=request.GET['runid'])
     assert not run.union
     pepname = run.get_pepxmlfiles_paths()[0]

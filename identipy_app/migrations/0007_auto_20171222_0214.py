@@ -14,7 +14,7 @@ def derive_fdrtype(apps, schema_editor):
             sg.fdr_type = {'psm': 'S', 'peptide': 'P', 'protein': 'R'}[fdr]
         except KeyError:
             sg.fdr_type = 'S'
-            print 'FDR type unspecified, using PSM:', sg.id, sg.groupname
+            print('FDR type unspecified, using PSM:', sg.id, sg.groupname)
         sg.save()
 
 class Migration(migrations.Migration):

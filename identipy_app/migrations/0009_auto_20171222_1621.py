@@ -13,18 +13,18 @@ def assign_params(apps, schema_editor):
         try:
             df = os.path.join('uploads', 'params', str(sg.user.id), sg.groupname + '.cfg')
             params = ParamsFile.objects.get(user=sg.user, docfile=df)
-            print 'Matched:', df
+            print('Matched:', df)
         except ParamsFile.DoesNotExist:
             try:
                 df = os.path.join('uploads', 'params', str(sg.user.id), sg.groupname).replace(
                     ' ', '_').replace(':', '').split('.')[0]
                 params = ParamsFile.objects.get(user=sg.user, docfile__startswith=df)
-                print 'Matched beginning:', df
+                print('Matched beginning:', df)
             except ParamsFile.DoesNotExist:
                 params = None
-                print 'NOT MATCHED:', df
+                print('NOT MATCHED:', df)
         except Exception:
-            print 'User does not exist for SearchGroup:', sg.id, sg.groupname
+            print('User does not exist for SearchGroup:', sg.id, sg.groupname)
             params = None
         sg.parameters = params
         sg.save()

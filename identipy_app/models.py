@@ -46,7 +46,7 @@ def kill_proc_tree(pid, including_parent=True):
 
 class BaseDocument(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def name(self):
         return os.path.split(self.docfile.name)[-1]
@@ -114,10 +114,10 @@ class ParamsFile(BaseDocument):
 
 class SearchGroup(models.Model):
     groupname = models.CharField(max_length=80, default='')
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
     fasta = models.ManyToManyField(FastaFile)
-    parameters = models.ForeignKey(ParamsFile, null=True, blank=True)
+    parameters = models.ForeignKey(ParamsFile, null=True, blank=True, on_delete=models.SET_NULL)
     notification = models.BooleanField(default=False)
     fdr_level = models.FloatField(default=0.0)
 
@@ -204,7 +204,7 @@ class SearchGroup(models.Model):
         self.save()
 
     def set_FDR(self):
-        raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True)
+        raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True, inline_comment_prefixes=(';', '#'))
         raw_config.read(self.parameters.path())
         self.fdr_level = raw_config.getfloat('options', 'FDR')
         self.save()
@@ -214,9 +214,9 @@ class SearchGroup(models.Model):
 
 
 class SearchRun(models.Model):
-    searchgroup = models.ForeignKey(SearchGroup)
+    searchgroup = models.ForeignKey(SearchGroup, on_delete=models.CASCADE)
     runname = models.CharField(max_length=80)
-    spectra = models.ForeignKey(SpectraFile, blank=True, null=True)
+    spectra = models.ForeignKey(SpectraFile, blank=True, null=True, on_delete=models.SET_NULL)
     processpid = models.IntegerField(blank=True, default=-1)
     numMSMS = models.BigIntegerField(default=0)
     totalPSMs = models.BigIntegerField(default=0)
@@ -303,7 +303,7 @@ class SearchRun(models.Model):
 class PepXMLFile(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage(), max_length=200)
     filtered = models.BooleanField(default=False)
-    run = models.ForeignKey(SearchRun)
+    run = models.ForeignKey(SearchRun, on_delete=models.CASCADE)
 
 
 class ResImageFile(BaseDocument):
@@ -320,20 +320,20 @@ class ResImageFile(BaseDocument):
             (OTHER, 'Feature'),
             )
     imgtype = models.CharField(max_length=1, default=OTHER, choices=IMAGE_TYPES)
-    run = models.ForeignKey(SearchRun)
+    run = models.ForeignKey(SearchRun, on_delete=models.CASCADE)
 
 class ResCSV(BaseDocument):
     docfile = models.FileField(upload_to=upload_to_pepxml, storage=OverwriteStorage(), max_length=200)
     ftype = models.CharField(max_length=10)
     filtered = models.BooleanField(default=True)
-    run = models.ForeignKey(SearchRun)
+    run = models.ForeignKey(SearchRun, on_delete=models.CASCADE)
 
 
 class Protease(models.Model):
     name = models.CharField(max_length=80)
     rule = models.CharField(max_length=300, default='RK')
     order_val = models.IntegerField()
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('name', 'user')
@@ -344,7 +344,7 @@ class Modification(models.Model):
     label = models.CharField(max_length=30)
     aminoacid = models.CharField(max_length=2)
     mass = models.FloatField()
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('name', 'user', 'aminoacid', 'mass', 'label')

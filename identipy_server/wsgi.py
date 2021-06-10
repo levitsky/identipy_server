@@ -12,7 +12,7 @@ import logging
 #logging.basicConfig(stream=sys.stderr)
 from django.conf import settings
 import logging.handlers
-import SocketServer as socketserver
+import socketserver
 import threading
 import socket
 import pickle
