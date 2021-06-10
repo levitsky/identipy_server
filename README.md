@@ -107,7 +107,7 @@ Production use
 For more reliable use (especially for multiple-user installations), we recommend running IndetiPy Server with a WSGI-compatible
 web server application like Apache or Nginx+uWSGI, instead of the Django development server:
 
-https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
+https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/
 
 Example configuration files are included:
 
