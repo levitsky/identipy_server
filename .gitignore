@@ -3,3 +3,4 @@
 results/
 uploads/
 db.sqlite3
+**/*.pyc
