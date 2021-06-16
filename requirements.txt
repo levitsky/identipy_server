@@ -1,0 +1,6 @@
+git+https://github.com/levitsky/identipy.git@exp5
+git+https://github.com/markmipt/scavager.git
+django
+psutil
+pillow
+pyteomics.pepxmltk

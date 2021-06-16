@@ -50,27 +50,19 @@ IdentiPy and Scavager need to be properly installed to be imported by IdentiPy S
 Setup
 -----
 
-Download and install IdentiPy and Scavager, either globally or in a virtual environment:
-
-```
-$ git clone https://github.com/levitsky/identipy.git
-$ cd identipy
-$ git checkout exp5  # currently compatible branch
-
-$ pip install . # see identipy exp5 README for extra steps you might need
-
-$ pip install git+https://github.com/markmipt/scavager.git
-```
-
 Clone this reposoitory into the location where you want to keep the uploads and results:
 ```
 $ git clone https://github.com/levitsky/identipy_server.git
 ```
-
-Run these commands to initialize the database:
+Download and install all dependencies, either globally or in a virtual environment:
 
 ```
 $ cd identipy_server
+$ pip install -r requirements.txt
+```
+Run these commands to initialize the database:
+
+```
 $ python manage.py makemigrations
 $ python manage.py migrate
 ```
