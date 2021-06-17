@@ -92,6 +92,7 @@ $ python manage.py runserver 192.168.1.2:9000
 ```
 
 While the development server is running, you can log into IdentiPy Server and use it in your browser.
+If you log in as superuser, you can add more users via the admin page, e.g. `192.168.1.2:9000/admin`
 
 Production use
 --------------
