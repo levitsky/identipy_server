@@ -1,10 +1,7 @@
 from django.contrib import admin
-from .models import SpectraFile, RawFile, FastaFile#,Document
-from django.conf import settings
-import os
-os.chdir(settings.BASE_DIR)
+from .models import SpectraFile, FastaFile
 
-# admin.site.register(Document)
-admin.site.register(SpectraFile)
-admin.site.register(RawFile)
-admin.site.register(FastaFile)
+
+@admin.register(SpectraFile, FastaFile)
+class FileAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'date_added')
