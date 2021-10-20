@@ -11,7 +11,7 @@ import re
 import logging
 logger = logging.getLogger(__name__)
 
-from . import aux
+# from . import aux
 
 os.chdir(settings.BASE_DIR)
 
@@ -176,11 +176,11 @@ class SearchGroup(models.Model):
         self.fasta.add(fastaobject[0])
         self.save()
 
-    def add_params(self, sfForms, paramtype=3):
-        paramobj = aux.save_params_new(sfForms=sfForms, uid=self.user,
-                paramsname=self.groupname, paramtype=paramtype, request=False, visible=False)
-        self.parameters = paramobj
-        self.save()
+    # def add_params(self, sfForms, paramtype=3):
+    #     paramobj = aux.save_params_new(sfForms=sfForms, uid=self.user,
+    #             paramsname=self.groupname, paramtype=paramtype, request=False, visible=False)
+    #     self.parameters = paramobj
+    #     self.save()
 
     def get_searchruns(self):
         return self.searchrun_set.filter(union=False)

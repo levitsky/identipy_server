@@ -67,6 +67,7 @@ def form_dispatch(request):
     sform = None
     if action != 'Search previous runs by name':
         sform = forms.search_form_from_request(request)
+        sform.save()
         sessiontype = request.session.get('paramtype')
     redirect_map = {
             'Select spectra': ('identipy_app:choose', 'spectra'),

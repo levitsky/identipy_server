@@ -1,53 +1,53 @@
 from django import forms
-from django.urls import reverse
+# from django.urls import reverse
 from django.conf import settings
-from django.utils import html
+# from django.utils import html
 import os
 os.chdir(settings.BASE_DIR)
 
 from . import models
-from identipy.utils import CustomRawConfigParser
+# from identipy.utils import CustomRawConfigParser
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-class SubmitButtonWidget(forms.Widget):
-    def render(self, id, name, value, attrs=None):
-        return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
+# class SubmitButtonWidget(forms.Widget):
+#     def render(self, id, name, value, attrs=None):
+#         return '<input id="%s" type="submit" class="link" value="%s" name="%s">' % (html.escape(id), html.escape(name), html.escape(value))
 
-    def render2(self, label, help, attrs=None):
-        if html.escape(help):
-            return '<span title="%s" style="cursor:help">%s</span>' % (html.escape(help), html.escape(label))
-        else:
-            return '<span title="" >%s</span>' % (html.escape(label))
+#     def render2(self, label, help, attrs=None):
+#         if html.escape(help):
+#             return '<span title="%s" style="cursor:help">%s</span>' % (html.escape(help), html.escape(label))
+#         else:
+#             return '<span title="" >%s</span>' % (html.escape(label))
 
-    def render3(self, name):
-        try:
-            return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (html.escape(name).split('|')[1], html.escape(name))
-        except:
-            return html.escape(name)
-        # return '<a target="_blank"
-        # href="http://www.uniprot.org/uniprot/%s">%s</a>' % (,
-        # html.escape(name))
+#     def render3(self, name):
+#         try:
+#             return '<a target="_blank" href="http://www.uniprot.org/uniprot/%s">%s</a>' % (html.escape(name).split('|')[1], html.escape(name))
+#         except:
+#             return html.escape(name)
+#         # return '<a target="_blank"
+#         # href="http://www.uniprot.org/uniprot/%s">%s</a>' % (,
+#         # html.escape(name))
 
-    def render5(self, name):
-        return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (html.escape(name.split('OS=')[0]), html.escape(name))
+#     def render5(self, name):
+#         return '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=%s">%s</a>' % (html.escape(name.split('OS=')[0]), html.escape(name))
 
-    def render6(self, dbname, show_type, runid, value):
-        return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (reverse("identipy_app:show"), dbname, show_type, runid, value)
+#     def render6(self, dbname, show_type, runid, value):
+#         return '<a class="td2" class="link" href="%s?dbname=%s&show_type=%s&runid=%s">%s</a>' % (reverse("identipy_app:show"), dbname, show_type, runid, value)
 
 
-class SubmitButtonField(forms.Field):
-    def __init__(self, *args, **kwargs):
-        if not kwargs:
-            kwargs = {}
-        kwargs["widget"] = SubmitButtonWidget
+# class SubmitButtonField(forms.Field):
+#     def __init__(self, *args, **kwargs):
+#         if not kwargs:
+#             kwargs = {}
+#         kwargs["widget"] = SubmitButtonWidget
 
-        super(SubmitButtonField, self).__init__(*args, **kwargs)
+#         super(SubmitButtonField, self).__init__(*args, **kwargs)
 
-    def clean(self, value):
-        return value
+#     def clean(self, value):
+#         return value
 
 
 class CommonForm(forms.Form):
