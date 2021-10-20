@@ -47,7 +47,16 @@ def add_forms(request, c):
     if not c['paramtype']:
         c['paramtype'] = request.session.setdefault('paramtype', 3)
     request.session['paramtype'] = c['paramtype']
-    c['SearchForms'] = forms.search_forms_from_request(request)
+    c['SearchForm'] = forms.search_form_from_request(request)
+
+
+def filter_searches(request):
+    if request.method == 'GET':
+        return redirect('identipy_app:getstatus')
+    query = request.POST.get('search_button')
+    if query:
+        return redirect('identipy_app:getstatus', query)
+    return redirect('identipy_app:getstatus')
 
 
 def form_dispatch(request):
@@ -55,10 +64,10 @@ def form_dispatch(request):
     if request.GET or not request.user.is_authenticated:
         return redirect('identipy_app:index')
     action = request.POST['submit_action']
+    sform = None
     if action != 'Search previous runs by name':
-        sforms = forms.search_forms_from_request(request)
+        sform = forms.search_form_from_request(request)
         sessiontype = request.session.get('paramtype')
-        aux.save_params_new(sforms, request.user, False, sessiontype)
     redirect_map = {
             'Select spectra': ('identipy_app:choose', 'spectra'),
             'Select protein database': ('identipy_app:choose', 'fasta'),
@@ -68,7 +77,7 @@ def form_dispatch(request):
             'RUN IdentiPy': ('identipy_app:run',),
             'save parameters': ('identipy_app:save',),
             'load parameters': ('identipy_app:choose', 'params'),
-            'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
+            # 'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
             'Minimal': ('identipy_app:searchpage',),
             'Medium': ('identipy_app:searchpage',),
             'Advanced': ('identipy_app:searchpage',),
@@ -80,9 +89,9 @@ def form_dispatch(request):
     if action in {'Minimal', 'Medium', 'Advanced'}:
         gettype = {'Minimal': 1, 'Medium': 2, 'Advanced': 3}[action]
         if sessiontype != gettype:
-            if sforms is not None:
+            if sform is not None:
                 request.session['paramtype'] = gettype
-                _ = forms.search_forms_from_request(request, ignore_post=True)
+                _ = forms.search_form_from_request(request, ignore_post=True)
         request.session['paramtype'] = c['paramtype'] = gettype
     return redirect(*redirect_map[action])
 
@@ -527,7 +536,7 @@ def add_protease(request):
     for pr in models.Protease.objects.filter(user=request.user):
         cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
 
-    if request.POST.get('submit_action', '') == 'delete':
+    if request.POST.get('submit_action') == 'delete':
         if request.POST.get('choices'):
             proteases = forms.MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
             if proteases.is_valid():
@@ -551,8 +560,9 @@ def add_protease(request):
                 messages.add_message(request, messages.INFO, 'Cleavage rule with name %s already exists' % (protease_name, ))
                 return render(request, 'identipy_app/add_protease.html', c)
             try:
-                protease_rule = c['proteaseform'].cleaned_data['cleavage_rule']
-            except:
+                protease_rule = c['proteaseform'].cleaned_data['rule']
+            except Exception as e:
+                logger.debug('Rule validation error: %s', e)
                 messages.add_message(request, messages.INFO, 'Cleavage rule is incorrect')
                 return render(request, 'identipy_app/add_protease.html', c)
             protease_order_val = models.Protease.objects.filter(user=request.user).aggregate(Max('order_val'))['order_val__max'] + 1
@@ -661,7 +671,6 @@ def _run_search(request, newrun, generated_db_path):
     idsettings.set('search', 'enzyme', _enzyme_rule(request, idsettings))
     idsettings.set('misc', 'iterate', 'peptides')
     if generated_db_path:
-        # gpath = aux.generated_db_path(sg)
         logger.debug('Substituting database path to %s for run %s in group %s', generated_db_path, newrun.id, sg.id)
         idsettings.set('input', 'database', generated_db_path)
         idsettings.set('search', 'add decoy', 'no')
@@ -1006,7 +1015,6 @@ def search_details(request, pk):
     c = {'searchgroup': group}
     sruns = group.searchrun_set.all()
     if len(sruns) == 1:
-#       request.session['searchrunid'] = sruns[0].id
         return redirect('identipy_app:figure', sruns[0].id)
     rename_form = forms.RenameForm()
     c['rename_form'] = rename_form

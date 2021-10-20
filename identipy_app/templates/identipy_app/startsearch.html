@@ -24,40 +24,42 @@
         <h2>MS files not selected</h2>
         {% endif %}
 
-   <h2><input type="submit" class="btn wide" value="Select spectra" name="submit_action"></h2><br>
+        <h2><input type="submit" class="btn wide" value="Select spectra" name="submit_action"></h2><br>
 
-   {% if chosenfasta %}
-   <table type="bordered">
-       <h2>Selected protein database file:</h2>
-       <tr class="headers">
-           <th width="50%">Filename</th>
-           <th width="15%">Size</th>
-           <th>Upload date</th>
-       </tr>
-       {% for doc in chosenfasta %}
-       <tr>
-           <td style="word-break:break-all">{{ doc.name }}</td>
-           <td>{{ doc.docfile.size | filesizeformat }}</td>
-           <td>{{ doc.date_added }}</td>
-       </tr>
-       {% endfor %}
-   </table>
-   {% else %}
-        <h2>Protein database file not selected</h2>
-   {% endif %}
+        {% if chosenfasta %}
+        <table type="bordered">
+           <h2>Selected protein database file:</h2>
+           <tr class="headers">
+               <th width="50%">Filename</th>
+               <th width="15%">Size</th>
+               <th>Upload date</th>
+           </tr>
+           {% for doc in chosenfasta %}
+           <tr>
+               <td style="word-break:break-all">{{ doc.name }}</td>
+               <td>{{ doc.docfile.size | filesizeformat }}</td>
+               <td>{{ doc.date_added }}</td>
+           </tr>
+           {% endfor %}
+        </table>
+        {% else %}
+            <h2>Protein database file not selected</h2>
+        {% endif %}
 
-   <div id="upload_fasta"><h2><input type="submit" class="btn wide" value="Select protein database" name="submit_action"></h2></div>
+        <div id="upload_fasta"><h2><input type="submit" class="btn wide" value="Select protein database" name="submit_action"></h2></div>
         <br>
         <div id="run_identipy">
-        <input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/>
-         <div id="runbtn"><input type="submit" class="backbtn wide" value="RUN IdentiPy" name="submit_action"></div>
-    </div>
+            <input type="text" class="searchname" name="runname" id="textinput" value="" placeholder="Enter search run name"/>
+            <div id="runbtn">
+                <input type="submit" class="backbtn wide" value="RUN IdentiPy" name="submit_action">
+            </div>
+        </div>
    </div>
 
    <div id="param_block" class="vert_block rightside centered">
         <h2 id="paramtitle">Specify search parameters</h2>
 
-        <div id="upload_parameters">
+        <div>
             <input type='submit' class="menubar {% if paramtype == 1 %}current{% endif %}" name='submit_action' value='Minimal'>
             <input type='submit' class="menubar {% if paramtype == 2 %}current{% endif %}" name='submit_action' value='Medium'>
             <input type='submit' class="menubar {% if paramtype == 3 %}current{% endif %}" name='submit_action' value='Advanced'>
@@ -65,7 +67,7 @@
 
         <div id="params">
             <table id="MainSearchParametersTable" class="searchparams">
-                  {{ SearchForms.main.as_table }}
+                  {{ SearchForm.as_table }}
             </table>
 
             <br>

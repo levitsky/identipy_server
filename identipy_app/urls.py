@@ -6,6 +6,7 @@ app_name = 'identipy_app'
 urlpatterns = [
     path('',                             views.index,              name='index'),
     path('dispatch/',                    views.form_dispatch,      name='form_dispatch'),
+    path('filter/',                      views.filter_searches,    name='filter_searches'),
     path('delete_search/',               views.delete_search,      name='delete_search'),
     path('summary/<int:pk>/',            views.search_details,     name='details'),
     path('results/<int:pk>/',            views.results_figure,     name='figure'),

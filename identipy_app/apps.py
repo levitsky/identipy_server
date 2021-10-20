@@ -6,6 +6,6 @@ class IdentipyAppConfig(AppConfig):
 
     def ready(self):
         from .signals import user_created
-        from django.contrib.auth.models import User
+        from .models import User
 
         post_save.connect(user_created, sender=User, dispatch_uid='user_created')

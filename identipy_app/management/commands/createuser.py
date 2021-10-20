@@ -1,5 +1,5 @@
-from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from ...models import User
 
 from getpass import getpass
 from django.conf import settings

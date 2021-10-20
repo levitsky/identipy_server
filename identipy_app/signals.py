@@ -4,7 +4,7 @@ from django.core.files import File
 import logging
 logger = logging.getLogger(__name__)
 
-from .models import Protease, FastaFile, ParamsFile, Modification
+from .models import Protease, FastaFile, Modification, SearchParameters
 
 def user_created(sender, **kwargs):
     user = kwargs['instance']
@@ -25,12 +25,9 @@ def user_created(sender, **kwargs):
             fl.close()
         logger.info('Added default FASTA for user %s.', user.username)
 
-    for paramtype in [1, 2, 3]:
-        fl = open('latest_params_%d.cfg' % paramtype)
-        djangofl = File(fl)
-        paramobj = ParamsFile(docfile=djangofl, user=user, type=paramtype)
-        paramobj.save()
-        fl.close()
+    user.latest_params = SearchParameters(user=user)
+    user.latest_params.save()
+
     logger.info('Added default params for user %s.', user.username)
 
     default_proteases = [
@@ -75,3 +72,5 @@ def user_created(sender, **kwargs):
         if not os.path.isdir(d):
             os.makedirs(d)
             logger.info('Created %s.', d)
+
+    user.save()

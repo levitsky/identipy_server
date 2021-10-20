@@ -4,7 +4,7 @@
 
 
 
-<form method="post" id="selectionform">{% csrf_token %}
+<form method="post">{% csrf_token %}
 <div id="tab">
     <h2>Add custom cleavage rule</h2>
     <div>
@@ -25,7 +25,7 @@
 [X]|[C] means cut after any aminoacid but before C
 [RK]|{P},[E]|[X] means mix of trypsin and GluC proteases" style="cursor:help">Cleavage rule:</span>
                 </td>
-                <td class="rightcolumn">{{ proteaseform.cleavage_rule }}</td>
+                <td class="rightcolumn">{{ proteaseform.rule }}</td>
             </tr>
             
             <tr>
@@ -41,9 +41,9 @@
 </form>
         
 
-<form method="post" id="selectionform">{% csrf_token %}
+<form method="post">{% csrf_token %}
    <div id ="delprotease">
-       <input class = "btn red" type="submit" value="delete" name="submit_action">
+       <input class="btn red" type="submit" value="delete" name="submit_action">
         {{ proteases.as_table }}
    </div>
 </div>
