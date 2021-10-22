@@ -67,7 +67,15 @@
 
         <div id="params">
             <table id="MainSearchParametersTable" class="searchparams">
-                  {{ SearchForm.as_table }}
+              <tbody>
+                  {% for field in SearchForm %}
+                    <tr>
+                      {{ field.errors }}
+                      <th><label for="{{ field.id_for_label }}"><span title="{{ field.help_text }}" {% if field.help_text %}style="cursor:help"{% endif %}>{{ field.label }}</span></label></th>
+                      <td>{{ field }}</td>
+                    </tr>
+                  {% endfor %}
+              </tbody>
             </table>
 
             <br>
