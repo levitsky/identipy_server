@@ -39,7 +39,7 @@ IdentiPy: https://github.com/levitsky/identipy
 
 Scavager: https://github.com/markmipt/scavager
 
-The other dependencies can be installed using `pip` or the package manager of your operating system.
+All dependencies can be installed using `pip` or the package manager of your operating system.
 
 How to run IdentiPy Server
 --------------------------
@@ -131,4 +131,4 @@ You may need to edit the following settings in `identipy_server/settings.py`:
     - `URL_IMPORT`
 
 
-For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/3.2/ref/settings/
+For explanation of Django settings see the official documentation: https://docs.djangoproject.com/en/4.0/ref/settings/

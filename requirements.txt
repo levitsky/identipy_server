@@ -1,5 +1,5 @@
-git+https://github.com/levitsky/identipy.git@exp5
-git+https://github.com/markmipt/scavager.git
+git+https://github.com/levitsky/identipy.git
+scavager
 django
 psutil
 pillow
