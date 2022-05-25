@@ -968,8 +968,7 @@ def _sg_context_from_request(request):
     if not failure:
         c['chosenfasta'] = request.session['chosen_fasta']
         c['chosenspectra'] = request.session['chosen_spectra']
-        c['SearchForms'] = forms.search_forms_from_request(request)
-        c['paramtype'] = request.session['paramtype']
+        c['params'] = forms._get_latest_params(request)
     return failure, c
 
 
@@ -978,8 +977,7 @@ def _sg_context_from_sg(sg):
     c['runname'] = sg.groupname
     c['chosenfasta'] = sg.fasta.all()
     c['chosenspectra'] = [r.spectra.id for r in sg.searchrun_set.filter(union=False)]
-    paramobj = sg.parameters
-    c['SearchForms'] = forms.search_form_for_params(paramobj)
+    c['params'] = sg.parameters
     c['paramtype'] = 3
     return c
 
@@ -987,7 +985,8 @@ def _sg_context_from_sg(sg):
 def _repeat(request, sgid):
     sg = get_object_or_404(models.SearchGroup, pk=sgid)
     c = _sg_context_from_sg(sg)
-    newgroup = _sg_from_context(c, request.user)
+    user = models.User.objects.get(pk=request.user.id)
+    newgroup = _sg_from_context(c, user)
     t = Thread(target=_start_all, args=(request, newgroup), name='start_all')
     t.start()
 
@@ -1001,7 +1000,8 @@ def repeat_search(request, sgid):
 def runidentipy(request):
     failure, c = _sg_context_from_request(request)
     if not failure:
-        newgroup = _sg_from_context(c, request.user)
+        user = models.User.objects.get(pk=request.user.id)
+        newgroup = _sg_from_context(c, user)
         t = Thread(target=_start_all, args=(request, newgroup), name='start_all')
         t.start()
         messages.add_message(request, messages.INFO, 'IdentiPy started')

@@ -114,6 +114,15 @@ class AdvancedSearchParametersForm(MediumSearchParametersForm):
 _search_parameters_levels = [
     BasicSearchParametersForm, MediumSearchParametersForm, AdvancedSearchParametersForm]
 
+def params_from_post(request):
+    if request.method != 'POST':
+        raise TypeError('{} request given.'.format(request.method))
+    paramtype = request.session.get('paramtype', 3)
+    formclass = _search_parameters_levels[paramtype-1]
+    form = formclass(request.POST, user=request.user)
+    instance = form.save()
+    return instance
+
 
 def search_form_from_request(request, ignore_post=False):
     paramobj = _get_latest_params(request)
