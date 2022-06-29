@@ -316,8 +316,7 @@ class SearchGroup(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
     fasta = models.ManyToManyField(FastaFile)
-    parameters = models.ForeignKey(ParamsFile, null=True, blank=True, on_delete=models.SET_NULL)
-    params_obj = models.ForeignKey(SearchParameters, null=True, blank=True, on_delete=models.SET_NULL)
+    parameters = models.ForeignKey(SearchParameters, null=True, blank=True, on_delete=models.SET_NULL)
     notification = models.BooleanField(default=False)
     fdr_level = models.FloatField(default=0.0)
 

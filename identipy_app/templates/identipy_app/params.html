@@ -4,7 +4,7 @@
 <form action="{% url 'identipy_app:form_dispatch' %}" method="post">{% csrf_token %}
     <h2>Search parameters for: <a href="{% url 'identipy_app:details' searchrun.id  %}">{{ searchrun.name|spacify }}</a></h2>
     <div id="params" class="centered">
-       <p> Used protein database: {{ fastaname }} </p>
+       <p>Used protein database: {{ fastaname }}</p>
        <table id="SearchParametersTable" class="searchparams">
           <tr valign="center">
               <td>
@@ -16,14 +16,7 @@
           </tr>
           {{ SearchForms.main.as_table }}
        </table>
-
-{% if SearchForms.postsearch %}
-<h2>Post-search validation</h2>
-<table id="SearchParametersTable" class="centered searchparams">
-{{ SearchForms.postsearch.as_table }}
-</table>
-{% endif %}
-
-</div></form>
+    </div>
+</form>
 
 {% endblock %}

@@ -70,18 +70,18 @@ def form_dispatch(request):
         sform.save()
         sessiontype = request.session.get('paramtype')
     redirect_map = {
-            'Select spectra': ('identipy_app:choose', 'spectra'),
-            'Select protein database': ('identipy_app:choose', 'fasta'),
-            'select fixed modifications': ('identipy_app:choose', 'fmods'),
-            'select potential modifications': ('identipy_app:choose', 'vmods'),
-            'enzyme': ('identipy_app:new_protease',),
-            'RUN IdentiPy': ('identipy_app:run',),
-            'save parameters': ('identipy_app:save',),
-            'load parameters': ('identipy_app:choose', 'params'),
-            # 'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
-            'Minimal': ('identipy_app:searchpage',),
-            'Medium': ('identipy_app:searchpage',),
-            'Advanced': ('identipy_app:searchpage',),
+        'Select spectra': ('identipy_app:choose', 'spectra'),
+        'Select protein database': ('identipy_app:choose', 'fasta'),
+        'select fixed modifications': ('identipy_app:choose', 'fmods'),
+        'select potential modifications': ('identipy_app:choose', 'vmods'),
+        'enzyme': ('identipy_app:new_protease',),
+        'RUN IdentiPy': ('identipy_app:run',),
+        'save parameters': ('identipy_app:save',),
+        'load parameters': ('identipy_app:choose', 'params'),
+        # 'Search previous runs by name': ('identipy_app:getstatus', request.POST.get('search_button')),
+        'Minimal': ('identipy_app:searchpage',),
+        'Medium': ('identipy_app:searchpage',),
+        'Advanced': ('identipy_app:searchpage',),
     }
 
     request.session['redirect'] = redirect_map[action]
@@ -98,9 +98,10 @@ def form_dispatch(request):
 
 
 def save_parameters(request):
-    sforms = forms.search_forms_from_request(request, ignore_post=True)
-    aux.save_params_new(sforms, request.user, request.session.get('paramsname'), request.session.get('paramtype', 3))
-    messages.add_message(request, messages.INFO, 'Parameters saved.')
+    params = forms._get_latest_params(request)
+    params.pk = None
+    params.title = request.session.get('paramsname')
+    params.save()
     return redirect('identipy_app:searchpage')
 
 
@@ -595,7 +596,7 @@ def files_view(request, what):
         what = 'mods'
         fixed = False
 
-    usedclass = {'spectra': models.SpectraFile, 'fasta': models.FastaFile, 'params': models.ParamsFile,
+    usedclass = {'spectra': models.SpectraFile, 'fasta': models.FastaFile, 'params': models.SearchParameters,
             'mods': models.Modification}[what]
     c = {}
     multiform = (usedclass in {models.SpectraFile, models.Modification})
@@ -607,8 +608,8 @@ def files_view(request, what):
                 choices.append((doc.id, '%s (label: %s, mass: %f, aminoacid: %s)' % (doc.name, doc.label, doc.mass, doc.aminoacid)))
         elif what in {'spectra', 'fasta'}:
             choices.append((doc.id, doc.name()))
-        elif what == 'params' and (not doc.name().startswith('latest_params') and doc.visible):
-            choices.append((doc.id, doc.title or doc.name()))
+        elif what == 'params' and doc.title:
+            choices.append((doc.id, doc.title))
     if request.method == 'POST':
         action = request.POST['submit_action']
         if action == 'upload new files':
@@ -625,20 +626,24 @@ def files_view(request, what):
         form = forms.MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
-            chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
-            sforms = forms.search_forms_from_request(request, ignore_post=True)
-            if what == 'mods':
-                aux.save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
-                key = 'fixed' if fixed else 'variable'
-                sforms['main'][key].initial = ','.join(mod.get_label() for mod in chosenfiles)
-                aux.save_params_new(sforms, request.user, False, request.session['paramtype'])
+            # chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
+            # sforms = forms.search_forms_from_request(request, ignore_post=True)
+            # if what == 'mods':
+            #     aux.save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
+            #     key = 'fixed' if fixed else 'variable'
+            #     sforms['main'][key].initial = ','.join(mod.get_label() for mod in chosenfiles)
+            #     aux.save_params_new(sforms, request.user, False, request.session['paramtype'])
             if what == 'params':
-                paramfile = chosenfiles[0]
-                parname = paramfile.docfile.name
-                dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type))
-                logger.debug('Copy: %s -> %s', parname, dst)
-                shutil.copy(parname, dst)
-                request.session['paramtype'] = paramfile.type
+                u = models.User.objects.get(pk=request.user.id)
+                u.latest_params = usedclass.objects.get(pk=chosenfilesids[0])
+                u.save()
+
+                # paramfile = chosenfiles[0]
+                # parname = paramfile.docfile.name
+                # dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type))
+                # logger.debug('Copy: %s -> %s', parname, dst)
+                # shutil.copy(parname, dst)
+                # request.session['paramtype'] = paramfile.type
                 # save_params_new(sforms, request.user, False, request.session['paramtype'])
             else:
                 request.session['chosen_' + what] = chosenfilesids
@@ -1038,21 +1043,19 @@ def results_figure(request, pk):
 
 def showparams(request, searchgroupid):
     c = {}
-    runobj = get_object_or_404(models.SearchGroup, id=searchgroupid)
-    params_file = runobj.parameters
-    raw_config = utils.CustomRawConfigParser(dict_type=dict, allow_no_value=True, inline_comment_prefixes=(';', '#'))
-    raw_config.read(params_file.path())
-    logger.debug('Showing params from file %s', params_file.path())
-
+    sg = get_object_or_404(models.SearchGroup, id=searchgroupid)
+    if not sg.parameters:
+        messages.add_message(request, messages.INFO, 'No files of this type are available for download.')
+        return redirect('identipy_app:details', searchgroupid)
     c['SearchForms'] = {}
-    c['SearchForms']['main'] = forms.SearchParametersForm(raw_config=raw_config, user=request.user, label_suffix='', sftype='main', prefix='main')
-    fastas = runobj.fasta.all()
+    c['SearchForms']['main'] = forms.AdvancedSearchParametersForm(instance=sg.parameters, user=sg.user)
+    fastas = sg.fasta.all()
     if len(fastas):
         c['fastaname'] = ' + '.join(f.name() for f in fastas)
     else:
         c['fastaname'] = 'unknown'
 
-    c['searchrun'] = runobj
+    c['searchrun'] = sg
     return render(request, 'identipy_app/params.html', c)
 
 

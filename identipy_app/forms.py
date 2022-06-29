@@ -114,6 +114,7 @@ class AdvancedSearchParametersForm(MediumSearchParametersForm):
 _search_parameters_levels = [
     BasicSearchParametersForm, MediumSearchParametersForm, AdvancedSearchParametersForm]
 
+
 def params_from_post(request):
     if request.method != 'POST':
         raise TypeError('{} request given.'.format(request.method))
