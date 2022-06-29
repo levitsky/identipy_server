@@ -6,7 +6,7 @@ import configparser
 import re
 import string
 
-_modchars = set(string.ascii_lowercase + string.digits)
+_modchars = set(string.ascii_lowercase + string.digits + string.punctuation) - set('[]-')
 def custom_split_label(mod):
     j = 0
     while mod[j] in _modchars:
@@ -141,12 +141,15 @@ field_names = [
         ('deisotoping_mass_tolerance', ('input', 'deisotoping mass tolerance'))
     ]
 
+
 def read_file(apps, sg):
     SearchParameters = apps.get_model('identipy_app', 'SearchParameters')
+    if not sg.parameters:
+        print('WARNING: SearchGroup {} has no parameters.'.format(sg.id))
+        return None
     fname = sg.parameters.docfile.name
     user = sg.user
-    config = CustomRawConfigParser(allow_no_value=True,
-        inline_comment_prefixes=(';', '#'))
+    config = CustomRawConfigParser(allow_no_value=True, inline_comment_prefixes=(';', '#'))
     print('Reading: ', fname)
     config.read(fname)
     data = {}
