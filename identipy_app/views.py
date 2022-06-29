@@ -206,6 +206,7 @@ def status(request, name_filter=False):
 
 
 def _save_uploaded_file(uploadedfile, user):
+    user = models.User.objects.get(pk=user.id)
     if isinstance(uploadedfile, (str, bytes)):
         fname = uploadedfile
     else:
