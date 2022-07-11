@@ -299,8 +299,7 @@ class SearchParameters(models.Model):
 
     @classmethod
     def read_file(cls, f, user):
-        config = configparser.ConfigParser(allow_no_value=True,
-            inline_comment_prefixes=(';', '#'))
+        config = main.settings()
         config.read_file(f)
         data = {}
         for (field, (section, option)) in cls.field_names:

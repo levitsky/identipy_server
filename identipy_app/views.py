@@ -229,8 +229,12 @@ def _save_uploaded_file(uploadedfile, user):
         newdoc.save()
         return newdoc
     elif fext == '.cfg':
-        newdoc = models.ParamsFile(docfile=uploadedfile, user=user, visible=True, title=os.path.split(name)[-1])
+        title = os.path.split(name)[-1]
+        newdoc = models.ParamsFile(docfile=uploadedfile, user=user, visible=True, title=title)
         newdoc.save()
+        newparams = models.SearchParameters.read_file(fname, user)
+        newparams.title = title
+        newparams.save()
         return newdoc
     else:
         logging.error('Unsupported file uploaded: %s', uploadedfile)
