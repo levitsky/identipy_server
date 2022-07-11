@@ -47,8 +47,23 @@ How to run IdentiPy Server
 IdentiPy Server currently works on Unix-like operating systems only.
 IdentiPy and Scavager need to be properly installed to be imported by IdentiPy Server.
 
-Setup
------
+Updating an existing installation
+---------------------------------
+
+When updating an existing Identipy Server installation (using `git pull`), you should check for migrations and apply them:
+
+```
+python manage.py showmigrations
+```
+```
+python manage.py migrate
+```
+
+**CAUTION! It is STRONGLY recommended to back up your production database before migration. Data loss is possible!**
+
+
+Initial Setup
+-------------
 
 Clone this reposoitory into the location where you want to keep the uploads and results:
 ```
