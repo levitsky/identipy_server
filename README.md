@@ -53,13 +53,11 @@ Updating an existing installation
 When updating an existing Identipy Server installation (using `git pull`), you should check for migrations and apply them:
 
 ```
-python manage.py showmigrations
-```
-```
-python manage.py migrate
+$ python manage.py showmigrations
+$ python manage.py migrate
 ```
 
-**CAUTION! It is STRONGLY recommended to back up your production database before migration. Data loss is possible!**
+**CAUTION! It is STRONGLY recommended to note the previous commit and back up your production database before migration. Data loss is possible!**
 
 
 Initial Setup
