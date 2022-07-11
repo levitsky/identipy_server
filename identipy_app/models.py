@@ -194,9 +194,9 @@ class SearchParameters(models.Model):
     deisotoping_mass_tolerance = models.FloatField(default=0.3)
 
     field_names = [
-        ('send_email_notification', ('options', 'send email notification')),
-        ('use_auto_optimization', ('options', 'use auto optimization')),
-        ('fdr', ('options', 'FDR')),
+        # ('send_email_notification', ('options', 'send email notification')),
+        # ('use_auto_optimization', ('options', 'use auto optimization')),
+        # ('fdr', ('options', 'FDR')),
         ('precursor_accuracy_unit', ('search', 'precursor accuracy unit')),
         ('precursor_accuracy_left', ('search', 'precursor accuracy left')),
         ('precursor_accuracy_right', ('search', 'precursor accuracy right')),
@@ -258,6 +258,9 @@ class SearchParameters(models.Model):
 
         for mod in (self.fixed_modifications.all() | self.variable_modifications.all()):
             self.set_option(config, 'modifications', mod.label, mod.mass)
+
+        if self.use_auto_optimization:
+            self.set_option(config, 'misc', 'first stage', 'identipy.extras.optimization')
 
         return config
 
@@ -412,8 +415,8 @@ class SearchGroup(models.Model):
         self.delete()
 
     def set_notification(self):
-        settings = self.parameters.create_config()
-        self.notification = settings.getboolean('options', 'send email notification')
+        # settings = self.parameters.create_config()
+        self.notification = self.parameters.send_email_notification #settings.getboolean('options', 'send email notification')
         self.save()
 
     def set_FDR(self):
