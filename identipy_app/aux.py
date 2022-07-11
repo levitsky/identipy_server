@@ -16,7 +16,6 @@ from django.core.mail import send_mail
 
 from pyteomics import auxiliary as aux, pylab_aux
 from identipy import main, utils
-from . import models
 
 os.chdir(settings.BASE_DIR)
 csv.field_size_limit(10000000)
@@ -239,7 +238,7 @@ def generated_db_path(sg):
 
 
 def generate_database(sg):
-    idsettings = main.settings(sg.parameters.path())
+    idsettings = sg.parameters.create_config()
     fastafile = sg.fasta.all()[0].path()
     idsettings.set('input', 'database', fastafile)
     return utils.generate_database(idsettings, generated_db_path(sg))

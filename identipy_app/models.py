@@ -11,11 +11,8 @@ import re
 import logging
 logger = logging.getLogger(__name__)
 
-# from . import aux
-
 os.chdir(settings.BASE_DIR)
 
-from identipy.utils import CustomRawConfigParser
 from identipy import main, utils
 
 
@@ -174,10 +171,10 @@ class SearchParameters(models.Model):
     maximum_charge = models.PositiveSmallIntegerField(default=3)
     minimum_charge = models.PositiveSmallIntegerField(default=2)
     precursor_isotope_mass_error = models.PositiveSmallIntegerField(default=0)
-    mass_shifts = models.CharField(max_length=80, blank=True,
+    mass_shifts = models.CharField(max_length=80, default="0",
         help_text='A set of mass shifts to apply to all peptides for matching. '
         'Example: 0, 16.000, 23.000')
-    snp = models.BooleanField(default=False, help_text='make SNP changes for ALL peptides')
+    snp = models.PositiveSmallIntegerField(default=0, help_text='make SNP changes for ALL peptides')
     protein_cterm_cleavage = models.FloatField(default=17.002735)
     protein_nterm_cleavage = models.FloatField(default=1.007825)
     fixed_modifications = models.ManyToManyField(Modification, related_name='+', blank=True)
@@ -242,17 +239,26 @@ class SearchParameters(models.Model):
             return getattr(self, f'get_{field}_display')()
         return str(value)
 
+    @staticmethod
+    def set_option(config, section, option, value):
+        if not config.has_section(section):
+            config.add_section(section)
+        config.set(section, option, value)
+
     def write_config(self, fname):
         config = self.create_config()
         with open(fname, 'w') as f:
             config.write(f)
 
     def create_config(self):
-        config = configparser.ConfigParser()
+        config = main.settings()
+
         for (field, (section, option)) in self.field_names:
-            if not config.has_section(section):
-                config.add_section(section)
-            config.set(section, option, self.to_str(field))
+            self.set_option(config, section, option, self.to_str(field))
+
+        for mod in (self.fixed_modifications.all() | self.variable_modifications.all()):
+            self.set_option(config, 'modifications', mod.label, mod.mass)
+
         return config
 
     field_types = {
@@ -367,8 +373,16 @@ class SearchGroup(models.Model):
             self.save()
 
     def add_params(self, params):
+        proteases = params.proteases.all()
+        fixed_mods = params.fixed_modifications.all()
+        var_mods = params.variable_modifications.all()
+
         params.pk = None
+        params._state.adding = True
         params.save()
+        params.proteases.set(proteases)
+        params.fixed_modifications.set(fixed_mods)
+        params.variable_modifications.set(var_mods)
         self.parameters = params
         self.save()
 
@@ -398,14 +412,12 @@ class SearchGroup(models.Model):
         self.delete()
 
     def set_notification(self):
-        settings = main.settings(self.parameters.path())
+        settings = self.parameters.create_config()
         self.notification = settings.getboolean('options', 'send email notification')
         self.save()
 
     def set_FDR(self):
-        raw_config = CustomRawConfigParser(dict_type=dict, allow_no_value=True, inline_comment_prefixes=(';', '#'))
-        raw_config.read(self.parameters.path())
-        self.fdr_level = raw_config.getfloat('options', 'FDR')
+        self.fdr_level = self.parameters.fdr
         self.save()
 
     def dirname(self):

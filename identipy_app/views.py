@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.db.models import Max
 from django.utils.encoding import smart_str
 from django.template import Template, Context
+from django.forms.models import model_to_dict
 import django.db
 from django.views.decorators.cache import cache_page
 from django.core.mail import send_mail, BadHeaderError
@@ -67,7 +68,11 @@ def form_dispatch(request):
     sform = None
     if action != 'Search previous runs by name':
         sform = forms.search_form_from_request(request)
+        for field in sform:
+            logger.debug('Value of %s: %s', field.label, field.value())
         sform.save()
+        logger.debug('Latest params:')
+        logger.debug(model_to_dict(forms._get_latest_params(request)))
         sessiontype = request.session.get('paramtype')
     redirect_map = {
         'Select spectra': ('identipy_app:choose', 'spectra'),
@@ -672,11 +677,9 @@ def _run_search(request, newrun, generated_db_path):
     django.db.connection.ensure_connection()
     # logger.debug('run-search (%s): connection ensured.', newrun.id)
     sg = newrun.searchgroup
-    paramfile = sg.parameters.path()
+    idsettings = sg.parameters.create_config()
     fastafile = sg.fasta.all()[0].path()
-    idsettings = main.settings(paramfile)
-    idsettings.set('search', 'enzyme', _enzyme_rule(request, idsettings))
-    idsettings.set('misc', 'iterate', 'peptides')
+    # idsettings.set('search', 'enzyme', _enzyme_rule(request, idsettings))
     if generated_db_path:
         logger.debug('Substituting database path to %s for run %s in group %s', generated_db_path, newrun.id, sg.id)
         idsettings.set('input', 'database', generated_db_path)
@@ -684,8 +687,11 @@ def _run_search(request, newrun, generated_db_path):
     else:
         logger.debug('Not substituting FASTA path (condition is %s)', generated_db_path)
         idsettings.set('input', 'database', fastafile)
+
+    if not idsettings.has_section('output'):
+        idsettings.add_section('output')
     idsettings.set('output', 'path', sg.dirname())
-    _totalrun(request, idsettings, newrun, paramfile)
+    _totalrun(request, idsettings, newrun)
     if _exists(newrun):
         newrun.status = models.SearchRun.VALIDATION
         newrun.save()
@@ -728,7 +734,7 @@ def _save_pepxml(filename, run, filtered=False):
         logger.error('Could not import file %s for run %s: %s', filename, run.id, e.args)
 
 
-def _totalrun(request, idsettings, newrun, paramfile):
+def _totalrun(request, idsettings, newrun):
     django.db.connection.ensure_connection()
     logger.debug('total-run (%s): connection ensured.', newrun.id)
     inputfile = newrun.spectra.path()
@@ -805,7 +811,7 @@ def _post_process(request, searchgroup, generated_db_path):
     for run in searchgroup.searchrun_set.filter(union=False).order_by('id'):
         files = run.get_pepxmlfiles_paths()
         pfiles.extend(files)
-    idsettings = main.settings(searchgroup.parameters.path())
+    # idsettings = main.settings(searchgroup.parameters.path())
     if generated_db_path:
         dbpath = aux.generated_db_path(searchgroup)
     else:
@@ -815,16 +821,14 @@ def _post_process(request, searchgroup, generated_db_path):
             'database': dbpath,
             'ms1': None,
             'sort_random': False,
-            'prefix': idsettings.get('input', 'decoy prefix').strip(),
-            'infix': idsettings.get('input', 'decoy infix').strip(),
+            'prefix': searchgroup.parameters.decoy_prefix, #idsettings.get('input', 'decoy prefix').strip(),
+            'infix': '', #idsettings.get('input', 'decoy infix').strip(),
             'union': True,
             'separate_figures': True,
             'create_pepxml': True,
             'output': searchgroup.dirname(),
-            'fdr': idsettings.getfloat('options', 'FDR'),
-            'enzyme': models.Protease.objects.filter(
-                user=request.user, name=idsettings.get('search', 'enzyme')
-                ).first().rule,
+            'fdr': searchgroup.fdr_level, #idsettings.getfloat('options', 'FDR'),
+            'enzyme': searchgroup.parameters.to_str('proteases'),
             'allowed_peptides': None,
             'group_prefix': None,
             'group_infix': None,
@@ -956,6 +960,7 @@ def _sg_from_context(c, user):
     newgroup.save()
     newgroup.set_notification()
     newgroup.set_FDR()
+    logger.debug('New group search params: %s', model_to_dict(newgroup.parameters))
     return newgroup
 
 
