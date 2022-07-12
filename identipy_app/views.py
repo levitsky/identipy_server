@@ -232,7 +232,8 @@ def _save_uploaded_file(uploadedfile, user):
         title = os.path.split(name)[-1]
         newdoc = models.ParamsFile(docfile=uploadedfile, user=user, visible=True, title=title)
         newdoc.save()
-        newparams = models.SearchParameters.read_file(fname, user)
+        with open(newdoc.docfile.path) as f:
+            newparams = models.SearchParameters.read_file(f, user)
         newparams.title = title
         newparams.save()
         return newdoc

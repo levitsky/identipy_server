@@ -273,7 +273,7 @@ class SearchParameters(models.Model):
     @classmethod
     def get_field_converter(cls, field, user):
         if field == 'proteases':
-            return lambda c, s, o: [Protease.objects.filter(user=user, rule=x).first()
+            return lambda c, s, o: [Protease.objects.filter(models.Q(user=user, rule=x) | models.Q(user=user, name=x)).first()
                 for x in c.get(s, o).split(',')]
         if field in {'fixed_modifications', 'variable_modifications'}:
             def f(c, s, o):
