@@ -228,6 +228,9 @@ class SearchParameters(models.Model):
         ('deisotoping_mass_tolerance', ('input', 'deisotoping mass tolerance'))
     ]
 
+    def name(self):
+        return self.title
+
     def to_str(self, field):
         value = getattr(self, field)
 

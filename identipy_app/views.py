@@ -126,8 +126,10 @@ def delete(request, usedclass):
     usedname = usedclass.__name__
     documents = usedclass.objects.filter(user=request.user)
     cc = []
+    logger.debug('Latest params: %s', forms._get_latest_params(request))
     for doc in documents:
-        if not usedname == 'ParamsFile' or not doc.name().startswith('latest_params'):
+        logger.debug('Considering object for deletion form: %s', doc)
+        if doc is not forms._get_latest_params(request):
             try:
                 cc.append((doc.id, doc.name()))
             except:
@@ -136,10 +138,15 @@ def delete(request, usedclass):
     if form.is_valid():
         for x in form.cleaned_data.get('choices'):
             obj = usedclass.objects.get(user=request.user, id=x)
+            logger.debug('Deleting %s object %s by user %d...', usedname, x, request.user.id)
             try:
                 obj.customdel()
-            except:
+                logger.debug('Called customdel() on %s %s.', usedname, x)
+            except AttributeError:
                 obj.delete()
+                logger.debug('Called delete() on %s %s.', usedname, x)
+    else:
+        logger.error('Invalid delete form submitted. Errors: %s', form.errors)
 
     return redirect(*request.session['redirect'])
 
