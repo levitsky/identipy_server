@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms.models import model_to_dict
 from django.contrib.auth.models import User as BaseUser
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
@@ -321,6 +322,35 @@ class SearchParameters(models.Model):
         instance.proteases.set(proteases)
         return instance
 
+    def clone(self):
+        proteases = self.proteases.all()
+        fixed_mods = self.fixed_modifications.all()
+        var_mods = self.variable_modifications.all()
+
+        self.pk = None
+        self._state.adding = True
+        self.save()
+        self.proteases.set(proteases)
+        self.fixed_modifications.set(fixed_mods)
+        self.variable_modifications.set(var_mods)
+        return self
+
+    def update_from(self, other):
+        if not isinstance(other, SearchParameters):
+            raise TypeError
+        data = model_to_dict(other)
+        proteases = data.pop('proteases')
+        fixed_mods = data.pop('fixed_modifications')
+        var_mods = data.pop('variable_modifications')
+        assert data['user'] == self.user.id
+        data['user'] = User.objects.get(pk=data['user'])
+        for key, value in data.items():
+            setattr(self, key, value)
+        self.save()
+        self.proteases.set(proteases)
+        self.fixed_modifications.set(fixed_mods)
+        self.variable_modifications.set(var_mods)
+
 
 class SearchGroup(models.Model):
     groupname = models.CharField(max_length=80, default='')
@@ -378,16 +408,6 @@ class SearchGroup(models.Model):
             self.save()
 
     def add_params(self, params):
-        proteases = params.proteases.all()
-        fixed_mods = params.fixed_modifications.all()
-        var_mods = params.variable_modifications.all()
-
-        params.pk = None
-        params._state.adding = True
-        params.save()
-        params.proteases.set(proteases)
-        params.fixed_modifications.set(fixed_mods)
-        params.variable_modifications.set(var_mods)
         self.parameters = params
         self.save()
 

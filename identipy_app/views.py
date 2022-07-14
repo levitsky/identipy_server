@@ -103,8 +103,7 @@ def form_dispatch(request):
 
 
 def save_parameters(request):
-    params = forms._get_latest_params(request)
-    params.pk = None
+    params = forms._get_latest_params(request).clone()
     params.title = request.session.get('paramsname')
     params.save()
     return redirect('identipy_app:searchpage')
@@ -644,25 +643,9 @@ def files_view(request, what):
         form = forms.MultFilesForm(request.POST, custom_choices=choices)
         if form.is_valid():
             chosenfilesids = [int(x) for x in form.cleaned_data['choices']]
-            # chosenfiles = usedclass.objects.filter(id__in=chosenfilesids)
-            # sforms = forms.search_forms_from_request(request, ignore_post=True)
-            # if what == 'mods':
-            #     aux.save_mods(uid=request.user, chosenmods=chosenfiles, fixed=fixed, paramtype=request.session['paramtype'])
-            #     key = 'fixed' if fixed else 'variable'
-            #     sforms['main'][key].initial = ','.join(mod.get_label() for mod in chosenfiles)
-            #     aux.save_params_new(sforms, request.user, False, request.session['paramtype'])
             if what == 'params':
                 u = models.User.objects.get(pk=request.user.id)
-                u.latest_params = usedclass.objects.get(pk=chosenfilesids[0])
-                u.save()
-
-                # paramfile = chosenfiles[0]
-                # parname = paramfile.docfile.name
-                # dst = os.path.join(os.path.dirname(parname), 'latest_params_%s.cfg' % (paramfile.type))
-                # logger.debug('Copy: %s -> %s', parname, dst)
-                # shutil.copy(parname, dst)
-                # request.session['paramtype'] = paramfile.type
-                # save_params_new(sforms, request.user, False, request.session['paramtype'])
+                u.latest_params.update_from(usedclass.objects.get(pk=chosenfilesids[0]))
             else:
                 request.session['chosen_' + what] = chosenfilesids
             return redirect('identipy_app:searchpage')
@@ -991,7 +974,7 @@ def _sg_context_from_request(request):
     if not failure:
         c['chosenfasta'] = request.session['chosen_fasta']
         c['chosenspectra'] = request.session['chosen_spectra']
-        c['params'] = forms._get_latest_params(request)
+        c['params'] = forms._get_latest_params(request).clone()
     return failure, c
 
 
