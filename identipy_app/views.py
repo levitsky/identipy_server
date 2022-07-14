@@ -503,6 +503,7 @@ def email(request):
 
 def add_modification(request):
     c = {}
+    user = models.User.objects.get(pk=request.user.id)
     if request.method == 'POST':
         c['modificationform'] = forms.AddModificationForm(request.POST)
         if c['modificationform'].is_valid():
@@ -516,37 +517,33 @@ def add_modification(request):
                     mod_mass = mass.calculate_mass(mass.Composition(mod_mass))
                 except:
                     messages.add_message(request, messages.INFO, 'Invalid modification mass. Examples: 12.345 or -67.89 or C2H6O1 or N-1H-3')
-                    return render(request, 'identipy_app/add_modification.html', c)
+                    return render(request, 'identipy_app/settings.html', c)
             if c['modificationform'].cleaned_data['aminoacids'] == 'X':
-                c['modificationform'].cleaned_data['aminoacids'] = parser.std_amino_acids
+                c['modificationform'].cleaned_data['aminoacids'] = ','.join(parser.std_amino_acids)
             added = []
             allowed_set = set(list(mass.std_aa_mass) + ['[', ']'])
             for aminoacid in c['modificationform'].cleaned_data['aminoacids'].split(','):
                 if (len(aminoacid) == 1 and aminoacid in allowed_set) \
                         or (len(aminoacid) == 2 and ((aminoacid[0]=='[' and aminoacid[1] in allowed_set) or (aminoacid[1]==']' and aminoacid[0] in allowed_set))):
-                    if not models.Modification.objects.filter(user=request.user, label=mod_label, mass=mod_mass, aminoacid=aminoacid).count():
-                        modification_object = models.Modification(name=mod_name+aminoacid, label=mod_label, mass=mod_mass, aminoacid=aminoacid, user=request.user)
+                    if not models.Modification.objects.filter(user=user, label=mod_label, mass=mod_mass, aminoacid=aminoacid).count():
+                        modification_object = models.Modification(name=f'{mod_name} of {aminoacid}', label=mod_label, mass=mod_mass, aminoacid=aminoacid, user=user)
                         modification_object.save()
                         added.append(aminoacid)
                     else:
                         messages.add_message(request, messages.INFO, 'A modification with mass %f, label %s already exists for selected aminoacids' % (mod_mass, mod_label))
-                        return render(request, 'identipy_app/add_modification.html', c)
+                        return render(request, 'identipy_app/settings.html', c)
             if not added:
                 messages.add_message(request, messages.INFO, 'Unknown aminoacid')
-                return render(request, 'identipy_app/add_modification.html', c)
+                return render(request, 'identipy_app/settings.html', c)
             else:
                 messages.add_message(request, messages.INFO, 'A new modification was added')
-                if 'next' in request.session:
-                    logger.debug('Session next: %s', request.session['next'])
-                    return redirect(*request.session['next'].pop())
-                else:
-                    return redirect('identipy_app:searchpage')
+                return redirect('identipy_app:settings')
         else:
             messages.add_message(request, messages.INFO, 'All fields must be filled')
-            return render(request, 'identipy_app/add_modification.html', c)
+            return render(request, 'identipy_app/settings.html', c)
     else:
         c['modificationform'] = forms.AddModificationForm()
-        return render(request, 'identipy_app/add_modification.html', c)
+        return render(request, 'identipy_app/settings.html', c)
 
 
 def add_protease(request):
@@ -1263,3 +1260,10 @@ def rename(request, pk):
         return redirect('identipy_app:details', pk)
     messages.add_message(request, messages.ERROR, 'Invalid input.')
     return redirect('identipy_app:details', pk)
+
+
+def user_settings(request):
+    c = {}
+    c['current'] = 'settings'
+    c['modificationform'] = forms.AddModificationForm()
+    return render(request, 'identipy_app/settings.html', c)

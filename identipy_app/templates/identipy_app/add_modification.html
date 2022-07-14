@@ -1,9 +1,5 @@
-{% extends "identipy_app/base.html" %}
-{% block title %}Add custom modification{% endblock%}
-{% block content %}
 
-
-<form method="post" id="selectionform">{% csrf_token %}
+<form action="{% url 'identipy_app:new_mod' %}" method="post">{% csrf_token %}
     <h2>Add custom modification</h2>
     <div>
         <table width="100%">
@@ -45,8 +41,7 @@ labels '[' and ']' mean n-terminal and c-terminal modifications
                 <td class="rightcolumn">
                     <a class="btn red" href="{% url 'identipy_app:searchpage' %}">cancel</a>
                 </td>
-                   
+
         </table>
     </div>
 </form>
-{% endblock %}

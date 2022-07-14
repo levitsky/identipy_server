@@ -128,7 +128,11 @@ class AddProteaseForm(forms.ModelForm):
         fields = ('name', 'rule')
 
 
-class AddModificationForm(forms.ModelForm):
+class AddModificationForm(forms.Form):
+    # class Meta:
+    #     model = models.Modification
+    #     fields = '__all__'
+
     name = forms.CharField(max_length=80, required=True)
     label = forms.CharField(max_length=30, required=True)
     mass = forms.CharField(max_length=80, required=True)

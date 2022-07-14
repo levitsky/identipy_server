@@ -10,7 +10,6 @@ urlpatterns = [
     path('delete_search/',               views.delete_search,      name='delete_search'),
     path('summary/<int:pk>/',            views.search_details,     name='details'),
     path('results/<int:pk>/',            views.results_figure,     name='figure'),
-    # path('delete/([0-9]+)/',      views.delete,             name='delete'),
     path('login/',                       views.loginview,          name='loginform'),
     path('logout/',                      views.logout_view,        name='logout'),
     path('auth/',                        views.auth_and_login,     name='auth'),
@@ -36,4 +35,6 @@ urlpatterns = [
     path('groupstatus/<int:sgid>/',      views.group_status,       name='groupstatus'),
     path('rename/<int:pk>/',             views.rename,             name='rename'),
     path('repeat/<int:sgid>/',           views.repeat_search,      name='repeat'),
+    path('settings/',                    views.user_settings,      name='settings'),
+
 ]

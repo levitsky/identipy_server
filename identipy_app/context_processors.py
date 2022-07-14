@@ -4,10 +4,14 @@ _menubar = [
             {'id': 'searchpage', 'value': 'Start search', 'name': 'searchpage'},
             {'id': 'upload', 'value': 'Upload files', 'name': 'upload'},
             {'id': 'get_status', 'value': 'Search history', 'name': 'getstatus'},
+            {'id': 'settings', 'value': 'Settings', 'name': 'settings'},
             {'id': 'contacts', 'value': 'contacts', 'name': 'contacts'}
           ]
 
-_menufields = [{'about', 'loginform', 'contacts'}, {'searchpage', 'upload', 'get_status', 'contacts', 'about'}]
+_menufields = [
+    {'about', 'loginform', 'contacts'},
+    {'searchpage', 'upload', 'get_status', 'settings', 'contacts', 'about'}
+]
 
 
 def menubar(request):
