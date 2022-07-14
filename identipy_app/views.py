@@ -602,18 +602,9 @@ def add_protease(request):
 
 
 def files_view(request, what):
-    what_orig = what
-    if what == 'fmods':
-        what = 'mods'
-        fixed = True
-    elif what == 'vmods':
-        what = 'mods'
-        fixed = False
-
-    usedclass = {'spectra': models.SpectraFile, 'fasta': models.FastaFile, 'params': models.SearchParameters,
-            'mods': models.Modification}[what]
+    usedclass = {'spectra': models.SpectraFile, 'fasta': models.FastaFile, 'params': models.SearchParameters}[what]
     c = {}
-    multiform = (usedclass in {models.SpectraFile, models.Modification})
+    multiform = (usedclass in {models.SpectraFile})
     documents = usedclass.objects.filter(user=request.user)
     choices = []
     for doc in documents:
@@ -627,11 +618,8 @@ def files_view(request, what):
     if request.method == 'POST':
         action = request.POST['submit_action']
         if action == 'upload new files':
-            request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
+            request.session.setdefault('next', []).append(('identipy_app:choose', what))
             return redirect('identipy_app:upload')
-        elif action == 'add custom modification':
-            request.session.setdefault('next', []).append(('identipy_app:choose', what_orig))
-            return redirect('identipy_app:new_mod')
         elif action == 'download':
             return getfiles(request, usedclass=usedclass)
         elif action == 'delete':
@@ -648,12 +636,7 @@ def files_view(request, what):
             return redirect('identipy_app:searchpage')
     else:
         kwargs = dict(custom_choices=choices, multiform=multiform)
-        if what == 'mods':
-            kwargs['labelname'] = 'Select {} modifications:'.format('fixed' if fixed else 'variable')
         form = forms.MultFilesForm(**kwargs)
-        if what == 'mods' and not fixed:
-            initvals = [mod.id for mod in models.Modification.objects.filter(name__in=['ammoniumlossC', 'ammoniumlossQ', 'waterlossE'])]
-            form.fields['choices'].initial = initvals
 
     c.update({'form': form, 'used_class': what})
     return render(request, 'identipy_app/choose.html', c)
