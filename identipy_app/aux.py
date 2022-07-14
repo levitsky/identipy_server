@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.core.mail import send_mail
 
 from pyteomics import auxiliary as aux, pylab_aux
-from identipy import main, utils
+from identipy import utils
 
 os.chdir(settings.BASE_DIR)
 csv.field_size_limit(10000000)
