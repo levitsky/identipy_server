@@ -1,12 +1,10 @@
 from django import forms
-# from django.urls import reverse
 from django.conf import settings
-# from django.utils import html
 import os
+from django_select2 import forms as s2forms
 os.chdir(settings.BASE_DIR)
 
 from . import models
-# from identipy.utils import CustomRawConfigParser
 
 import logging
 logger = logging.getLogger(__name__)
@@ -75,11 +73,22 @@ class MultFilesForm(forms.Form):
         self.fields['choices'] = Field(label=labelname, choices=choices, widget=Widget, required=False)
 
 
+class S2ProteaseWidget(s2forms.ModelSelect2MultipleWidget):
+    search_fields = ['name__icontains']
+
+
+class S2ModificationWidget(s2forms.ModelSelect2MultipleWidget):
+    search_fields = ['name__icontains']
+
+
 class BasicSearchParametersForm(forms.ModelForm):
     class Meta:
         model = models.SearchParameters
         fields = ['send_email_notification', 'use_auto_optimization', 'proteases', 'fdr',
             'fixed_modifications', 'variable_modifications']
+        widgets = {'proteases': S2ProteaseWidget(attrs={'data-minimum-input-length': 0}),
+            'fixed_modifications': S2ModificationWidget(attrs={'data-minimum-input-length': 0}),
+            'variable_modifications': S2ModificationWidget(attrs={'data-minimum-input-length': 0})}
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
@@ -98,6 +107,7 @@ class MediumSearchParametersForm(BasicSearchParametersForm):
             'product_accuracy', 'deisotope', 'precursor_isotope_mass_error',
             'maximum_charge', 'minimum_charge', 'maximum_fragment_charge'
             ]
+        widgets = BasicSearchParametersForm.Meta.widgets
 
 
 class AdvancedSearchParametersForm(MediumSearchParametersForm):
@@ -109,6 +119,7 @@ class AdvancedSearchParametersForm(MediumSearchParametersForm):
             'protein_cterm_cleavage', 'protein_nterm_cleavage', 'maximum_variable_mods',
             'decoy_method', 'minimum_peaks', 'maximum_peaks', 'dynamic_range', 'deisotoping_mass_tolerance'
         ]
+        widgets = MediumSearchParametersForm.Meta.widgets
 
 
 _search_parameters_levels = [

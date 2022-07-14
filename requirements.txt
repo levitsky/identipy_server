@@ -4,3 +4,4 @@ django
 psutil
 pillow
 pyteomics.pepxmltk
+django-select2

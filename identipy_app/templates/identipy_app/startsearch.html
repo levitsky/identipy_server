@@ -1,4 +1,5 @@
 {% extends "identipy_app/base.html" %}
+{% block head %}{{ SearchForm.media.css }}{% endblock %}
 {% block title %}New Search{% endblock%}
 {% block content %}
 
@@ -93,3 +94,4 @@
 </form>
 <br>
 {% endblock %}
+{% block scripts %}{{ SearchForm.media.js }}{% endblock %}

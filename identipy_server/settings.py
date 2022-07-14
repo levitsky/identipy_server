@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'identipy_app.apps.IdentipyAppConfig',
+    'django_select2',
 )
 
 MIDDLEWARE = (
@@ -92,12 +93,17 @@ DATABASES = {
 }
 
 CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
 #           'LOCATION': 'identipy_server_cache',
-            }
-        }
+    },
+    'select2': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': '',
+    }
+}
 
+SELECT2_CACHE_BACKEND = 'select2'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
