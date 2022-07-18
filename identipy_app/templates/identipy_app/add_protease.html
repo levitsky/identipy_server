@@ -1,10 +1,4 @@
-{% extends "identipy_app/base.html" %}
-{% block title %}Add custom cleavage rule{% endblock%}
-{% block content %}
-
-
-
-<form method="post">{% csrf_token %}
+<form method="post" action="{% url 'identipy_app:new_protease' %}">{% csrf_token %}
 <div id="tab">
     <h2>Add custom cleavage rule</h2>
     <div>
@@ -27,7 +21,7 @@
                 </td>
                 <td class="rightcolumn">{{ proteaseform.rule }}</td>
             </tr>
-            
+
             <tr>
                 <td class="leftcolumn">
                     <input type="submit" class="btn" value="submit" name="submit_action">
@@ -35,17 +29,6 @@
                 <td class="rightcolumn">
                     <a class="btn" href="{% url 'identipy_app:searchpage' %}">cancel</a>
                 </td>
-                   
         </table>
     </div>
 </form>
-        
-
-<form method="post">{% csrf_token %}
-   <div id ="delprotease">
-       <input class="btn red" type="submit" value="delete" name="submit_action">
-        {{ proteases.as_table }}
-   </div>
-</div>
-</form>
-{% endblock %}

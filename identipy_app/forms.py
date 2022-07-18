@@ -43,6 +43,18 @@ class S2ModificationWidget(s2forms.ModelSelect2MultipleWidget):
     search_fields = ['name__icontains']
 
 
+class UserObjectDeletionForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        user = models.User.objects.get(pk=kwargs.pop('userid'))
+        model = kwargs.pop('model')
+        super(UserObjectDeletionForm, self).__init__(*args, **kwargs)
+        queryset = model.objects.filter(user=user)
+        self.fields['selection'].queryset = queryset
+
+    selection = forms.ModelMultipleChoiceField(None)
+
+
 class BasicSearchParametersForm(forms.ModelForm):
     class Meta:
         model = models.SearchParameters

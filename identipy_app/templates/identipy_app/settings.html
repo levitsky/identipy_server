@@ -1,6 +1,17 @@
 {% extends "identipy_app/base.html" %}
 {% block title %}User settings{% endblock%}
 {% block content %}
-<h1>User modifications</h1>
+<h1>Modifications</h1>
 {% include 'identipy_app/add_modification.html' %}
+
+<h1>Proteases</h1>
+{% include 'identipy_app/add_protease.html' %}
+<form method="post" action="{% url 'identipy_app:new_protease' %}">{% csrf_token %}
+   <div id="delprotease">
+       <input class="btn red" type="submit" value="delete" name="submit_action">
+        {{ proteases }}
+   </div>
+</div>
+</form>
+
 {% endblock %}

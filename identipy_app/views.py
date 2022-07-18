@@ -548,57 +548,41 @@ def add_modification(request):
 
 def add_protease(request):
     c = {}
-    cc = []
-    for pr in models.Protease.objects.filter(user=request.user):
-        cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
+    user = models.User.objects.get(pk=request.user.id)
 
     if request.POST.get('submit_action') == 'delete':
-        if request.POST.get('choices'):
-            proteases = forms.MultFilesForm(request.POST, custom_choices=cc, labelname='proteases', multiform=True)
-            if proteases.is_valid():
-                for obj_id in proteases.cleaned_data.get('choices'):
-                    obj = models.Protease.objects.get(user=request.user, id=obj_id)
-                    obj.delete()
-        cc = []
-        for pr in models.Protease.objects.filter(user=request.user):
-            cc.append((pr.id, '%s (rule: %s)' % (pr.name, pr.rule)))
-        proteases = forms.MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
-        c['proteaseform'] = forms.AddProteaseForm()
-        c['proteases'] = proteases
-        return render(request, 'identipy_app/add_protease.html', c)
+        proteases = forms.UserObjectDeletionForm(request.POST, model=models.Protease, userid=request.user.id)
+        if proteases.is_valid():
+            for obj in proteases.cleaned_data.get('selection'):
+                obj.delete()
+        return redirect('identipy_app:settings')
 
-    proteases = forms.MultFilesForm(custom_choices=cc, labelname='proteases', multiform=True)
     if request.method == 'POST':
-        c['proteaseform'] = forms.AddProteaseForm(request.POST)
-        if c['proteaseform'].is_valid():
-            protease_name = c['proteaseform'].cleaned_data['name']
-            if models.Protease.objects.filter(user=request.user, name=protease_name).count():
+        proteaseform = forms.AddProteaseForm(request.POST)
+        if proteaseform.is_valid():
+            protease_name = proteaseform.cleaned_data['name']
+            if models.Protease.objects.filter(user=user, name=protease_name).count():
                 messages.add_message(request, messages.INFO, 'Cleavage rule with name %s already exists' % (protease_name, ))
-                return render(request, 'identipy_app/add_protease.html', c)
+                return render(request, 'identipy_app/settings.html', c)
             try:
-                protease_rule = c['proteaseform'].cleaned_data['rule']
+                protease_rule = proteaseform.cleaned_data['rule']
             except Exception as e:
                 logger.debug('Rule validation error: %s', e)
                 messages.add_message(request, messages.INFO, 'Cleavage rule is incorrect')
-                return render(request, 'identipy_app/add_protease.html', c)
-            protease_order_val = models.Protease.objects.filter(user=request.user).aggregate(Max('order_val'))['order_val__max'] + 1
-            protease_object = models.Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=request.user)
+                return render(request, 'identipy_app/settings.html', c)
+            protease_order_val = models.Protease.objects.filter(user=user).aggregate(Max('order_val'))['order_val__max'] + 1
+            protease_object = models.Protease(name=protease_name, rule=protease_rule, order_val=protease_order_val, user=user)
             protease_object.save()
             messages.add_message(request, messages.INFO, 'A new cleavage rule was added')
-            sforms = forms.search_forms_from_request(request, ignore_post=True)
-            e = sforms['main'].fields['enzyme']
-            proteases = models.Protease.objects.filter(user=request.user).order_by('order_val')
-            choices = [(p.rule, p.name) for p in proteases]
-            e.choices = choices
-            aux.save_params_new(sforms, request.user, False, request.session['paramtype'])
-            return redirect('identipy_app:searchpage')
+            return redirect('identipy_app:settings')
         else:
+            c['proteaseform'] = proteaseform
             messages.add_message(request, messages.INFO, 'All fields must be filled')
-            return render(request, 'identipy_app/add_protease.html', c)
+            return render(request, 'identipy_app/settings.html', c)
     else:
         c['proteaseform'] = forms.AddProteaseForm()
-        c['proteases'] = proteases
-        return render(request, 'identipy_app/add_protease.html', c)
+        c['proteases'] = forms.UserObjectDeletionForm(model=models.Protease, userid=request.user.id)
+        return render(request, 'identipy_app/settings.html', c)
 
 
 def files_view(request, what):
@@ -1249,4 +1233,6 @@ def user_settings(request):
     c = {}
     c['current'] = 'settings'
     c['modificationform'] = forms.AddModificationForm()
+    c['proteaseform'] = forms.AddProteaseForm()
+    c['proteases'] = forms.UserObjectDeletionForm(model=models.Protease, userid=request.user.id)
     return render(request, 'identipy_app/settings.html', c)
