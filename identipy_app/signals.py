@@ -32,16 +32,16 @@ def user_created(sender, **kwargs):
 
     default_proteases = [
         ['trypsin', '[KR]|{P}'],
-        ['lysc', '[K]|[X]'],
-        ['cnbr', '[M]|[X]'],
-        ['ntcb', '[X]|[C]'],
-        ['gluc', '[E]|[X]'],
-        ['pepsin ph2', '[FL]|{P}'],
-        ['pepsin ph1.3', '[FLWY]|{P}'],
+        ['LysC', '[K]|[X]'],
+        ['CNBr', '[M]|[X]'],
+        ['NTCB', '[X]|[C]'],
+        ['GluC', '[E]|[X]'],
+        ['pepsin (pH 2)', '[FL]|{P}'],
+        ['pepsin (pH 1.3)', '[FLWY]|{P}'],
         ['iodosobenzoic acid', '[W]|[X]'],
-        ['bnps-skatole', '[W]|[X]'],
-        ['arg-c', '[R]|[X]'],
-        ['arg-n', '[X]|[D]']
+        ['BNPS-skatole', '[W]|[X]'],
+        ['Arg-C', '[R]|[X]'],
+        ['Arg-N', '[X]|[D]']
     ]
 
     for idx, protease in enumerate(default_proteases[::-1]):
@@ -50,17 +50,17 @@ def user_created(sender, **kwargs):
     logger.info('Added default proteases for user %s.', user.username)
 
     default_mods = [
-        ['camC', 'cam', 57.022, 'C'],
-        ['oxM', 'ox', 15.994915, 'M'],
-        ['oxW', 'ox', 15.994915, 'W'],
-        ['ac[', 'ac', 42.010565, '['],
-        ['acK', 'ac', 42.010565, 'K'],
-        ['pS', 'p', 79.966331, 'S'],
-        ['pT', 'p', 79.966331, 'T'],
-        ['pY', 'p', 79.966331, 'Y'],
-        ['waterlossE', 'wl', -18.0106, '[E'],
-        ['ammoniumlossQ', 'al', -17.0265, '[Q'],
-        ['ammoniumlossC', 'al', -17.0265, '[C'],
+        ['Cysteine carbamidomethylation', 'cam', 57.022, 'C'],
+        ['Methionine oxidation', 'ox', 15.994915, 'M'],
+        ['Tryptophan oxidation', 'ox', 15.994915, 'W'],
+        ['Peptide N-term acetylation', 'ac', 42.010565, '['],
+        ['Lysine acetylation', 'ac', 42.010565, 'K'],
+        ['Serine phosphorylation', 'p', 79.966331, 'S'],
+        ['Threonine phosphorylation', 'p', 79.966331, 'T'],
+        ['Tyrosine phosphorylation', 'p', 79.966331, 'Y'],
+        ['Water loss on N-term Glu', 'wl', -18.0106, '[E'],
+        ['Ammonium loss on N-term Gln', 'al', -17.0265, '[Q'],
+        ['Ammonium loss on N-term Cys', 'al', -17.0265, '[C'],
     ]
     for mod in default_mods:
         mod_object = Modification(name=mod[0], label=mod[1], mass=mod[2], aminoacid=mod[3], user=user)
