@@ -484,26 +484,41 @@ def email(request):
     if all(z in request.POST for z in ['subject', 'message']):
         form = forms.ContactForm(request.POST)
         if form.is_valid():
-            subject = form.cleaned_data['subject']
-            from_email = request.user.email
+            subject = '[IdentiPy Server] ' + form.cleaned_data['subject']
+            from_email = request.user.email or None
             message = form.cleaned_data['message']
             messages.add_message(request, messages.INFO,
                 'Your message was sent to the developers. We will respond as soon as possible.')
             try:
-                send_mail(subject, 'From %s\n' % (from_email, ) + message, from_email, settings.EMAIL_SEND_TO)
+                send_mail(subject, f'From {request.user.username} (email: {from_email})\n' + message, from_email, settings.EMAIL_SEND_TO)
+                logger.info('Sent an email by user %s.', request.user.id)
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             except Exception as e:
                 logger.error('Could not send email to developers:\n%s', e)
             return redirect('identipy_app:contacts')
     else:
-        form = forms.ContactForm(initial={'from_email': request.user.username})
+        form = forms.ContactForm()
     return render(request, "identipy_app/email.html", {'form': form})
 
 
 def add_modification(request):
     c = {}
     user = models.User.objects.get(pk=request.user.id)
+
+    if request.POST.get('submit_action') == 'delete':
+        modifications = forms.UserObjectDeletionForm(request.POST, model=models.Modification, userid=request.user.id)
+
+        if modifications.is_valid():
+            selection = modifications.cleaned_data.get('selection')
+            num = len(selection)
+            for obj in selection:
+                obj.delete()
+            messages.add_message(request, messages.INFO, f'{num} modifications deleted.')
+        else:
+            messages.add_message(request, messages.ERROR, 'Invalid form.')
+    return redirect('identipy_app:settings')
+
     if request.method == 'POST':
         c['modificationform'] = forms.AddModificationForm(request.POST)
         if c['modificationform'].is_valid():
@@ -542,8 +557,7 @@ def add_modification(request):
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'identipy_app/settings.html', c)
     else:
-        c['modificationform'] = forms.AddModificationForm()
-        return render(request, 'identipy_app/settings.html', c)
+        return redirect('identipy_app:settings')
 
 
 def add_protease(request):
@@ -1235,4 +1249,5 @@ def user_settings(request):
     c['modificationform'] = forms.AddModificationForm()
     c['proteaseform'] = forms.AddProteaseForm()
     c['proteases'] = forms.UserObjectDeletionForm(model=models.Protease, userid=request.user.id)
+    c['modifications'] = forms.UserObjectDeletionForm(model=models.Modification, userid=request.user.id)
     return render(request, 'identipy_app/settings.html', c)

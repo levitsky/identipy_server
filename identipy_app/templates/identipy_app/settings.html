@@ -3,6 +3,13 @@
 {% block content %}
 <h1>Modifications</h1>
 {% include 'identipy_app/add_modification.html' %}
+<form method="post" action="{% url 'identipy_app:new_mod' %}">{% csrf_token %}
+   <div id="delmod">
+       <input class="btn red" type="submit" value="delete" name="submit_action">
+        {{ modifications }}
+   </div>
+</div>
+</form>
 
 <h1>Proteases</h1>
 {% include 'identipy_app/add_protease.html' %}

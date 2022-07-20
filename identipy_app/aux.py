@@ -248,8 +248,8 @@ def email_to_user(group):
     searchname = group.groupname
     username = group.user.email
     try:
-        send_mail('IdentiPy Server notification', 'Search %s was finished' % searchname,
-            'identipymail@gmail.com', [username, ])
+        send_mail('IdentiPy Server notification', 'Search %s was finished.' % searchname,
+            None, [username, ])
     except Exception as e:
         logger.error('Could not send email to user %s about run %s:\n%s', username, searchname, e)
     else:

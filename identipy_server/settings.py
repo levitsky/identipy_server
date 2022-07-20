@@ -142,6 +142,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_SEND_TO = []
+DEFAULT_FROM_EMAIL = ''
 
 NUMBER_OF_PARALLEL_RUNS = 3
 STATUS_UPDATE_INTERVAL = 5000  # update interval for status page, in milliseconds
@@ -154,7 +155,7 @@ ALLOW_ZIP64 = True
 LOCAL_IMPORT = True
 URL_IMPORT = True
 
-VERSION = '1.1'  # displayed on /about page if git describe is not available
+VERSION = '1.2'  # displayed on /about page if git describe is not available
 
 LOGGING = {
     'version': 1,

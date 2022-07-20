@@ -13,31 +13,15 @@ License
 
 IdentiPy Server is published under the Apache 2.0 license.
 
-
 Requirements
 ------------
 
  - Python 3
  - Django 2+
- - identipy and its dependencies
-    * pyteomics
-    * pyteomics.cythonize
-    * numpy
-    * scipy
-    * lxml
-      + (if installed with pip, lxml will need development packages of libxml2 and libxslt to compile)
- - Scavager and its dependencies
-    * matplotlib
-       + cycler, pyparsing, python-dateutil, functools32
-    * CatBoost
-    * Pandas
-    * pyteomics.pepxmltk
+ - [IdentiPy](https://github.com/levitsky/identipy)
+ - [Scavager](https://github.com/markmipt/scavager)
  - psutil
  - Pillow
-
-IdentiPy: https://github.com/levitsky/identipy
-
-Scavager: https://github.com/markmipt/scavager
 
 All dependencies can be installed using `pip` or the package manager of your operating system.
 
@@ -85,6 +69,7 @@ Then create a superuser account to manage the database...
 ```
 $ python manage.py createsuperuser
 ```
+
 You can also create a regular user account from Django admin site or from command line:
 
 ```
@@ -132,10 +117,10 @@ You may need to edit the following settings in `identipy_server/settings.py`:
     - `DATABASES` (repeat migration after changing this)
     - `CACHES`
     - `LOGGING`
+    - `EMAIL_*` and `DEFAULT_FROM_EMAIL`
 
   - Project-specific settings:
 
-    - `EMAIL_*`
     - `NUMBER_OF_PARALLEL_RUNS`
     - `STATUS_UPDATE_INTERVAL`
     - `ZIP_COMPRESSION`
