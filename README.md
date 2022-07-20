@@ -16,20 +16,12 @@ IdentiPy Server is published under the Apache 2.0 license.
 Requirements
 ------------
 
- - Python 3
- - Django 2+
- - [IdentiPy](https://github.com/levitsky/identipy)
- - [Scavager](https://github.com/markmipt/scavager)
- - psutil
- - Pillow
-
-All dependencies can be installed using `pip` or the package manager of your operating system.
+Python 3 is required. Everything else can be installed from [requirements.txt](requirements.txt) (see [Initial Setup](#initial-setup)).
 
 How to run IdentiPy Server
 --------------------------
 
 IdentiPy Server currently works on Unix-like operating systems only.
-IdentiPy and Scavager need to be properly installed to be imported by IdentiPy Server.
 
 Updating an existing installation
 ---------------------------------
