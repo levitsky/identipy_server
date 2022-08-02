@@ -157,7 +157,7 @@ body {
     color: #ffffff;
 }
 
-.red{
+.red, a.red{
     background:var(--red);
     color:#fff;
 }
@@ -167,6 +167,13 @@ body {
     color: #ffffff;
 }
 
+#delmod{
+    width: 100%;
+}
+
+div.delbtn{
+    text-align: center;
+}
 
 form{
     display: inline-block;
@@ -608,7 +615,6 @@ img.spectrum {
 
 .psmtable {
     margin: auto;
-
 }
 
 .psmtable td {
