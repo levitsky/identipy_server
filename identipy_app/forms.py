@@ -52,7 +52,7 @@ class UserObjectDeletionForm(forms.Form):
         queryset = model.objects.filter(user=user)
         self.fields['selection'].queryset = queryset
 
-    selection = forms.ModelMultipleChoiceField(None)
+    selection = forms.ModelMultipleChoiceField(None, widget=forms.widgets.CheckboxSelectMultiple)
 
 
 class BasicSearchParametersForm(forms.ModelForm):

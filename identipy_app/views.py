@@ -33,7 +33,7 @@ import pkg_resources
 import logging
 logger = logging.getLogger(__name__)
 
-from pyteomics import parser, mass, pepxml, mgf, mzml
+from pyteomics import parser, mass, pepxml, mgf, mzml, auxiliary
 os.chdir(settings.BASE_DIR)
 from identipy import main, utils
 import scavager.main
@@ -507,6 +507,7 @@ def add_modification(request):
     user = models.User.objects.get(pk=request.user.id)
 
     if request.POST.get('submit_action') == 'delete':
+        logger.debug('Deleting selected modifications.')
         modifications = forms.UserObjectDeletionForm(request.POST, model=models.Modification, userid=request.user.id)
 
         if modifications.is_valid():
@@ -517,20 +518,22 @@ def add_modification(request):
             messages.add_message(request, messages.INFO, f'{num} modifications deleted.')
         else:
             messages.add_message(request, messages.ERROR, 'Invalid form.')
-    return redirect('identipy_app:settings')
+        return redirect('identipy_app:settings')
 
     if request.method == 'POST':
+        logger.debug('Trying to process AddModificationForm.')
         c['modificationform'] = forms.AddModificationForm(request.POST)
         if c['modificationform'].is_valid():
+            logger.debug('Received a valid AddModificationForm.')
             mod_name = c['modificationform'].cleaned_data['name']
             mod_label = c['modificationform'].cleaned_data['label'].lower()
             mod_mass = str(c['modificationform'].cleaned_data['mass'])
             try:
                 mod_mass = float(mod_mass)
-            except:
+            except ValueError:
                 try:
                     mod_mass = mass.calculate_mass(mass.Composition(mod_mass))
-                except:
+                except auxiliary.PyteomicsError:
                     messages.add_message(request, messages.INFO, 'Invalid modification mass. Examples: 12.345 or -67.89 or C2H6O1 or N-1H-3')
                     return render(request, 'identipy_app/settings.html', c)
             if c['modificationform'].cleaned_data['aminoacids'] == 'X':
@@ -543,6 +546,7 @@ def add_modification(request):
                     if not models.Modification.objects.filter(user=user, label=mod_label, mass=mod_mass, aminoacid=aminoacid).count():
                         modification_object = models.Modification(name=f'{mod_name} of {aminoacid}', label=mod_label, mass=mod_mass, aminoacid=aminoacid, user=user)
                         modification_object.save()
+                        logger.debug('Created a modification object: %s', modification_object)
                         added.append(aminoacid)
                     else:
                         messages.add_message(request, messages.INFO, 'A modification with mass %f, label %s already exists for selected aminoacids' % (mod_mass, mod_label))
@@ -557,6 +561,7 @@ def add_modification(request):
             messages.add_message(request, messages.INFO, 'All fields must be filled')
             return render(request, 'identipy_app/settings.html', c)
     else:
+        logger.debug('Not a POST request for add_modification, redirecting.')
         return redirect('identipy_app:settings')
 
 
@@ -1249,5 +1254,8 @@ def user_settings(request):
     c['modificationform'] = forms.AddModificationForm()
     c['proteaseform'] = forms.AddProteaseForm()
     c['proteases'] = forms.UserObjectDeletionForm(model=models.Protease, userid=request.user.id)
+    c['proteases_qs'] = c['proteases'].fields['selection'].queryset
     c['modifications'] = forms.UserObjectDeletionForm(model=models.Modification, userid=request.user.id)
+    c['modifications_qs'] = c['modifications'].fields['selection'].queryset
+
     return render(request, 'identipy_app/settings.html', c)

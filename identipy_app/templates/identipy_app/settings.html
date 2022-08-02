@@ -1,24 +1,55 @@
 {% extends "identipy_app/base.html" %}
 {% block title %}User settings{% endblock%}
 {% block content %}
+{% load index %}
 <h1>Modifications</h1>
 {% include 'identipy_app/add_modification.html' %}
 <form method="post" action="{% url 'identipy_app:new_mod' %}">{% csrf_token %}
-   <div id="delmod">
-       <input class="btn red" type="submit" value="delete" name="submit_action">
-        {{ modifications }}
-   </div>
-</div>
+    <div id="delmod">
+        <table type="bordered">
+            <tr class="headers">
+                <th></th>
+                <th width="50%">Name</th>
+                <th width="15%">Label</th>
+                <th>Amino acid</th>
+            </tr>
+            {% for choice in modifications.selection %}
+                {% with mod=modifications_qs|index:forloop.counter0 %}
+                <tr>
+                    <td><span class="radio">{{ choice.tag }}</span></td>
+                    <td>{{ choice.choice_label }}</td>
+                    <td>{{ mod.label }}</td>
+                    <td>{{ mod.aminoacid }}</td>
+                </tr>
+                {% endwith %}
+            {% endfor %}
+        </table>
+        <input class="btn red" type="submit" value="delete" name="submit_action">
+    </div>
 </form>
 
 <h1>Proteases</h1>
 {% include 'identipy_app/add_protease.html' %}
 <form method="post" action="{% url 'identipy_app:new_protease' %}">{% csrf_token %}
-   <div id="delprotease">
+    <div id="delprotease">
+        <table type="bordered">
+            <tr class="headers">
+                <th></th>
+                <th width="50%">Name</th>
+                <th>Rule</th>
+            </tr>
+            {% for choice in proteases.selection %}
+                {% with p=proteases_qs|index:forloop.counter0 %}
+                <tr>
+                    <td><span class="radio">{{ choice.tag }}</span></td>
+                    <td>{{ choice.choice_label }}</td>
+                    <td>{{ p.rule }}</td>
+                </tr>
+                {% endwith %}
+            {% endfor %}
+        </table>
        <input class="btn red" type="submit" value="delete" name="submit_action">
-        {{ proteases }}
-   </div>
-</div>
+    </div>
 </form>
 
 {% endblock %}
