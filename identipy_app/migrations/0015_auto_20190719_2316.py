@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='resimagefile',
             name='imgtype',
-            field=models.CharField(choices=[(b'S', b'PSM'), (b'P', b'peptide'), (b'R', b'protein'), (b'O', b'other')], default=b'O', max_length=1),
+            field=models.CharField(choices=[('S', 'PSM'), ('P', 'peptide'), ('R', 'protein'), ('O', 'other')], default='O', max_length=1),
         ),
         migrations.AddField(
             model_name='searchrun',

@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='searchgroup',
             name='fdr_type',
-            field=models.CharField(choices=[(b'S', b'PSM'), (b'P', b'peptide'), (b'R', b'protein')], default=b'S', max_length=1),
+            field=models.CharField(choices=[('S', 'PSM'), ('P', 'peptide'), ('R', 'protein')], default='S', max_length=1),
         ),
         migrations.RunPython(derive_fdrtype),
         migrations.RemoveField(
@@ -89,12 +89,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='searchrun',
             name='status',
-            field=models.CharField(choices=[(b'W', b'Waiting'), (b'R', b'Running'), (b'F', b'Finished'), (b'D', b'Dead')], default=b'D', max_length=1),
+            field=models.CharField(choices=[('W', 'Waiting'), ('R', 'Running'), ('F', 'Finished'), ('D', 'Dead')], default='D', max_length=1),
         ),
         migrations.AlterField(
             model_name='searchgroup',
             name='groupname',
-            field=models.CharField(default=b'', max_length=80),
+            field=models.CharField(default='', max_length=80),
         ),
         migrations.RemoveField(
             model_name='searchgroup',
